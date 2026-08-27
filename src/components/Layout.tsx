@@ -12,7 +12,14 @@ export default function Layout(){
   const {language,setLanguage,t}=useLanguage();
   useEffect(()=>setOpen(false),[loc.pathname]);
   useEffect(()=>{
-    if('serviceWorker' in navigator){navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(()=>{})}
+    // Temporarily remove old service-worker/cache state while the GitHub Pages build is stabilised.
+    // This prevents stale cached asset paths from hiding newly deployed brand images.
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(reg=>reg.unregister())).catch(()=>{});
+    }
+    if('caches' in window){
+      caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('nexvibe-')).map(k=>caches.delete(k)))).catch(()=>{});
+    }
   },[]);
   return <>
     <header className="nv-header">
