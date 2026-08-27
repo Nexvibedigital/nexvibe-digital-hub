@@ -1,3 +1,5 @@
+const githubAssetRoot = 'https://raw.githubusercontent.com/Nexvibedigital/nexvibe-digital-hub/main/public/assets/';
+
 export const siteConfig = {
   name: 'NexVibe',
   productName: 'NexVibe Cyber & Digital Hub',
@@ -6,10 +8,10 @@ export const siteConfig = {
   email: 'nexvibe.digital@gmail.com',
   tiktok: 'https://www.tiktok.com/@nexvibeofficial?_r=1&_t=ZS-99ED95q9JNQ',
   facebook: 'https://www.facebook.com/share/1E26Tj3bmD/?mibextid=wwXIfr',
-  logo: `${import.meta.env.BASE_URL}assets/nexvibe-logo.png`,
-  heroDesktop: `${import.meta.env.BASE_URL}assets/hero-desktop.webp`,
-  heroMobile: `${import.meta.env.BASE_URL}assets/hero-mobile.webp`,
-  brandWide: `${import.meta.env.BASE_URL}assets/brand-wide.webp`,
+  logo: `${githubAssetRoot}nexvibe-logo.png?v=20260827-2`,
+  heroDesktop: `${githubAssetRoot}hero-desktop.webp?v=20260827-2`,
+  heroMobile: `${githubAssetRoot}hero-mobile.webp?v=20260827-2`,
+  brandWide: `${githubAssetRoot}brand-wide.webp?v=20260827-2`,
 } as const;
 
 export const featureFlags = {
