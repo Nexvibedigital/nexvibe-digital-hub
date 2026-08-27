@@ -11,6 +11,10 @@ export type NewsItem = {
   content?: string[];
   tags?: string[];
   language?: 'en'|'si';
+  country?: string;
+  verificationStatus?: 'unverified'|'pending'|'verified';
+  sourceVerifiedAt?: string;
+  scheduledAt?: string;
 };
 
 export type DirectoryItem = {
@@ -52,4 +56,4 @@ export type EventItem = {
   verified: boolean;
 };
 
-export type AdminPost = NewsItem & { status: 'draft'|'published'; featured?: boolean };
+export type AdminPost = NewsItem & { status: 'draft'|'published'|'scheduled'|'archived'; featured?: boolean };
