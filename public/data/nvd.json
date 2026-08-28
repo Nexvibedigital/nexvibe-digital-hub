@@ -1,6 +1,162 @@
 {
-  "syncedAt": "2026-08-28T23:11:38.313Z",
+  "syncedAt": "2026-08-28T23:41:15.291Z",
   "items": [
+    {
+      "id": "CVE-2026-74596",
+      "published": "2026-08-22T16:16:31.923",
+      "lastModified": "2026-08-22T16:16:31.923",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfs,fsverity: remove check for fsverity being enabled in setattr_prepare()\n\nThe check that fs-verity is available in the kernel is not necessary\nhere. Filesystems could have fsverity files even without fs-verity\nenabled. In that case, truncate on fsverity file will succeed, what this\ncheck is trying to prevent.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74596"
+    },
+    {
+      "id": "CVE-2026-74595",
+      "published": "2026-08-22T16:16:31.817",
+      "lastModified": "2026-08-25T06:18:35.173",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfscrypt: use the mount idmap for the owner check in fscrypt_ioctl_set_policy()\n\nfscrypt_ioctl_set_policy() calls inode_owner_or_capable() with\n&nop_mnt_idmap before allowing an encryption policy to be set, instead\nof the idmap of the mount the ioctl was issued on.\n\nfscrypt is used by filesystems that support idmapped mounts (e.g. ext4,\nf2fs), so on such a mount this compares the caller's fsuid against the\nunmapped on-disk owner rather than the mapped owner: the actual owner\ncan be wrongly denied with -EACCES and an unrelated caller wrongly\nallowed.  Use file_mnt_idmap(filp) instead.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74595"
+    },
+    {
+      "id": "CVE-2026-74594",
+      "published": "2026-08-22T16:16:31.680",
+      "lastModified": "2026-08-25T06:18:34.890",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsched/psi: Shut down rtpoll_timer in psi_cgroup_free()\n\npsi_schedule_rtpoll_work() is called locklessly from the scheduler hotpath\nand can race psi_trigger_destroy() taking down the last rtpoll trigger under\nrtpoll_trigger_lock:\n\n  psi_schedule_rtpoll_work()        psi_trigger_destroy()\n\n  rcu_read_lock();\n  task = rcu_dereference(rtpoll_task);\n                                    rcu_assign_pointer(rtpoll_task, NULL);\n                                    timer_delete(&rtpoll_timer);\n  mod_timer(&rtpoll_timer, ...);\n  rcu_read_unlock();\n                                    synchronize_rcu();\n                                    kthread_stop(task_to_destroy);\n\nThe group can then be freed with the re-armed timer still pending, and\npoll_timer_fn() runs on freed memory.\n\n461daba06bdc (\"psi: eliminate kthread_worker from psi trigger scheduling\nmechanism\") deleted the timer synchronously after the synchronize_rcu(),\nwhich prevented this but raced trigger creation instead: the deletion could\ncancel the timer that a new trigger set armed during the grace period and,\nas creation also reinitialized the timer at the time, corrupt it.\n8f91efd870ea (\"psi: Fix race between psi_trigger_create/destroy\") moved the\ninitialization into group_init() and the deletion into the locked section,\ntrading the creation races for the window above.\n\nNeither placement in the destruction path works. A pending timer firing\nwhile the group is alive is harmless though. poll_timer_fn() just wakes the\nrtpoll waitqueue and doesn't re-arm itself. Bind the timer to the group's\nlifetime instead and shut it down in psi_cgroup_free(). Nothing can arm it\nby then. timer_shutdown_sync() because the timer is never armed again.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74594"
+    },
+    {
+      "id": "CVE-2026-74593",
+      "published": "2026-08-22T16:16:31.573",
+      "lastModified": "2026-08-23T13:16:45.993",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsched_ext: Take cgroup_lock() first in scx_cgroup_lock()\n\nscx_cgroup_lock() write-locks scx_cgroup_ops_rwsem and then takes\ncgroup_lock(), which can deadlock through kernfs:\n\n  scx enable/disable         cgroup rmdir           cpu.weight write\n  ------------------         ------------           ----------------\n                             cgroup_lock()\n  percpu_down_write(rwsem)\n  cgroup_lock()\n                                                    kernfs_get_active()\n                                                    percpu_down_read(rwsem)\n                             kernfs_drain()\n\nThe enable path waits for the rmdir to release cgroup_mutex. The rmdir,\ndeactivating the cpu controller's files, waits in kernfs_drain() for the\nwrite's active reference. The write, in scx_group_set_weight(), waits for\nthe rwsem behind the pending writer.\n\nTake cgroup_lock() first. The set_* paths take no cgroup locks inside the\nread side, so a pending write-lock then only waits for read sections that\nalways run to completion, and no dependency from the rwsem back to\ncgroup_mutex remains.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74593"
+    },
+    {
+      "id": "CVE-2026-74592",
+      "published": "2026-08-22T16:16:31.460",
+      "lastModified": "2026-08-25T06:18:34.637",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nima: Instantiate file_truncate and path_truncate hooks\n\nInstantiate the file_truncate and path_truncate LSM hooks to reset the\naction cache flags (IMA_DONE_MASK) as soon as truncation is requested,\nso the file, based on policy, is re-collected, re-measured, re-audited,\nand re-appraised on next access.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74592"
+    },
+    {
+      "id": "CVE-2026-74591",
+      "published": "2026-08-22T16:16:31.353",
+      "lastModified": "2026-08-25T06:18:34.397",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmm/filemap: __filemap_add_folio() restore index before retrying\n\nIn __filemap_add_folio()'s split-a-conflict loop, xas_set_order() is\napplied repeatedly: each application modifies xas.xa_index, rounding it\ndown according to the split_order attempted at that stage: and if all goes\nas intended, it eventually (or immediately) converges on an\nxas_try_split() to the required folio_order, with xas.xa_index now the\nsame as index: then xas_store() puts the new folio into the xarray there.\n\nBut if a new node was needed, and GFP_NOWAIT allocation did not get one,\nthe lock is dropped, xas_nomem() used to allocate, and sequence retried. \nIf (that part of) the xarray is unchanged when the lock is reacquired, no\nproblem.  But what if the conflict was meanwhile resolved by another\nthread (perhaps even doing the same thing, inserting a folio at that same\nindex)?  Isn't there a danger of now putting our folio into the xarray at\nan intermediate rounded-down index?  With !folio_contains() bug to follow,\nwhen CONFIG_DEBUG_VM=y is checking for that.\n\nFix this with an xas_set_order() to restore the original xas.xa_index at\nthe bottom of the loop, so the retry does a full re-evaluation after\nreacquiring the lock, and cannot reach xas_store() with the wrong index.\n\nProduction was suffering from rare SIGILLs and SIGSEGVs, executable text\nfound a page away from where it belonged, !folio_contains() bug hit when\ndebug enabled: symptoms not seen since this patch went in.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74591"
+    },
+    {
+      "id": "CVE-2026-74590",
+      "published": "2026-08-22T16:16:31.243",
+      "lastModified": "2026-08-25T06:18:34.113",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfsverity: Fix bpf_get_fsverity_digest() dynptr assumptions\n\nThe BPF verifier and the dynptr abstraction ensure that the memory space\nreferenced by a dynptr remains valid.  They do not, however, provide any\nguarantee that the contents of the memory are stable.  kfuncs are\nexpected to remain memory-safe even if concurrent modifications occur.\n\nbpf_get_fsverity_digest() didn't follow that: it could crash if\narg->digest_size was concurrently modified.\n\nFix that by using the known-good value hash_alg->digest_size instead.\n\nAlso widen 'dynptr_sz' and 'out_digest_sz' to u64 to match the return\ntype of __bpf_dynptr_size().  It doesn't appear that it can actually be\nmore than INT_MAX currently (since __bpf_dynptr_data_rw() excludes\nfile-based pointers), but the correct type might as well be used.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74590"
+    },
+    {
+      "id": "CVE-2026-74589",
+      "published": "2026-08-22T16:16:31.097",
+      "lastModified": "2026-08-25T06:18:33.760",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nbpf, sockmap: Fix sk_redir use-after-free in send verdict\n\nsk_psock_msg_verdict() takes a socket reference for psock->sk_redir.\ntcp_bpf_send_verdict() copies that pointer while holding the source socket\nlock, but does not take a reference for the local copy before dropping the\nlock around tcp_bpf_sendmsg_redir().\n\nWhen apply_bytes keeps the cached verdict active, another sendmsg() on the\nsame source socket can consume the remaining bytes and release the cached\nreference while the first thread still holds only the raw local pointer:\n\n  CPU 0                                  CPU 1\n  sk_redir = psock->sk_redir\n  apply_bytes remains nonzero\n  release_sock(sk)\n                                         lock_sock(sk)\n                                         apply_bytes reaches zero\n                                         psock->sk_redir = NULL\n                                         release_sock(sk)\n                                         tcp_bpf_sendmsg_redir(sk_redir)\n                                         sock_put(sk_redir)\n  tcp_bpf_sendmsg_redir(sk_redir)\n\nThe final sock_put() can free sk_redir before CPU 0 dereferences it.\n\nKASAN reported:\n\n  BUG: KASAN: slab-use-after-free in tcp_bpf_sendmsg_redir+0xf39/0x1020\n  Read of size 8 at addr ffff888108537090 by task poc/87\n  Call Trace:\n   tcp_bpf_sendmsg_redir+0xf39/0x1020\n   tcp_bpf_sendmsg+0x977/0x1a50\n   __sys_sendto+0x32c/0x3a0\n   __x64_sys_sendto+0xdb/0x1b0\n  Allocated by task 85:\n   sk_prot_alloc+0x56/0x210\n   sk_clone+0x6f/0x14b0\n   inet_csk_clone_lock+0x24/0x740\n   tcp_create_openreq_child+0x25/0x2710\n   tcp_v4_syn_recv_sock+0x10a/0xe00\n  Freed by task 0:\n   __kasan_slab_free+0x43/0x70\n   slab_free_after_rcu_debug+0xa6/0x1e0\n   rcu_core+0x50a/0x1850\n  Last potentially related work creation:\n   __sk_destruct+0x3da/0x540\n   sk_psock_destroy+0x81e/0xab0\n   process_one_work+0x63a/0x1070\n\nTake a temporary socket reference while the source socket lock still\nprotects psock->sk_redir, and drop it after tcp_bpf_sendmsg_redir()\nreturns.  This keeps each unlocked use independent of cached-verdict\nownership.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74589"
+    },
+    {
+      "id": "CVE-2026-74588",
+      "published": "2026-08-22T16:16:30.960",
+      "lastModified": "2026-08-25T06:18:33.410",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsctp: keep chunk->transport in step with the list it is queued on\n\n__sctp_outq_flush_rtx() moves a gap-acked chunk onto another transport's\ntransmitted list without updating chunk->transport:\n\n\tif (chunk->tsn_gap_acked) {\n\t\tlist_move_tail(&chunk->transmitted_list,\n\t\t\t       &transport->transmitted);\n\t\tcontinue;\n\t}\n\nThe chunk then sits on a live transport's list while chunk->transport still\nnames a different one.  If that transport is removed - sctp_assoc_rm_peer()\nfrom an ASCONF Delete-IP - sctp_transport_free() RCU-frees it and the chunk\nis left with a dangling pointer.  sctp_assoc_rm_peer() scrubs\npeer->transmitted and asoc->outqueue.out_chunk_list, but the chunk is on\nneither.\n\nThe pointer is not followed while tsn_gap_acked is set.  A SACK that\nreneges on the TSN clears the flag, and the next SACK reaches\n\n\ttchunk->transport->flight_size -= sctp_data_size(tchunk);\n\ninside the freed transport.  KASAN reports a slab-use-after-free read in\nsctp_check_transmitted(), freed from sctp_assoc_rm_peer().  Both the\nremoval and the SACKs come from the association peer.\n\nSet chunk->transport at the move.  The ordinary resend path needs nothing:\nit reaches its list_move_tail() only after sctp_packet_append_chunk()\nreturned SCTP_XMIT_OK, and __sctp_packet_append_chunk() has rebound the\nchunk by then.\n\nDiscovered by XBOW, triaged by Baul Lee <baul.lee@xbow.com>",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74588"
+    },
+    {
+      "id": "CVE-2026-74587",
+      "published": "2026-08-22T16:16:30.830",
+      "lastModified": "2026-08-25T06:18:33.087",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsctp: fix use-after-free of cached ASCONF chunk\n\naddip_last_asconf caches the outstanding outbound ASCONF chunk. The normal\nASCONF-ACK completion path releases the chunk and clears the pointer.\n\nHowever, sctp_asconf_queue_teardown() releases the cached chunk without\nclearing addip_last_asconf. During peer restart handling,\nsctp_sf_do_dupcook_a() queues SCTP_CMD_PURGE_ASCONF_QUEUE, which invokes\nsctp_asconf_queue_teardown() while the association remains alive and leaves\nthe pointer dangling.\n\nA delayed authenticated ASCONF-ACK can then reach sctp_sf_do_asconf_ack(),\nwhich accesses the stale chunk and passes it to sctp_process_asconf_ack(),\ncausing a use-after-free and a second release.\n\nClearing the pointer exposes a race with T4 expiry. Peer restart handling\nqueues the timer stop before the purge, but SCTP_CMD_TIMER_STOP uses\ntimer_delete(), which does not wait for a callback already running on\nanother CPU. Such a callback can reach sctp_sf_t4_timer_expire() after\nthe purge and dereference NULL.\n\nClear addip_last_asconf after releasing the cached chunk, and make\nsctp_sf_t4_timer_expire() consume a stale T4 expiry if no outstanding\nASCONF remains.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74587"
+    },
+    {
+      "id": "CVE-2026-74586",
+      "published": "2026-08-22T16:16:30.687",
+      "lastModified": "2026-08-25T06:18:32.713",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsctp: clear new_transport when removing a peer\n\nsctp_process_asconf_param() stores a newly added peer transport in\nasoc->new_transport. After all parameters in the ASCONF chunk have been\nprocessed, sctp_sf_do_asconf() uses this pointer to send a HEARTBEAT to the\nnew transport.\n\nAn authenticated ASCONF from a remote SCTP peer can add a transport and\nremove it again with a wildcard DEL-IP parameter in the same chunk. The\nwildcard deletion preserves the transport on which the ASCONF arrived, but\nremoves the newly added transport through\nsctp_assoc_del_nonprimary_peers(). The removal does not clear\nasoc->new_transport, leaving it pointing to the removed transport.\n\nsctp_sf_do_asconf() then creates a HEARTBEAT whose chunk->transport points\nto the removed transport without holding a transport reference. During\nlocal address replacement, src_out_of_asoc_ok keeps this HEARTBEAT on\ncontrol_chunk_list. After the transport is freed by RCU, a successful\nASCONF_ACK for the replacement address releases the queued HEARTBEAT and\nsctp_outq_select_transport() reads the freed transport's state.\n\nThe issue was found during a static audit of SCTP objects. With an\nauthenticated peer, the reproducer triggered the same KASAN report in 2\nof 2 unpatched runs on a KASAN-enabled netdev/main kernel:\n\n  BUG: KASAN: slab-use-after-free in sctp_outq_select_transport\n  Read of size 4 at addr ffff88800b9bd95c by task python3/197\n\n  Call Trace:\n   sctp_outq_select_transport+0x549/0x8b0 [sctp]\n   sctp_outq_flush+0x306/0x2c60 [sctp]\n   sctp_transport_immediate_rtx+0xaf/0x260 [sctp]\n   sctp_process_asconf_ack+0xa48/0xf70 [sctp]\n\n  Allocated by task 197:\n   sctp_transport_new+0x68/0x650 [sctp]\n   sctp_assoc_add_peer+0x258/0x12a0 [sctp]\n   sctp_process_asconf+0x5e9/0x1090 [sctp]\n\n  Last potentially related work creation:\n   __call_rcu_common.constprop.0+0x77/0xb70\n   sctp_assoc_del_nonprimary_peers+0x7c/0xd0 [sctp]\n   sctp_process_asconf+0xd9c/0x1090 [sctp]\n\nThe first invalid access was a four-byte read of transport->state at\nnet/sctp/outqueue.c:833. The same reproducer completed the full\nauthenticated ASCONF and local-address replacement sequence with this\nchange without a KASAN report or oops.\n\nClear new_transport when its peer is removed, before it can be used to\ncreate the HEARTBEAT.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74586"
+    },
+    {
+      "id": "CVE-2026-74585",
+      "published": "2026-08-22T16:16:30.560",
+      "lastModified": "2026-08-22T16:16:30.560",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nthunderbolt: Bound the DROM dual link port number before indexing sw->ports\n\ntb_drom_parse_entry_port() validates the device-supplied header->index\nagainst sw->config.max_port_number before indexing sw->ports[], but the\nsibling field entry->dual_link_port_nr -- a 6-bit value also read from\nthe DROM -- indexes the same array with no such check. A malicious or\nmalformed Thunderbolt device can set dual_link_port_nr beyond the\nallocated sw->ports[] (max_port_number + 1 entries), producing an\nout-of-bounds tb_port pointer that is stored and later dereferenced.\n\nReject a port entry whose dual_link_port_nr exceeds max_port_number,\nthe same bound already applied to header->index.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74585"
+    },
+    {
+      "id": "CVE-2026-4703",
+      "published": "2026-08-22T16:16:29.497",
+      "lastModified": "2026-08-24T16:41:13.950",
+      "description": "The WS Form LITE – Drag & Drop Contact Form Builder plugin for WordPress is vulnerable to PHP Object Injection in all versions up to, and including, 1.10.80 via deserialization of untrusted input from form submission meta values. This makes it possible for unauthenticated attackers to inject a PHP Object. No known POP chain is present in the vulnerable software, which means this vulnerability has no impact unless another plugin or theme containing a POP chain is installed on the site. If a POP chain is present via an additional plugin or theme installed on the target system, it may allow the attacker to perform actions like delete arbitrary files, retrieve sensitive data, or execute code depending on the POP chain present.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-4703"
+    },
+    {
+      "id": "CVE-2026-77992",
+      "published": "2026-08-22T15:16:23.293",
+      "lastModified": "2026-08-26T16:35:20.160",
+      "description": "Joomla Extension - fabrikar.com - heredoc terminator breakout in the calc element in Fabrik < 4.7.2 - The onUpdateComment endpoint did not perform any access checks.",
+      "score": 9.5,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77992"
+    },
+    {
+      "id": "CVE-2026-77027",
+      "published": "2026-08-22T15:16:23.150",
+      "lastModified": "2026-08-26T16:35:20.160",
+      "description": "Joomla Extension - fabrikar.com - Unauthenticated stored XSS in Fabrik < 4.7.2 - The handling of user supplied input in the jsactions feature leads to an stored XSS vector.",
+      "score": 8.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77027"
+    },
+    {
+      "id": "CVE-2026-76609",
+      "published": "2026-08-22T15:16:23.030",
+      "lastModified": "2026-08-26T16:35:20.160",
+      "description": "Joomla Extension - fabrikar.com - Unauthenticated modification of any comment in Fabrik < 4.7.2 - The onUpdateComment endpoint did not perform any access checks.",
+      "score": 6.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76609"
+    },
+    {
+      "id": "CVE-2026-76608",
+      "published": "2026-08-22T15:16:22.913",
+      "lastModified": "2026-08-26T16:35:20.160",
+      "description": "Joomla Extension - fabrikar.com - Unauthenticated disclosure of any commenter's email address in Fabrik < 4.7.2 - The onGetEmail endpoint did not perform any access checks.",
+      "score": 6.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76608"
+    },
+    {
+      "id": "CVE-2026-76607",
+      "published": "2026-08-22T15:16:22.797",
+      "lastModified": "2026-08-26T16:35:20.160",
+      "description": "Joomla Extension - fabrikar.com - Missing ACL check in download element in Fabrik < 4.7.2.",
+      "score": 10,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76607"
+    },
     {
       "id": "CVE-2026-76606",
       "published": "2026-08-22T15:16:22.680",
@@ -730,154 +886,6 @@
       "score": 7.5,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77781"
-    },
-    {
-      "id": "CVE-2026-9052",
-      "published": "2026-08-21T23:16:49.697",
-      "lastModified": "2026-08-21T23:16:49.697",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-9052"
-    },
-    {
-      "id": "CVE-2026-76069",
-      "published": "2026-08-21T23:16:49.643",
-      "lastModified": "2026-08-21T23:16:49.643",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76069"
-    },
-    {
-      "id": "CVE-2026-73323",
-      "published": "2026-08-21T23:16:49.580",
-      "lastModified": "2026-08-21T23:16:49.580",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73323"
-    },
-    {
-      "id": "CVE-2026-53541",
-      "published": "2026-08-21T23:16:26.500",
-      "lastModified": "2026-08-24T20:16:48.580",
-      "description": "OliveTin gives access to predefined shell commands from a web interface. The `filterToDefinedArgumentsOnly` function in the executor is intended to discard any arguments not explicitly defined in the action's configuration. However, prior to commit ebffd9f040f791208aee1db2e5a8aecd1e3e603d, a special case allows any argument whose name starts with `ot_` to bypass this filter. While two system arguments (`ot_executionTrackingId` and `ot_username`) are injected by OliveTin and overridden, all other `ot_`-prefixed arguments supplied by the user pass through unmodified. These bypassed arguments are not type-checked — the validation loop only iterates over the action's defined arguments, so `ot_`-prefixed arguments skip all type safety checks entirely; set as environment variables — via `buildEnv()`, with completely unvalidated values, and passed to the executed command; and included in the template context — available as `.Arguments.ot_*` in template rendering. Commit ebffd9f040f791208aee1db2e5a8aecd1e3e603d contains a patch.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53541"
-    },
-    {
-      "id": "CVE-2026-53525",
-      "published": "2026-08-21T23:16:26.363",
-      "lastModified": "2026-08-25T17:17:29.360",
-      "description": "WeeChat (Wee Enhanced Environment for Chat) is a free chat client. In versions 0.3.1 through 4.9.0, the WeeChat relay authentication uses non-constant-time string comparison functions (weechat_strcasecmp and strcmp) to verify password hashes and plaintext passwords. An attacker can exploit timing differences to extract the server-computed hash character by character, then authenticate using the correct hash without knowing the password. Version 4.9.1 fixes the issue.",
-      "score": 7.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53525"
-    },
-    {
-      "id": "CVE-2026-53524",
-      "published": "2026-08-21T23:16:26.213",
-      "lastModified": "2026-08-24T20:16:47.717",
-      "description": "WeeChat (Wee Enhanced Environment for Chat) is a free chat client. In versions 4.3.0 through 4.9.0, the WeeChat relay module's WebSocket permessage-deflate decompression function relay_websocket_inflate() has no upper bound on output size. An authenticated relay user can send a small compressed WebSocket frame (~100 bytes) that decompresses to gigabytes, exhausting all server memory and crashing the entire WeeChat process. The api protocol enables permessage-deflate and requires authentication before WebSocket upgrade. Version 4.9.1 patches the issue.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53524"
-    },
-    {
-      "id": "CVE-2026-53499",
-      "published": "2026-08-21T23:16:26.070",
-      "lastModified": "2026-08-25T20:16:56.820",
-      "description": "FORT Validator is a Resource Public Key Infrastructure (RPKI) relying-party validator that produces validated route-origin data. FORT Validator versions through 1.6.7 contain an origin-validation error in their RRDP processing: a delegated CA under the same Trust Anchor Locator (TAL) can reference a victim CA’s public RRDP notification and snapshot URLs, causing FORT’s URL-based download cache to report success after deleting the victim’s local snapshot. Following a routine victim publication, this can silently remove the victim’s VRPs and other signed objects from FORT’s output, potentially enabling route hijacking or loss of reachability. Version 1.6.8 contains a patch that rejects cross-origin RRDP snapshot and delta URLs; as a workaround, administrators can disable HTTP/RRDP with  --http.enabled=false  while keeping rsync enabled, although this can leave data unavailable or stale where rsync is not supported.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53499"
-    },
-    {
-      "id": "CVE-2026-49360",
-      "published": "2026-08-21T23:16:25.617",
-      "lastModified": "2026-08-25T20:16:56.170",
-      "description": "Recce is a data-validation toolkit for enhanced dbt (data build tool) PR review. Prior to version 1.50.0, OSS server deployments that expose the server to an untrusted network without authentication are vulnerable to unauthenticated SQL execution through the query run API. When Recce is configured with a DuckDB-backed project, an attacker can use DuckDB filesystem primitives to read and write files accessible to the Recce server process. The impact depends on how Recce is deployed, but may include disclosure of local files, tampering with Recce/dbt artifacts, modification of browser-served static files leading to stored XSS, and modification of application files if those paths are writable. If Recce is run as root, file access occurs with root privileges inside that host or container. This issue has been patched in Recce `v1.50.0`. Users should upgrade to Recce `v1.50.0` or later. The patch restricts unsafe file read/write behavior for DuckDB-backed query execution and hardens the affected query path. Other warehouse adapters have also been reviewed for similar exposure. Users who cannot upgrade immediately should avoid exposing `recce server` to the public internet or any untrusted network. Recommended mitigations include enabling authentication or placing Recce behind an authenticated reverse proxy/VPN, running Recce as a non-root user, using a read-only application filesystem where possible, and ensuring that sensitive files or credentials are not available to the Recce process.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-49360"
-    },
-    {
-      "id": "CVE-2026-48106",
-      "published": "2026-08-21T23:16:25.360",
-      "lastModified": "2026-08-26T18:16:33.427",
-      "description": "Arc is an open, SQL-native time-series database for telemetry. Prior to version 26.06.1, Arc Enterprise's cluster replication receiver at `internal/cluster/replication/receiver.go` validates only the wire-format envelope (length, opcode) of inbound messages. The `MsgReplicateSync` payload itself is accepted without any application-layer authentication — no HMAC, no signature, no per-message nonce. The replication stream is protected at the transport layer by TLS / mTLS, but there is no protection against application-layer message tampering or replay once a peer is on the cluster network. This is fixed in 2026.06.1. Some workarounds are available. Restrict cluster network access to known-trusted peers via strict firewall rules, audit replication logs for unexpected `MsgReplicateSync` traffic, and/or disable cluster mode until the fix is available.",
-      "score": 8.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-48106"
-    },
-    {
-      "id": "CVE-2026-48105",
-      "published": "2026-08-21T23:16:25.220",
-      "lastModified": "2026-08-24T19:16:38.967",
-      "description": "Arc is an open, SQL-native time-series database for telemetry. Prior to version 26.06.1, Arc Enterprise's Raft FSM (`internal/cluster/raft/fsm.go:applyRegisterFile`) accepts attacker-chosen file paths in manifest-registration proposals without validating them against the configured storage backend. The only check is that the path is non-empty. There is no parent-traversal (`..`) rejection, no allowlist of legitimate prefixes, no scheme restriction (`s3://` vs local), and no length bound. This is fixed in 2026.06.1. Some workarounds are available. Restrict cluster network access to known-trusted peers via strict firewall rules, audit the cluster manifest for unexpected paths (any path not matching the configured storage backend root is suspect), and/or disable cluster mode until the fix is available.",
-      "score": 8.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-48105"
-    },
-    {
-      "id": "CVE-2026-48050",
-      "published": "2026-08-21T23:16:25.070",
-      "lastModified": "2026-08-25T17:17:14.443",
-      "description": "Arc is an open, SQL-native time-series database for telemetry. Versions prior to 26.06.1 register Go's `net/http/pprof` handlers at `/debug/pprof/*` via `app.Use(pprof.New())` in `internal/api/server.go`, and `/debug/pprof` is added to `PublicPrefixes` in `cmd/arc/main.go`. The auth middleware short-circuits before the token check on prefix match, so the endpoints are reachable without any authentication. Version 26.06.1 contains a patch. Some workarounds are available. Block `/debug/pprof*` at a reverse proxy / load balancer in front of Arc, restrict Arc's API port to known-trusted networks via firewall rules, and/or patch the running build: comment out `app.Use(pprof.New())` in `internal/api/server.go` and rebuild.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-48050"
-    },
-    {
-      "id": "CVE-2026-47735",
-      "published": "2026-08-21T23:16:24.917",
-      "lastModified": "2026-08-25T14:16:50.990",
-      "description": "Arc is an open, SQL-native time-series database for telemetry. Prior to version 26.06.1, Arc's user-SQL validator (`internal/api/query.go:ValidateSQLRequest`) blocked only `read_parquet(` and `arc_partition_agg(` via regex denylist. The broader DuckDB I/O function family — `read_csv_auto`, `read_csv`, `read_json`, `read_json_auto`, `read_text`, `read_blob`, `glob`, `parquet_metadata`, `parquet_schema`, `read_xlsx`, etc. — was not blocked. RBAC table-reference extraction inspected only `FROM`/`JOIN` clauses, so scalar table functions in the `SELECT` list slipped past both layers. This is fixed in 2026.06.1 via a structural sandbox at the DuckDB layer. After lockdown, DuckDB refuses to open any file outside the allowlist and refuses further `INSTALL`/`LOAD`. Already-loaded extensions remain callable. Some workarounds are available. Restrict API access to known-trusted networks via firewall rules or, as a temporary mitigation, add `read_csv*`/`read_json*`/`glob` etc. to `dangerousSQLPattern` in `internal/api/query.go`.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-47735"
-    },
-    {
-      "id": "CVE-2026-34949",
-      "published": "2026-08-21T23:16:24.297",
-      "lastModified": "2026-08-26T18:16:31.160",
-      "description": "Combodo iTop is a web based IT service management tool.Prior to 3.2.3, an unauthenticated user could delete the .readonly file on iTop instances — a file created during the setup process that prevents users from performing write actions. This issue has been fixed in version 3.2.3.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-34949"
-    },
-    {
-      "id": "CVE-2026-34948",
-      "published": "2026-08-21T23:16:24.153",
-      "lastModified": "2026-08-24T19:16:37.727",
-      "description": "Combodo iTop is a web based IT service management tool. Prior to 3.2.3, only classes present in the SELECT clause are protected by the silos access check in OQL. This issue has been fixed in version 3.2.3.",
-      "score": 7.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-34948"
-    },
-    {
-      "id": "CVE-2026-11805",
-      "published": "2026-08-21T23:16:23.893",
-      "lastModified": "2026-08-21T23:16:23.893",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-11805"
-    },
-    {
-      "id": "CVE-2026-11615",
-      "published": "2026-08-21T23:16:23.840",
-      "lastModified": "2026-08-21T23:16:23.840",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-11615"
-    },
-    {
-      "id": "CVE-2026-11609",
-      "published": "2026-08-21T23:16:23.777",
-      "lastModified": "2026-08-21T23:16:23.777",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-11609"
-    },
-    {
-      "id": "CVE-2026-11418",
-      "published": "2026-08-21T23:16:23.693",
-      "lastModified": "2026-08-21T23:16:23.693",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-11418"
     }
   ]
 }
