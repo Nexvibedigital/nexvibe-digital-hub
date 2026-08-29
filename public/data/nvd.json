@@ -1,6 +1,15 @@
 {
-  "syncedAt": "2026-08-29T03:11:33.783Z",
+  "syncedAt": "2026-08-29T03:41:29.873Z",
   "items": [
+    {
+      "id": "CVE-2026-74598",
+      "published": "2026-08-22T16:16:32.170",
+      "lastModified": "2026-08-25T06:18:35.740",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nipv6: fix Route Information option length validation\n\nrt6_route_rcv() validates the Route Information option (RFC 4191) length\nagainst the prefix length, but both checks are off by one.\n\nrinfo->length is the ND option length in units of 8 octets and it\n*includes* the 8-byte option header, so an option carrying N bytes of\nprefix has length == 1 + N/8.  RFC 4191 section 2.3 requires length 3\nwhen Prefix Length is greater than 64, and 2 or 3 when it is greater\nthan 0.  The code accepts length >= 2 and length >= 1 respectively.\n\nipv6_addr_prefix() then copies prefix_len/8 bytes out of rinfo->prefix,\nso a Router Advertisement with (prefix_len=128, length=2) or\n(prefix_len=64, length=1) makes the kernel read up to 8 bytes past the\nend of the option.  Those bytes end up in the prefix of the route that\ngets installed, so they are visible to userspace:\n\n  # RA with a Route Information option (prefix_len=128, length=2)\n  # followed by a source link-layer address option, 01 01 de ad be ef ca fe\n  $ ip -6 route show\n  2001:db8:dead:beef:101:dead:beef:cafe via fe80::1234 dev veth0 proto ra\n                     ^^^^^^^^^^^^^^^^^^ the next option, read out of bounds\n\nWhen the Route Information option is the last one in the packet, those\neight bytes come from the skb tail room instead.\n\nReject the option lengths RFC 4191 does not allow.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74598"
+    },
     {
       "id": "CVE-2026-74597",
       "published": "2026-08-22T16:16:32.040",
@@ -877,15 +886,6 @@
       "score": 5.3,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75027"
-    },
-    {
-      "id": "CVE-2026-19883",
-      "published": "2026-08-22T03:16:20.833",
-      "lastModified": "2026-08-24T16:41:13.950",
-      "description": "The WPeMatico RSS Feed Fetcher plugin for WordPress is vulnerable to unauthorized modification of data that can lead to privilege escalation due to a missing capability check on the wpematico_import_settings function in all versions up to, and including, 2.8.24. This makes it possible for authenticated attackers, with subscriber-level access and above, to update arbitrary options on the WordPress site. This can be leveraged to update the default role for registration to administrator and enable user registration for attackers to gain administrative user access.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19883"
     }
   ]
 }
