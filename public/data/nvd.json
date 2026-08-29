@@ -1,6 +1,43 @@
 {
-  "syncedAt": "2026-08-29T12:11:24.313Z",
+  "syncedAt": "2026-08-29T12:41:43.819Z",
   "items": [
+    {
+      "id": "CVE-2026-74623",
+      "published": "2026-08-22T16:16:35.157",
+      "lastModified": "2026-08-23T13:16:47.317",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: atlantic: free stranded TX buffers on ring deinit\n\naq_vec_deinit() drains the TX rings with a single aq_ring_tx_clean()\ncall, which frees at most AQ_CFG_TX_CLEAN_BUDGET (256) descriptors and\nstops at hw_head, which no longer moves once aq_vec_stop() has stopped\nthe hardware and NAPI. Completed descriptors beyond the budget and\neverything still posted in [hw_head, sw_tail) keep their skb or\nxdp_frame when the interface goes down: aq_vec_ring_free() then frees\nthe buffer ring and the references are lost for good.\n\nToday this is a silent memory leak on every interface down under\nTX/XDP_TX load. With the conversion of the RX path to page_pool posted\nfor net-next it becomes much more visible: XDP_TX frames carry fragment\nreferences on the RX ring's page_pool, so a single stranded frame keeps\nthe pool's inflight count above zero forever. page_pool_destroy() then\nnever completes, the pool is leaked together with its pages, and\n\"page_pool_release_retry() stalled pool shutdown\" is warned every 60\nseconds from that point on, on every ifdown, XDP detach or ring resize\nunder XDP_TX load.\n\nBring back aq_ring_tx_deinit() as it was before the removal and use it\nfor teardown again, with one extension: TX rings can hold xdp_frames\nnowadays, so release those too. They are returned with\nxdp_return_frame() since this runs in process context.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74623"
+    },
+    {
+      "id": "CVE-2026-74622",
+      "published": "2026-08-22T16:16:35.027",
+      "lastModified": "2026-08-22T16:16:35.027",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: atlantic: free RX pages of consumed but not refilled buffers\n\naq_ring_rx_deinit() only walks [sw_head, sw_tail), the region posted to\nhardware. Since the page reuse strategy was added, a cleaned RX buffer\nkeeps its page (and its DMA mapping) in the ring for reuse, and refill\nis batched: aq_ring_rx_fill() returns early until AQ_CFG_RX_REFILL_THRES\nslots are free. Slots that were consumed but not yet reposted therefore\nsit in the complementary [sw_tail, sw_head) gap with a live page, and\nthe deinit walk never visits them: up to a refill batch worth of pages\nand DMA mappings leak on every interface down.\n\nWalk the whole ring instead and release whatever is still there. Also\nbail out if the buffer ring is already gone: a partial\naq_ptp_ring_alloc() failure frees the ring but leaves aq_nic set, so\naq_ptp_ring_deinit() still gets here on the unwind path.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74622"
+    },
+    {
+      "id": "CVE-2026-74621",
+      "published": "2026-08-22T16:16:34.897",
+      "lastModified": "2026-08-25T06:18:40.510",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/sched: act_ct: fix sk_buff leak when the header checks reject a packet\n\ntcf_ct_handle_fragments() runs its header sanity checks before handing\nanything to the defragmentation engine:\n\n\tif (family == NFPROTO_IPV4)\n\t\terr = tcf_ct_ipv4_is_fragment(skb, &frag);\n\telse\n\t\terr = tcf_ct_ipv6_is_fragment(skb, &frag);\n\tif (err || !frag)\n\t\treturn err;\n\ntcf_ct_ipv4_is_fragment() returns -EINVAL or -ENOMEM;\ntcf_ct_ipv6_is_fragment() adds -EPROTO when ipv6_find_hdr() fails. None of\nthem frees or queues the skb, so on that path the caller still owns it.\n\ntcf_ct_act() however funnels every non-zero return into the\nownership-transfer exit:\n\n\terr = tcf_ct_handle_fragments(net, skb, family, p->zone, &defrag);\n\tif (err)\n\t\tgoto out_frag;\n\t...\nout_frag:\n\tif (err != -EINPROGRESS)\n\t\ttcf_action_inc_drop_qstats(&c->common);\n\treturn TC_ACT_CONSUMED;\n\nTC_ACT_CONSUMED means the action took ownership of the skb, so no caller\nfrees it - sch_handle_ingress(), sch_handle_egress() and\ntcf_qevent_handle() all deliberately skip the free for that verdict. The\nskb is therefore orphaned: one sk_buff plus its data buffer is leaked per\nmalformed packet, unbounded. Note the drop counter is already incremented\nfor these errors, so the statistics claim a drop that never happens.\n\nThree different ownership states reach out_frag: today - the skb may be\nqueued by the defrag engine (-EINPROGRESS), already freed by\nnf_ct_handle_fragments(), or still owned by us. Tell the caller which of\nthose it is, and free the packet ourselves in the last case, which\nrestores the TC_ACT_SHOT behaviour that predated the Fixes: commit.\n\nReproduced on v7.2-rc6 with a 54-byte frame carrying a 40-byte IPv6\nheader with nexthdr = 0 (hop-by-hop) and nothing after it, on a\nclsact ingress chain with \"action ct\". kmemleak reports one leaked\n232-byte skbuff_head_cache object plus its 704-byte data buffer per\npacket; with this patch it reports none.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74621"
+    },
+    {
+      "id": "CVE-2026-74620",
+      "published": "2026-08-22T16:16:34.753",
+      "lastModified": "2026-08-23T13:16:47.047",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/sched: act_gact, act_police: range check the fallback control action\n\ntcf_action_check_ctrlact() range checks the primary control action:\n\n\tif (!opcode)\n\t\tret = action > TC_ACT_VALUE_MAX ? -EINVAL : 0;\n\nTC_ACT_VALUE_MAX is TC_ACT_TRAP, so kernel-internal verdicts above it\ncannot be set that way. But act_gact and act_police each carry a second,\nindependent control action supplied by user space that never reaches that\nhelper - TCA_GACT_PROB.paction and TCA_POLICE_RESULT. Both only reject\nTC_ACT_GOTO_CHAIN, so any other value is stored verbatim and returned\nverbatim from the action.\n\nIn particular user space can store TC_ACT_CONSUMED, which is\nTC_ACT_VALUE_MAX + 1 and is deliberately not part of the UAPI value\nrange. That verdict tells every caller the action took ownership of the\nskb, so nobody frees it: sch_handle_ingress(), sch_handle_egress() and\ntcf_qevent_handle() all deliberately skip the free for it. The result is\none leaked sk_buff plus its data buffer per packet traversing the filter,\nunbounded, for all traffic on the chain including kernel-generated\npackets.\n\nBoth are trivially deterministic. act_gact clamps tcfg_pval to >= 1, so\nwith pval = 1 gact_determ() returns the fallback for every packet.\nact_police has no mandatory rate, so rate = 0 leaves tcfp_mtu = ~0 and\ntcf_police_mtu_check() always passes.\n\nTC_ACT_CONSUMED was added by commit 720f22fed81b (\"net: sched: refactor\nreinsert action\"), after both goto-chain guards were written:\ncommit 9469f375ab09 (\"net/sched: act_gact: disallow 'goto chain' on\nfallback control action\") and\ncommit c08f5ed5d625 (\"net/sched: act_police: disallow 'goto chain' on\nfallback control action\"). Neither guard was widened when the new\nverdict appeared.\n\nFactor the existing range test out of tcf_action_check_ctrlact() as\ntcf_action_valid() and apply it to both fallbacks. The helper cannot call\ntcf_action_check_ctrlact() directly because that also allocates a\ngoto_chain, which is exactly what these two sites must not do.\n\nReproduced on v7.2-rc6: kmemleak reports one leaked 232-byte\nskbuff_head_cache object plus its 704-byte data buffer per packet. With\nthis patch both configurations are rejected with -EINVAL and kmemleak\nreports none.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74620"
+    },
+    {
+      "id": "CVE-2026-74619",
+      "published": "2026-08-22T16:16:34.623",
+      "lastModified": "2026-08-22T16:16:34.623",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\novl: don't warn when the mount is completed from another user namespace\n\nfsopen() records the caller's user namespace in fc->user_ns and hands\nback an ordinary file descriptor. Nothing ties the task that calls\nfsconfig(FSCONFIG_CMD_CREATE) to the task that created the context. The\nfd is inherited across fork() and exec() and it can be passed over a\nunix socket.\n\nCompleting a context from another user namespace is allowed on purpose.\nvfs_cmd_create() authorizes the create with mount_capable(), which for\nFS_USERNS_MOUNT checks ns_capable(fc->user_ns, CAP_SYS_ADMIN), and that\nsucceeds for a task holding CAP_SYS_ADMIN in an ancestor of fc->user_ns.\nSo an unprivileged task can reach the WARN_ON() in ovl_fill_super():\ncreate a user and a mount namespace in a child, call fsopen(\"overlay\")\nthere, send the fscontext fd to the parent and let the parent issue\nFSCONFIG_CMD_CREATE. Both namespaces come from a plain unshare(1) and no\ncapability is needed anywhere:\n\n  WARNING: fs/overlayfs/super.c:1551 at ovl_fill_super+0x7b9/0x1e20 [overlay]\n  CPU: 3 UID: 1000 PID: 3243376 Comm: fswarn\n  Call Trace:\n   get_tree_nodev+0x71/0xa0\n   ovl_get_tree+0x15/0x20 [overlay]\n   vfs_get_tree+0x2a/0x100\n   vfs_cmd_create+0x60/0xf0\n   __do_sys_fsconfig+0x4b2/0x500\n\nThe child needs the mount namespace because fsopen() itself gates on\nmay_mount(), which asks for CAP_SYS_ADMIN in the user namespace owning\nthe caller's mount namespace. fsconfig() doesn't repeat that check.\n\nIt is a WARN_ON() and not a WARN_ON_ONCE(), so the condition can be\nraised in a loop to taint the kernel and flood the log, and it panics a\nkernel booted with panic_on_warn.\n\nKeep refusing the mount and stop warning about it. ovl_parse_param()\nalready spells a user namespace check this way for Opt_override_creds.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74619"
+    },
     {
       "id": "CVE-2026-74618",
       "published": "2026-08-22T16:16:34.507",
@@ -833,51 +870,6 @@
       "lastModified": "2026-08-22T13:16:36.970",
       "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-11947"
-    },
-    {
-      "id": "CVE-2026-77988",
-      "published": "2026-08-22T12:16:25.817",
-      "lastModified": "2026-08-24T19:17:01.167",
-      "description": "A weakness has been identified in TRENDnet TEW-823DRU 1.1.02b01. This vulnerability affects the function nvram_get of the component CLI Configuration Tool. This manipulation causes command injection. The attack is possible to be carried out remotely. The exploit has been made available to the public and could be used for attacks.",
-      "score": 6.6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77988"
-    },
-    {
-      "id": "CVE-2026-66917",
-      "published": "2026-08-22T12:16:25.680",
-      "lastModified": "2026-08-26T16:35:20.160",
-      "description": "Joomla Extension - joomgalleryfriends.net - Stored XSS in JoomGallery < 4.4.0 - An authenticated, privileged can store an XSS payload in any image causing JS execution in every visitor's browser.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66917"
-    },
-    {
-      "id": "CVE-2026-66916",
-      "published": "2026-08-22T12:16:25.547",
-      "lastModified": "2026-08-26T16:36:16.990",
-      "description": "Joomla Extension - joomgalleryfriends.net - Password-Protected Category Bypass via JSON Format in JoomGallery < 4.4.0- An unauthenticated access control bypass exists in JoomGallery's category JSON view. When a gallery category is protected with a password, the HTML view correctly enforces the password gate - but the JSON view ( format=json ) skips this check entirely.",
-      "score": 6.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66916"
-    },
-    {
-      "id": "CVE-2026-4245",
-      "published": "2026-08-22T12:16:25.400",
-      "lastModified": "2026-08-24T20:16:44.087",
-      "description": "The Post Duplicator plugin for WordPress is vulnerable to authorization bypass in all versions up to, and including, 3.0.11. This is due to the `duplicate_post_permissions()` permission callback only verifying the `duplicate_posts` capability without checking whether the requesting user holds `publish_posts` or other status-gated capabilities. This makes it possible for authenticated attackers, with Contributor-level access and above, to create duplicate posts with `future` (scheduled, auto-publishes) or `private` status, bypassing editorial review. Additionally, the REST endpoint does not enforce administrator-configured post-type duplication restrictions, allowing duplication of post types that have been explicitly disabled.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-4245"
-    },
-    {
-      "id": "CVE-2026-3424",
-      "published": "2026-08-22T12:16:24.677",
-      "lastModified": "2026-08-26T18:16:31.763",
-      "description": "The The kk Star Ratings – Rate Post & Collect User Feedbacks plugin for WordPress is vulnerable to arbitrary shortcode execution in all versions up to, and including, 5.4.10.3. This is due to the software allowing users to execute an action that does not properly validate the 'payload' value before running do_shortcode. This makes it possible for unauthenticated attackers to execute arbitrary shortcodes.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-3424"
     }
   ]
 }
