@@ -1,6 +1,167 @@
 {
-  "syncedAt": "2026-08-29T13:11:25.338Z",
+  "syncedAt": "2026-08-29T13:42:09.539Z",
   "items": [
+    {
+      "id": "CVE-2026-74642",
+      "published": "2026-08-22T16:16:37.513",
+      "lastModified": "2026-08-22T16:16:37.513",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nALSA: usb: Fix UAF at delayed release of MIDI2 EPs\n\nThe recent fix for UAF in ump_to_endpoint() caused another UAF because\nit tries to dereference the UMP endpoint object, but this might be\nexecuted at a delayed context where the endpoint has been already\nreleased.\n\nAdd private_free to clear the associated data for avoiding the further\ndereference for delayed releases.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74642"
+    },
+    {
+      "id": "CVE-2026-74641",
+      "published": "2026-08-22T16:16:37.383",
+      "lastModified": "2026-08-25T06:18:43.980",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nALSA: usx2y: bound the hwdep mmap fault offset\n\nsnd_us428ctls_vm_fault() turns the faulting page offset into a kernel\naddress with no bound of any kind:\n\n\toffset = vmf->pgoff << PAGE_SHIFT;\n\tvaddr = (char *)(...)->us428ctls_sharedmem + offset;\n\tpage = virt_to_page(vaddr);\n\tget_page(page);\n\tvmf->page = page;\n\n\treturn 0;\n\nsnd_us428ctls_mmap() checks only the length of the mapping, never the\noffset, and us428ctls_sharedmem is a single page from\nalloc_pages_exact().  For a character device file_mmap_size_max()\nreturns ULONG_MAX, so the mm layer imposes no ceiling either.  Every page\noffset above zero resolves to a struct page outside the object, and the\nhandler installs it into the caller's address space read-write; the vma\nis not marked read-only.\n\nThe caller picks the page frame with a single mmap() argument and gets\nread-write access to a page of kernel memory it does not own; an offset\nthat lands in an unpopulated vmemmap region oopses instead.\n\nA process that can open the hwdep node of an attached US-X2Y reaches\nthis after loading the FPGA image through the same node; no capability\ncheck is involved.\n\nOn 7.2.0-rc5 (arm64), mmap() with a large offset:\n\n  Unable to handle kernel paging request at virtual address fffffdffc45d5ac8\n  pc : snd_us428ctls_vm_fault+0x68/0x140 [snd_usb_usx2y]\n  Call trace:\n   snd_us428ctls_vm_fault+0x68/0x140 [snd_usb_usx2y]\n   __do_fault\n   __handle_mm_fault\n   handle_mm_fault\n   el0_da\n\nReject any offset outside the shared region.  The pcm hwdep handler in\nusx2yhwdeppcm.c computes its address the same way and needs the same\nbound.\n\nDiscovered by XBOW, triaged by Baul Lee <baul.lee@xbow.com>",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74641"
+    },
+    {
+      "id": "CVE-2026-74640",
+      "published": "2026-08-22T16:16:37.267",
+      "lastModified": "2026-08-25T06:18:43.770",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nALSA: FCP: fix OOB write in fcp_meter_ctl_get()\n\nfcp_ioctl_set_meter_map() bounds the user-supplied Level Meter map size\nby the driver's own limit of 255\n\n\tif (map.map_size < 1 || map.map_size > 255 ||\n\t    map.meter_slots < 1 || map.meter_slots > 255)\n\t\treturn -EINVAL;\n\nand passes it to fcp_add_new_ctl() as the control's channel count, where\nit is stored as elem->channels.\n\nEvery control read writes into struct snd_ctl_elem_value, whose integer\narray is declared long value[128], so the limit is 128, not 255.\nfcp_meter_ctl_get() stores one 64-bit word per channel into that array\nwith no bound of its own:\n\n\tfor (i = 0; i < elem->channels; i++) {\n\t\tint idx = private->meter_level_map[i];\n\t\tint value = idx < 0 ? 0 : le32_to_cpu(resp[idx]);\n\n\t\tucontrol->value.integer.value[i] = value;\n\t}\n\nsnd_ctl_elem_read_user() serves that object from\nmemdup_user(_control, sizeof(*control)), 1224 bytes on LP64 out of\nkmalloc-2048.  offsetof(struct snd_ctl_elem_value, value) is 72, so\nelement i is written at byte 72 + 8 * i and element 144 already lands\npast the allocation.  At map_size 255 the last store ends at byte 2112,\n888 bytes past the object and 64 bytes into the adjacent slab object.\nThe stored words come from the device and meter_level_map[] selects\nwhich word lands in which slot, so extent and contents are both\ncontrolled.\n\nThe core does not catch this.  snd_ctl_check_elem_info() is reached only\nfrom __snd_ctl_elem_info(), which snd_ctl_elem_read() calls under\nCONFIG_SND_CTL_DEBUG; without that option snd_ctl_skip_validation() is a\ncompile-time true.  __snd_ctl_add_replace() validates kcontrol->count and\nnever inspects elem->channels.\n\nInstalling an oversized map needs CAP_SYS_RAWIO, but the control outlives\nthe hwdep descriptor that created it, so the out-of-bounds stores are\nissued by any process able to read controls on /dev/snd/controlC0.\n\nKASAN on 7.2.0-rc5 (arm64), triggered by an unprivileged control read:\n\n  BUG: KASAN: slab-out-of-bounds in fcp_meter_ctl_get\n  Write of size 8 at addr ffff000017af04c8 by task fcp_trigger/185\n   __asan_store8\n   fcp_meter_ctl_get\n   snd_ctl_elem_read\n   snd_ctl_ioctl\n  Allocated by task 185:\n   memdup_user\n   snd_ctl_ioctl\n  The buggy address is located 0 bytes to the right of\n   allocated 1224-byte region [ffff000017af0000, ffff000017af04c8)\n\nBound the map size by the ABI limit rather than by 255, and bound the\nstore loop at the sink so it cannot run past the value array whatever\nelem->channels holds.\n\nDiscovered by XBOW, triaged by Baul Lee <baul.lee@xbow.com>",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74640"
+    },
+    {
+      "id": "CVE-2026-74639",
+      "published": "2026-08-22T16:16:37.143",
+      "lastModified": "2026-08-22T16:16:37.143",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nALSA: us144mkii: re-anchor capture URBs on resubmission\n\ncapture_urb_complete() resubmits each capture URB without anchoring it:\n\n\tusb_get_urb(urb);\n\tret = usb_submit_urb(urb, GFP_ATOMIC);\n\nAnchoring is a property of a submission, not of the URB.  The giveback\npath calls usb_unanchor_urb() before urb->complete(), so an URB\nresubmitted from its own completion handler is off the anchor.  The\ncapture URBs are anchored once, at stream start, so from the first\ncompletion onward tascam->capture_anchor is empty.\n\ntascam_free_urbs(), tascam_disconnect(), tascam_suspend() and the\nstop-work path all call usb_kill_anchored_urbs(&tascam->capture_anchor)\nto reap the capture URBs before anything is freed.  With the anchor empty\nthose calls return immediately and the URBs stay queued on the host\ncontroller.\n\ntascam_free_urbs() then returns the capture transfer buffers with\nusb_free_coherent(), and snd_card_free() releases the snd_card\nallocation that embeds tascam (card->private_data).  The controller\ncompletes the queued URBs afterwards, writing device-supplied data into\nthe freed transfer buffer, and capture_urb_complete() dereferences the\nfreed driver object.\n\nKASAN on 7.2.0-rc5 (arm64):\n\n  BUG: KASAN: slab-use-after-free in dummy_timer\n  Write of size 512 at addr ffff000015b62000\n   __asan_memcpy\n   dummy_timer\n   hrtimer_run_softirq\n  Allocated by task 64:\n   usb_alloc_coherent\n   tascam_alloc_urbs\n   tascam_probe\n  Freed by task 170:\n   usb_free_coherent\n   tascam_free_urbs\n   tascam_disconnect\n   usb_unbind_interface\n\n  BUG: KASAN: slab-use-after-free in capture_urb_complete\n  Read of size 4 at addr ffff0000170ee878\n  Freed by task 170:\n   release_card_device\n   snd_card_free\n   tascam_disconnect\n\nRestore the usb_anchor_urb() between the reference count bump and the\nresubmission.  That also makes the handler's usb_unanchor_urb() failure\narm meaningful again and restores usb_kill_anchored_urbs() as a barrier\non the disconnect, suspend and stop-work paths.\n\nThe anchoring was removed on the premise that the URB is already anchored\nfrom the initial submission, which does not hold once the first giveback\nhas run.\n\nDiscovered by XBOW, triaged by Baul Lee <baul.lee@xbow.com>",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74639"
+    },
+    {
+      "id": "CVE-2026-74638",
+      "published": "2026-08-22T16:16:37.007",
+      "lastModified": "2026-08-25T06:18:43.493",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/v3d: Serialize the scheduler timeout handlers\n\nV3D exposes several independent hardware queues (BIN, RENDER, TFU and\nCSD) but has only a single, global reset. A timeout on any one queue\ntherefore has to stop, reset and restart the schedulers of every other\nqueue as well. That makes concurrent timeout handlers unsafe.\n\n`reset_lock` was never able to make them safe, as a driver-side lock can\nonly cover the driver's &drm_sched_backend_ops.timedout_job callback.\nThe scheduler handles the timed out job and its pending list around that\ncallback, outside of the driver's control, so a global reset triggered\nby one queue can still interfere with another queue that is in the\nmiddle of handling a timeout of its own.\n\nConsequently, if a reset happens in the CSD queue while a CL-intensive\napplication is running, the global reset stops and restarts the CL\nqueue's scheduler while that queue is handling a timeout of its own. As\ndrm_sched_stop() and drm_sched_start() subtract and add the credits of\nevery job sitting on the pending list of the scheduler they are called\non, and as the CL queue's handler concurrently takes its job off that\nsame list and puts it back, the stop and the start no longer see the\nsame set of jobs. The CL queue is left with more credits in flight than\nits limit:\n\n[  327.302739] ------------[ cut here ]------------\n[  327.302744] WARNING: CPU: 2 PID: 43 at drivers/gpu/drm/scheduler/sched_main.c:102 drm_sched_run_job_work+0x238/0x4d0 [gpu_sched]\n[  327.302884] CPU: 2 UID: 0 PID: 43 Comm: kworker/u16:1 Not tainted 6.18.39-v8-16k+ #3 PREEMPT\n[  327.302889] Hardware name: Raspberry Pi 5 Model B Rev 1.0 (DT)\n[  327.302893] Workqueue: v3d_bin drm_sched_run_job_work [gpu_sched]\n[  327.302984] Call trace:\n[  327.302987]  drm_sched_run_job_work+0x238/0x4d0 [gpu_sched] (P)\n[  327.302997]  process_scheduled_works+0x180/0x3d0\n[  327.303010]  worker_thread+0x268/0x3e8\n[  327.303016]  kthread+0x140/0x250\n[  327.303022]  ret_from_fork+0x10/0x20\n[  327.303031] ---[ end trace 0000000000000000 ]---\n\nFrom that point on, the credit count of the CL queue is broken, causing\na complete GPU hang and UI freeze.\n\nThe DRM scheduler already provides a mechanism to serialize the timeout\nhandlers of different schedulers: an ordered workqueue passed as\ndrm_sched_init()'s @timeout_wq parameter. By default, each scheduler\nqueues its timeout work on the system workqueue, which runs the handlers\nconcurrently. Give all of the queues a shared ordered workqueue instead,\nas recommended by the DRM scheduler documentation for hardware that has\ndistinct queues but resets globally.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74638"
+    },
+    {
+      "id": "CVE-2026-74637",
+      "published": "2026-08-22T16:16:36.890",
+      "lastModified": "2026-08-27T13:18:35.347",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nperf/core: Fix group leader use-after-free after sibling detach\n\nperf_group_detach() handles leader and sibling detach differently. When the\ngroup leader is detached, all siblings are promoted to singleton events and\ntheir group_leader pointer is reset to themselves. When a sibling is\ndetached, it is removed from the leader's sibling_list, but its\ngroup_leader pointer is left pointing at the old leader.\n\nThat is harmless when the sibling is being closed and freed immediately, as\nin the DETACH_DEAD path. It is not safe when the sibling is detached but\nkept alive, such as during CPU hotplug with DETACH_GROUP. In that case the\nsibling is removed from the context, while its file descriptor can still\nkeep it alive.\n\nA typical failing sequence is:\n\n  - A group contains leader L and sibling S.\n  - CPU hot-unplug detaches S with DETACH_GROUP, removing it from\n    L->sibling_list but leaving S->group_leader == L.\n  - L is later closed and freed.\n  - A PERF_IOC_FLAG_GROUP ioctl on S follows S->group_leader and\n    dereferences the freed leader.\n\nThis was reproduced by running the perf event fuzzer, CPU hotplug, and a\nstress workload concurrently:\n\n  Unable to handle kernel paging request at virtual address 006b6b6b6b6b6cdb\n  CPU: 2 PID: 12489 Comm: perf_fuzzer 6.18.7 PREEMPT\n  pc : perf_ioctl+0x34c/0xc68\n  x20: ffffff89a3fa2c70 x8 : 6b6b6b6b6b6b6b6b\n  Code: 943c4a0e 340047a0 f9404a94 f9411e88 (f940b908)\n  Call trace:\n  perf_ioctl+0x34c/0xc68 (P)\n  __arm64_sys_ioctl+0xa0/0xf4\n  invoke_syscall+0x58/0xe4\n  el0_svc_common+0xa8/0xdc\n  do_el0_svc+0x1c/0x28\n  el0_svc+0x40/0xc0\n  el0t_64_sync_handler+0x68/0xdc\n  el0t_64_sync+0x1c4/0x1c8\n\nThe fault happened in perf_ioctl(), where perf_event_for_each() follows\nthe stale group_leader pointer and perf_event_for_each_child() then\ndereferences the freed leader's context.\n\nFix the use-after-free by promoting the detached sibling to a singleton.\nAlso fix __event_disable() cgroup accounting and event state change.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74637"
+    },
+    {
+      "id": "CVE-2026-74636",
+      "published": "2026-08-22T16:16:36.750",
+      "lastModified": "2026-08-22T16:16:36.750",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ntracing: Fix race between update_event_fields and, event_define_fields\n\nThe following sequence may leads race between event_define_fields()\nand update_event_fields():\n\n CPU0 (loads module A)                      CPU1 (loads module B)\n ===============================            ===============================\n load_module(A)                             load_module(B)\n   notifier_call_chain                        notifier_call_chain\n     trace_module_notify                        trace_module_notify\n       mutex_lock(&event_mutex)                   trace_event_update_all()\n         trace_module_add_events(A)                 down_write(&trace_event_sem)\n            __register_event(call_A)\n              __add_event_to_tracers(call_A)\n                event_define_fields(call_A)\n                  for each f:                         list_for_each_entry(field,\n                    list_add(&f->link,                                    &class->fields, link)\n                             &class->fields)            field = class->fields->next;\n\nWhere access to the class->fields is not protected by the event_mutex in\ntrace_event_update_all().\n\nThis produces the following panic:\n   Unable to handle kernel access ... at virtual address 0000000000000018\n   pc : update_event_fields+0xf8/0x368\n   Call trace:\n    update_event_fields+0xf8/0x368\n    trace_event_update_all+0x7c/0x2b4\n    trace_module_notify+0x4c/0x1dc\n    notifier_call_chain+0x84/0x168\n    blocking_notifier_call_chain_robust+0x64/0xd4\n    load_module+0x10c8/0x123c\n    __arm64_sys_finit_module+0x230/0x31c\n\nFix by taking event_mutex in trace_event_update_all() before\ntrace_event_sem.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74636"
+    },
+    {
+      "id": "CVE-2026-74635",
+      "published": "2026-08-22T16:16:36.590",
+      "lastModified": "2026-08-25T06:18:42.897",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfbdev: bitblit: bound-check glyph index in bit_cursor()\n\nbit_cursor() fetches the glyph under the cursor with\n\n\tc = scr_readw(vc_pos);\n\tsrc = vc_font.data + ((c & charmask) * w * height);\n\nwhere charmask is 0x1ff when vc_hi_font_mask is set. The screen buffer\nvalue comes directly from scr_readw() and may be larger than the current\nfont's glyph count.\n\nSyzkaller triggers this via vcs_write(). The Call Trace shows\nvcs_write() in vc_screen.c writing an arbitrary 16-bit value with\nwritev() to /dev/vcsa, which vcs_write_buf() in vc_screen.c stores via\nvcs_scr_writew() without checking charcount. The stored value is later\nread in bit_cursor() in bitblit.c.\n\nWhen the font is changed from a font with 512 glyphs to a font with\n256 glyphs, the screen buffer can retain characters with the high\nbit set from the previous mode, which could also produce the same\nout-of-bounds access.\n\n  BUG: KASAN: global-out-of-bounds in soft_cursor+0x378/0x6bc drivers/video/fbdev/core/softcursor.c:70\n  Read of size 16 at addr ffff800086c57970\n\n  Call Trace:\n   soft_cursor+0x378/0x6bc drivers/video/fbdev/core/softcursor.c:70\n   bit_cursor+0xa90/0x1108 drivers/video/fbdev/core/bitblit.c:365\n   fbcon_cursor+0x344/0x498 drivers/video/fbdev/core/fbcon.c:1427\n   hide_cursor+0xdc/0x2d0 drivers/tty/vt/vt.c:883\n   update_region+0x100/0x18c drivers/tty/vt/vt.c:669\n   vcs_write+0x8ec/0xaf0 drivers/tty/vt/vc_screen.c:685\n\nbit_putcs_aligned() and bit_putcs_unaligned() already clamp the glyph\nindex to vc_font.charcount. Apply the same clamp in bit_cursor() after\nextracting the attribute and masking, before indexing fontdata.\n\nThe fix completes the bounds checking started in commit 18c4ef4e765a\n(\"fbdev: bitblit: bound-check glyph index in bit_putcs*\"), which missed\nthe cursor path.\n\nThis change should be safe because the clamp reuses the existing\ncontract from fbcon: charcount is maintained under console_lock in\ncon_font_set() and fbcon_font_set(), and hi_font_mask is cleared when\nswitching from 512 to 256 glyphs. When stale screen data with high bits\nremains after a font switch, or when vcs_write() stores an arbitrary\nvalue, clamping the index to 0 prevents the out-of-bounds read without\nchanging cursor semantics — the same fallback bit_putcs uses.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74635"
+    },
+    {
+      "id": "CVE-2026-74634",
+      "published": "2026-08-22T16:16:36.487",
+      "lastModified": "2026-08-25T06:18:42.647",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nring-buffer: Prevent subbuf order change when resizing is disabled\n\nBecause ring_buffer_subbuf_order_set() frees buffer pages, we can't\nallow it when resizing is disabled. A non-consuming reader is at risk of\nuse-after-free (rb_advance_iter()).\n\nReturn -EBUSY on resize_disabled, matching ring_buffer_resize()\nbehaviour.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74634"
+    },
+    {
+      "id": "CVE-2026-74633",
+      "published": "2026-08-22T16:16:36.380",
+      "lastModified": "2026-08-22T16:16:36.380",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ntracing: Fix NULL pointer dereference in module event cache removal\n\nA module-only event filter such as \":mod:foo\" is cached with a NULL\nevent_mod->match when foo has not been loaded. If a later write tries to\nremove a specific match from the same module, remove_cache_mod() passes\nthe NULL cached match to strcmp(), causing a NULL pointer dereference.\n\nThe issue can be reproduced from userspace:\n\n  echo ':mod:trace_events_kunit_missing' > /sys/kernel/tracing/set_event\n  echo '!foo_bar:mod:trace_events_kunit_missing' >> /sys/kernel/tracing/set_event\n\nThe second write must be a concatenation (\">>\") to not include O_TRUNC as\nthat would cause ftrace_clear_events() to clear the cached modules lines.\n\nThe crash was reproduced on x86_64 QEMU while KUnit workers contended on\nthe event tracing path:\n\n  BUG: kernel NULL pointer dereference, address: 0000000000000000\n  #PF: supervisor read access in kernel mode\n  RIP: 0010:strcmp+0x10/0x30\n  Call Trace:\n   __ftrace_set_clr_event_nolock+0x373/0x4a0\n   ftrace_set_clr_event+0xf0/0x180\n   ftrace_event_write+0xdf/0x110\n   vfs_write+0xf6/0x440\n   ksys_write+0x68/0xe0\n   do_syscall_64+0xf9/0x540\n   entry_SYSCALL_64_after_hwframe+0x77/0x7f\n\nCheck event_mod->match before comparing it, consistent with the existing\nNULL checks for the cached system and event fields. The mismatched removal\ncontinues to return -EINVAL; a broad cached module filter is removed with\n\"!:mod:<module>\".",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74633"
+    },
+    {
+      "id": "CVE-2026-74632",
+      "published": "2026-08-22T16:16:36.217",
+      "lastModified": "2026-08-27T13:18:35.130",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmm/huge_memory: fix huge_zero_pfn race\n\nPatch series \"mm/huge_memory: fix huge_zero_pfn race\", v2.\n\nThere is a subtle race in the reference-counted huge_zero_folio\nimplementation.\n\nThe fast path atomic logic fails to account for the fact that the shrinker\n(which drops the final huge_zero_refcount pin) can overwrite huge_zero_pfn\nwith the ~0UL sentinel value in shrink_huge_zero_folio_scan() after a\nracing get_huge_zero_folio() installed a valid value there.\n\nThis results in huge_zero_folio being correctly set but huge_zero_pfn\nbeing set incorrectly and thus is_huge_zero_pfn() and consequently\nis_huge_zero_pmd() will misidentify the huge zero folio as being an\nordinary THP folio.\n\nThis can result in the huge zero folio being split and otherwise treated\nincorrectly.\n\nThe solution to this is very subtle as there is an atomic fast path, and\nthus ordering in weakly ordered architectures has to be treated very\ncarefully.\n\nThe first commit fixes the issue by introducing a spinlock around\nhuge_zero_[pfn, folio, refcount] write, with careful consideration paid to\nload/store ordering in the fast path.  It is placed first and kept as\nsmall as possible so that it can be backported on its own.\n\nThe second commit is a pure cleanup which reworks the\nCONFIG_PERSISTENT_HUGE_ZERO_FOLIO logic to better separate the persistent\nlogic from the dynamically allocated one.\n\n\nThis patch (of 2):\n\nIf !CONFIG_PERSISTENT_HUGE_ZERO_FOLIO, the huge_zero_folio is refcounted\nby huge_zero_refcount and returned by mm_get_huge_zero_folio().\n\nWhen the caller is done with the huge zero page, its reference count is\ndecremented.  Only a shrinker can set the reference count to zero.\n\nA race can unfortunately occur between a shrinker decrementing the\nreference count to zero and a concurrent page fault.\n\nThis is because shrink_huge_zero_folio_scan() might, if very unlucky, be\npreempted between setting huge_zero_refcount to zero and writing an\ninvalid value.\n\nDuring this time get_huge_zero_folio() could write to huge_zero_pfn before\nshrink_huge_zero_folio_scan() resumes.\n\nIn this event the huge zero folio will be persistently misidentified\ncausing the THP code path to be entered inappropriately for the huge zero\nfolio:\n\n                CPU 0                                   CPU 1\n=======================================|=================================\nshrink_huge_zero_folio_scan()          |\n   atomic_cmpxchg() sets refcount to 0 |\n   xchg() sets huge_zero_folio to NULL | get_huge_zero_folio()\n                 |                     |    atomic_inc_not_zero() -> zero\n      preempted for a long time        |    Allocate new huge zero folio\n                 |                     |    Write valid huge_zero_folio\n                 v                     |    Write valid huge_zero_pfn\n  Overwrite huge_zero_pfn with ~0UL   <--- Invalid overwrite!\n\nThis results in is_huge_zero_pfn() and is_huge_zero_pmd() incorrectly\nreturning false for a huge zero page which could result in issues like the\nhuge zero folio being incorrectly split.\n\nNote that the issue is with huge_zero_pfn not huge_zero_folio, as\nget_huge_zero_folio() uses cmpxchg() gated on huge_zero_folio being NULL\nwith a retry loop and shrink_huge_zero_folio_scan() uses xchg() to set\nhuge_zero_folio.\n\nFix the issue by introducing a spinlock, huge_zero_lock, to prevent\nconcurrent write of huge_zero_folio, huge_zero_pfn and huge_zero_refcount.\n\nThere needs to be significant care taken here to ensure correctness:\n\nThe fast path in get_huge_zero_folio() uses atomic_inc_not_zero(), which\nis outside of the critical section, and means huge zero allocation is\ngated on zero huge_zero_refcount.\n\nThe fast path doesn't use huge_zero_lock, so the critical section is\nirrelevant to it.\n\nSo invariants are required - huge_zero_refcount MUST:\n\n* Only be set in the huge_zero_lock critical section to ensure\n  serialisation of huge_zero_pfn, huge_zero_folio and\n---truncated---",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74632"
+    },
+    {
+      "id": "CVE-2026-74631",
+      "published": "2026-08-22T16:16:36.080",
+      "lastModified": "2026-08-25T06:18:42.167",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: smc: fix splice entry lifetime imbalance in smc_rx_splice\n\nsmc_rx_splice() passes pages to splice_to_pipe() before taking the\nreferences that cover the lifetime of each splice entry. In the\nVM-backed RMB path, splice_to_pipe() may drop unqueued entries through\nsmc_rx_spd_release(), while queued entries are released later via the\npipe buffer callback.\n\nThe old post-splice accounting also derives the number of queued VM pages\nfrom an offset mutated while building the descriptor, and a multi-page\nsplice pairs one sock_hold() with multiple sock_put() calls.\n\nTake the page and socket references for every candidate entry before\nsplice_to_pipe(), and drop the matching private state, page reference,\nand socket reference from smc_rx_spd_release() for entries that never\nget queued. This fixes a refcount imbalance that can underflow page\nrefcounts and trigger a use-after-free.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74631"
+    },
+    {
+      "id": "CVE-2026-74630",
+      "published": "2026-08-22T16:16:35.943",
+      "lastModified": "2026-08-25T06:18:41.893",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nipv6: prevent in6_dev_get() from resurrecting inet6_dev\n\nin6_dev_get() reads dev->ip6_ptr under RCU and then unconditionally\nincrements its refcount. Device teardown can clear the pointer and drop\nthe last reference between these operations. The increment then\nresurrects an object whose RCU free has already been queued, so callers\ncan use it after it is freed.\n\nUse refcount_inc_not_zero() and return NULL when the object has already\nreached zero. RCU keeps the memory accessible through the attempted\nreference acquisition, and a successful increment pins the object for\nthe caller.\n\nAn independent run on the exact unpatched 6f5156d7a31a (v7.2-rc3)\nkernel reproduced the invalid reference acquisition as UID 1000:\n\n  refcount_t: addition on 0; use-after-free.\n  ip6_mc_source+0xef4/0x17e0\n\nIt was followed by the corresponding reference underflow in\nip6_mc_source(). The supplied trace from the same unpatched revision\nadditionally shows the access after the RCU read-side section ends:\n\n  BUG: KASAN: slab-use-after-free in mutex_lock+0x76/0xe0\n  Write of size 8 at addr ffff888015b50240 by task poc/1219\n\nBug found and triaged by OpenAI Security Research and\nvalidated by Trail of Bits.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74630"
+    },
+    {
+      "id": "CVE-2026-74629",
+      "published": "2026-08-22T16:16:35.840",
+      "lastModified": "2026-08-25T06:18:41.710",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/dibs: Correct freeing of dmb_clientid_arr\n\nA dibs device interrupt handler can be active after dibs_dev_del() and\nmay still access dmb_clientid_arr. (UAF)\n\nIn case of a failure in dibs_dev_add() being called by dibs_lo_dev_probe()\ndmb_clientid_arr is freed twice (double free).\n\nFree dmb_clientid_arr in dibs_dev_release() after last reference is gone.\nNote that allocating in dibs_dev_add() instead of dibs_dev_alloc() is ok\nfor now, because no dmbs can be registered before dibs_dev_add().",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74629"
+    },
+    {
+      "id": "CVE-2026-74628",
+      "published": "2026-08-22T16:16:35.737",
+      "lastModified": "2026-08-27T13:18:34.940",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/x25: fix use-after-free of the socket by its timers\n\nThe x25 timers are armed with mod_timer() and cancelled with\ntimer_delete(), so a pending timer holds no reference on the socket and a\ncancel does not wait for a callback already running on another CPU.\n\nx25_heartbeat_expiry() also rearms unconditionally, so it can reinstall\nsk->sk_timer after __x25_destroy_socket() has passed its cancel point.\nThe following __sock_put() frees the socket while the timer is still\nqueued, and the next expiry uses freed memory.  KASAN reports a\nslab-use-after-free on the kmalloc-2k object freed by close().\n\ntimer_delete_sync() cannot be used here: x25_heartbeat_expiry() and\nx25_timer_expiry() both reach the cancels from inside the timer they\nwould wait on, through __x25_destroy_socket() and x25_disconnect().\n\nArm the timers with sk_reset_timer() and cancel them with sk_stop_timer()\nso that an armed timer owns a reference, and release it in both expiry\nhandlers.  Rearm the heartbeat only while sk_hashed(sk) is still true,\nsince __x25_destroy_socket() unlinks the socket before dropping it.  Arm\nthe deferred destroy timer the same way and drop its reference in\nx25_destroy_timer().\n\nReproduced on net with KASAN, with the heartbeat period shortened so the\nwindow recurs.  With this patch the reproducer no longer triggers a\nreport and /proc/net/x25 drains.\n\nDiscovered by XBOW, triaged by Baul Lee <baul.lee@xbow.com>",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74628"
+    },
+    {
+      "id": "CVE-2026-74627",
+      "published": "2026-08-22T16:16:35.630",
+      "lastModified": "2026-08-25T06:18:41.313",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: devmem: prevent net-iov / page mixing\n\nWe should either have net_iov or page backed frags in a single skb,\notherwise it blows up down the stack. Don't allow mixing in\nzerocopy_fill_skb_from_devmem().",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74627"
+    },
+    {
+      "id": "CVE-2026-74626",
+      "published": "2026-08-22T16:16:35.517",
+      "lastModified": "2026-08-27T13:18:34.740",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nNTB: ntb_netdev: Preserve RX queue depth on allocation failure\n\nntb_netdev_rx_handler() hands the received skb to the network stack\nbefore allocating its replacement. If the allocation fails, nothing is\nreposted. Every failure therefore takes one buffer out of the RX queue\nwhile the interface remains up, and enough failures eventually stall\nreception.\n\nA retry path could refill the queue later, but ntb_netdev has none.\nAllocate the replacement first instead. If that fails, drop the packet\nand repost the same skb. This keeps the queue full and lets packet\ndelivery resume as soon as memory is available again.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74626"
+    },
+    {
+      "id": "CVE-2026-74625",
+      "published": "2026-08-22T16:16:35.390",
+      "lastModified": "2026-08-25T06:18:40.927",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: bridge: release template ct on non-IP path\n\nA bridge nftables ct zone set rule can attach a conntrack template to\nan skb before nf_ct_bridge_pre() sees it. For non-IPv4 and non-IPv6\nEtherTypes, nf_ct_bridge_pre() currently overwrites skb->_nfct with\nIP_CT_UNTRACKED without releasing the existing template reference.\n\nThat makes the per-cpu template, and any temporary templates allocated\nfor concurrent use, unreachable and leaks memory until the host runs out\nof slab.\n\nReset the skb conntrack state before marking the frame untracked so the\nexisting template reference is dropped on the non-IP path.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74625"
+    },
+    {
+      "id": "CVE-2026-74624",
+      "published": "2026-08-22T16:16:35.280",
+      "lastModified": "2026-08-25T06:18:40.723",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: nf_conntrack: defer invalid log until after unlock\n\nTCP and SCTP conntrack paths can emit invalid-packet logs while ct->lock\nis still held.\n\nWhen invalid logging is routed to nfnetlink_log and conntrack export is\nenabled, the log path can re-enter conntrack netlink glue and dump the\nsame conntrack again. Protocol attribute dumping may take ct->lock, so\nlogging while holding that lock can deadlock.\n\nDefer the TCP invalid logs by storing only the minimal log context while\nct->lock is held and emitting the log after unlocking. Also make the TCP\ntimeout-lowering invalid path return whether a log is needed, then emit\nthat log after unlocking.\n\nDo the same for the SCTP invalid state-transition log that can be reached\nwhile ct->lock is held.\n\nAdd a lockdep assertion to nf_ct_l4proto_log_invalid() so future callers\nthat log invalid conntracks while holding ct->lock are caught outside TCP\nand SCTP as well.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74624"
+    },
     {
       "id": "CVE-2026-74623",
       "published": "2026-08-22T16:16:35.157",
@@ -703,173 +864,6 @@
       "score": 7.5,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-2996"
-    },
-    {
-      "id": "CVE-2026-62382",
-      "published": "2026-08-22T13:16:40.110",
-      "lastModified": "2026-08-24T20:16:53.870",
-      "description": "PasswordPusher versions v1.45.11 through v2.9.5 contain an improper authorization vulnerability in the push deletion logic. The ownership check compares @push.user against current_user; for an anonymously created push both values are nil, and Ruby evaluates nil == nil as true, so the check passes and the deletable_by_viewer restriction is never enforced. An attacker who knows only the secret URL can permanently delete an anonymous push even when the creator disabled viewer deletion and even without the passphrase. Only deployments that allow anonymous pushes (the default) are affected. The issue is fixed in v2.9.6.",
-      "score": 6.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62382"
-    },
-    {
-      "id": "CVE-2026-62381",
-      "published": "2026-08-22T13:16:39.957",
-      "lastModified": "2026-08-24T20:16:53.430",
-      "description": "luci-lib-px5g (LuCI) contains a heap-based buffer overflow in the native ASN.1 encoding routine asn1_add_obj (x509write.c) when signing a certificate with a 2040-bit RSA key. For a 255-byte signature, the BIT STRING allocation is computed from the DER length encoding of 255 bytes, but the payload written after prepending the unused-bits byte is 256 bytes, requiring one additional DER length octet. As a result the allocation is 259 bytes while the tag, length, unused-bits byte, and signature require 260 bytes, and the final memcpy writes one byte beyond the heap buffer. The overflow is reachable through the exported Lua interface via create_selfsigned(); whether it is remotely exploitable depends on the embedding application. The vulnerable code is present on the openwrt-18.06 through openwrt-25.12 release branches and is absent from master, where the luci-lib-px5g package has been removed rather than patched.",
-      "score": 6.6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62381"
-    },
-    {
-      "id": "CVE-2026-62380",
-      "published": "2026-08-22T13:16:39.830",
-      "lastModified": "2026-08-27T20:32:22.390",
-      "description": "Netty (io.netty:netty-codec-socks) versions 4.2.0.Final through 4.2.16.Final and 4.1.x through 4.1.136.Final contain null byte, CRLF, and credential injection vulnerabilities in the SOCKS4 (Socks4ClientEncoder) and SOCKS5 (Socks5ClientEncoder) client encoders, which fail to validate domain address and authentication (username/password) fields. An attacker able to control these fields can inject null bytes or CRLF characters to truncate or alter values, potentially enabling domain spoofing, SOCKS4 userid truncation, authentication data injection, and protocol confusion. Fixed in 4.2.17.Final and 4.1.137.Final.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62380"
-    },
-    {
-      "id": "CVE-2026-62243",
-      "published": "2026-08-22T13:16:39.687",
-      "lastModified": "2026-08-24T20:16:52.993",
-      "description": "Netty (io.netty:netty-handler) versions from 4.2.0.Final through 4.2.16.Final and versions through 4.1.136.Final disable TLS hostname verification on the SslProvider.OPENSSL client path when a plain (non-extended) X509TrustManager is used and Unsafe-based trust-manager wrapping is unavailable (Java 25+). In this configuration the OpenSSL client does not perform hostname verification, allowing a man-in-the-middle attacker to present a certificate issued for a different hostname that is accepted without validation. Fixed in 4.2.17.Final and 4.1.137.Final.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62243"
-    },
-    {
-      "id": "CVE-2026-62204",
-      "published": "2026-08-22T13:16:39.547",
-      "lastModified": "2026-08-26T18:16:43.387",
-      "description": "SiYuan versions before v3.7.4 fail to validate that packageName matches the downloaded package content in bazaar install endpoints. Attackers with same-origin access can overwrite existing trusted plugins by supplying mismatched packageName and repoURL parameters, achieving persistence across application restarts.",
-      "score": 6.6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62204"
-    },
-    {
-      "id": "CVE-2026-60084",
-      "published": "2026-08-22T13:16:39.407",
-      "lastModified": "2026-08-26T17:07:30.163",
-      "description": "SiYuan versions before v3.7.4 contain an arbitrary file deletion vulnerability in the /api/search/removeTemplate endpoint that accepts an unvalidated path parameter passed directly to os.RemoveAll. Authenticated admin attackers can supply absolute filesystem paths to recursively delete any file or directory the kernel process has permission to remove, anywhere on the host filesystem.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-60084"
-    },
-    {
-      "id": "CVE-2026-60083",
-      "published": "2026-08-22T13:16:39.263",
-      "lastModified": "2026-08-26T17:10:09.810",
-      "description": "SiYuan versions before v3.8.0 contain an incomplete path blocklist in the MCP file tool that fails to restrict access to sensitive workspace files protected by the HTTP API. Authenticated administrators can read plaintext publish-mode passwords from data/.siyuan/publishAccess.json and access other sensitive files like data/templates and data/snippets/conf.json.",
-      "score": 4.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-60083"
-    },
-    {
-      "id": "CVE-2026-59809",
-      "published": "2026-08-22T13:16:39.127",
-      "lastModified": "2026-08-26T17:17:08.580",
-      "description": "SiYuan before v3.8.0 interpolates secret placeholders into the destination URL parameter of the http_request MCP tool, allowing attackers to exfiltrate stored secrets. An MCP client can craft a request with an attacker-controlled URL containing secret placeholders to send plaintext secret values to any public host without confirmation.",
-      "score": 4.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59809"
-    },
-    {
-      "id": "CVE-2026-59808",
-      "published": "2026-08-22T13:16:38.977",
-      "lastModified": "2026-08-26T17:07:30.163",
-      "description": "AVideo through commit 9c39d8c8 contains an authentication bypass vulnerability where deduplicateByEncoderQueueId() returns video_id_hash credentials for any video by encoder_queue_id without ownership verification, and useVideoHashOrLogin() converts this hash into passwordless login as the video owner. Attackers with upload permission can retrieve an administrator's video_id_hash by omitting the videos_id parameter, then use that hash in an unauthenticated request to gain administrative session access and modify system configuration.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59808"
-    },
-    {
-      "id": "CVE-2026-59256",
-      "published": "2026-08-22T13:16:38.817",
-      "lastModified": "2026-08-26T18:16:42.923",
-      "description": "WWBN AVideo through commit 9c39d8c8 contains an authorization bypass vulnerability where getToken() creates tokens without binding to user identity or purpose, and plugin/Gallery/view/sections.php issues valid tokens to unauthenticated visitors. Attackers can retrieve a token from the Gallery endpoint and use it to bypass authorization checks in other subsystems like view/hls.php to access restricted video content.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59256"
-    },
-    {
-      "id": "CVE-2026-58003",
-      "published": "2026-08-22T13:16:38.673",
-      "lastModified": "2026-08-26T17:07:30.163",
-      "description": "WWBN AVideo through commit 9c39d8c8 contains a cross-site request forgery vulnerability in the releaseVideoNow.json.php endpoint that lacks authenticity checks and accepts GET requests. Attackers can craft a malicious cross-site GET request carrying an administrator's session cookie to permanently publish any embargoed video by manipulating the videos_id parameter.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-58003"
-    },
-    {
-      "id": "CVE-2026-58002",
-      "published": "2026-08-22T13:16:38.540",
-      "lastModified": "2026-08-26T17:10:09.810",
-      "description": "WWBN AVideo through commit 9c39d8c8b4c1f75540788d6b391740852ceb0732 contains an authorization bypass vulnerability in the Users_affiliations add.json.php endpoint that allows authenticated users to forge two-party consent records by supplying the counterparty's agreement timestamp. Attackers can create a forged affiliation with status='a' and then reassign video ownership to arbitrary users through the videoAddNew.json.php endpoint, which trusts the forged affiliation as an authorization term.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-58002"
-    },
-    {
-      "id": "CVE-2026-58001",
-      "published": "2026-08-22T13:16:38.403",
-      "lastModified": "2026-08-26T17:17:08.430",
-      "description": "WWBN AVideo through commit 9c39d8c8 contains a cross-site request forgery vulnerability in objects/videoEditLight.php that lacks request authenticity checks and accepts GET requests. Attackers can store an img tag in a video description that transfers video ownership to an attacker-controlled account when an administrator views the video page.",
-      "score": 5.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-58001"
-    },
-    {
-      "id": "CVE-2026-57998",
-      "published": "2026-08-22T13:16:38.263",
-      "lastModified": "2026-08-25T17:17:33.827",
-      "description": "better-npm-audit through 3.11.0, and the 4.0.0-rc.2 prerelease, builds its npm audit command by interpolating the user-supplied --registry option into a command string in src/handlers/handleInput.ts without validation or quoting, then passes that string to child_process.exec() in index.ts, which spawns a shell. A registry value containing shell metacharacters such as a semicolon, pipe, or command substitution executes arbitrary operating system commands with the privileges of the process running the audit.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57998"
-    },
-    {
-      "id": "CVE-2026-57944",
-      "published": "2026-08-22T13:16:38.130",
-      "lastModified": "2026-08-26T18:16:41.830",
-      "description": "AVideo through commit 9c39d8c8 contains a cross-site request forgery vulnerability in channelToGallery.json.php that allows attackers to modify site-wide Gallery configuration by performing unauthorized writes to plugin data. Attackers can craft a cross-site GET request carrying an administrator's session cookie to promote arbitrary channels to the front page or delete curated sections without token validation.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57944"
-    },
-    {
-      "id": "CVE-2026-56380",
-      "published": "2026-08-22T13:16:37.977",
-      "lastModified": "2026-08-26T17:07:30.163",
-      "description": "AVideo through commit 9c39d8c8 contains an information exposure vulnerability in feed/index.php that allows unauthenticated attackers to retrieve channel owner email addresses by supplying a public channel name parameter. Attackers can enumerate all creator email addresses by iterating through public channel names and extract them from the itunes:email and itunes:author RSS elements, enabling account takeover attempts and phishing campaigns.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-56380"
-    },
-    {
-      "id": "CVE-2026-4244",
-      "published": "2026-08-22T13:16:37.523",
-      "lastModified": "2026-08-24T16:41:13.950",
-      "description": "The Post Duplicator plugin for WordPress is vulnerable to unauthorized modification of data due to a missing capability check on the `duplicate_post()` function in all versions up to, and including, 3.0.11. This is due to the function not verifying that the user has `edit_others_posts` capability before accepting a `selectedAuthorId` parameter via the `duplicate-post` REST endpoint. This makes it possible for authenticated attackers, with Contributor-level access and above, to create duplicated posts attributed to any user, including administrators.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-4244"
-    },
-    {
-      "id": "CVE-2026-11948",
-      "published": "2026-08-22T13:16:37.450",
-      "lastModified": "2026-08-22T13:16:37.450",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-11948"
-    },
-    {
-      "id": "CVE-2026-11947",
-      "published": "2026-08-22T13:16:36.970",
-      "lastModified": "2026-08-22T13:16:36.970",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-11947"
     }
   ]
 }
