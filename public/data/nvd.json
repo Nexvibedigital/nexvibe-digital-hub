@@ -1,6 +1,29 @@
 {
-  "syncedAt": "2026-08-29T04:11:28.598Z",
+  "syncedAt": "2026-08-29T04:41:42.380Z",
   "items": [
+    {
+      "id": "CVE-2026-74601",
+      "published": "2026-08-22T16:16:32.530",
+      "lastModified": "2026-08-25T06:18:36.057",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nring-buffer: Use current_context for safe per-CPU buffer swap\n\nThe ring_buffer_swap_cpu() function currently checks the per-CPU\ncommitting counter to determine if a buffer is actively being written to\nbefore performing the swap. However, there exists a race window where\nthis check can be bypassed:\n\n    ring_buffer_lock_reserve\n        cpu_buffer = buffer->buffers[cpu];       // cpu_buffer_a\n        rb_reserve_next_event\n            rb_start_commit // inc committing\n            if (unlikely(READ_ONCE(cpu_buffer->buffer) != buffer)) {...}\n            __rb_reserve_next\n                rb_move_tail\n                    rb_end_commit(cpu_buffer);   // dec committing => 0\n                    /* interrupt hits here, successfully swaps! */\n                    local_inc(&cpu_buffer->committing);\n\n    ring_buffer_unlock_commit\n        cpu_buffer = buffer->buffers[cpu];      // cpu_buffer_b\n        rb_commit\n            rb_end_commit\n            RB_WARN_ON(cpu_buffer, !local_read(&cpu_buffer->committing))\n                                                // triggers warning\n\nThe committing counter can temporarily drop to 0 during a single write\noperation (within rb_move_tail), creating a window where swap can\nsucceed even though the write is still in progress. This leads to\ninconsistent buffer state and triggers the RB_WARN_ON in rb_commit().\n\nReplace the committing counter check with current_context checks, which\nare set at the entry of ring_buffer_lock_reserve() and remain valid\nthroughout the entire write operation, providing a reliable indicator of\nbuffer busy state during swap.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74601"
+    },
+    {
+      "id": "CVE-2026-74600",
+      "published": "2026-08-22T16:16:32.430",
+      "lastModified": "2026-08-23T13:16:46.480",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmm/page_table_check: skip special zero mappings\n\npage_table_check_set() and page_table_check_clear() account mappings based\non PageAnon().  Shared zero-page PTEs and huge zero PMDs are special\nmappings, but page_table_check can still account them as file-backed\npages.\n\nAn unprivileged process can populate enough zero mappings to overflow\nfile_map_count and hit the existing BUG_ON().  The PTE path can do this\nwith the shared zero page, and the PMD path can do the same with huge zero\nmappings.\n\nSkip special zero mappings in the user page-table accounting paths.  Keep\nthe PTE-side pte_special() check, and identify huge zero PMDs from the\nmapped folio instead of pmd_special().  That covers architectures where\npmd_special() is a no-op without adding huge_zero_pfn checks to the\ngeneric counter helpers.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74600"
+    },
+    {
+      "id": "CVE-2026-74599",
+      "published": "2026-08-22T16:16:32.303",
+      "lastModified": "2026-08-23T13:16:46.343",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmm/ptdump: always stabilise against page table freeing using init_mm\n\nPrevious commits have established the invariant that kernel page table\nfreeing is performed while an mmap read lock on init_mm is held, which\nfixes races between ptdump and kernel page table freeing over init_mm.\n\nHowever, x86 and arm64 can perform a ptdump over an mm other than init_mm\nvia ptdump_walk_pgd() and since kernel memory ranges are shared across\nnon-kernel mm's, this means that the race still exists for these cases.\n\nFix this by acquiring a nested mmap write lock for init_mm in\nptdump_walk_pgd().\n\nThis is safe as we take this after mmap write locking the mm, and nothing\nacquires the init_mm lock first before locking an arbitrary mm, so no\ndeadlock is possible.\n\nAlso update walk_page_range_debug() to assert that init_mm is write\nlocked, add a comment explaining why and remove some redundant code, and\neliminate the unnecessary and confusing invocation of\nwalk_kernel_page_table_range().\n\nWe can safely remove the non-NULL check for walk.mm, as the mmap lock\nasserts would NULL pointer deref if it was (and of course no callers do\nthis).\n\nThe first point at which ptdump can race kernel page table freeing is\ncommit b6bdb7517c3d (\"mm/vmalloc: add interfaces to free unmapped page\ntable\"), so we target this in the Fixes tag.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74599"
+    },
     {
       "id": "CVE-2026-74598",
       "published": "2026-08-22T16:16:32.170",
@@ -859,33 +882,6 @@
       "score": 2.7,
       "severity": "LOW",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14187"
-    },
-    {
-      "id": "CVE-2026-76074",
-      "published": "2026-08-22T04:18:17.990",
-      "lastModified": "2026-08-24T16:41:13.950",
-      "description": "The AutomatorWP – Automator plugin for no-code automations, webhooks & custom integrations in WordPress plugin for WordPress is vulnerable to authorization bypass in all versions up to, and including, 5.8.4. This is due to the plugin not properly verifying that a user is authorized to perform an action. This makes it possible for authenticated attackers, with subscriber-level access and above, to retrieve the site's configured Campaign Monitor mailing list catalog, including all list IDs and names, that should be restricted to users with the plugin's manager capability. The required nonce is emitted unconditionally on every WordPress admin page via wp_localize_script, meaning any subscriber visiting /wp-admin/profile.php can obtain it without any elevated access.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76074"
-    },
-    {
-      "id": "CVE-2026-76057",
-      "published": "2026-08-22T04:18:17.367",
-      "lastModified": "2026-08-24T16:41:13.950",
-      "description": "The AutomatorWP – Automator plugin for no-code automations, webhooks & custom integrations in WordPress plugin for WordPress is vulnerable to authorization bypass in all versions up to, and including, 5.8.4. This is due to the plugin not properly verifying that a user is authorized to perform an action. This makes it possible for authenticated attackers, with subscriber-level access and above, to retrieve all ConvertKit form data configured by the site's manager account, exposing integration details intended to be restricted to plugin managers. The required nonce is localized on every admin page load, making it accessible to any authenticated user who can reach /wp-admin.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76057"
-    },
-    {
-      "id": "CVE-2026-75027",
-      "published": "2026-08-22T04:18:15.057",
-      "lastModified": "2026-08-24T16:41:13.950",
-      "description": "The Themify Builder plugin for WordPress is vulnerable to authorization bypass in all versions up to, and including, 7.8.0. This is due to the plugin not properly verifying that a user is authorized to perform an action. This makes it possible for unauthenticated attackers to modify the stored Themify Builder styling data (padding and margin properties) of arbitrary posts, including private and draft posts, by supplying an attacker-controlled post ID and JSON styling payload. The nonce required by the handler is automatically emitted to all frontend pages rendered by the builder via wp_localize_script, meaning any unauthenticated visitor can trivially retrieve a valid nonce from page source and satisfy the only access control in place.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75027"
     }
   ]
 }
