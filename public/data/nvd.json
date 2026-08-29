@@ -1,6 +1,121 @@
 {
-  "syncedAt": "2026-08-29T06:11:25.580Z",
+  "syncedAt": "2026-08-29T06:41:43.622Z",
   "items": [
+    {
+      "id": "CVE-2026-74614",
+      "published": "2026-08-22T16:16:34.023",
+      "lastModified": "2026-08-25T06:18:39.263",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nvsock/virtio: read virtqueues under worker locks\n\nCommit bd50c5dc182b (\"vsock/virtio: add support for device\nsuspend/resume\") made the *_run flags transition from false to true when\nrestore installs replacement virtqueues.  The RX, TX and event workers\nread their virtqueue before locking and checking the corresponding flag,\nso a worker delayed across freeze and restore can observe the replacement\nqueue's running state while retaining a pointer to the deleted queue.\n\nRead each virtqueue under its mutex after checking the run flag, keeping\nthe pointer and state in the same queue generation.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74614"
+    },
+    {
+      "id": "CVE-2026-74613",
+      "published": "2026-08-22T16:16:33.890",
+      "lastModified": "2026-08-25T06:18:38.920",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nvsock/virtio: avoid refilling the RX queue after teardown\n\nCommit b917507e5ad9 (\"vsock/virtio: stop workers during the .remove()\")\nmade the RX worker jump to its common exit when rx_run is clear.  That\nexit still refills the RX queue when the buffer count is low, so work\nqueued across virtio_vsock_vqs_del() can add buffers after the virtqueues\nhave been deleted.\n\nBUG: KASAN: slab-use-after-free in virtqueue_add_sgs\nRead of size 4 by task kworker/0:1\nWorkqueue: virtio_vsock virtio_transport_rx_work\nCall Trace:\n virtqueue_add_sgs (drivers/virtio/virtio_ring.c:2796)\n virtio_vsock_rx_fill (net/vmw_vsock/virtio_transport.c:332)\n virtio_transport_rx_work (net/vmw_vsock/virtio_transport.c:701)\n process_one_work (kernel/workqueue.c:3314)\n worker_thread (kernel/workqueue.c:3478)\n kthread (kernel/kthread.c:436)\n ret_from_fork (arch/x86/kernel/process.c:158)\n ret_from_fork_asm (arch/x86/entry/entry_64.S:245)\n...\nFreed by task 141:\n kfree (mm/slub.c:6566)\n vp_del_vq (drivers/virtio/virtio_pci_common.c:259)\n vp_del_vqs (drivers/virtio/virtio_pci_common.c:285)\n virtio_vsock_freeze (net/vmw_vsock/virtio_transport.c:912)\n virtio_device_freeze (drivers/virtio/virtio.c:658)\n virtio_pci_freeze (drivers/virtio/virtio_pci_common.c:601)\n pci_pm_freeze (drivers/pci/pci-driver.c:1098)\n device_suspend (drivers/base/power/main.c:1968)\nKernel panic - not syncing: KASAN: panic_on_warn set ...\n\nJump to a no-refill exit when rx_run is clear, leaving the normal exit\nto replenish a running queue.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74613"
+    },
+    {
+      "id": "CVE-2026-74612",
+      "published": "2026-08-22T16:16:33.770",
+      "lastModified": "2026-08-25T06:18:38.680",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nveth: fix skb length accounting after XDP frag adjustment\n\nveth exposes non-linear skb fragments through an xdp_buff. If an XDP\nprogram adjusts the fragment area, veth_xdp_rcv_skb() copies\nxdp_frags_size back to skb->data_len but leaves skb->len containing the\nold fragment contribution.\n\nAfter a fragment shrink, this makes skb_headlen() larger than the actual\nlinear area. In the reproduced UDP receive path, __skb_datagram_iter()\ncopied 1024 bytes past the actual linear tail to userspace, starting at\nstruct skb_shared_info. The copied bytes included the affected skb's\nnr_frags, xdp_frags_size, and a kernel pointer from\nskb_shinfo(skb)->frags[0]. Real packet data was displaced by the same\namount and truncated at the end.\n\nSubtract the old data_len before replacing it and add the new data_len\nafterwards, keeping skb->len and skb->data_len synchronized.\n\nAdditionally, bpf_xdp_pull_data() can advance data_end while leaving\nfrags present. The skb is then still non-linear, so the old\n__skb_put(skb, off) triggers SKB_LINEAR_ASSERT().\n\nUse skb_set_tail_pointer() and update skb->len explicitly instead,\nfollowing bpf_prog_run_generic_xdp(). Unlike __skb_put(),\nskb_set_tail_pointer() does not require a linear skb.\n\nA 60000-byte UDP datagram on a veth pair with MTU 64000 was shortened by\n1024 bytes from its fragment area. Before the fix, all 10 runs produced\ncorrupted payloads. After the fix, all 10 runs matched the expected\npayload exactly. A forced-tailroom reproducer also exercises\nbpf_xdp_pull_data() with frags still present; the old code triggers\nSKB_LINEAR_ASSERT(), while this fix passes 10/10 runs.",
+      "score": 10,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74612"
+    },
+    {
+      "id": "CVE-2026-74611",
+      "published": "2026-08-22T16:16:33.670",
+      "lastModified": "2026-08-25T06:18:38.440",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ntls: rx: restore msg_iter before TLS 1.3 optimistic retry\n\ntls_decrypt_sg() advances msg->msg_iter when it maps user pages for\nthe optimistic TLS 1.3 zero-copy path. If the decrypted record turns\nout not to be unpadded application data, tls_decrypt_sw() retries into\na kernel skb, but leaves the iterator advanced.\n\nThe subsequent copy from the skb then writes decrypted bytes again at\na later point in the caller iovecs while recvmsg() reports only the\npost-retry length. A TLS peer can trigger this after the receiver\nenables TLS_RX_EXPECT_NO_PAD.\n\nRevert the iterator by the number of bytes consumed by the optimistic\nmapping before retrying without zero-copy.\n\nAdd a selftest which sends a TLS 1.3 control record with\nTLS_RX_EXPECT_NO_PAD enabled and verifies that recvmsg() does not\noverwrite later iovecs beyond the returned length.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74611"
+    },
+    {
+      "id": "CVE-2026-74610",
+      "published": "2026-08-22T16:16:33.547",
+      "lastModified": "2026-08-25T06:18:38.140",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ntls: don't leave a full plaintext sk_msg ring unpushed\n\nWhen the copy path in tls_sw_sendmsg_locked() adds the fragment that fills\nthe plaintext sk_msg ring, it does not set full_record, so the record is\nleft full and unpushed.  A later splice() then adds to an already full\nring: sk_msg_page_add() has no fullness check of its own, so sg.end wraps\nonto sg.start and the ring appears empty.  Fragments added after that\noverwrite live entries, and sg.size no longer matches what is reachable\nbetween sg.start and sg.end, so pushing the record runs the scatterwalk off\nthe end of the scatterlist.\n\nAn unprivileged user can trigger this on a loopback TCP socket with the\n\"tls\" ULP attached:\n\n  BUG: kernel NULL pointer dereference, address: 0000000000000008\n  RIP: 0010:memcpy_from_scatterwalk+0x32/0xc0\n  Call Trace:\n   skcipher_walk_next+0x1d1/0x2c0\n   gcm_encrypt_aesni_avx+0x1e9/0x220\n   bpf_exec_tx_verdict+0x3bb/0x860\n   tls_sw_sendmsg+0xa1a/0xca0\n   __sys_sendto+0x1da/0x1f0\n\nSet full_record in the copy path when the ring becomes full, and push a\nrecord that is already full on entry to the sendmsg loop.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74610"
+    },
+    {
+      "id": "CVE-2026-74609",
+      "published": "2026-08-22T16:16:33.407",
+      "lastModified": "2026-08-25T06:18:37.870",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ntipc: read le->link under the node lock in tipc_node_link_down()\n\ntipc_node_link_down() caches the link pointer before taking n->lock:\n\n\tstruct tipc_link *l = le->link;\t\t/* unlocked */\n\n\tif (!l)\n\t\treturn;\n\ttipc_node_write_lock(n);\n\tif (!tipc_link_is_establishing(l)) {\t/* deref l */\n\t...\n\t\ttipc_link_reset(l);\t\t/* write into l */\n\tif (delete) {\n\t\tkfree(l);\n\t\tle->link = NULL;\n\nThe delete=true caller frees that very object under n->lock, so the lock\ndoes not protect the cached pointer against it:\n\n - CPU A, delete=false: tipc_rcv() on TIPC_LINK_DOWN_EVT, or the link\n   supervision timer via tipc_node_timeout(), reads l unlocked and then\n   dereferences it under n->lock;\n - CPU B, delete=true: netlink TIPC_NL_BEARER_DISABLE -> bearer_disable()\n   -> tipc_node_delete_links() -> tipc_node_link_down(n, bearer_id, true)\n   -> kfree(l).\n\nThe link is freed with plain kfree(), not kfree_rcu(), and for UDP bearers\ndisable_media() only schedules the asynchronous cleanup_bearer() work, so\nits synchronize_net() runs after the links are already gone.  An in-flight\nCPU A that has read l therefore dereferences freed memory once B frees it:\na use-after-free read in tipc_link_is_establishing(), and a use-after-free\nwrite via tipc_link_reset() on the establishing branch.\n\nThe following trace was captured on 7.2.0-rc5-00284-gaf39eb111ce6:\n\n  BUG: KASAN: slab-use-after-free in tipc_link_is_establishing (net/tipc/link.c:285)\n  Read of size 4 at addr ffff88802e2aa068 by task swapper/2/0\n   tipc_link_is_establishing (net/tipc/link.c:285)\n   tipc_node_link_down (net/tipc/node.c:1076)\n   tipc_node_timeout (net/tipc/node.c:843)\n  Allocated by task 9549:\n   tipc_link_create (net/tipc/link.c:490)\n   tipc_node_check_dest (net/tipc/node.c:1279)\n   tipc_disc_rcv (net/tipc/discover.c:252)\n   tipc_udp_recv (net/tipc/udp_media.c:389)\n  Freed by task 9549:\n   tipc_node_link_down (net/tipc/node.c:1084)\n   tipc_node_delete_links (net/tipc/node.c:1320)\n   bearer_disable (net/tipc/bearer.c:414)\n   __tipc_nl_bearer_disable (net/tipc/bearer.c:992)\n\nMove the le->link read inside tipc_node_write_lock(), so it is serialised\nagainst the kfree() in the delete path.  A racing teardown now either has\nnot run yet, and we see a valid link, or has already run, and we see NULL.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74609"
+    },
+    {
+      "id": "CVE-2026-74608",
+      "published": "2026-08-22T16:16:33.290",
+      "lastModified": "2026-08-25T06:18:37.637",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsmb: client: Fix use-after-free in cifs_try_adding_channels()\n\ncifs_try_adding_channels() takes a temporary reference to an interface\nbefore dropping iface_lock. If cifs_ses_add_channel() fails, it drops\nthat reference and then increments iface->weight_fulfilled.\n\nA concurrent interface list refresh can remove the list reference while\nchannel creation is in progress. In that case, the failure-path\nkref_put() releases the last reference and frees iface. Updating\nweight_fulfilled afterward then accesses freed memory.\n\nIncrement weight_fulfilled before dropping the temporary reference,\nkeeping iface alive for the final access.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74608"
+    },
+    {
+      "id": "CVE-2026-74607",
+      "published": "2026-08-22T16:16:33.183",
+      "lastModified": "2026-08-25T06:18:37.403",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nKVM: SVM: Serialize accesses to the owner and mirror list with separate lock\n\nInteraction between KVM_CAP_VM_MOVE_ENC_CONTEXT_FROM and\nKVM_CAP_VM_COPY_ENC_CONTEXT_FROM can cause two separate issues:\n\n- in sev_migrate_from(), when the destination KVM is a mirror, the mirror\n  entry is moved from the source's list to the owner's mirror_vms list,\n  without holding the owner's lock unlike other writers of the owner's\n  mirror list (sev_vm_copy_enc_context_from(), sev_vm_destroy()).\n  A concurrent COPY or destroy can race with sev_migrate_from() and\n  corrupt the list.\n\n- In sev_vm_destroy(), the *owner* is still active and could receive\n  concurrently a KVM_CAP_VM_MOVE_ENC_CONTEXT_FROM that causes\n  sev->enc_context_owner to change.  In this case the incorrect VM\n  receives kvm_put_kvm().\n\nThe second issue needs particular care because the owner could disappear\naltogether (even though the race window is impossibly small) between\nreading it and locking it.  There is thus no way to perform the checks\nunder the owner lock without putting struct kvm under SLAB_TYPESAFE_BY_RCU\n(which would allow kvm_get_kvm_safe() under RCU critical section).\n\nIt is much simpler to just use a global lock, since the critical\nsections are so small and the new lock is always a leaf lock.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74607"
+    },
+    {
+      "id": "CVE-2026-74606",
+      "published": "2026-08-22T16:16:33.077",
+      "lastModified": "2026-08-25T06:18:37.160",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\neventfs: Fix use-after-free in eventfs_remove_rec()\n\neventfs_remove_rec() recursively removes the child at the current loop\nposition. After the recursive call returns, list_for_each_entry() advances\nby reading list.next from the removed child.\n\nIf free_ei() drops the final reference, release_ei() reuses the list/rcu\nunion to queue an SRCU callback. The child may be freed before that read.\nThe eventfs_mutex serializes list updates, but it does not keep the removed\nchild alive or prevent the SRCU callback from running.\n\nUse list_for_each_entry_safe() to save the next sibling before recursively\nremoving the current child.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74606"
+    },
+    {
+      "id": "CVE-2026-74605",
+      "published": "2026-08-22T16:16:32.977",
+      "lastModified": "2026-08-25T06:18:36.947",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\neventfs: Use children field for rcu head and add memory barriers\n\nWhen an eventfs inode is freed, it sets ei->is_freed and then uses its\nei->list to add it to the srcu link list as the list field is a union with\nthe rcu list head. As the ei->list is used to iterate over an SRCU\nprotected list without taking the eventfs_mutex, there's nothing stopping\nthe iteration over that list to see the ei->rcu instead of the ei->list\nand it will read a corrupt target.\n\nTo fix this, change the union of the rcu list head with the children list.\nOn freeing the eventfs inode, set the is_free and execute a smp_wmb()\nbefore adding the eventfs inode to the SRCU list.\n\nOn iteration of the ei->children list, at the start, execute a smp_rmb()\nand then read the is_freed of the ei to see if the children list is still\nvalid. If is_freed is set, then the ei_child read is not valid and the\nloop should exit immediately.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74605"
+    },
+    {
+      "id": "CVE-2026-74604",
+      "published": "2026-08-22T16:16:32.860",
+      "lastModified": "2026-08-25T06:18:36.557",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRevert \"thermal/drivers/hwmon: Cleanup coding style a bit\"\n\nRevert commit 030a48b0f6ce (\"thermal/drivers/hwmon: Cleanup coding style\na bit\") that introduced a use-after-free into the error path of\nthermal_add_hwmon_sysfs() by removing a valid check from it.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74604"
+    },
+    {
+      "id": "CVE-2026-74603",
+      "published": "2026-08-22T16:16:32.750",
+      "lastModified": "2026-08-25T06:18:36.303",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nptp: ocp: Fix board ID over-read\n\nThe EEPROM board ID is a fixed 13-byte field and is not guaranteed to\ncontain a NUL terminator. Passing it directly to\ndevlink_info_version_fixed_put() treats it as a C string and may read\nbeyond the field.\n\nFormat at most OCP_BOARD_ID_LEN bytes into the existing local buffer\nbefore reporting the ID. Use a precision limit because the snprintf()\noutput size alone does not bound the source string scan.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74603"
+    },
+    {
+      "id": "CVE-2026-74602",
+      "published": "2026-08-22T16:16:32.650",
+      "lastModified": "2026-08-23T13:16:46.710",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nring-buffer: Initialise reader page order in rb_allocate_cpu_buffer()\n\nIn rb_allocate_cpu_buffer(), bpage->order was omitted, leaving it as 0.\nThis is an issue for a ring-buffer with subbufs bigger than PAGE_SIZE if\nwhen freed: free_buffer_page() relies on this value. Align the value\nwith the actual allocation size (buffer::subbuf_order).",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74602"
+    },
     {
       "id": "CVE-2026-74601",
       "published": "2026-08-22T16:16:32.530",
@@ -765,123 +880,6 @@
       "score": 9.3,
       "severity": "CRITICAL",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12710"
-    },
-    {
-      "id": "CVE-2026-77002",
-      "published": "2026-08-22T06:16:17.510",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The SmilePass Selfie Login WordPress plugin through 1.0.2 does not perform any server-side verification of the identity it is asked to authenticate, allowing unauthenticated users to log in as any registered account, including administrators.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77002"
-    },
-    {
-      "id": "CVE-2026-77001",
-      "published": "2026-08-22T06:16:17.323",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Social Login & Sharing buttons with Analytics By SoClever WordPress plugin through 1.2.0 does not perform any authentication, authorisation or nonce checks in one of its publicly accessible login handlers, allowing unauthenticated attackers to obtain a valid session as any existing user, including administrators. In the default case a session as the site's original administrator account is obtained without needing to know any account details at all.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77001"
-    },
-    {
-      "id": "CVE-2026-77000",
-      "published": "2026-08-22T06:16:17.150",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The WP Social Media Login WordPress plugin through 1.0.6 does not verify that a social login was actually completed with the identity provider before authenticating a visitor, allowing unauthenticated attackers to log in as any existing user, including administrators, by supplying that user's email address.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77000"
-    },
-    {
-      "id": "CVE-2026-76793",
-      "published": "2026-08-22T06:16:16.900",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Firebase Authentication WordPress plugin before 1.7.1 does not require the email address in an authentication token to be verified before matching it to a WordPress account and issuing a session, allowing unauthenticated attackers to log in as any user, including administrators.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76793"
-    },
-    {
-      "id": "CVE-2026-76789",
-      "published": "2026-08-22T06:16:16.643",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Slider Hero with Video Background, Animation WordPress plugin before 9.1.3 does not have authorisation and nonce checks on two of its request handlers, and does not escape a stored setting before outputting it, allowing unauthenticated users to store malicious JavaScript which will be executed in the context of an administrator viewing the Slider Hero with Video Background, Animation WordPress plugin before 9.1.3's admin area, as well as any visitor of a page embedding a slider.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76789"
-    },
-    {
-      "id": "CVE-2026-19222",
-      "published": "2026-08-22T06:16:16.383",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Forminator Forms  WordPress plugin before 1.57.0.7 does not consistently enforce the role restriction it applies to registration forms, allowing users who are permitted to build forms to configure one that assigns the administrator role to any visitor who registers through it.",
-      "score": 6.6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19222"
-    },
-    {
-      "id": "CVE-2026-19221",
-      "published": "2026-08-22T06:16:16.130",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Forminator Forms  WordPress plugin before 1.57.0.5 does not restrict a network-wide setting to network administrators, allowing an administrator of any single site on a multisite network to execute arbitrary code across the entire network.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19221"
-    },
-    {
-      "id": "CVE-2026-19093",
-      "published": "2026-08-22T06:16:15.900",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Tutor LMS  WordPress plugin before 4.0.6 does not validate a stored file path before using it to stream media, allowing users with the instructor role to read arbitrary files on the server, including files outside the web root.\n\nThe readable files include the WordPress configuration file, which exposes the database credentials and the authentication keys and salts, so authentication cookies can be forged.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19093"
-    },
-    {
-      "id": "CVE-2026-18052",
-      "published": "2026-08-22T06:16:15.647",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The ManageWP Worker WordPress plugin before 4.9.37 does not bind the account being logged in to the signature which authorises the login, nor prevent an already used login link from being replayed, allowing attackers who obtain such a link to gain a session as any user on the site, including an administrator.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18052"
-    },
-    {
-      "id": "CVE-2026-16738",
-      "published": "2026-08-22T06:16:15.383",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Conekta Payment Gateway WordPress plugin before 6.2.2 does not verify the authenticity of incoming payment gateway webhook notifications, nor bind the confirmed payment to the targeted order or verify its amount, allowing unauthenticated attackers to mark arbitrary orders as paid without payment.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16738"
-    },
-    {
-      "id": "CVE-2026-16612",
-      "published": "2026-08-22T06:16:15.130",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The FiboSearch  WordPress plugin before 1.34.1 does not consistently exclude password-protected products from its unauthenticated AJAX endpoints, allowing unauthenticated users to disclose and enumerate password-protected products and their metadata without entering the product password. Two endpoints are affected: the autocomplete search endpoint (dgwt_wcas_ajax_search) and the Details Panel endpoint (dgwt_wcas_result_details) when queried for taxonomy details.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16612"
-    },
-    {
-      "id": "CVE-2026-16260",
-      "published": "2026-08-22T06:16:14.833",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Post Grid, Slider & Carousel Ultimate  WordPress plugin before 1.8.1 does not sanitise and escape one of its custom post type settings before outputting it in an HTML attribute on the admin edit screen, allowing users with the Contributor role and above to inject JavaScript that executes in the session of any administrator who opens the affected item.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16260"
-    },
-    {
-      "id": "CVE-2026-14187",
-      "published": "2026-08-22T06:16:11.597",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Tutor LMS  WordPress plugin before 4.0.6 does not enforce per-object ownership checks on its course content type, allowing any user with the instructor role to read the content of private courses belonging to other instructors.",
-      "score": 2.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14187"
     }
   ]
 }
