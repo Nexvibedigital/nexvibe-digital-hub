@@ -1,6 +1,79 @@
 {
-  "syncedAt": "2026-08-29T14:11:39.903Z",
+  "syncedAt": "2026-08-29T14:41:20.284Z",
   "items": [
+    {
+      "id": "CVE-2026-74651",
+      "published": "2026-08-22T16:16:38.543",
+      "lastModified": "2026-08-25T06:18:45.437",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nstaging: rtl8723bs: fix OOB read in rtw_get_wpa_ie()\n\nrtw_get_wpa_ie() reads bytes at fixed offsets into a vendor-specific\ninformation element without checking that the element is long enough,\ncausing an out-of-bounds read for a short trailing IE.\n\nThe function locates a vendor-specific IE (EID 221) with rtw_get_ie()\nand then compares a 4-byte OUI+type at pbuf + 2 and reads a 2-byte\nversion word at pbuf + 6. Those accesses require the IE body to be at\nleast 6 bytes, but rtw_get_ie() only guarantees that the element fits\nwithin the buffer; it does not enforce a minimum body length. A\nvendor-specific IE whose length byte is 0 to 5, placed at the end of\nthe buffer, therefore makes these reads run past the end of the IE and\npast the end of the buffer itself.\n\nThe buffer holds information elements taken from received management\nframes and from the IE blob passed to rtw_cfg80211_set_wpa_ie(), which\nis kmemdup'd to its exact length, so the read can run off the end of\nthe allocation.\n\nThe sibling helpers rtw_get_sec_ie(), rtw_get_wapi_ie() and\nrtw_get_wps_ie() in this file already reject too-short vendor-specific\nIEs before their OUI memcmp(); rtw_get_wpa_ie() was never brought in\nline with them, and needs a minimum of 6 rather than 4 bytes because\nof the version word. Add the missing length check.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74651"
+    },
+    {
+      "id": "CVE-2026-74650",
+      "published": "2026-08-22T16:16:38.413",
+      "lastModified": "2026-08-27T13:18:35.720",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nstaging: rtl8723bs: fix OOB read in WMM_param_handler()\n\nWMM_param_handler() copies a fixed-size WMM parameter element out of a\nreceived information element without checking that the element is long\nenough, causing an out-of-bounds read for a short WMM IE.\n\nThe handler reads sizeof(struct WMM_para_element) (18) bytes at\npIE->data + 6, so it requires pIE->length to be at least 24\n(WLAN_WMM_LEN), but it never validates the length. Two of its three\ncallers reach it after matching only the WMM OUI: OnAssocRsp() in\nrtw_mlme_ext.c matches a 6-byte OUI, and join_cmd_hdl() matches a\n4-byte OUI, before calling the handler. A vendor-specific IE carrying\nthe WMM OUI but a length between 6 and 23, placed in an association\nresponse or in the IE blob handed to join_cmd_hdl(), passes the OUI\ncheck and then makes the memcmp() and memcpy() at pIE->data + 6 read\npast the end of the element. OnAssocRsp() parses a frame received from\nthe AP, so this is reachable from a remote peer.\n\nThe remaining caller in rtw_wlan_util.c already guards the handler with\n\"pIE->length == WLAN_WMM_LEN\". Move the equivalent check into the\nhandler itself so every caller is covered; the sibling IE handlers in\nthe same parsing loop (HT_caps_handler(), HT_info_handler(),\nERP_IE_handler()) likewise bound their accesses by pIE->length.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74650"
+    },
+    {
+      "id": "CVE-2026-74649",
+      "published": "2026-08-22T16:16:38.290",
+      "lastModified": "2026-08-25T06:18:45.130",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nstaging: rtl8723bs: fix missing shared-key auth challenge length check\n\nThe WEP shared-key authentication handler uses the challenge-text\nelement's attacker-controlled length without checking it against the\nfixed 128-byte chg_txt buffer.\n\nIn OnAuthClient() the length from rtw_get_ie() - up to 255 - is used\nto perform memcpy() into the 128-byte pmlmeinfo->chg_txt, so a\nmalicious AP sending a malformed WLAN_EID_CHALLENGE element can\noverflow/underfill chg_txt by up to 127 bytes. It is reachable over the\nair, before association, during shared-key authentication. In the case\nof an overflow, the driver can write out of bounds. In the case of an\nunderfill, the driver can echo stale buffer memory.\n\nThe challenge text is defined to be exactly 128 octets, which is\nalready provided as the WLAN_AUTH_CHALLENGE_LEN define; require the\nelement to be exactly that length before use.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74649"
+    },
+    {
+      "id": "CVE-2026-74648",
+      "published": "2026-08-22T16:16:38.160",
+      "lastModified": "2026-08-25T06:18:44.883",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nstaging: rtl8723bs: validate monitor transmit frame lengths\n\nrtw_cfg80211_monitor_if_xmit_entry() removes the radiotap header and\nthen reads the 802.11 frame control field without checking that a base\n802.11 header remains.\n\nThe data path also pulls the calculated 802.11, QoS and SNAP header\nspan before confirming that the skb contains it. A truncated frame can\ntherefore cause out-of-bounds reads or leave insufficient data for the\nEthernet address writes.\n\nReject frames that do not contain the base 802.11 header and data\nframes that do not contain their complete calculated header span.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74648"
+    },
+    {
+      "id": "CVE-2026-74647",
+      "published": "2026-08-22T16:16:38.050",
+      "lastModified": "2026-08-27T13:18:35.540",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmisc: fastrpc: Remove buffer from list prior to unmap operation\n\nfastrpc_req_munmap_impl() is called to unmap any buffer. The buffer is\ngetting removed from the list after it is unmapped from DSP. This can\ncreate potential race conditions if multiple threads invoke unmap\nconcurrently, where one thread may remove the entry from the list while\nanother thread's unmap operation is still ongoing.\n\nFix this by removing the buffer entry from the list before calling the\nunmap operation. If the unmap fails, the entry is re-added to the list\nso that userspace can retry the unmap, or alternatively, the buffer\nwill be cleaned up during device release when the DSP process is torn\ndown and all DSP-side mappings are freed along with remaining buffers\nin the list.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74647"
+    },
+    {
+      "id": "CVE-2026-74646",
+      "published": "2026-08-22T16:16:37.940",
+      "lastModified": "2026-08-25T06:18:44.283",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmisc: fastrpc: take fl->lock when moving mmaps on interrupted invoke\n\nWhen an invoke is interrupted by a signal,\nwait_for_completion_interruptible() returns -ERESTARTSYS and\nfastrpc_internal_invoke() moves every buffer from fl->mmaps onto\ncctx->invoke_interrupted_mmaps. This list_del()/list_add_tail() walk\nruns without holding fl->lock, the lock that serialises fl->mmaps in\nfastrpc_req_mmap() and fastrpc_req_munmap() everywhere else.\n\nTake fl->lock around the move, matching every other fl->mmaps accessor.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74646"
+    },
+    {
+      "id": "CVE-2026-74645",
+      "published": "2026-08-22T16:16:37.837",
+      "lastModified": "2026-08-22T16:16:37.837",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmm/damon/lru_sort: error out for >10000 active_mem_bp\n\ndamos_quota_score() can trigger division by zero if the target value is\nzero.  DAMON_LRU_SORT lets users set the target value for the hot memory\nscheme via active_mem_bp parameter.  It avoids setting it as the target\nvalue if the parameter value is zero.  However, it also sets the cold\nmemory scheme with a target value that is calculated as '10000 -\nactive_mem_bp + 2'.  Hence, if a user sets active_mem_bp 10002, the cold\nmemory scheme's quota goal target value can be zero.  As a result,\ndivision by zero can be triggered.  Fix by returning an error when the\nuser tries to start DAMON with >10000 active_mem_bp parameter value.\n\nIt makes no sense to set active_mem_bp with 10002.  It also requires\nmodule parameters write permission to reproduce the issue.  That said, the\nconsequence is quite bad.\n\nOne reliable way to reproduce the issue is like below:\n\n    # cd /sys/module/damon_lru_sort/parameters\n    # echo 1000 > wmarks_high\n    # echo 995 > wmarks_mid\n    # echo 0 > wmarks_low\n    # echo 10002 > active_mem_bp\n    # echo Y > enabled\n    # dmesg -w\n    [...]\n    [  597.421247] Oops: divide error: 0000 [#1] SMP NOPTI\n    [  597.428848] RIP: 0010:damos_quota_score+0x6f/0x480\n\nThis issue was discovered [1] by Sashiko.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74645"
+    },
+    {
+      "id": "CVE-2026-74644",
+      "published": "2026-08-22T16:16:37.730",
+      "lastModified": "2026-08-23T13:16:48.353",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmm/damon/ops-common: putback folios on invalid migrate nid\n\ndamon_pa_migrate() and damos_va_migrate() isolate folios into a local list\nand then call damon_migrate_pages().  When target_nid is invalid\n(including the scheme default NUMA_NO_NODE / -1), damon_migrate_pages()\nreturns early without putting the folios back to the LRU.\n\nCallers then discard the list head while those folios remain isolated with\nan extra reference taken by folio_isolate_lru().  The pages stay off the\nLRU for as long as the mapping exists (anon active+inactive counts drop\nwhile RSS does not), and the leftover references can pin the pages after\nthe mapping is gone.\n\nPut the folios back on the invalid-nid path so ignored migration requests\nstill return them to the LRU.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74644"
+    },
+    {
+      "id": "CVE-2026-74643",
+      "published": "2026-08-22T16:16:37.617",
+      "lastModified": "2026-08-22T16:16:37.617",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsamples/damon/mtier: error out for zero quota goal target values\n\nPatch series \"mm/damon: avoid division by zero from damos_quota_score()\".\n\nDAMON_SAMPLE_MTIER and DAMON_LRU_SORT allow the user to trigger division\nby zero in damos_quota_score().  Avoid it by adding parameters validation\nchecks.\n\n\nThis patch (of 2):\n\ndamos_quota_score() can trigger division by zero if the target_value is\nzero.  DAMON_SAMPLE_MTIER lets users set the target_value via\nnode0_mem_{used,free}_bp parameters.  It doesn't guard zero value case,\nthough.  As a result, users can trigger division by zero.  Fix the issue\nby returning an error when the user tries to start DAMON with zero\nnode0_mem_{used,free}_bp parameter values.\n\nDAMON_SAMPLE_MTIER is just a sample module, but the consequence is quite\nbad.  Also the zero node0_mem_free_bp parameter might look like a\nreasonable setup to some users.  Hence, the issue might really happen in\nthe real world.\n\nOne reliable way to reproduce the issue is like below:\n\n    # cd /sys/module/damon_sample_mtier/parameters\n    # echo 4096 > node0_start_addr\n    # echo 8192 > node0_end_addr\n    # echo 8192 > node1_start_addr\n    # echo 81920 > node1_end_addr\n    # echo 0 > node0_mem_free_bp\n    # echo Y > enabled\n    # dmesg -w\n    [...]\n    [18792.235916] Oops: divide error: 0000 [#1] SMP NOPTI\n    [...]\n    [18792.242787] RIP: 0010:damos_quota_score+0x6f/0x480\n    [...]\n\nThis issue was discovered [1] by Sashiko.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74643"
+    },
     {
       "id": "CVE-2026-74642",
       "published": "2026-08-22T16:16:37.513",
@@ -785,85 +858,6 @@
       "score": 5.5,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62383"
-    },
-    {
-      "id": "CVE-2026-75870",
-      "published": "2026-08-22T14:16:33.813",
-      "lastModified": "2026-08-26T16:51:19.490",
-      "description": "Punk versions before 0.18 for Perl allow session cookie forgery via an empty default HMAC key when a session is declared without a secret.\n\nThe session keyword freezes its options onto the application as given: it does not require a secret, warn, or refuse to start when one is absent. The cookie read and the write-back both default that key to the empty string, so a declaration with no secret option, or with an undefined or empty one, signs and verifies with a zero-length HMAC-SHA256 key.\n\nAn attacker who knows the cookie format can then mint one offline carrying any contents the session holds, such as a user identifier or a role. Nothing marks the misconfiguration at runtime: cookies are well formed and sessions round-trip as expected.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75870"
-    },
-    {
-      "id": "CVE-2026-75866",
-      "published": "2026-08-22T14:16:33.700",
-      "lastModified": "2026-08-26T16:51:19.490",
-      "description": "Punk::OAuth2::Server versions through 0.03 for Perl issue access tokens outside a client's registered scopes and grant types because no authorization path reads them.\n\nPunk::OAuth2::Server::Store registers scopes and grant_types per client and documents both as client registration. token dispatches on the grant_type in the request body, so a client registered for authorization_code alone can ask for client_credentials, and that arm passes the requested scope straight to the minter, which signs it into the at+jwt access token. authorize copies the query scope into the authorization code record without comparing it against the registration, leaving the optional consent hook as the only check between an arbitrary scope and the issued code. redirect_uris on the same client row is read and enforced.\n\nA registered client can obtain a correctly signed token carrying any scope it names, and a resource server running Punk::OAuth2::Checker accepts that token and honours the scope. A client registered without a secret authenticates on its client_id alone, so anyone who knows that identifier can request one.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75866"
-    },
-    {
-      "id": "CVE-2026-71514",
-      "published": "2026-08-22T14:16:33.560",
-      "lastModified": "2026-08-28T18:56:34.447",
-      "description": "NLTK 3.9.4 through 3.10.2 contains a path traversal vulnerability in CrubadanCorpusReader. _load_lang_ngrams joins the corpus root with crubadan_code, the column-0 value read from the corpus table.txt mapping file, and opens the result with the builtin open() rather than the pathsec-validated opener, so os.path.join discards the root when that value is absolute and the read escapes the corpus directory without the containment check nltk.pathsec applies when ENFORCE is set. An attacker who controls a corpus package can disclose file contents outside the corpus root through lang_freq, limited to paths ending in -3grams.txt whose contents parse as token count lines.",
-      "score": 2.5,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71514"
-    },
-    {
-      "id": "CVE-2026-71513",
-      "published": "2026-08-22T14:16:33.417",
-      "lastModified": "2026-08-27T17:19:46.073",
-      "description": "NLTK before 3.10.3 contains a remote code execution vulnerability in AllowlistUnpickler that validates only the pickle module string and not the global name, allowing attackers to resolve dotted names by attribute traversal to callables outside the allowlisted namespace. Attackers can craft untrusted transition-parser models that execute arbitrary commands when TransitionParser.parse loads the model through allowlisted_pickle_load.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71513"
-    },
-    {
-      "id": "CVE-2026-68769",
-      "published": "2026-08-22T14:16:33.343",
-      "lastModified": "2026-08-22T14:16:33.343",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-68769"
-    },
-    {
-      "id": "CVE-2026-5093",
-      "published": "2026-08-22T14:16:33.210",
-      "lastModified": "2026-08-24T16:41:13.950",
-      "description": "The GreenShift – Animation and Page Builder Blocks plugin for WordPress is vulnerable to unauthorized modification of data in versions up to, and including, 12.8.9. This is due to a missing capability check on the 'gspb_update_global_wp_settings' function that only verifies the 'edit_posts' capability instead of requiring administrative privileges. This makes it possible for authenticated attackers, with contributor-level access and above, to modify global WordPress theme color settings site-wide, leading to site defacement.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-5093"
-    },
-    {
-      "id": "CVE-2026-4561",
-      "published": "2026-08-22T14:16:33.080",
-      "lastModified": "2026-08-24T16:41:13.950",
-      "description": "The MC4WP: Mailchimp for WordPress plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the form response message post meta fields (e.g., 'text_subscribed', 'text_error') in all versions up to, and including, 4.12.0 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with Author-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-4561"
-    },
-    {
-      "id": "CVE-2026-4559",
-      "published": "2026-08-22T14:16:32.947",
-      "lastModified": "2026-08-24T20:16:44.510",
-      "description": "The Image Photo Gallery Final Tiles Grid plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'delay' shortcode attribute in all versions up to, and including, 3.6.12 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with Contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-4559"
-    },
-    {
-      "id": "CVE-2026-2996",
-      "published": "2026-08-22T14:16:32.807",
-      "lastModified": "2026-08-24T16:41:13.950",
-      "description": "The Advanced Product Fields (Product Addons) for WooCommerce plugin for WordPress is vulnerable to Improper Input Validation in all versions up to, and including, 1.6.21. This is due to a logic flaw in the 'validate_cart_data' function. This makes it possible for unauthenticated attackers to bypass required paid addons and complete purchases at the base product price only, effectively stealing products by paying a fraction of the intended total. The vulnerability was partially patched in version 1.6.19.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-2996"
     }
   ]
 }
