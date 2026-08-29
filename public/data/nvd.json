@@ -1,6 +1,15 @@
 {
-  "syncedAt": "2026-08-29T00:11:22.749Z",
+  "syncedAt": "2026-08-29T00:41:30.668Z",
   "items": [
+    {
+      "id": "CVE-2026-74597",
+      "published": "2026-08-22T16:16:32.040",
+      "lastModified": "2026-08-25T06:18:35.440",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nip6_tunnel: clear skb2->cb[] in ip6ip6_err()\n\nip6ip6_err() clones an outer IPv6 ICMP error skb, pulls it to the\nquoted inner IPv6 packet, and then passes the clone to icmpv6_send().\nThe clone still carries the outer packet's inet6_skb_parm in skb->cb.\n\nIf the outer packet had a Home Address Option, IP6CB(skb2)->dsthao\nremains non-zero after skb_pull(). icmpv6_send() later calls\nmip6_addr_swap(), which uses that stale dsthao offset against the quoted\ninner packet. A malformed inner destination-options header can then make\nthe HAO lookup and address swap run past the end of the quoted packet\nand corrupt skb_shared_info.\n\nClear skb2->cb[] before pulling the quoted inner IPv6 packet so the\nreply path does not reuse metadata left by the outer IPv6 stack.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74597"
+    },
     {
       "id": "CVE-2026-74596",
       "published": "2026-08-22T16:16:31.923",
@@ -877,15 +886,6 @@
       "score": 8.8,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19883"
-    },
-    {
-      "id": "CVE-2026-77781",
-      "published": "2026-08-22T00:16:46.710",
-      "lastModified": "2026-08-27T20:18:39.550",
-      "description": "Tie::Hash::Regex versions before 2.0.0 for Perl will throw an exception on unparseable lookup keys.\n\nThe FETCH, EXISTS and DELETE methods throw an exception when on malformed regular expressions.\n\nEach method falls back to a regex match when the key is not already stored in the hash, compiling the caller's key with a bare qr// and no eval guard. A key that is not a valid regular expression pattern, such as a single unmatched bracket, dies.\n\nAn application that looks up externally supplied strings in a tied hash will die on an invalid key.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77781"
     }
   ]
 }
