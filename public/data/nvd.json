@@ -1,6 +1,60 @@
 {
-  "syncedAt": "2026-08-30T00:12:16.048Z",
+  "syncedAt": "2026-08-30T00:41:29.526Z",
   "items": [
+    {
+      "id": "CVE-2026-10618",
+      "published": "2026-08-24T11:16:38.403",
+      "lastModified": "2026-08-26T19:16:47.590",
+      "description": "Hugo's default fenced-code-block renderer writes attribute values taken from the code-fence info string into the rendered HTML without escaping them. New in markup/internal/attributes/attributes.go converts every attribute value from a byte slice to a string as it is stored, deliberately dropping the escaping that used to happen there, and RenderAttributes in the same file escapes only values that are still byte slices, so its escaping branch is never reached and every value is written verbatim. The function's documentation states that it performs HTML escaping of string attributes, which it does not. A quote inside an attribute value in the info string therefore terminates the attribute and allows a further attribute, including an event handler, to be placed on the wrapper element, and the script runs for every visitor who loads the page. This path is reached under the default configuration, with code fences enabled and without goldmark's unsafe setting or any custom render hook. Attribute names beginning with on are filtered when the attributes are parsed, so injection is achieved through the value rather than the name.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-10618"
+    },
+    {
+      "id": "CVE-2026-10582",
+      "published": "2026-08-24T11:16:38.233",
+      "lastModified": "2026-08-24T19:16:35.427",
+      "description": "Hugo's security.http.urls allowlist is the only control on outbound fetches made by resources.GetRemote, and it inspects the URL text alone. CheckAllowedHTTPURL in config/security/securityConfig.go applies the configured pattern list and then re-checks a canonicalised form of an integer, hex or octal IPv4 host, but it never resolves the hostname and never inspects the address the HTTP client actually connects to. The client constructed in resources/resource_factories/create/create.go installs no dial-time hook, so no check occurs at connection time either. A hostname that resolves to a loopback, private or cloud-metadata address therefore satisfies the policy, and the response body is embedded in the generated site. An attacker who can supply a URL through content, for example a front-matter field or a CMS field, can make the build fetch an internal endpoint and publish the response in the static output, so the build artifact itself carries the data out.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-10582"
+    },
+    {
+      "id": "CVE-2026-78317",
+      "published": "2026-08-24T10:16:40.810",
+      "lastModified": "2026-08-24T17:18:20.113",
+      "description": "SQL Injection in Delta DIAEnergie v1.11.00.002 allows attacker to \nremote code execution.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78317"
+    },
+    {
+      "id": "CVE-2026-78316",
+      "published": "2026-08-24T10:16:40.667",
+      "lastModified": "2026-08-24T17:18:19.977",
+      "description": "SQL Injection in Delta DIAEnergie v1.11.00.002 allows attacker to \nremote code execution.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78316"
+    },
+    {
+      "id": "CVE-2026-78315",
+      "published": "2026-08-24T10:16:40.510",
+      "lastModified": "2026-08-24T17:18:19.860",
+      "description": "SQL Injection in Delta DIAEnergie v1.11.00.002 allows attacker to \nremote code execution.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78315"
+    },
+    {
+      "id": "CVE-2026-78314",
+      "published": "2026-08-24T10:16:40.370",
+      "lastModified": "2026-08-24T17:18:19.750",
+      "description": "SQL Injection in Delta DIAEnergie v1.11.00.002 allows attacker to \nremote code execution.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78314"
+    },
     {
       "id": "CVE-2026-75975",
       "published": "2026-08-24T10:16:40.237",
@@ -842,58 +896,6 @@
       "score": 4.3,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78054"
-    },
-    {
-      "id": "CVE-2026-78051",
-      "published": "2026-08-23T00:16:50.763",
-      "lastModified": "2026-08-24T19:17:01.630",
-      "description": "A vulnerability was determined in alexta69 MeTube up to 2026.06.10. The impacted element is an unknown function of the file /download/.metube/cookies.txt of the component Cookie File Handler. This manipulation causes files or directories accessible. The attack can be initiated remotely. The exploit has been publicly disclosed and may be utilized. Upgrading to version 2026.06.20 is sufficient to resolve this issue. Patch name: ce897ee00903bf7ded406f0d7852d95dd4164add. You should upgrade the affected component.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78051"
-    },
-    {
-      "id": "CVE-2026-78050",
-      "published": "2026-08-23T00:16:50.590",
-      "lastModified": "2026-08-24T16:41:13.950",
-      "description": "A vulnerability was found in Comfast CF-N1-S 2.6.0.1. The affected element is the function sub_41AD7C of the file /cgi-bin/mbox-config?method=SET&section=ntp_timezone of the component Web Management. The manipulation of the argument timestr/ntp_client_enabled results in stack-based buffer overflow. It is possible to launch the attack remotely. The exploit has been made public and could be used.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78050"
-    },
-    {
-      "id": "CVE-2026-5723",
-      "published": "2026-08-23T00:16:50.523",
-      "lastModified": "2026-08-23T00:16:50.523",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-5723"
-    },
-    {
-      "id": "CVE-2026-18027",
-      "published": "2026-08-23T00:16:50.370",
-      "lastModified": "2026-08-24T16:41:13.950",
-      "description": "The WebToffee WooCommerce PDF Invoices, Packing Slips, Delivery Notes & Shipping Labels plugin for WordPress is vulnerable to Directory Traversal in all versions up to, and including, 4.9.8 via the get_image_src_in_base64 function. This makes it possible for authenticated attackers, with subscriber-level access and above, to read the contents of arbitrary files on the server, which can contain sensitive information. The base64-encoded file contents are embedded into the cached invoice HTML and served directly to the attacker via the plugin's own Print/Download invoice endpoints, which require only a valid nonce and access key.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18027"
-    },
-    {
-      "id": "CVE-2026-16149",
-      "published": "2026-08-23T00:16:50.233",
-      "lastModified": "2026-08-24T19:16:36.143",
-      "description": "The Security Hardener plugin for WordPress is vulnerable to Missing Authorization in all versions up to, and including, 2.4.4. The vulnerability exists because the plugin's user-enumeration protection, which is enabled by default, hooks the rest_endpoints filter via secure_user_endpoints() and overwrites every registered handler's permission_callback on both the /wp/v2/users and /wp/v2/users/(?P<id>[\\d]+) routes — including POST, PUT, PATCH, and DELETE handlers — with a bare closure that returns only is_user_logged_in(), completely stripping WordPress Core's original capability checks such as create_users, promote_user, edit_users, and delete_users that WP_REST_Users_Controller normally enforces. This makes it possible for authenticated attackers with Subscriber-level access and above to create new Administrator accounts by sending POST request to /wp/v2/users with administrator role, or to reset an existing Administrator's password by issuing a PUT/POST request to /wp/v2/users/<id>. Because the block_user_enum option defaults to enabled, no special plugin configuration is required — the overwrite is active on every request as soon as the plugin is installed.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16149"
-    },
-    {
-      "id": "CVE-2026-0551",
-      "published": "2026-08-23T00:16:49.777",
-      "lastModified": "2026-08-25T20:16:50.610",
-      "description": "The PPWP – Password Protect Pages plugin for WordPress is vulnerable to PHP Object Injection in all versions up to, and including, 1.9.18 via deserialization of untrusted input from the 'post_protection_roles' vulnerable parameter. This makes it possible for authenticated attackers, with Contributor-level access and above, to inject a PHP Object. No known POP chain is present in the vulnerable software, which means this vulnerability has no impact unless another plugin or theme containing a POP chain is installed on the site. If a POP chain is present via an additional plugin or theme installed on the target system, it may allow the attacker to perform actions like delete arbitrary files, retrieve sensitive data, or execute code depending on the POP chain present.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-0551"
     }
   ]
 }
