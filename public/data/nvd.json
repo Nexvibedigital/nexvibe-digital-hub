@@ -1,6 +1,51 @@
 {
-  "syncedAt": "2026-08-31T02:11:39.193Z",
+  "syncedAt": "2026-08-31T02:41:26.520Z",
   "items": [
+    {
+      "id": "CVE-2026-76840",
+      "published": "2026-08-24T14:17:01.550",
+      "lastModified": "2026-08-24T17:18:17.950",
+      "description": "RustDesk's Windows clipboard redirection copies a peer-supplied length into a fixed-size caller buffer without an upper bound check. When an OLE paste consumer such as explorer.exe calls IStream::Read with a buffer of cb bytes, CliprdrStream_Read in libs/clipboard/src/windows/wf_cliprdr.c requests that many bytes of a remote file through cliprdr_send_request_filecontents and then executes CopyMemory(pv, clipboard->req_fdata, clipboard->req_fsize), where req_fsize is taken verbatim from the peer's CLIPRDR FileContentsResponse by wf_cliprdr_server_file_contents_response (req_fsize = fileContentsResponse->cbRequested) and is never clamped to cb anywhere in the chain. The function's only length comparison, req_fsize < cb, handles the short-read case and is evaluated after the copy has already occurred. A malicious or compromised peer that answers a small file-contents read with an oversized response therefore writes attacker-chosen data past the end of the paste consumer's heap buffer when the local user pastes clipboard file contents offered by the remote side. The file is a fork of FreeRDP's client/Windows/wf_cliprdr.c, where the same defect is CVE-2026-68579, fixed in FreeRDP 3.30.0.",
+      "score": 9.6,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76840"
+    },
+    {
+      "id": "CVE-2026-67602",
+      "published": "2026-08-24T14:16:57.347",
+      "lastModified": "2026-08-24T19:16:42.830",
+      "description": "phpIPAM before 1.8.2 contains an authentication bypass vulnerability in the REST API that allows unauthenticated attackers to gain full API access by exploiting an insecure object cache keying mechanism. The cache is keyed by lookup value alone without including the searched column, enabling an entry written during an app_id lookup to satisfy a subsequent app_code lookup, allowing attackers to use the numeric database row identifier as an API token to read, write, and delete all IP address management records.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-67602"
+    },
+    {
+      "id": "CVE-2026-59568",
+      "published": "2026-08-24T14:16:56.210",
+      "lastModified": "2026-08-28T18:39:48.167",
+      "description": "Multiple vulnerabilities on affected versions of Zscaler Client Connector allow remote code execution, giving an unauthenticated, unprivileged user the ability to execute arbitrary code in the ZCC context.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59568"
+    },
+    {
+      "id": "CVE-2026-59567",
+      "published": "2026-08-24T14:16:56.080",
+      "lastModified": "2026-08-28T18:39:48.167",
+      "description": "Multiple vulnerabilities on affected versions of Zscaler Client Connector allow local privilege escalation, giving an unprivileged user the ability to execute arbitrary code in a privileged context.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59567"
+    },
+    {
+      "id": "CVE-2026-59566",
+      "published": "2026-08-24T14:16:55.940",
+      "lastModified": "2026-08-28T18:39:48.167",
+      "description": "A locally exploitable buffer overflow bug can cause a local denial-of-service attack on affected versions of Zscaler Client Connector on Android and ChromeOS.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59566"
+    },
     {
       "id": "CVE-2026-59565",
       "published": "2026-08-24T14:16:55.830",
@@ -853,51 +898,6 @@
       "score": 7.3,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78171"
-    },
-    {
-      "id": "CVE-2026-78170",
-      "published": "2026-08-24T02:17:04.817",
-      "lastModified": "2026-08-24T18:17:27.187",
-      "description": "A flaw has been found in UTT HiPER 1200GW up to 2.5.3-170306. Affected is the function strcpy of the file /goform/formConfigFastDirectionW. Executing a manipulation of the argument ssid can lead to buffer overflow. The attack may be performed from remote. The exploit has been published and may be used.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78170"
-    },
-    {
-      "id": "CVE-2026-78169",
-      "published": "2026-08-24T02:17:04.650",
-      "lastModified": "2026-08-24T16:41:13.950",
-      "description": "A vulnerability was detected in UTT HiPER 1250GW up to 3.2.7-210907-180535. This impacts the function strcpy of the file /goform/aspRemoteApConfTempSend of the component HTTP Request Handler. Performing a manipulation of the argument Profile results in stack-based buffer overflow. The attack is possible to be carried out remotely. The exploit is now public and may be used.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78169"
-    },
-    {
-      "id": "CVE-2026-78168",
-      "published": "2026-08-24T02:17:04.480",
-      "lastModified": "2026-08-27T17:20:34.833",
-      "description": "A security vulnerability has been detected in EFM ipTIME T24000M up to 14.20.0. This affects the function httpcon_check_session_url of the component Session Validation Handler. Such manipulation leads to improper authentication. The attack can be executed remotely. The exploit has been disclosed publicly and may be used. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78168"
-    },
-    {
-      "id": "CVE-2026-78167",
-      "published": "2026-08-24T02:17:04.300",
-      "lastModified": "2026-08-24T18:17:26.737",
-      "description": "A weakness has been identified in EFM ipTIME T16000M 14.20.2. The impacted element is the function httpcon_check_session_url of the component Session Validation Handler. This manipulation causes improper authentication. Remote exploitation of the attack is possible. The exploit has been made available to the public and could be used for attacks. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78167"
-    },
-    {
-      "id": "CVE-2026-78166",
-      "published": "2026-08-24T02:17:04.120",
-      "lastModified": "2026-08-26T19:17:08.070",
-      "description": "A security flaw has been discovered in provectus kafka-ui up to 0.7.2. The affected element is the function executeSmartFilterTest of the file kafka-ui-api/src/main/java/com/provectus/kafka/ui/controller/MessagesController.java of the component Groovy Code Handler. The manipulation results in code injection. The attack may be launched remotely. The exploit has been released to the public and may be used for attacks. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78166"
     }
   ]
 }
