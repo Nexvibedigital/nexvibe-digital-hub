@@ -1,6 +1,105 @@
 {
-  "syncedAt": "2026-08-31T04:11:29.902Z",
+  "syncedAt": "2026-08-31T04:41:31.270Z",
   "items": [
+    {
+      "id": "CVE-2026-78372",
+      "published": "2026-08-24T14:17:05.260",
+      "lastModified": "2026-08-26T16:49:18.760",
+      "description": "RansomLook does not consistently \nenforce authorization checks when accessing groups, markets, and ransom \nnotes marked as private. An unauthenticated or otherwise unauthorized \nremote attacker can access information associated with private entities \nthrough several web views and API endpoints.\n\n\nThe affected functionality can \ndisclose private group or market names, ransom-note content, and \nmetadata associated with private groups. The /compare\n functionality can also be queried directly with the name of a private \nentity, allowing an unauthorized user to retrieve information such as \npost counts, mirror totals, and uptime even when the entity is excluded \nfrom the normal user interface. The patch explicitly adds a privacy \ncheck before returning this information. \n\n\nRansom-note views, search results, \nand API endpoints were similarly missing consistent filtering. The fix \nintroduces normalized private-group identifiers and alias handling, then\n rejects or filters notes associated with private groups before \nreturning them to unauthorized callers.  \n\n\nAn attacker can exploit the issue \nremotely without authentication or user interaction, resulting in \ndisclosure of information that was explicitly intended to be restricted \nto authorized users.",
+      "score": 9.2,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78372"
+    },
+    {
+      "id": "CVE-2026-78370",
+      "published": "2026-08-24T14:17:05.100",
+      "lastModified": "2026-08-26T16:49:18.760",
+      "description": "RansomLook contains an authorization flaw in its legacy database export functionality that can allow unauthenticated remote users to retrieve information intended to remain private.\n\nThe /export/<database> endpoint permits selected internal databases to be exported without requiring authentication. While limited filtering is performed for some entity databases, other exportable databases are returned directly without consistently applying the application's private-entity access restrictions. As a result, information associated with groups, markets, posts, or other records marked as private may be included in an export accessible to an unauthenticated requester.\n\nAn attacker able to reach the RansomLook web application can request the affected export endpoint and retrieve data that should only be available to authorized users. Depending on the contents of the instance, this may disclose private ransomware intelligence, victim information, internal tracking data, or other information deliberately excluded from public views.\n\nThe patch removes the legacy unauthenticated export route and introduces centralized authorization handling that distinguishes ordinary authenticated API access from authorization to view private entries. API keys must now be explicitly granted private-data access, while existing keys do not automatically receive this privilege. The same private-data filtering is also applied consistently across API responses and database exports.",
+      "score": 9.2,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78370"
+    },
+    {
+      "id": "CVE-2026-78369",
+      "published": "2026-08-24T14:17:04.910",
+      "lastModified": "2026-08-26T16:49:18.760",
+      "description": "RansomLook contains a missing authentication vulnerability in the /admin/crypto/group/new endpoint. While the endpoint provides an administrative function for creating new crypto group entries, it was not protected by the application's authentication mechanism.\n\nAn unauthenticated remote attacker able to access the RansomLook web interface could therefore submit requests to this endpoint and create crypto group entries without possessing a valid authenticated session or administrative credentials.\n\nSuccessful exploitation allows an attacker to make unauthorized modifications to data that should only be manageable by authenticated administrators. Depending on how crypto group information is subsequently consumed by RansomLook, malicious or fraudulent entries could also affect the integrity of information presented or processed by the application.\n\nThe vulnerability is addressed by applying the flask_login.login_required decorator to the /admin/crypto/group/new route, ensuring that only authenticated users can access the functionality.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78369"
+    },
+    {
+      "id": "CVE-2026-78367",
+      "published": "2026-08-24T14:17:04.767",
+      "lastModified": "2026-08-28T21:17:10.720",
+      "description": "A vulnerability was found in RPM's rpmbuild tarball processing. When processing a crafted source archive, the getTarSpec() function in tools/rpmbuild.cc passes an attacker-controlled tar archive member name to rpmExpand() as part of a %{basename:...} macro expression. A specially crafted .spec member name can therefore inject RPM macros, including Lua expressions, resulting in arbitrary code execution with the privileges of the user running rpmbuild. This can be exploited when a victim or automated build system processes an attacker-controlled source tarball using rpmbuild tarball mode (such as -ts, -ta, or -tb).",
+      "score": 7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78367"
+    },
+    {
+      "id": "CVE-2026-78250",
+      "published": "2026-08-24T14:17:04.223",
+      "lastModified": "2026-08-27T17:20:37.260",
+      "description": "A vulnerability was identified in bytebot-ai bytebot 0.0.1. The affected element is an unknown function of the component Agent Execution Workflow. Such manipulation leads to infinite loop. The attack may be performed from remote. The exploit is publicly available and might be used. This vulnerability only affects products that are no longer supported by the maintainer.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78250"
+    },
+    {
+      "id": "CVE-2026-78248",
+      "published": "2026-08-24T14:17:04.050",
+      "lastModified": "2026-08-24T18:17:31.623",
+      "description": "A vulnerability was determined in SourceCodester Simple Online Food Ordering System 1.0. Impacted is an unknown function of the file /fos/admin/ajax.php?action=save_settings. This manipulation of the argument Name causes sql injection. The attack is possible to be carried out remotely. The exploit has been publicly disclosed and may be utilized.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78248"
+    },
+    {
+      "id": "CVE-2026-77995",
+      "published": "2026-08-24T14:17:03.403",
+      "lastModified": "2026-08-26T16:36:16.990",
+      "description": "Joomla Extension - miniorange.com - Arbitrary account takeover in miniOrange OAuth Client < 3.2.0 - The manipulation of a cookie value allows actors to login as arbitrary accounts, including admins.",
+      "score": 10,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77995"
+    },
+    {
+      "id": "CVE-2026-76848",
+      "published": "2026-08-24T14:17:03.013",
+      "lastModified": "2026-08-24T18:17:22.967",
+      "description": "TypeORM's SelectQueryBuilder.distinctOn accepts an array of strings and stores it on the expression map without validation. For PostgreSQL-family drivers, createSelectDistinctExpression in src/query-builder/SelectQueryBuilder.ts joins that array and interpolates the result into the generated statement as SELECT DISTINCT ON (values), with no escaping, quoting, identifier validation or allowlist, and without routing the values through replacePropertyNames or the driver's escape helper. Because the interpolation point is a parenthesized SQL expression list rather than an identifier-only position, a supplied element may carry arbitrary expressions, including correlated subqueries. An application that forwards a client-controlled value into distinctOn, for instance to let a caller choose a deduplication column, allows that client to read data anywhere the application's database role can reach through boolean or time-based inference, independently of the entity being queried. validateOrderByCondition, the allowlist check guarding the orderBy family in the same class, is not applied to this path.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76848"
+    },
+    {
+      "id": "CVE-2026-76847",
+      "published": "2026-08-24T14:17:02.857",
+      "lastModified": "2026-08-26T17:17:14.157",
+      "description": "act starts an HTTP Artifacts V4 backend whenever a workflow uses actions/upload-artifact@v4 or actions/download-artifact@v4. The control-plane RPCs of that backend, including CreateArtifact, GetSignedArtifactURL, ListArtifacts, FinalizeArtifact and DeleteArtifact, accept a caller-supplied workflow_run_backend_id and never check that it belongs to the requester: validateRunIDV4 in pkg/artifacts/artifacts_v4.go parses the value and returns it with the comparison against the requesting task's run ID left commented out. The signed URLs the backend issues are authenticated by an HMAC whose key is hardcoded to the four bytes 0xba 0xdb 0xee 0xf0, identical in every build, computed over a concatenation of endpoint, expiry, artifact name and task ID with no length prefix or delimiter, so signatures are both forgeable and ambiguous between differing artifact name and task ID pairs. The --artifact-server-addr flag defaults to the host's outbound address rather than loopback, leaving the backend reachable from the surrounding network. Any client that can reach it may read, overwrite or delete the artifacts of a concurrently running job with no credentials, exposing build outputs such as secrets and deployment credentials and permitting their replacement before the owning job consumes them.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76847"
+    },
+    {
+      "id": "CVE-2026-76845",
+      "published": "2026-08-24T14:17:02.423",
+      "lastModified": "2026-08-24T17:18:18.097",
+      "description": "adm-zip 0.5.9 through 0.6.0 follows symbolic links at the extraction destination. Utils.sanitize in util/utils.js enforces containment by comparing only the string form of an archive entry name against the resolved extraction root, and Utils.writeFileTo opens the computed destination with fs.openSync(path, \"w\", 0o666), which resolves symbolic links and carries neither O_NOFOLLOW nor a pre-write fs.lstatSync check. When a path component at the destination already exists as a symbolic link pointing outside the extraction root, extractAllTo, extractAllToAsync and extractEntryTo write the entry contents through that link and then chmod its target, placing attacker-controlled content in a file outside the root without any traversal sequence appearing in the archive. Reaching the write requires overwrite to be enabled, because the preceding fs.existsSync check also resolves the link and otherwise declines. An attacker able to create a symbolic link inside a shared, reused or predictable extraction directory, such as a temporary directory or a continuous integration workspace, can overwrite any file the extracting process is permitted to write.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76845"
+    },
+    {
+      "id": "CVE-2026-76844",
+      "published": "2026-08-24T14:17:02.250",
+      "lastModified": "2026-08-26T19:17:05.053",
+      "description": "webpack-dev-middleware resolves a request to a local file in getFilenameFromUrl by testing the request pathname against a traversal guard and then slicing it at a fixed character offset. The guard, UP_PATH_REGEXP applied to path.normalize(`./${pathname}`), only matches \"..\" that stands as a whole path segment, while the containment test is the string comparison pathname.startsWith(publicPathPathname) and the file path is built as path.join(outputPath, pathname.slice(publicPathPathname.length)). When the configured publicPath has no trailing slash, a request such as GET /assets../.env against publicPath /assets yields the pathname /assets../.env, whose only dot-dot sits inside the segment \"assets..\" and so passes the guard, but the offset slice cuts within that segment and hands \"../.env\" to path.join, resolving one directory above outputPath. Reading a file from that path requires the middleware to be backed by the physical filesystem, which happens when writeToDisk is true or a custom outputFileSystem is supplied, since the default memfs volume holds only build output. Traversal depth is limited to a single directory because a separately delimited dot-dot segment is collapsed during URL parsing before the guard runs. The default publicPath value of \"auto\" resolves to \"/\" and is not affected. This is an incomplete fix for CVE-2024-29180: the guard and offset slice were introduced by that fix and are present in every release from 5.3.4, 6.1.2 and 7.1.0 onward.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76844"
+    },
     {
       "id": "CVE-2026-76843",
       "published": "2026-08-24T14:17:02.087",
@@ -799,105 +898,6 @@
       "score": 7.8,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59561"
-    },
-    {
-      "id": "CVE-2026-78213",
-      "published": "2026-08-24T04:16:59.817",
-      "lastModified": "2026-08-26T16:40:21.650",
-      "description": "Heptabase developed by Hepta Platforms, Inc. has a Stored Cross-Site Scripting vulnerability. Authenticated remote attackers can inject persistent malicious content into specific pages, causing arbitrary JavaScript code to execute when other users click the crafted content.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78213"
-    },
-    {
-      "id": "CVE-2026-78212",
-      "published": "2026-08-24T04:16:59.660",
-      "lastModified": "2026-08-26T16:40:21.650",
-      "description": "4MOSAn developed by 4MOSAn Security Technology Co., Ltd. has an Arbitrary File Read vulnerability. Unauthenticated remote attackers can exploit a Relative Path Traversal flaw to download arbitrary system files.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78212"
-    },
-    {
-      "id": "CVE-2026-78211",
-      "published": "2026-08-24T04:16:59.493",
-      "lastModified": "2026-08-26T16:40:21.650",
-      "description": "4MOSAn GCB Doctor developed by 4MOSAn Security Technology has a OS Command Injection vulnerability. Unauthenticated remote attackers can inject malicious commands through an unremoved ADOdb test page parameter, thereby executing arbitrary system commands on the server.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78211"
-    },
-    {
-      "id": "CVE-2026-78185",
-      "published": "2026-08-24T04:16:59.297",
-      "lastModified": "2026-08-27T17:20:35.807",
-      "description": "A vulnerability was detected in itsourcecode Sales and Inventory System 1.0. The impacted element is an unknown function of the file /pages/cust_edit.php. The manipulation of the argument ID results in sql injection. The attack can be executed remotely. The exploit is now public and may be used.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78185"
-    },
-    {
-      "id": "CVE-2026-78182",
-      "published": "2026-08-24T04:16:59.040",
-      "lastModified": "2026-08-24T18:17:28.557",
-      "description": "A security vulnerability has been detected in Shenzhen Gongji Technology XBROTHER Dynamic Environment Monitoring System up to 300R004C00B300. The affected element is the function PlanController.getImmediatePlans of the file /xbreport/api/v1/plamange/plansImmediate. The manipulation of the argument order/sort leads to sql injection. Remote exploitation of the attack is possible. The exploit has been disclosed publicly and may be used.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78182"
-    },
-    {
-      "id": "CVE-2026-78181",
-      "published": "2026-08-24T04:16:58.847",
-      "lastModified": "2026-08-26T19:17:09.083",
-      "description": "A weakness has been identified in ractivejs ractive up to 1.4.4. Impacted is the function Ractive#set of the component Keypath Handler. Executing a manipulation can lead to improperly controlled modification of object prototype attributes. The attack may be launched remotely. The exploit has been made available to the public and could be used for attacks. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78181"
-    },
-    {
-      "id": "CVE-2026-78180",
-      "published": "2026-08-24T04:16:58.647",
-      "lastModified": "2026-08-24T18:17:28.087",
-      "description": "A security flaw has been discovered in alibaba-fusion next up to 1.27.34. This issue affects the function ConfigProvider.getContextProps of the file components/dialog/index.tsx of the component deepMerge. Performing a manipulation of the argument locale results in improperly controlled modification of object prototype attributes. The attack may be initiated remotely. The reported GitHub issue was closed automatically due to inactivity.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78180"
-    },
-    {
-      "id": "CVE-2026-78179",
-      "published": "2026-08-24T04:16:57.890",
-      "lastModified": "2026-08-24T16:41:13.950",
-      "description": "A vulnerability was identified in rexrainbow phaser3-rex-notes up to 1.80.17. This vulnerability affects the function SetValue of the file plugins/utils/object/SetValue.js of the component BehaviorTree Blackboard Data Interface. Such manipulation of the argument key leads to improperly controlled modification of object prototype attributes. The attack can be launched remotely.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78179"
-    },
-    {
-      "id": "CVE-2026-19853",
-      "published": "2026-08-24T04:16:57.710",
-      "lastModified": "2026-08-26T16:40:21.650",
-      "description": "NewSiteServer (NSS) developed by CyberTutor has a Missing Authentication vulnerability. Unauthenticated remote attackers can exploit a specific functionality to send emails to anyone on behalf of the school.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19853"
-    },
-    {
-      "id": "CVE-2026-19852",
-      "published": "2026-08-24T04:16:57.517",
-      "lastModified": "2026-08-26T16:40:21.650",
-      "description": "NewSiteServer (NSS) developed by CyberTutor has an Arbitrary File Upload vulnerability. Unauthenticated remote attackers can upload arbitrary files, including malicious HTML files, thereby achieving effects similar to cross-site scripting.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19852"
-    },
-    {
-      "id": "CVE-2026-19200",
-      "published": "2026-08-24T04:16:46.557",
-      "lastModified": "2026-08-28T21:17:10.720",
-      "description": "The Velociraptor verify() VQL function allows a user to verify an artifact for syntatic and other issues. Due to an implementation fault in this VQL function, the global artifact repository is used which allows callers to overwrite existing artifacts without the required permissions.  The attacker need only have the NOTEBOOK_EDIT permission (e.g. an analyst role) to be able to call this function.",
-      "score": 8.9,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19200"
     }
   ]
 }
