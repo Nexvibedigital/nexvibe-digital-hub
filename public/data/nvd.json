@@ -1,6 +1,87 @@
 {
-  "syncedAt": "2026-08-31T10:11:46.963Z",
+  "syncedAt": "2026-08-31T10:41:42.858Z",
   "items": [
+    {
+      "id": "CVE-2026-67204",
+      "published": "2026-08-24T16:17:17.790",
+      "lastModified": "2026-08-24T18:17:01.400",
+      "description": "BookStack before 26.05.4 contains a broken access control vulnerability that allows authenticated API users with image-update or image-delete permissions to manipulate other users' avatars by exploiting missing content-type restrictions in the Image Gallery API endpoints. Attackers can supply a user avatar's ID to the API controller, which loads any image type without the web controller's gallery and drawio restrictions, and when the avatar's uploaded_to field matches a page ID accessible to the attacker, the authorization check passes allowing the attacker to rename, replace, or delete the target user's avatar without requiring user-management permission.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-67204"
+    },
+    {
+      "id": "CVE-2026-21752",
+      "published": "2026-08-24T16:16:55.663",
+      "lastModified": "2026-08-28T15:46:19.387",
+      "description": "HCL Hive is affected by a use of vulnerable third-party components which could allow an attacker unauthorized access or compromise of the system by exploiting publicly documented security flaws.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-21752"
+    },
+    {
+      "id": "CVE-2026-13343",
+      "published": "2026-08-24T16:16:55.530",
+      "lastModified": "2026-08-26T16:59:23.267",
+      "description": "The UMP Stream responder library in lib/midi2/ump_stream_responder.c builds reply packets in a 16-byte struct midi_ump (uint32_t data[4]). The builders make_endpoint_info() and make_function_block_info() populate only the first two words (res.data[0] and res.data[1]) and, before this fix, declared their result as an uninitialised local (struct midi_ump res;). The remaining two words (res.data[2], res.data[3]) retain stale stack contents.\n\nEndpoint Info and Function Block Info notifications are UMP Stream messages (UMP_MT_UMP_STREAM), which are 4 words long, so the full 16-byte packet — including the two uninitialised words — is transmitted verbatim by cfg->send(). The responder is driven by attacker-supplied UMP Stream Endpoint-Discovery / Function-Block-Discovery requests via ump_stream_respond(). In the in-tree Network MIDI 2.0 server (subsys/net/lib/midi2/netmidi2.c) these requests arrive as UDP datagrams and, with the default no-authentication endpoint, a remote peer can establish a session and trigger the responses; the same library also serves USB MIDI 2.0 hosts.\n\nEach discovery request causes the device to disclose 8 bytes of its own uninitialised stack memory to the peer, and the request is freely repeatable. This is a confidentiality-only information leak (root cause is use of an uninitialised variable, CWE-457/CWE-908); the leaked words could include residual data or pointer values. There is no memory-corruption, integrity, or availability impact.\n\nThe fix zero-initialises both result structs (struct midi_ump res = {0};), so the trailing words are cleared before transmission. These are the only two responder builders that left trailing words unset (send_string() already zeroes its buffer), so the leak is fully closed.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13343"
+    },
+    {
+      "id": "CVE-2026-13212",
+      "published": "2026-08-24T16:16:55.393",
+      "lastModified": "2026-08-26T16:59:23.267",
+      "description": "The Zephyr virtio driver does not validate the descriptor-chain head id that the virtio device writes into the used ring. In virtio_isr() (drivers/virtio/virtio_common.c), the device-written vq->used->ring[idx].id is used directly as an index into vq->recv_cbs[] and vq->desc[], which are both allocated with exactly vq->num entries. recv_cbs[] holds {cb, opaque} callback entries, and the indexed callback pointer is then invoked as cbe.cb(cbe.opaque, used_len).\n\nBecause the id is consumed as a 16-bit value with no bound check, a malicious or compromised virtio backend (an untrusted hypervisor, or an untrusted hardware/peer-processor virtio device on a PCI or MMIO transport) can supply an id far beyond vq->num. This causes an out-of-bounds read of a {function pointer, argument} pair from heap memory beyond recv_cbs[], after which the driver calls that attacker-shaped pointer in the guest's interrupt context. No guest privileges or user interaction are required; the backend triggers it by writing the shared used ring and raising the queue interrupt.\n\nThe result is an arbitrary / attacker-influenced function-pointer call in the Zephyr guest, i.e. a control-flow-hijack primitive that can lead to code execution or, at minimum, a reliable crash. The fix rejects any used-ring id >= vq->num before indexing recv_cbs[]/desc[] or invoking the callback. This affects builds using CONFIG_VIRTIO with the PCI or MMIO transport.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13212"
+    },
+    {
+      "id": "CVE-2026-12556",
+      "published": "2026-08-24T16:16:55.263",
+      "lastModified": "2026-08-27T17:17:08.360",
+      "description": "Potential security vulnerabilities have been identified in HP Easy Start for macOS, versions prior to 2.16.7.260722. These potential vulnerabilities may lead to escalation of privilege. HP is releasing updates to mitigate these potential vulnerabilities.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12556"
+    },
+    {
+      "id": "CVE-2026-12555",
+      "published": "2026-08-24T16:16:55.130",
+      "lastModified": "2026-08-27T17:17:07.903",
+      "description": "Potential security vulnerabilities have been identified in HP Easy Start for macOS, versions prior to 2.16.7.260722. These potential vulnerabilities may lead to escalation of privilege. HP is releasing updates to mitigate these potential vulnerabilities.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12555"
+    },
+    {
+      "id": "CVE-2026-12554",
+      "published": "2026-08-24T16:16:54.967",
+      "lastModified": "2026-08-27T17:17:07.427",
+      "description": "Potential security vulnerabilities have been identified in HP Easy Start for macOS, versions prior to 2.16.7.260722. These potential vulnerabilities may lead to escalation of privilege. HP is releasing updates to mitigate these potential vulnerabilities.",
+      "score": 8.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12554"
+    },
+    {
+      "id": "CVE-2025-68825",
+      "published": "2026-08-24T16:16:54.693",
+      "lastModified": "2026-08-28T15:46:19.387",
+      "description": "HCL Hive is affected by incorrect default permissions which could allow an attacker unauthorized lateral movement, container breakout, and interception of sensitive internal communications.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-68825"
+    },
+    {
+      "id": "CVE-2026-9728",
+      "published": "2026-08-24T15:16:49.010",
+      "lastModified": "2026-08-26T16:59:23.267",
+      "description": "The userspace syscall verifier z_vrfy_mbox_send() in drivers/mbox/mbox_handlers.c validated the nested msg->data/msg->size fields by reading them directly out of live userspace memory, and then forwarded the original, still-mutable userspace struct mbox_msg * pointer to z_impl_mbox_send() and the underlying driver. Between the access check and the driver's use of msg->data, the validated pointer could be replaced, leaving a time-of-check/time-of-use window.\n\nOn a system built with CONFIG_USERSPACE, any unprivileged userspace thread may invoke the mbox_send() system call. A second thread sharing the caller's address space can race to overwrite msg->data with a supervisor (kernel) address after the verifier's bounds check has passed but before the driver dereferences it. The driver then reads from the attacker-chosen address in supervisor context (for example memcpy(&data32, msg->data, msg->size) in the NXP mailbox driver, whose bytes are subsequently emitted to the peer mailbox endpoint).\n\nThe impact is a userspace-to-supervisor access-control bypass: disclosure of kernel memory contents (high confidentiality impact), or, for an invalid/unmapped target address, a faulting kernel read causing denial of service. The fix snapshots the entire struct mbox_msg into a kernel-stack copy with k_usermode_from_copy() and validates and forwards that immutable copy, closing the race.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-9728"
+    },
     {
       "id": "CVE-2026-78414",
       "published": "2026-08-24T15:16:48.873",
@@ -819,85 +900,6 @@
       "score": 7.4,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-10582"
-    },
-    {
-      "id": "CVE-2026-78317",
-      "published": "2026-08-24T10:16:40.810",
-      "lastModified": "2026-08-24T17:18:20.113",
-      "description": "SQL Injection in Delta DIAEnergie v1.11.00.002 allows attacker to \nremote code execution.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78317"
-    },
-    {
-      "id": "CVE-2026-78316",
-      "published": "2026-08-24T10:16:40.667",
-      "lastModified": "2026-08-24T17:18:19.977",
-      "description": "SQL Injection in Delta DIAEnergie v1.11.00.002 allows attacker to \nremote code execution.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78316"
-    },
-    {
-      "id": "CVE-2026-78315",
-      "published": "2026-08-24T10:16:40.510",
-      "lastModified": "2026-08-24T17:18:19.860",
-      "description": "SQL Injection in Delta DIAEnergie v1.11.00.002 allows attacker to \nremote code execution.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78315"
-    },
-    {
-      "id": "CVE-2026-78314",
-      "published": "2026-08-24T10:16:40.370",
-      "lastModified": "2026-08-24T17:18:19.750",
-      "description": "SQL Injection in Delta DIAEnergie v1.11.00.002 allows attacker to \nremote code execution.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78314"
-    },
-    {
-      "id": "CVE-2026-75975",
-      "published": "2026-08-24T10:16:40.237",
-      "lastModified": "2026-08-28T19:46:29.323",
-      "description": "fast-uri is a URI parser for Node.js. Its custom parser for bracketed IPv6 literals does not validate the complete IPv6 grammar, so invalid trailing text in an authority can be silently discarded and a malformed attacker-controlled host is turned into a different valid IPv6 destination. For example, a bracketed literal with invalid trailing characters is normalized to the unspecified address, which a Node HTTP client then connects to a local service over loopback, and other malformed literals collapse to private-range addresses. No error is set on the parsed result, so an application checking the error field cannot detect the rewrite. An application that normalizes untrusted URLs before outbound requests, redirects, proxy routing, or address-policy enforcement can be redirected to a local or private IPv6 target, giving a server-side request forgery and address-policy bypass primitive. The affected versions are 2.3.1 up to but not including 2.4.5, 3.0.0 up to but not including 3.1.6, and 4.0.0 up to but not including 4.1.3. The issue is fixed in 2.4.5, 3.1.6, and 4.1.3, which validate bracketed IP literals against the full grammar and mark malformed literals as authority errors. Users should upgrade to a patched version.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75975"
-    },
-    {
-      "id": "CVE-2026-75931",
-      "published": "2026-08-24T10:16:40.113",
-      "lastModified": "2026-08-28T19:46:29.323",
-      "description": "fast-uri is a URI parser for Node.js. It canonicalizes a host to its ASCII form only when the input carries an explicit scheme, so a scheme-relative reference such as a host preceded by two slashes is returned with its host verbatim and no error set. As a result fast-uri's own entry points disagree with each other: parse, resolve, normalize, and equal can yield different hosts for the same input depending only on whether a scheme is written out, and equal can return opposite verdicts for the same pair of hosts. An application that extracts a host with fast-uri to check it against a policy list and then resolves the same reference can make its decision on one host while the destination is another, enabling host confusion and policy bypass. The affected versions are 2.4.2 up to but not including 2.4.5, 3.1.3 up to but not including 3.1.6, and 4.0.1 up to but not including 4.1.3. The issue is fixed in 2.4.5, 3.1.6, and 4.1.3, which canonicalize the host consistently across the resolve path. Users should upgrade to a patched version.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75931"
-    },
-    {
-      "id": "CVE-2026-75899",
-      "published": "2026-08-24T10:16:39.960",
-      "lastModified": "2026-08-28T19:46:29.323",
-      "description": "fast-uri is a URI parser for Node.js. It decodes percent escapes in a hostname during parsing and then decodes the parsed hostname a second time during authority recomposition, so a single call to normalize or resolve can turn nested percent-encoded input into a different network destination such as a loopback hostname or address. For example, a doubly encoded host that spells out a loopback name decodes to that live host in one operation, which contradicts RFC 3986 section 2.4 that an implementation must not decode the same string more than once. An application that normalizes or resolves an untrusted HTTP-family URI before outbound routing, redirect validation, or a host-policy check can receive a destination different from the one the original encoded host represented, giving a server-side request forgery and host-policy bypass primitive. This is an incomplete-fix variant of CVE-2026-6322. The affected versions are 2.4.1 up to but not including 2.4.5, 3.1.2 up to but not including 3.1.6, and 4.0.0 up to but not including 4.1.3. The issue is fixed in 2.4.5, 3.1.6, and 4.1.3, which normalize percent escapes once and preserve encoded percent signs. Users should upgrade to a patched version.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75899"
-    },
-    {
-      "id": "CVE-2026-66897",
-      "published": "2026-08-24T10:16:39.767",
-      "lastModified": "2026-08-28T15:24:38.600",
-      "description": "A path traversal vulnerability in LXD's instance template processing allows an attacker with container edit permissions, or any user launching a crafted image, to overwrite arbitrary files on the host system as root. When processing target template paths specified in metadata.yaml, LXD validates the path against a confined os.Root directory handle but subsequently opens and creates the file using os.Create with an unconfined string path. This discrepancy between path resolution checks and file creation allows an attacker to escape directory confinement, overwrite root-owned host files, and achieve host root code execution.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66897"
-    },
-    {
-      "id": "CVE-2026-16249",
-      "published": "2026-08-24T10:16:38.650",
-      "lastModified": "2026-08-24T10:16:38.650",
-      "description": "Rejected reason: This CVE ID is a duplicate of CVE-2026-15303 and was never published. Both IDs were assigned to the same vulnerability in the 6Storage Rentals WordPress plugin. All CVE users should reference CVE-2026-15303 instead of this ID.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16249"
     }
   ]
 }
