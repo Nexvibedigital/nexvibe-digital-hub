@@ -1,6 +1,195 @@
 {
-  "syncedAt": "2026-08-31T20:11:41.689Z",
+  "syncedAt": "2026-08-31T20:41:27.626Z",
   "items": [
+    {
+      "id": "CVE-2026-12561",
+      "published": "2026-08-25T05:17:19.867",
+      "lastModified": "2026-08-26T16:19:05.917",
+      "description": "The tagDiv Composer plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the vc_raw_html shortcode in all versions up to and including 5.4.5. This is due to insufficient input sanitization and output escaping in the vc_raw_html::render() method, which base64-decodes shortcode content (after a strip_tags() that is bypassed because the encoded payload contains no tags on save) and concatenates the result directly into the page HTML. Because WordPress's save-time wp_kses_post() filter only sees the inert base64 text inside a normal shortcode bracket and does not decode it, the dangerous tags survive into post_content and are emitted unescaped at render time. This makes it possible for authenticated attackers, with Contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page (for example, when an Editor or Administrator previews the pending post).",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12561"
+    },
+    {
+      "id": "CVE-2026-76063",
+      "published": "2026-08-25T04:18:20.673",
+      "lastModified": "2026-08-26T16:19:05.917",
+      "description": "The FundEngine – Donation and Crowdfunding Platform plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'wfp_featured_video_url' parameter in all versions up to, and including, 1.8.1 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with subscriber-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. The REST endpoint used to submit the video URL has its permission_callback set to __return_true, meaning any authenticated user — including those with Subscriber-level access — can reach the vulnerable code path.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76063"
+    },
+    {
+      "id": "CVE-2026-75930",
+      "published": "2026-08-25T04:18:20.503",
+      "lastModified": "2026-08-26T16:19:05.917",
+      "description": "The FundEngine – Donation and Crowdfunding Platform plugin for WordPress is vulnerable to authorization bypass in all versions up to, and including, 1.8.1. This is due to the plugin not properly verifying that a user is authorized to perform an action. This makes it possible for authenticated attackers, with subscriber-level access and above, to modify arbitrary posts and pages — overwriting title and content, and seizing ownership by supplying an attacker-controlled post_author integer that bypasses wp_kses_post sanitization. The wp_rest nonce required by the handler is trivially obtainable by any logged-in user via /wp-admin/admin-ajax.php?action=rest-nonce and therefore does not constitute an authorization barrier.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75930"
+    },
+    {
+      "id": "CVE-2026-19943",
+      "published": "2026-08-25T04:18:10.917",
+      "lastModified": "2026-08-26T16:19:05.917",
+      "description": "The Gutenverse – WordPress Blocks, Page Builder & Site Editor plugin for WordPress is vulnerable to Stored Cross-Site Scripting via 'titleTag' Block Attribute in all versions up to, and including, 4.0.2 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. The malicious titleTag value survives wp_kses_post on save because it is stored inside a block-comment delimiter and the live HTML is only synthesized at render time by do_blocks(), meaning the payload also fires in administrator and editor sessions during post preview.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19943"
+    },
+    {
+      "id": "CVE-2026-19892",
+      "published": "2026-08-25T04:18:10.770",
+      "lastModified": "2026-08-27T17:17:43.320",
+      "description": "The InfusedWoo Pro plugin for WordPress is vulnerable to Privilege Escalation via Account Takeover in all versions up to, and including, 5.1.17. This is due to a missing capability check in the `ajax_iwar_preview_email()` function, which uses `is_admin()` as its only authorization check and allows low-privilege users to render email preview merge fields for an arbitrary email address. This makes it possible for authenticated attackers, with subscriber-level access and above, to generate and retrieve a valid password reset link for any WordPress user, including administrators, enabling account takeover.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19892"
+    },
+    {
+      "id": "CVE-2026-17089",
+      "published": "2026-08-25T04:18:02.470",
+      "lastModified": "2026-08-26T16:19:05.917",
+      "description": "The Events Manager – Calendar, Bookings, Tickets, and more! plugin for WordPress is vulnerable to Reflected Cross-Site Scripting via the 'header_format' parameter in all versions up to, and including, 7.4.0.1 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that execute if they can successfully trick a user into performing an action such as clicking on a link. The shortcode entry point sanitizes 'header_format' via wp_kses(), but the unauthenticated 'search_events_grouped' AJAX action bypasses this sanitization entirely, leaving the parameter unsanitized before it is echoed into the HTML body in output_grouped().",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-17089"
+    },
+    {
+      "id": "CVE-2026-14280",
+      "published": "2026-08-25T04:17:48.050",
+      "lastModified": "2026-08-26T16:19:05.917",
+      "description": "The Events Manager – Calendar, Bookings, Tickets, and more! plugin for WordPress is vulnerable to Local File Inclusion in all versions up to, and including, 7.3.7.4 via the em_options_save function. This makes it possible for authenticated attackers, with administrator-level access and above, to include and execute arbitrary .php files on the server, allowing the execution of any PHP code in those files. This can be used to bypass access controls, obtain sensitive data, or achieve code execution in cases where .php file types can be uploaded and included. The stored traversal key is subsequently executed via an include_once() call that fires on every admin_init invocation — including unauthenticated admin-ajax.php requests — meaning once the malicious key is stored by an administrator, the inclusion is triggered without any further authentication or capability check.",
+      "score": 6.6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14280"
+    },
+    {
+      "id": "CVE-2026-78685",
+      "published": "2026-08-25T03:16:58.740",
+      "lastModified": "2026-08-26T16:40:21.650",
+      "description": "Medical Practice Management System developed by Le-yan has a Remote Code Execution vulnerability. Unauthenticated remote attackers can execute arbitrary OS commamnds via a crafted HTML page.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78685"
+    },
+    {
+      "id": "CVE-2026-75982",
+      "published": "2026-08-25T03:16:57.063",
+      "lastModified": "2026-08-26T16:19:05.917",
+      "description": "The LearnPress plugin for WordPress is vulnerable to unauthorized modification of arbitrary WordPress options in versions up to, and including, 4.4.4 via the learnpress_create_page AJAX action. The LP_Admin_Ajax::create_page() handler only checks the edit_pages capability and a wp_rest nonce (both available to Editors), then reads the field_name parameter from the request without restricting it to a learn_press_* allow-list before passing it as the option key to LP_Helper::create_page(), which calls update_option($key_option, $page_id). This makes it possible for authenticated attackers, with Editor-level access and above, to update arbitrary WordPress options to a positive integer (a newly created page ID), enabling actions such as flipping users_can_register to a truthy value to open public registration, corrupting active_plugins to break the site, or otherwise tampering with site-wide settings normally reserved for administrators.",
+      "score": 4.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75982"
+    },
+    {
+      "id": "CVE-2026-75019",
+      "published": "2026-08-25T03:16:56.507",
+      "lastModified": "2026-08-26T16:19:05.917",
+      "description": "The Cozy Blocks – Page Builder for Gutenberg Editor & FSE with 700+ Patterns, 58 Blocks & Templates plugin for WordPress is vulnerable to Stored Cross-Site Scripting via cozyHoverEffect Block Attribute in all versions up to, and including, 2.2.16 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. The payload survives wp_kses_post on save because it contains no angle brackets — only a double-quote breakout of the cozyHoverEffect.boxShadow.color attribute value — allowing event-handler injection at the render stage.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75019"
+    },
+    {
+      "id": "CVE-2026-10627",
+      "published": "2026-08-25T03:16:54.687",
+      "lastModified": "2026-08-27T17:17:06.487",
+      "description": "The Events Manager – Calendar, Bookings, Tickets, and more! plugin for WordPress is vulnerable to authorization bypass in all versions up to, and including, 7.4.0. This is due to the plugin not properly verifying that a user is authorized to perform an action. This makes it possible for unauthenticated attackers to view the titles, dates, descriptions, and location details of events and locations that administrators have marked as draft, pending, trashed, or private.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-10627"
+    },
+    {
+      "id": "CVE-2025-9878",
+      "published": "2026-08-25T03:16:54.540",
+      "lastModified": "2026-08-26T16:19:05.917",
+      "description": "The PPWP – Password Protect WordPress | #1 Most-Reviewed Password Plugin plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the plugin's 'ppwp' shortcode in all versions up to, and including, 1.9.21 due to insufficient input sanitization and output escaping on user supplied attributes. This makes it possible for authenticated attackers, with contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-9878"
+    },
+    {
+      "id": "CVE-2026-78683",
+      "published": "2026-08-25T02:16:53.033",
+      "lastModified": "2026-08-31T19:05:09.870",
+      "description": "NLTK before 3.10.0 (affected versions <=3.9.4) contains an unsafe pickle deserialization vulnerability in the TransitionParser.parse() method (nltk/parse/transitionparser.py). The method calls pickle_load() with the default restricted=False, routing deserialization through WarningUnpickler, which does not override find_class() and therefore permits arbitrary class resolution. When an application loads an attacker-crafted model file, embedded pickle gadget chains execute arbitrary Python code with the privileges of the user running the application. NLTK provides a RestrictedUnpickler for safe deserialization, but it is not used by production code paths. Fixed in 3.10.0.",
+      "score": 9.6,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78683"
+    },
+    {
+      "id": "CVE-2026-78682",
+      "published": "2026-08-25T02:16:52.890",
+      "lastModified": "2026-08-31T19:05:31.693",
+      "description": "NLTK before 3.10.3 contains a server-side request forgery vulnerability in nltk.pathsec.urlopen (and callers nltk.data.load, nltk.downloader.Downloader.index/download) when an HTTP proxy is configured. pathsec.urlopen validates the requested hostname locally, but proxy-handler inheritance disables the safe HTTP/HTTPS handlers so the actual fetch is performed by the proxy against a destination that is never re-validated. An attacker can supply a validated public URL that the proxy forwards to an internal loopback-only service, allowing disclosure of internal HTTP resources, loading of forged downloader indexes, and installation of attacker-chosen package content.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78682"
+    },
+    {
+      "id": "CVE-2026-78681",
+      "published": "2026-08-25T02:16:52.750",
+      "lastModified": "2026-08-26T17:17:15.973",
+      "description": "NLTK versions before 3.10.3 use xml.etree.ElementTree to parse XML in multiple modules, which honors entity declarations in document DTDs. Attackers can craft XML payloads with nested entity declarations that expand from hundreds of bytes to megabytes in memory, causing denial of service.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78681"
+    },
+    {
+      "id": "CVE-2026-78680",
+      "published": "2026-08-25T02:16:52.607",
+      "lastModified": "2026-08-25T13:19:31.457",
+      "description": "NLTK versions before 3.10.3 fail to use validated absolute paths when invoking the Graphviz dot binary in dependencygraph.dot2img and AlignedSent._repr_svg_, allowing attackers to execute arbitrary code by placing a malicious dot binary in the search path or current working directory. Attackers can exploit bare-name binary resolution on Windows via the current working directory or on Unix-like systems via relative PATH entries to execute their binary instead of the legitimate Graphviz tool.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78680"
+    },
+    {
+      "id": "CVE-2026-78679",
+      "published": "2026-08-25T02:16:52.470",
+      "lastModified": "2026-08-27T17:20:43.517",
+      "description": "GitPython before 3.1.59 contains an arbitrary file read vulnerability in TagReference.create() where a positional reference parameter bypasses the unsafe option guard. Attackers can supply a reference value like --file=<path> to read arbitrary files, with contents returned in the annotated tag message.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78679"
+    },
+    {
+      "id": "CVE-2026-78678",
+      "published": "2026-08-25T02:16:52.313",
+      "lastModified": "2026-08-31T20:37:35.877",
+      "description": "GitPython versions before 3.1.59 contain an incomplete denylist in the unsafe_git_revision_options guard that omits --contents and -S options, allowing attackers to read arbitrary files by passing these options to Repo.blame(). Attackers can supply revision values like --contents=/etc/passwd to leak file contents through the blame result returned to the caller.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78678"
+    },
+    {
+      "id": "CVE-2026-78677",
+      "published": "2026-08-25T02:16:52.173",
+      "lastModified": "2026-08-31T20:37:35.877",
+      "description": "GitPython before 3.1.59 omits --separate-git-dir from unsafe_git_clone_options, allowing attackers to create arbitrary git directories outside the intended clone destination. Attackers can pass a separate_git_dir parameter to Repo.clone_from() or Repo.clone() to redirect repository metadata to an attacker-controlled filesystem path, enabling arbitrary directory creation and potential hook execution.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78677"
+    },
+    {
+      "id": "CVE-2026-78676",
+      "published": "2026-08-25T02:16:52.030",
+      "lastModified": "2026-08-26T17:17:15.470",
+      "description": "GitPython before 3.1.59 fails to safely re-serialize multi-line git-config values during write operations, corrupting dormant quoted values into injected directives like core.hooksPath. Attackers can craft config files with embedded newlines that become live git directives after any unrelated GitPython config write, enabling arbitrary code execution via hook invocation.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78676"
+    },
+    {
+      "id": "CVE-2026-78675",
+      "published": "2026-08-25T02:16:51.887",
+      "lastModified": "2026-08-31T20:37:35.877",
+      "description": "GitPython before 3.1.59 fails to disable merge_includes when parsing .gitmodules, allowing attackers to disclose local file content by including arbitrary file paths via [include] directives. Attackers can craft a malicious .gitmodules file with include directives pointing to sensitive files; when repo.submodules is accessed, GitConfigParser raises MissingSectionHeaderError embedding the target file's first line verbatim in the exception message.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78675"
+    },
     {
       "id": "CVE-2026-76846",
       "published": "2026-08-25T02:16:51.743",
@@ -76,7 +265,7 @@
     {
       "id": "CVE-2026-72698",
       "published": "2026-08-25T02:16:45.550",
-      "lastModified": "2026-08-26T17:17:13.520",
+      "lastModified": "2026-08-31T20:38:54.340",
       "description": "Grav CMS before 2.0.16 fails to filter system, site, and theme configuration arrays in sandboxed Twig renders, allowing content editors to read sensitive configuration values. Attackers with page-content edit access can access raw configuration arrays including secrets like cache credentials by using dot notation in Twig templates, bypassing the config_denied_paths restrictions.",
       "score": 6.5,
       "severity": "MEDIUM",
@@ -121,7 +310,7 @@
     {
       "id": "CVE-2026-56709",
       "published": "2026-08-25T02:16:42.930",
-      "lastModified": "2026-08-26T17:17:08.270",
+      "lastModified": "2026-08-31T20:38:54.340",
       "description": "Grav before 3.9.2 fails to validate untrusted Host headers in the sendInvitationEmail() function when constructing token-bearing invitation links. Attackers can manipulate the Host header to poison invitation links and redirect users to attacker-controlled domains, bypassing the require_trusted_host protection which only covers password reset flows.",
       "score": 7.5,
       "severity": "HIGH",
@@ -711,195 +900,6 @@
       "score": 6.1,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2022-30983"
-    },
-    {
-      "id": "CVE-2026-78555",
-      "published": "2026-08-24T20:17:24.850",
-      "lastModified": "2026-08-26T16:49:18.760",
-      "description": "RansomLook exposed complete API keys in the HTML source of the authenticated /admin/apikeys administration page. Although the interface displayed only a shortened representation of each key, the full token was embedded in hidden form fields used by the enable/disable, private-access, and delete actions.\n\n\nAs a result, API credentials could be recovered by inspecting the page source or DOM. The credentials could also be unintentionally exposed through components that retain or inspect HTTP response bodies, such as debugging proxies, browser caches, monitoring systems, or other intermediaries. An attacker obtaining one of these tokens could subsequently authenticate using the privileges assigned to that key, including access to private data where the key was granted such permissions.\n\n\nThe patch removes API keys from subsequent page rendering and replaces them with SHA-256-derived opaque handles. Administrative actions submit only these handles, which are resolved back to the corresponding token on the server. The full API key is therefore disclosed only once, when it is initially created.",
-      "score": 9.4,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78555"
-    },
-    {
-      "id": "CVE-2026-78553",
-      "published": "2026-08-24T20:17:24.383",
-      "lastModified": "2026-08-26T16:49:18.760",
-      "description": "RansomLook created its Flask session-signing key without explicitly restricting the file permissions. The secret_key file was created using the process's default permissions and umask, resulting in permissions such as 0644 under a common 022 umask. Consequently, other local users able to access the RansomLook home directory could read the application's cryptographic secret.\n\n\nThe exposed key is security-critical because it is used to sign Flask session cookies and is also involved in the legacy API-key key derivation. An attacker who obtains the key can generate valid session cookies and impersonate an authenticated user, including an administrator. In LDAP configurations, exploitation may be particularly straightforward because the session user loader does not require the supplied username to correspond to an existing local user.\n\n\nSuccessful exploitation requires local access sufficient to read the improperly protected file, but can result in complete compromise of RansomLook's authentication and authorization controls.\n\n\nThe patch creates new secret-key files atomically with permissions 0600 and also restricts permissions on existing key files during application startup.",
-      "score": 7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78553"
-    },
-    {
-      "id": "CVE-2026-78551",
-      "published": "2026-08-24T20:17:23.927",
-      "lastModified": "2026-08-26T16:49:18.760",
-      "description": "RansomLook contains multiple weaknesses in its authentication endpoint that allow an unauthenticated remote attacker to enumerate valid usernames, perform unrestricted password-guessing attacks, and potentially exhaust application worker resources.\n\nFor local authentication, the login implementation previously checked whether a submitted username existed before invoking the password hash verification function. Requests containing a nonexistent username therefore returned significantly faster than requests for valid accounts, for which the computationally expensive password verification routine was executed. A remote attacker could measure these response-time differences to determine which usernames correspond to valid RansomLook accounts.\n\nIn addition, the /login endpoint did not restrict the number or frequency of failed authentication attempts. An attacker could consequently perform password brute-force, dictionary, password-spraying, or credential-stuffing attacks against known accounts without server-side throttling. For valid usernames, each authentication attempt also invokes the password key-derivation function, which consumes a significant amount of CPU time. A sufficiently high rate of login attempts could therefore occupy the application's synchronous Gunicorn workers and cause a denial of service affecting the entire application.\n\nThe issue has been addressed by always performing password verification using a randomly generated dummy password hash when the supplied username does not exist, eliminating the username-dependent timing discrepancy. Failed authentication attempts are additionally rate-limited per client IP address using Valkey/Redis, with five failed attempts within five minutes resulting in a one-hour block. The reverse-proxy configuration was also updated so that the application derives the client address from a trusted X-Forwarded-For value that cannot be overridden by a client-supplied header.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78551"
-    },
-    {
-      "id": "CVE-2026-78430",
-      "published": "2026-08-24T20:17:22.560",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "A vulnerability was detected in sworddut mcp-ffmpeg-helper 0.1.0/0.1.1/0.2.1. This affects the function handleToolCall of the file src/tools/handlers.ts of the component Tool Handler. The manipulation of the argument format results in os command injection. Attacking locally is a requirement. The exploit is now public and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78430"
-    },
-    {
-      "id": "CVE-2026-77923",
-      "published": "2026-08-24T20:17:21.560",
-      "lastModified": "2026-08-31T18:45:46.200",
-      "description": "Dolibarr 21.0.0 before 24.0.0 contains an authorization bypass vulnerability caused by an inverted boolean condition in the private-project membership check within the clonetasks mass action handler in htdocs/core/actions_massactions.inc.php. Authenticated users with project creation permission but without access to a target private project can exploit the flawed !in_array() check to clone tasks into unauthorized private projects.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77923"
-    },
-    {
-      "id": "CVE-2026-77310",
-      "published": "2026-08-24T20:17:20.977",
-      "lastModified": "2026-08-25T20:17:05.760",
-      "description": "jackson-databind contains the general-purpose data-binding functionality and tree-model for Jackson Data Processor. Prior to versions 2.18.9, 2.21.5, 2.22.1, 3.1.5, and 3.2.1 on their respective release lines, the java.net.InetAddress branch of FromStringDeserializer.Std._deserialize() calls InetAddress.getByName() on attacker-controlled input, causing eager DNS resolution during deserialization and enabling DNS-based server-side request forgery and internal-host enumeration. This issue is fixed in versions 2.18.9, 2.21.5, 2.22.1, 3.1.5, and 3.2.1.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77310"
-    },
-    {
-      "id": "CVE-2026-76816",
-      "published": "2026-08-24T20:17:19.477",
-      "lastModified": "2026-08-25T14:16:53.820",
-      "description": "Netty is an asynchronous, event-driven network application framework. Prior to versions 4.1.137.Final and 4.2.17.Final, MqttEncoder does not validate client identifiers, will topics, usernames, and PUBLISH topic names before encoding, allowing prohibited null bytes in MQTT UTF-8 string fields and potentially causing routing, access-control, or identity mismatches in downstream brokers. The vulnerability is exploitable when an application uses Netty's MQTT encoder to construct messages from user-controlled input. This issue is fixed in versions 4.1.137.Final and 4.2.17.Final.",
-      "score": 3.5,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76816"
-    },
-    {
-      "id": "CVE-2026-76098",
-      "published": "2026-08-24T20:17:19.330",
-      "lastModified": "2026-08-24T21:17:47.720",
-      "description": "Mistune is a Python Markdown parser with renderers and plugins. Versions 3.3.0 through 3.3.2 are vulnerable to DoS through deeply nested tokens. HTML rendering creates deeply nested emphasis tokens from consecutive asterisk characters, and recursive rendering in HTMLRenderer.render_token() can exceed Python's recursion limit and raise RecursionError, allowing crafted Markdown to crash a parsing process. This issue is fixed in version 3.3.3",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76098"
-    },
-    {
-      "id": "CVE-2026-75509",
-      "published": "2026-08-24T20:17:19.183",
-      "lastModified": "2026-08-25T17:18:16.470",
-      "description": "joserfc is a Python library that provides an implementation of several JSON Object Signing and Encryption (JOSE) standards. Prior to version 1.7.3, JWTClaimsRegistry applies membership matching to list-valued iss and sub claims, allowing an array-valued iss that contains the expected issuer to pass an intended equality check and enabling issuer-validation bypass. This issue is fixed in version 1.7.3.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75509"
-    },
-    {
-      "id": "CVE-2026-75369",
-      "published": "2026-08-24T20:17:19.073",
-      "lastModified": "2026-08-28T20:19:53.713",
-      "description": "An out-of-bounds read vulnerability in the CAN::Application::parsePerformFunctionMessage component of SpaceDot AcubeSAT OBC software commit eaf90ec allows attackers to cause a Denial of Service (DoS) via supplying a crafted CAN message.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75369"
-    },
-    {
-      "id": "CVE-2026-75368",
-      "published": "2026-08-24T20:17:18.963",
-      "lastModified": "2026-08-28T16:18:24.813",
-      "description": "A stack overflow in the loadRawData function of SpaceDot AcubeSAT OBC software commit eaf90ec allows attackers to cause a Denial of Service (DoS) via supplying a crafted ECSS TC message.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75368"
-    },
-    {
-      "id": "CVE-2026-72714",
-      "published": "2026-08-24T20:17:18.810",
-      "lastModified": "2026-08-25T18:18:02.633",
-      "description": "Rocq Prover does not restore the universe graph's copy of the universe checking flag when a module that locally disabled the check is closed. Local Unset Universe Checking inside a module is expected to last only until the module ends, and the global flag is restored, but the universe graph keeps its own copy which is left disabled. The two views then disagree: Test Universe Checking reports the check as enabled while the kernel continues to accept universe-inconsistent terms. With the constraint between two universes no longer enforced, Hurkens' paradox applies and yields a proof of False, from which any proposition follows. The proof uses no axioms, plugins or unsafe features once the module has closed, and Print Assumptions reports it as closed under the global context, so neither the assumption audit nor the flag query reflects the actual kernel state. No fix is available.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-72714"
-    },
-    {
-      "id": "CVE-2026-72711",
-      "published": "2026-08-24T20:17:18.657",
-      "lastModified": "2026-08-24T21:17:46.790",
-      "description": "The Lean 4 kernel does not check that the body of an opaque declaration is closed. environment::add_opaque omits the check_no_metavar_no_fvar call that the definition and theorem paths perform, so a value containing a free variable that is absent from the local context is not rejected outright. A metaprogram can first cause the kernel to create a temporary local of type False and record its type in the type checker's inference cache, then restore the local context while that cache entry persists on the same type checker instance, and finally submit an opaque declaration whose value is the now-unbound variable. The cache lookup answers before the branch that would test membership of the local context, so the kernel infers the cached type and admits an opaque constant of type False, from which any proposition follows. The declaration is accepted through the ordinary checked path at maximum kernel checking, without sorry, unsafeCast, debug.skipKernelTC, addDeclWithoutChecking, foreign code or a modified .olean file, and the result carries no axioms. Fixed in 4.32.2 by adding the missing closure check.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-72711"
-    },
-    {
-      "id": "CVE-2026-72705",
-      "published": "2026-08-24T20:17:18.520",
-      "lastModified": "2026-08-26T17:17:13.657",
-      "description": "The guard checker in Rocq Prover does not follow recursive calls made through a fixpoint's own arguments. A fixpoint may pass itself as a higher-order argument to a second fixpoint, which then applies it to a value that is not a subterm of the structural argument. Passing the recursive function to a plain definition is rejected because the checker unfolds the definition and observes the call, but passing it to a fixpoint is accepted because higher-order recursive calls through fixpoint arguments are not tracked. This admits a type that is definitionally equal to its own negation, so self-application produces False in purely definitional code, without tactics, axioms, plugins or unsafe flags, and Print Assumptions reports the result as closed under the global context. Fixed in Rocq 9.2.0.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-72705"
-    },
-    {
-      "id": "CVE-2026-72704",
-      "published": "2026-08-24T20:17:18.390",
-      "lastModified": "2026-08-25T17:18:15.777",
-      "description": "The guard checker in Rocq Prover does not recheck the recursive tree representation of an inductive type parameter after that parameter has been changed by transport. A fixpoint may apply a rewrite along an equality between types to its recursive argument, which the guard checker accepts because the inductive type is preserved, while the recursive tree recorded for the parameter is altered. A second fixpoint that calls the first inherits the altered recursive tree without verification, so a call that is not structurally decreasing is accepted as terminating. The resulting non-terminating definition proves that a natural number equals its own successor and therefore False, from which any proposition follows. The demonstration uses two axioms that follow from univalence and are consistent with the calculus of inductive constructions, so the contradiction comes from the guard check rather than from the assumptions. A fix is proposed but not merged.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-72704"
-    },
-    {
-      "id": "CVE-2026-72703",
-      "published": "2026-08-24T20:17:18.240",
-      "lastModified": "2026-08-27T17:19:51.313",
-      "description": "The guard checker in Rocq Prover treats a parameter of a nested mutual fixpoint as uniform without examining calls between the different bodies of that fixpoint. find_uniform_parameters in kernel/inductive.ml inspects only self-recursive calls, so when no body calls itself the function concludes that every parameter is uniform. A parameter that grows through a cross-call from one body to another therefore keeps the subterm specification it inherited from the enclosing fixpoint, and a recursive call guarded by that specification is accepted although the argument is not structurally smaller. A non-terminating definition is admitted as structurally decreasing, which yields a term whose value equals its own successor and so a proof of False, from which any proposition follows. The proof requires no axioms, plugins or unsafe flags and Print Assumptions reports it as closed under the global context. Introduced in Coq 8.20 and fixed in Rocq 9.2.0.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-72703"
-    },
-    {
-      "id": "CVE-2026-71511",
-      "published": "2026-08-24T20:17:13.420",
-      "lastModified": "2026-08-26T17:17:12.120",
-      "description": "Dolibarr before 24.0.0 contains a sensitive data exposure vulnerability in the Members REST API that allows authenticated attackers with member-read rights to retrieve bcrypt password verifiers by querying member endpoints. Attackers can call the individual member or member list endpoints to obtain crypted password verifier fields that are not filtered by the base API serializer or the Members API class, potentially enabling offline password cracking attacks.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71511"
-    },
-    {
-      "id": "CVE-2026-71510",
-      "published": "2026-08-24T20:17:12.957",
-      "lastModified": "2026-08-24T20:17:12.957",
-      "description": "Dolibarr before 24.0.0 contains a SQL injection vulnerability in the users REST API that allows authenticated attackers with user-read rights to extract sensitive data by splicing unsanitized filter parameters into SQL WHERE clauses without column restrictions. Attackers can perform binary search on numeric fields and LIKE prefix iteration on string fields to recover salary figures and password verifiers omitted from normal API responses, while raw database error messages in the same endpoint enable column name enumeration.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71510"
-    },
-    {
-      "id": "CVE-2026-63693",
-      "published": "2026-08-24T20:16:55.677",
-      "lastModified": "2026-08-28T15:29:44.967",
-      "description": "Dell Client BIOS contains an Improper Link Resolution Before File Access ('Link Following') vulnerability. A low privileged attacker with local access could potentially exploit this vulnerability, leading to Arbitrary Write",
-      "score": 6.6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-63693"
-    },
-    {
-      "id": "CVE-2026-61419",
-      "published": "2026-08-24T20:16:51.990",
-      "lastModified": "2026-08-28T15:29:44.967",
-      "description": "Dell ThinOS 10, versions prior to 2605_10.2518, contain an Improper Access Control vulnerability. A low privileged attacker with local access could potentially exploit this vulnerability, leading to Unauthorized access.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61419"
-    },
-    {
-      "id": "CVE-2020-37268",
-      "published": "2026-08-24T20:16:40.560",
-      "lastModified": "2026-08-25T15:16:28.607",
-      "description": "Print Assumptions does not report that a definition was produced while universe checking was disabled when that definition reaches the caller through Parameter Inline in a module type. Applying a functor inlines the body of the parameter, and the inlining drops the record that the term was built under Unset Universe Checking, so the resulting constant carries no trace of the unsafe operation. A module implementation can therefore prove False using a universe inconsistency, expose it through an inlined parameter, and have Print Assumptions report the dependent proof as closed under the global context. Because Print Assumptions is the in-process audit used to confirm that a development rests on no unexpected assumptions, a dependency built this way passes that audit while proving arbitrary propositions. The standalone checker coqchk does reject the resulting compiled file. The project records this in dev/doc/critical-bugs.md under non-fixed bugs and rates the risk as moderate when coqchk is not used.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2020-37268"
     }
   ]
 }
