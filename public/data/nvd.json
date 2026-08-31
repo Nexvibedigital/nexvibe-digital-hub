@@ -1,6 +1,123 @@
 {
-  "syncedAt": "2026-08-31T16:11:39.644Z",
+  "syncedAt": "2026-08-31T16:41:34.942Z",
   "items": [
+    {
+      "id": "CVE-2026-72711",
+      "published": "2026-08-24T20:17:18.657",
+      "lastModified": "2026-08-24T21:17:46.790",
+      "description": "The Lean 4 kernel does not check that the body of an opaque declaration is closed. environment::add_opaque omits the check_no_metavar_no_fvar call that the definition and theorem paths perform, so a value containing a free variable that is absent from the local context is not rejected outright. A metaprogram can first cause the kernel to create a temporary local of type False and record its type in the type checker's inference cache, then restore the local context while that cache entry persists on the same type checker instance, and finally submit an opaque declaration whose value is the now-unbound variable. The cache lookup answers before the branch that would test membership of the local context, so the kernel infers the cached type and admits an opaque constant of type False, from which any proposition follows. The declaration is accepted through the ordinary checked path at maximum kernel checking, without sorry, unsafeCast, debug.skipKernelTC, addDeclWithoutChecking, foreign code or a modified .olean file, and the result carries no axioms. Fixed in 4.32.2 by adding the missing closure check.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-72711"
+    },
+    {
+      "id": "CVE-2026-72705",
+      "published": "2026-08-24T20:17:18.520",
+      "lastModified": "2026-08-26T17:17:13.657",
+      "description": "The guard checker in Rocq Prover does not follow recursive calls made through a fixpoint's own arguments. A fixpoint may pass itself as a higher-order argument to a second fixpoint, which then applies it to a value that is not a subterm of the structural argument. Passing the recursive function to a plain definition is rejected because the checker unfolds the definition and observes the call, but passing it to a fixpoint is accepted because higher-order recursive calls through fixpoint arguments are not tracked. This admits a type that is definitionally equal to its own negation, so self-application produces False in purely definitional code, without tactics, axioms, plugins or unsafe flags, and Print Assumptions reports the result as closed under the global context. Fixed in Rocq 9.2.0.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-72705"
+    },
+    {
+      "id": "CVE-2026-72704",
+      "published": "2026-08-24T20:17:18.390",
+      "lastModified": "2026-08-25T17:18:15.777",
+      "description": "The guard checker in Rocq Prover does not recheck the recursive tree representation of an inductive type parameter after that parameter has been changed by transport. A fixpoint may apply a rewrite along an equality between types to its recursive argument, which the guard checker accepts because the inductive type is preserved, while the recursive tree recorded for the parameter is altered. A second fixpoint that calls the first inherits the altered recursive tree without verification, so a call that is not structurally decreasing is accepted as terminating. The resulting non-terminating definition proves that a natural number equals its own successor and therefore False, from which any proposition follows. The demonstration uses two axioms that follow from univalence and are consistent with the calculus of inductive constructions, so the contradiction comes from the guard check rather than from the assumptions. A fix is proposed but not merged.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-72704"
+    },
+    {
+      "id": "CVE-2026-72703",
+      "published": "2026-08-24T20:17:18.240",
+      "lastModified": "2026-08-27T17:19:51.313",
+      "description": "The guard checker in Rocq Prover treats a parameter of a nested mutual fixpoint as uniform without examining calls between the different bodies of that fixpoint. find_uniform_parameters in kernel/inductive.ml inspects only self-recursive calls, so when no body calls itself the function concludes that every parameter is uniform. A parameter that grows through a cross-call from one body to another therefore keeps the subterm specification it inherited from the enclosing fixpoint, and a recursive call guarded by that specification is accepted although the argument is not structurally smaller. A non-terminating definition is admitted as structurally decreasing, which yields a term whose value equals its own successor and so a proof of False, from which any proposition follows. The proof requires no axioms, plugins or unsafe flags and Print Assumptions reports it as closed under the global context. Introduced in Coq 8.20 and fixed in Rocq 9.2.0.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-72703"
+    },
+    {
+      "id": "CVE-2026-71511",
+      "published": "2026-08-24T20:17:13.420",
+      "lastModified": "2026-08-26T17:17:12.120",
+      "description": "Dolibarr before 24.0.0 contains a sensitive data exposure vulnerability in the Members REST API that allows authenticated attackers with member-read rights to retrieve bcrypt password verifiers by querying member endpoints. Attackers can call the individual member or member list endpoints to obtain crypted password verifier fields that are not filtered by the base API serializer or the Members API class, potentially enabling offline password cracking attacks.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71511"
+    },
+    {
+      "id": "CVE-2026-71510",
+      "published": "2026-08-24T20:17:12.957",
+      "lastModified": "2026-08-24T20:17:12.957",
+      "description": "Dolibarr before 24.0.0 contains a SQL injection vulnerability in the users REST API that allows authenticated attackers with user-read rights to extract sensitive data by splicing unsanitized filter parameters into SQL WHERE clauses without column restrictions. Attackers can perform binary search on numeric fields and LIKE prefix iteration on string fields to recover salary figures and password verifiers omitted from normal API responses, while raw database error messages in the same endpoint enable column name enumeration.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71510"
+    },
+    {
+      "id": "CVE-2026-63693",
+      "published": "2026-08-24T20:16:55.677",
+      "lastModified": "2026-08-28T15:29:44.967",
+      "description": "Dell Client BIOS contains an Improper Link Resolution Before File Access ('Link Following') vulnerability. A low privileged attacker with local access could potentially exploit this vulnerability, leading to Arbitrary Write",
+      "score": 6.6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-63693"
+    },
+    {
+      "id": "CVE-2026-61419",
+      "published": "2026-08-24T20:16:51.990",
+      "lastModified": "2026-08-28T15:29:44.967",
+      "description": "Dell ThinOS 10, versions prior to 2605_10.2518, contain an Improper Access Control vulnerability. A low privileged attacker with local access could potentially exploit this vulnerability, leading to Unauthorized access.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61419"
+    },
+    {
+      "id": "CVE-2020-37268",
+      "published": "2026-08-24T20:16:40.560",
+      "lastModified": "2026-08-25T15:16:28.607",
+      "description": "Print Assumptions does not report that a definition was produced while universe checking was disabled when that definition reaches the caller through Parameter Inline in a module type. Applying a functor inlines the body of the parameter, and the inlining drops the record that the term was built under Unset Universe Checking, so the resulting constant carries no trace of the unsafe operation. A module implementation can therefore prove False using a universe inconsistency, expose it through an inlined parameter, and have Print Assumptions report the dependent proof as closed under the global context. Because Print Assumptions is the in-process audit used to confirm that a development rests on no unexpected assumptions, a dependency built this way passes that audit while proving arbitrary propositions. The standalone checker coqchk does reject the resulting compiled file. The project records this in dev/doc/critical-bugs.md under non-fixed bugs and rates the risk as moderate when coqchk is not used.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2020-37268"
+    },
+    {
+      "id": "CVE-2026-78541",
+      "published": "2026-08-24T19:17:04.553",
+      "lastModified": "2026-08-28T19:02:53.760",
+      "description": "A stored OS\ncommand injection vulnerability exists in the parent-control module of TP-Link\nArcher BE3600 V1. An authenticated adjacent attacker with administrative access\nmay store a crafted profile name containing shell metacharacters, which is\nlater processed unsafely during daily cloud report generation and may result in\narbitrary command execution.\n\n\n\n\n\nSuccessful\nexploitation may allow command execution on the affected device with potential\nimpact to device confidentiality, integrity, and availability.",
+      "score": 8.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78541"
+    },
+    {
+      "id": "CVE-2026-78417",
+      "published": "2026-08-24T19:17:04.420",
+      "lastModified": "2026-08-28T20:19:57.820",
+      "description": "Insufficient verification of data authenticity in the IronVNC client in Devolutions Remote Desktop Manager 2026.2.17.0 and earlier, 2026.1.24.0 and earlier, allows an on-path attacker to intercept and tamper with VNC sessions via automatic acceptance of the server's RSA key during RSA-AES authentication.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78417"
+    },
+    {
+      "id": "CVE-2026-75371",
+      "published": "2026-08-24T19:16:58.310",
+      "lastModified": "2026-08-25T20:17:03.707",
+      "description": "An integer handling flaw in the cobs_decode function of SpaceDot AcubeSAT OBC software commit eaf90ec allows physically-proximate attackers with UART access to cause a Denial of Service (DoS) via a crafted input.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75371"
+    },
+    {
+      "id": "CVE-2026-75370",
+      "published": "2026-08-24T19:16:58.183",
+      "lastModified": "2026-08-25T20:17:03.530",
+      "description": "An out-of-bounds read/write vulnerability in the MessageParser::parseECSSTCHeader component of SpaceDot AcubeSAT OBC software commit eaf90ec allows attackers to cause a Denial of Service (DoS) via supplying a crafted CAN message.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75370"
+    },
     {
       "id": "CVE-2026-71832",
       "published": "2026-08-24T19:16:50.543",
@@ -771,123 +888,6 @@
       "score": 10,
       "severity": "CRITICAL",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-36939"
-    },
-    {
-      "id": "CVE-2026-78416",
-      "published": "2026-08-24T16:17:24.250",
-      "lastModified": "2026-08-28T16:08:09.497",
-      "description": "Craft CMS versions from 4.0.0-RC1 before 4.18.2 and from 5.0.0-RC1 before 5.10.6 contain an authenticated remote code execution vulnerability in control panel element-search condition handling. A JSON cleanse bypass in condition.config allows Yii behavior/event configuration keys to be interpreted after decoding, enabling command execution as the PHP/web user.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78416"
-    },
-    {
-      "id": "CVE-2026-76071",
-      "published": "2026-08-24T16:17:23.117",
-      "lastModified": "2026-08-26T19:17:04.430",
-      "description": "Netis NC63 firmware through V3.0.0.3327 contains a stack-based buffer overflow vulnerability that allows unauthenticated remote attackers to overwrite saved stack state by supplying an oversized destHost parameter to the ipFilterList=mod action in netis.cgi. Attackers can exploit widthless sscanf conversions that copy user-supplied input into fixed-size stack buffers before authentication is verified, achieving remote code execution as root due to the Boa web server executing the CGI environment with root privileges.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76071"
-    },
-    {
-      "id": "CVE-2026-76070",
-      "published": "2026-08-24T16:17:22.963",
-      "lastModified": "2026-08-24T19:16:58.433",
-      "description": "Netis NC63 firmware through V3.0.0.3327 contains a stack-based buffer overflow vulnerability that allows unauthenticated remote attackers to overwrite saved stack state by submitting an oversized Base64-encoded password to the login handler in /bin/netis.cgi. Attackers can exploit the custom Base64 decoder's lack of output length validation against the fixed-size stack buffer to achieve remote code execution with root privileges, as the Boa web server executes the CGI environment as root.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76070"
-    },
-    {
-      "id": "CVE-2026-71366",
-      "published": "2026-08-24T16:17:22.820",
-      "lastModified": "2026-08-28T21:17:10.720",
-      "description": "A server-side request forgery (SSRF) vulnerability was found in multiple AWX notification backends. The webhook, Mattermost, Rocket.Chat, and Grafana notification backends use notification template URLs as direct HTTP request targets without validating the target address against private, loopback, or reserved IP ranges. An organization notification administrator can create notification templates pointing to internal or loopback addresses, causing the AWX control node to issue HTTP requests to services that are not externally accessible. Additionally, the webhook notification backend follows HTTP redirects and resends configured Basic Authentication credentials to redirect targets regardless of host change, allowing an attacker to exfiltrate notification credentials by redirecting to an attacker-controlled host. The Grafana backend sends its API key in the Authorization header to the configured target URL.",
-      "score": 7.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71366"
-    },
-    {
-      "id": "CVE-2026-71364",
-      "published": "2026-08-24T16:17:22.663",
-      "lastModified": "2026-08-28T21:17:10.720",
-      "description": "A path traversal vulnerability was found in AWX's project archive extraction. The project_archive action plugin extracts zip and tar archive members by joining the project directory path with the member filename without performing path normalization, boundary validation, or rejecting directory traversal sequences. A malicious archive containing members with path traversal components can write files to arbitrary locations on the execution node's filesystem outside the intended project directory. An attacker who controls the archive content, either through a compromised upstream source, a malicious archive URL, or a man-in-the-middle attack on a plain HTTP connection, can achieve arbitrary file writes as the user performing the extraction, potentially leading to remote code execution through mechanisms such as cron files, SSH authorized keys, or playbook content injection.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71364"
-    },
-    {
-      "id": "CVE-2026-67204",
-      "published": "2026-08-24T16:17:17.790",
-      "lastModified": "2026-08-24T18:17:01.400",
-      "description": "BookStack before 26.05.4 contains a broken access control vulnerability that allows authenticated API users with image-update or image-delete permissions to manipulate other users' avatars by exploiting missing content-type restrictions in the Image Gallery API endpoints. Attackers can supply a user avatar's ID to the API controller, which loads any image type without the web controller's gallery and drawio restrictions, and when the avatar's uploaded_to field matches a page ID accessible to the attacker, the authorization check passes allowing the attacker to rename, replace, or delete the target user's avatar without requiring user-management permission.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-67204"
-    },
-    {
-      "id": "CVE-2026-21752",
-      "published": "2026-08-24T16:16:55.663",
-      "lastModified": "2026-08-28T15:46:19.387",
-      "description": "HCL Hive is affected by a use of vulnerable third-party components which could allow an attacker unauthorized access or compromise of the system by exploiting publicly documented security flaws.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-21752"
-    },
-    {
-      "id": "CVE-2026-13343",
-      "published": "2026-08-24T16:16:55.530",
-      "lastModified": "2026-08-26T16:59:23.267",
-      "description": "The UMP Stream responder library in lib/midi2/ump_stream_responder.c builds reply packets in a 16-byte struct midi_ump (uint32_t data[4]). The builders make_endpoint_info() and make_function_block_info() populate only the first two words (res.data[0] and res.data[1]) and, before this fix, declared their result as an uninitialised local (struct midi_ump res;). The remaining two words (res.data[2], res.data[3]) retain stale stack contents.\n\nEndpoint Info and Function Block Info notifications are UMP Stream messages (UMP_MT_UMP_STREAM), which are 4 words long, so the full 16-byte packet — including the two uninitialised words — is transmitted verbatim by cfg->send(). The responder is driven by attacker-supplied UMP Stream Endpoint-Discovery / Function-Block-Discovery requests via ump_stream_respond(). In the in-tree Network MIDI 2.0 server (subsys/net/lib/midi2/netmidi2.c) these requests arrive as UDP datagrams and, with the default no-authentication endpoint, a remote peer can establish a session and trigger the responses; the same library also serves USB MIDI 2.0 hosts.\n\nEach discovery request causes the device to disclose 8 bytes of its own uninitialised stack memory to the peer, and the request is freely repeatable. This is a confidentiality-only information leak (root cause is use of an uninitialised variable, CWE-457/CWE-908); the leaked words could include residual data or pointer values. There is no memory-corruption, integrity, or availability impact.\n\nThe fix zero-initialises both result structs (struct midi_ump res = {0};), so the trailing words are cleared before transmission. These are the only two responder builders that left trailing words unset (send_string() already zeroes its buffer), so the leak is fully closed.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13343"
-    },
-    {
-      "id": "CVE-2026-13212",
-      "published": "2026-08-24T16:16:55.393",
-      "lastModified": "2026-08-26T16:59:23.267",
-      "description": "The Zephyr virtio driver does not validate the descriptor-chain head id that the virtio device writes into the used ring. In virtio_isr() (drivers/virtio/virtio_common.c), the device-written vq->used->ring[idx].id is used directly as an index into vq->recv_cbs[] and vq->desc[], which are both allocated with exactly vq->num entries. recv_cbs[] holds {cb, opaque} callback entries, and the indexed callback pointer is then invoked as cbe.cb(cbe.opaque, used_len).\n\nBecause the id is consumed as a 16-bit value with no bound check, a malicious or compromised virtio backend (an untrusted hypervisor, or an untrusted hardware/peer-processor virtio device on a PCI or MMIO transport) can supply an id far beyond vq->num. This causes an out-of-bounds read of a {function pointer, argument} pair from heap memory beyond recv_cbs[], after which the driver calls that attacker-shaped pointer in the guest's interrupt context. No guest privileges or user interaction are required; the backend triggers it by writing the shared used ring and raising the queue interrupt.\n\nThe result is an arbitrary / attacker-influenced function-pointer call in the Zephyr guest, i.e. a control-flow-hijack primitive that can lead to code execution or, at minimum, a reliable crash. The fix rejects any used-ring id >= vq->num before indexing recv_cbs[]/desc[] or invoking the callback. This affects builds using CONFIG_VIRTIO with the PCI or MMIO transport.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13212"
-    },
-    {
-      "id": "CVE-2026-12556",
-      "published": "2026-08-24T16:16:55.263",
-      "lastModified": "2026-08-27T17:17:08.360",
-      "description": "Potential security vulnerabilities have been identified in HP Easy Start for macOS, versions prior to 2.16.7.260722. These potential vulnerabilities may lead to escalation of privilege. HP is releasing updates to mitigate these potential vulnerabilities.",
-      "score": 7.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12556"
-    },
-    {
-      "id": "CVE-2026-12555",
-      "published": "2026-08-24T16:16:55.130",
-      "lastModified": "2026-08-27T17:17:07.903",
-      "description": "Potential security vulnerabilities have been identified in HP Easy Start for macOS, versions prior to 2.16.7.260722. These potential vulnerabilities may lead to escalation of privilege. HP is releasing updates to mitigate these potential vulnerabilities.",
-      "score": 7.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12555"
-    },
-    {
-      "id": "CVE-2026-12554",
-      "published": "2026-08-24T16:16:54.967",
-      "lastModified": "2026-08-27T17:17:07.427",
-      "description": "Potential security vulnerabilities have been identified in HP Easy Start for macOS, versions prior to 2.16.7.260722. These potential vulnerabilities may lead to escalation of privilege. HP is releasing updates to mitigate these potential vulnerabilities.",
-      "score": 8.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12554"
-    },
-    {
-      "id": "CVE-2025-68825",
-      "published": "2026-08-24T16:16:54.693",
-      "lastModified": "2026-08-28T15:46:19.387",
-      "description": "HCL Hive is affected by incorrect default permissions which could allow an attacker unauthorized lateral movement, container breakout, and interception of sensitive internal communications.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-68825"
     }
   ]
 }
