@@ -1,6 +1,33 @@
 {
-  "syncedAt": "2026-08-31T03:11:29.343Z",
+  "syncedAt": "2026-08-31T03:41:37.384Z",
   "items": [
+    {
+      "id": "CVE-2026-76843",
+      "published": "2026-08-24T14:17:02.087",
+      "lastModified": "2026-08-28T16:18:25.963",
+      "description": "The official Flair wheels for 0.15.0 and 0.15.1 still contain flair/models/clustering.py, whose ClusteringModel.load static method returns pickle.loads(joblib.load(str(model_file))) and so executes arbitrary Python while loading a model file. Loading a model supplied by an attacker therefore runs that attacker's code with the privileges of the loading process. This is the same sink and the same file as CVE-2024-10073, which records 0.15.0 as the fixed version on the basis that clustering support was dropped in that release; the module was removed from the documented API but remains present in the distributed artifact and reachable by importing flair.models.clustering directly, so the earlier record's fixed version does not hold for the shipped package.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76843"
+    },
+    {
+      "id": "CVE-2026-76842",
+      "published": "2026-08-24T14:17:01.930",
+      "lastModified": "2026-08-24T18:17:22.517",
+      "description": "The Mercado Pago Node.js SDK interpolates caller-supplied identifiers into API request paths without percent-encoding them, so characters that are structural in a URL survive into the outgoing request. The payment (get, capture, cancel), paymentRefund (create, total, list, get), advancedPayment (get, capture, cancel, update, updateReleaseDate) and disbursementRefund (create, createAll, listAll) clients build their path as a template literal, for example RestClient.fetch(`/v1/payments/${id}`, ...) in src/clients/payment/get/index.ts. A dot-dot or slash sequence in the identifier is normalised by the WHATWG URL parser and redirects the request to a different endpoint, and a question mark appends attacker-chosen query parameters, in both cases carrying the merchant's own access token. An application that forwards an identifier influenced by an untrusted party into one of these methods without an ownership check therefore allows that party to reach other resources within the merchant's token scope. The repository already contains the intended helper, encodePathParam in src/utils/path.ts, which pull request 451 applied to roughly 29 other clients while leaving these unchanged.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76842"
+    },
+    {
+      "id": "CVE-2026-76841",
+      "published": "2026-08-24T14:17:01.760",
+      "lastModified": "2026-08-26T17:17:13.993",
+      "description": "Xinference loads models with Hugging Face remote code execution unconditionally enabled, and before version 2.12.0 exposes no setting to disable it. Six loader call sites pass trust_remote_code=True as a literal or as an unconditional default: RerankModel._get_tokenizer in xinference/model/rerank/core.py, SentenceTransformerRerankModel.load in xinference/model/rerank/sentence_transformers/core.py, SentenceTransformerEmbeddingModel.load in xinference/model/embedding/sentence_transformers/core.py, FlagEmbeddingModel.load in xinference/model/embedding/flag/core.py, and two sites in xinference/model/llm/transformers/core.py where PytorchModel._sanitize_model_config and PytorchModel._get_components default the value to True. Because a caller with model launch access can register a model whose type is unknown and supply an arbitrary model path, the server reaches _auto_detect_type and then AutoTokenizer.from_pretrained, which imports and executes Python declared by the model directory's own tokenizer_config.json auto_map, running attacker-supplied code with the privileges of the worker process. Version 2.12.0 gates every site behind allow_trust_remote_code and the XINFERENCE_TRUST_REMOTE_CODE setting, permitting remote code only for bundled built-in models.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76841"
+    },
     {
       "id": "CVE-2026-76840",
       "published": "2026-08-24T14:17:01.550",
@@ -871,33 +898,6 @@
       "score": 8.9,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19200"
-    },
-    {
-      "id": "CVE-2026-78178",
-      "published": "2026-08-24T03:16:40.650",
-      "lastModified": "2026-08-27T17:20:35.317",
-      "description": "A vulnerability was determined in jQWidgets up to 24.0.1. This affects the function JQXLite.extend/jqxBaseFramework.extend of the file jqwidgets/jqx-all.js. This manipulation causes improperly controlled modification of object prototype attributes. The attack can be initiated remotely. The reported GitHub issue was closed with the label \"not planned\".",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78178"
-    },
-    {
-      "id": "CVE-2026-78177",
-      "published": "2026-08-24T03:16:40.473",
-      "lastModified": "2026-08-24T18:17:27.643",
-      "description": "A vulnerability was found in TanStack devtools-vite 0.7.0. Affected by this issue is the function installPackage of the file packages/devtools-bundler-core/src/package-manager.ts of the component Development Devtools Event Bus. The manipulation of the argument packageName results in os command injection. Attacking locally is a requirement. A high complexity level is associated with this attack. The exploitation is known to be difficult. The exploit has been made public and could be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 4.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78177"
-    },
-    {
-      "id": "CVE-2026-78171",
-      "published": "2026-08-24T03:16:39.423",
-      "lastModified": "2026-08-26T19:17:08.617",
-      "description": "A vulnerability has been found in itsourcecode Sales and Inventory System 1.0. Affected by this vulnerability is an unknown functionality of the file /pages/processlogin.php. The manipulation of the argument User leads to sql injection. It is possible to initiate the attack remotely. The exploit has been disclosed to the public and may be used.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78171"
     }
   ]
 }
