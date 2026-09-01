@@ -1,6 +1,60 @@
 {
-  "syncedAt": "2026-09-01T06:49:33.671Z",
+  "syncedAt": "2026-09-01T07:19:33.161Z",
   "items": [
+    {
+      "id": "CVE-2026-63076",
+      "published": "2026-08-25T13:19:26.543",
+      "lastModified": "2026-08-28T19:46:29.323",
+      "description": "Issue summary: OpenSSL CMP password based protection verification only\nchecks whether the protectionAlg parameter was not NULL and not its\nASN.1 type, before treating it as a PBMParameter. A crafted message can\ncontain a parameter of a different type, which is then dereferenced as an\ninvalid pointer.\n\nImpact summary: A remote, unauthenticated attacker can crash an application\nacting as a CMP server that accepts PBM-protected messages, or a CMP client\ntalking to a malicious or intercepted CMP server, resulting in a Denial of\nService.\n\nCWE: CWE-476: NULL Pointer Dereference\n\nDescription: When verifying the password-based MAC protection of a CMP\nmessage, OpenSSL library reads the protectionAlg algorithm parameter with\nX509_ALGOR_get0(), which returns both the parameter type and its value\npointer. The value is then cast to an ASN1_STRING and treated as the\nexpected PBMParameter after only checking that pointer is not NULL. The\nparameter type returned by X509_ALGOR_get0() was never consulted.\n\nThis happens during protection verification, before any MAC is computed, so\nno knowledge of the PBM shared secret is required; the only precondition is\nthat PBM verification is reachable. On the server side this is reached from\nOSSL_CMP_SRV_process_request() for any application that stands up a CMP\nserver accepting PBM-protected messages, and on the client side from CMP\nresponse validation against a malicious or on-path (MITM) server. The\nreliable consequence is a denial of service; there is no memory disclosure,\nno controlled memory write, and no path to code execution. CMP is a\nspecialized feature that an application must explicitly enable.\n\nFIPS impact: no\nAs the CMP code lives outside the FIPS module boundary, no FIPS modules\nare affected by this CVE.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-63076"
+    },
+    {
+      "id": "CVE-2026-63075",
+      "published": "2026-08-25T13:19:26.413",
+      "lastModified": "2026-08-28T19:46:29.323",
+      "description": "Issue summary: When OpenSSL processes QUIC traffic from a peer that repeatedly\nsends ack-eliciting packets while not acknowledging ACK-only responses, the\nQUIC stack can retain ACK-only packet metadata for the lifetime of the\nconnection.\n\nImpact summary: A remote peer that can complete a QUIC handshake can\ncause connection-scoped memory growth which may lead to Denial of Service\nthrough memory exhaustion, especially with sustained traffic or many concurrent\nQUIC connections.\n\nCWE: CWE-770: Allocation of Resources Without Limits or Throttling\n\nDescription: When the OpenSSL QUIC stack sends an ACK-only packet,\nthere is no requirement by the QUIC protocol that the peer will acknowledge\nthat ACK-only packet (i.e. it is itself not ack-eliciting). However, the OpenSSL\nimplementation stores the metadata about the ACK frames regardless.\nIn and of itself that's ok, but if a malicious peer establishes a connection, and\nthen drives the connection such that ACK-only packets are forced from the \nOpenSSL implementation peer (i.e., by sending numerous PING frames),\nand then withholding any subsequent acks for ack-eliciting data, like\nlegitimate data, said malicious peer can force inappropriate memory growth\non the OpenSSL peer, potentially leading to a Denial of Service.\n\nThe fix is to ensure that we account for the transmission of the ACK-only\npacket in the packet histories high and low watermark without actually storing\nthe ACK-only packet metadata itself.\n\nFIPS impact: no\nThe OpenSSL FIPS module is not affected as the QUIC code is\noutside the FIPS module boundary.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-63075"
+    },
+    {
+      "id": "CVE-2026-63074",
+      "published": "2026-08-25T13:19:26.283",
+      "lastModified": "2026-08-28T19:46:29.323",
+      "description": "Issue summary: The OpenSSL Certificate Management Protocol (CMP) caches\nadditional certificates (extraCerts) sent in a CMP message, but never expunges\nthem (for instance if they are invalid).  If a server reuses an OSSL_CMP_CTX\nfrequently, this cache of extraCerts may grow unboundedly, and a malicious\nclient may flood a CMP server with requests driving this growth.\n\nImpact summary: Users utilizing a CMP server that reuses a single OSSL_CMP_CTX\nfor the lifetime of a server process may observe unbounded memory growth in the\nevent a malicious client repeatedly sends requests containing unique extra\ncertificates, which may lead to OOM conditions.\n\nCWE: CWE-770: Allocation of Resources Without Limits or Throttling\n\nDescription: If a remote user sends CMP messages to a server with a list of\nextraCerts and the message is rejected, the extraCerts from the message remains\nin the server contexts untrusted certificate stack.  This exposes servers with\nlong lived ctx objects to Denial of Service attacks in which an attacker sends\nmessages intending to be rejected with a large list of additional certificates\nrepeatedly, forcing the server to store them indefinitely.\n   \nThe issue was fixed by removing the added extra certs if the message is\nrejected, using the same method as when the context is configured to not do\ncaching at all.\n\nFIPS impact: no\nAs the CMP code lives outside the FIPS module boundary, no FIPS\nmodules are affected by this CVE.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-63074"
+    },
+    {
+      "id": "CVE-2026-63073",
+      "published": "2026-08-25T13:19:26.147",
+      "lastModified": "2026-08-31T20:17:07.540",
+      "description": "Issue summary: OpenSSL CMP response validation passed an unexpected response\nsender distinguished name directly as the format string to `ERR_raise_data()`.\n\nImpact summary: A malicious or intercepted CMP endpoint can crash a CMP client\nthat enforces an expected sender or uses a pinned server certificate whose\nsubject becomes the default expected sender.\n\nCWE: CWE-134 (Use of Externally-Controlled Format String)\n\nDescription: When validating a received CMP message, ossl_cmp_msg_check_update()\nconverts the peer-supplied sender distinguished name with X509_NAME_oneline()\nand passes it directly as the format argument to ERR_raise_data(). Percent\ncharacters survive the conversion, so a sender DN such as \"CN=%s%n\" reaches\nBIO_vsnprintf() as an attacker-controlled format string with no matching variadic\narguments. This path is only reached when the caller configures an expected\nsender or pins a server certificate, which is the normal configuration for a\nCMP client validating server responses.\n\nSince the attacker controls the format string but none of the variadic\narguments, such specifiers as %s and %n dereference or write through unrelated\nstack contents and crash the client. The reliable consequence is a denial of\nservice, when the response comes from a malicious or intercepted CMP endpoint.\nThere is no controlled memory write, arbitrary-address read, or reliable path\nto remote code execution.\n\nFIPS impact: no\n\nNo FIPS modules are affected by this issue, as the CMP protocol\nimplementation is outside the OpenSSL FIPS module boundary.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-63073"
+    },
+    {
+      "id": "CVE-2026-63072",
+      "published": "2026-08-25T13:19:26.010",
+      "lastModified": "2026-08-28T19:46:29.323",
+      "description": "Issue summary: OpenSSL CMS decryption sizes the key-unwrap output buffer based\non querying the unwrapped key size, but the AES-WRAP-PAD unwrap primitive\ncan write and cleanse more bytes than that query reports, causing an 8-byte\nout-of-bounds heap write.\n\nImpact summary: An attacker who supplies a crafted CMS message can trigger a\ndeterministic 8-byte out-of-bounds heap write when the victim decrypts it\nwith CMS_decrypt(), corrupting the heap and typically resulting in a Denial\nof Service.\n\nCWE: CWE-787: Out-of-bounds Write\n\nDescription: The key-wrap OID is potentially attacker-controlled on the wire.\nCMS unwrapping allows both id-aesNNN-wrap-pad and id-aesNNN-wrap ciphers.\nAn attacker can take a legitimate message and change a single OID byte to\nselect the padded variant while leaving the message otherwise valid. Since\nthe unwrap key is derived from the recipient's private operation (ECDH key\nagreement or ML-KEM decapsulation), the RFC 5649 integrity check cannot\npass, and the decryption fails with integrity failure.\n\nThe write is a fixed-size (8-byte), fixed-value (zero) heap overflow\nimmediately past the allocation, requires no special configuration, and is\nreachable from the public CMS_decrypt() function. The consequence is\na heap corruption leading to a Denial of Service. The fix in the CMS code\nsizes the unwrap output buffer for the worst case so a failed unwrap cannot\nwrite past the allocation.\n\nFIPS impact: no\n\nAs the CMS code lives outside the FIPS module boundary, no FIPS\nmodules are affected by this CVE.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-63072"
+    },
+    {
+      "id": "CVE-2026-57863",
+      "published": "2026-08-25T13:19:24.200",
+      "lastModified": "2026-08-25T15:16:35.297",
+      "description": "Crater Invoice through 6.0.6 contains a path traversal vulnerability in the self-update API that allows authenticated company owners to write arbitrary files outside the intended extraction directory by supplying crafted ZIP archives with ../ sequences to the unzip endpoint. Attackers can exploit unsanitized ZIP entry names passed to PHP's ZipArchive::extractTo() to write arbitrary PHP files into the web-accessible public directory and achieve remote code execution on the server.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57863"
+    },
     {
       "id": "CVE-2026-54874",
       "published": "2026-08-25T13:19:24.033",
@@ -846,60 +900,6 @@
       "score": 8.8,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16601"
-    },
-    {
-      "id": "CVE-2026-78656",
-      "published": "2026-08-25T07:17:10.990",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "A vulnerability was found in itsourcecode Sales and Inventory System 1.0. Affected is an unknown function of the file /pages/cust_del.php. The manipulation of the argument ID results in sql injection. The attack can be executed remotely. The exploit has been made public and could be used.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78656"
-    },
-    {
-      "id": "CVE-2026-69665",
-      "published": "2026-08-25T07:17:10.860",
-      "lastModified": "2026-08-28T16:09:10.947",
-      "description": "SKYSEA Client View and SKYMEC IT Manager contain an issue with incorrect default permissions. If this vulnerability is exploited, an attacker who can log in to a Windows system on which the affected product is installed may execute arbitrary code with SYSTEM privilege.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-69665"
-    },
-    {
-      "id": "CVE-2026-68960",
-      "published": "2026-08-25T07:17:10.730",
-      "lastModified": "2026-08-28T16:09:10.947",
-      "description": "A stack-based buffer overflow vulnerability exists in SKYSEA Client View and SKYMEC IT Manager. If this vulnerability is exploited, an attacker who can log in to a Windows system on which the affected product is installed may be able to execute arbitrary code on another Windows system that has the affected product installed and can receive UDP packets from that system.",
-      "score": 8.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-68960"
-    },
-    {
-      "id": "CVE-2026-68959",
-      "published": "2026-08-25T07:17:10.600",
-      "lastModified": "2026-08-28T16:09:10.947",
-      "description": "SKYSEA Client View and SKYMEC IT Manager contain a path traversal vulnerability. If this vulnerability is exploited, an attacker who can log in to a Windows system on which the affected product is installed may be able to execute arbitrary code on another Windows system that has the affected products installed and can receive UDP packets from that system. Note that this vulnerability is due to an incomplete fix for CVE-2024-41726.",
-      "score": 8.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-68959"
-    },
-    {
-      "id": "CVE-2026-68062",
-      "published": "2026-08-25T07:17:10.467",
-      "lastModified": "2026-08-28T16:09:10.947",
-      "description": "SKYSEA Client View and SKYMEC IT Manager contain a path traversal vulnerability. If this vulnerability is exploited, an attacker who can log in to a Windows system on which the affected product is installed may be able to execute arbitrary code on another Windows system that has the affected products installed and can receive UDP packets from that system. Note that this vulnerability is due to an incomplete fix for CVE-2024-41726.",
-      "score": 8.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-68062"
-    },
-    {
-      "id": "CVE-2026-66109",
-      "published": "2026-08-25T07:17:10.310",
-      "lastModified": "2026-08-28T16:09:10.947",
-      "description": "A missing authorization vulnerability exists in SKYSEA Client View and SKYMEC IT Manager. If this vulnerability is exploited, an attacker who can log in to the Windows system on which the affected product is installed may execute arbitrary code with SYSTEM privilege.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66109"
     }
   ]
 }
