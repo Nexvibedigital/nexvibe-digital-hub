@@ -1,6 +1,42 @@
 {
-  "syncedAt": "2026-09-01T04:45:09.881Z",
+  "syncedAt": "2026-09-01T05:18:23.791Z",
   "items": [
+    {
+      "id": "CVE-2026-79668",
+      "published": "2026-08-25T12:16:34.967",
+      "lastModified": "2026-08-31T20:38:54.340",
+      "description": "Ech0 before 4.7.3 contains an authentication bypass vulnerability in the PUT /api/echo/like/:id endpoint that allows unauthenticated attackers to increment engagement metrics without identity verification or rate limiting. Attackers can send repeated requests to arbitrarily inflate the fav_count field for any known echo identifier, compromising the integrity of engagement metrics and social ranking systems.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79668"
+    },
+    {
+      "id": "CVE-2026-79667",
+      "published": "2026-08-25T12:16:34.813",
+      "lastModified": "2026-08-31T20:50:15.927",
+      "description": "Ech0 version 4.3.4 and earlier fails to reliably enforce scoped access token (least-privilege) restrictions on several privileged admin routes. Multiple privileged endpoints (e.g., /api/inbox, /api/panel/comments, /api/backup/export) omit scope checks and authorize based only on the user's admin role, and the backup export handler discards token scope metadata entirely. An attacker holding a deliberately limited (low-scope) admin access token can reach broader privileged functionality than intended, including reading the inbox and exporting a full database backup ZIP archive. Fixed in 4.4.3.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79667"
+    },
+    {
+      "id": "CVE-2026-79666",
+      "published": "2026-08-25T12:16:34.670",
+      "lastModified": "2026-08-31T20:50:15.927",
+      "description": "Ech0 before 4.4.3 fails to enforce administrator authorization on dashboard log endpoints, allowing any authenticated user to access system logs. Attackers with valid user sessions can query GET /api/system/logs and subscribe to SSE and WebSocket log streams to retrieve sensitive operational data including file paths, stack traces, and internal URLs.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79666"
+    },
+    {
+      "id": "CVE-2026-79665",
+      "published": "2026-08-25T12:16:34.523",
+      "lastModified": "2026-08-31T20:50:15.927",
+      "description": "Ech0 before 4.5.1 contains an authorization bypass vulnerability where session tokens skip scope validation in RequireScopes middleware, allowing logged-in non-admin users to access admin endpoints. Attackers can read system logs, visitor statistics, user emails, and subscribe to live WebSocket logs by sending authenticated session tokens to unprotected endpoints.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79665"
+    },
     {
       "id": "CVE-2026-79664",
       "published": "2026-08-25T12:16:34.370",
@@ -862,42 +898,6 @@
       "lastModified": "2026-08-25T06:18:26.190",
       "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-41741"
-    },
-    {
-      "id": "CVE-2026-78637",
-      "published": "2026-08-25T05:17:23.897",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "A vulnerability was detected in Fdawgs node-poppler up to 9.1.2/10.0.1. The impacted element is the function pdfInfo/pdfToText/pdfToCairo/pdfToPpm/pdfImages/pdfToHtml/pdfToPs/pdfFonts/pdfDetach/pdfAttach/pdfSeparate/pdfUnite of the file src/index.js of the component Argument Injection Handler. Performing a manipulation of the argument file_path results in argument injection. The attack may be initiated remotely. The patch is named db6e3f79d3beb20601be7e59669c39811ae3c330. It is recommended to apply a patch to fix this issue.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78637"
-    },
-    {
-      "id": "CVE-2026-13215",
-      "published": "2026-08-25T05:17:20.187",
-      "lastModified": "2026-08-26T16:59:23.267",
-      "description": "The Zephyr ext2 filesystem driver fails to validate the s_log_block_size field of the on-disk superblock when mounting a filesystem. ext2_verify_disk_superblock() in subsys/fs/ext2/ext2_impl.c checks the magic number, revision, inode size and group counts, but never bounds s_log_block_size. On a successful verify, subsys/fs/ext2/ext2_ops.c computes fs->block_size = 1024 << superblock.s_log_block_size from this attacker-controlled uint32_t, so a crafted value either overflows the shift (undefined behaviour) or yields a block size far larger than CONFIG_EXT2_MAX_BLOCK_SIZE.\n\nThat block size is then passed to k_mem_slab_init() by ext2_init_blocks_slab() to carve CONFIG_EXT2_MAX_BLOCK_COUNT blocks out of the fixed static buffer __ext2_block_memory_buffer, whose size is CONFIG_EXT2_MAX_BLOCK_COUNT * CONFIG_EXT2_MAX_BLOCK_SIZE. k_mem_slab_init() does not verify that the requested blocks fit the buffer, and the ext2 wrapper discards its return value, so the slab is laid out past the end of the static buffer. The mount immediately reads block-group, bitmap and inode blocks of fs->block_size bytes each into these slab blocks, producing an out-of-bounds write into adjacent static memory on the first block read.\n\nThe entire path is gated only by data read from the mounted image, making this reachable by any attacker who can present a crafted ext2 image to a device that mounts it (for example a removable SD card or storage medium). Because the ext2 driver runs in kernel mode, supplying image bytes yields a supervisor-mode memory-corruption primitive, with impact ranging from denial of service to potential code execution.\n\nThe fix rejects s_log_block_size values that overflow the shift (greater than 11) or that produce a block size exceeding CONFIG_EXT2_MAX_BLOCK_SIZE, so the block slab can no longer be initialized larger than its backing buffer.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13215"
-    },
-    {
-      "id": "CVE-2026-13214",
-      "published": "2026-08-25T05:17:20.060",
-      "lastModified": "2026-08-26T16:59:23.267",
-      "description": "The OCPP 1.6 client in subsys/net/lib/ocpp/ocpp_j.c contains a stack buffer overflow in parse_getconfig_msg(). When handling a GetConfiguration request from the central system, the handler copied the attacker-controlled JSON \"key\" string into the caller's fixed 50-byte stack buffer (skey[CISTR50], declared in subsys/net/lib/ocpp/ocpp.c) using an unbounded strcpy(). The parsed key value points directly into the receive buffer, so its length is bounded only by the message size (CONFIG_OCPP_RECV_BUFFER_SIZE, default 2048).\n\nThe GetConfiguration message is delivered over the WebSocket connection that the charge point opens to its configured central system. The reader thread ocpp_wsreader() reads the message into ui->recv_buf and dispatches it to parse_getconfig_msg() via the PDU function table. An attacker who controls the central system endpoint, or a man-in-the-middle on an unencrypted connection, can send a GetConfiguration request whose \"key\" field exceeds 50 bytes and overflow the reader thread's stack with attacker-chosen bytes.\n\nThe consequence is a remotely triggerable stack smash on the OCPP reader thread: at minimum a denial of service, and plausibly remote code execution depending on build-time hardening such as stack canaries and MPU configuration. The fix replaces the strcpy() with a bounded strncpy(key, payload.key[0], CISTR50 - 1) followed by explicit NUL termination, matching the bounded copies already used by the sibling handlers.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13214"
-    },
-    {
-      "id": "CVE-2026-12561",
-      "published": "2026-08-25T05:17:19.867",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "The tagDiv Composer plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the vc_raw_html shortcode in all versions up to and including 5.4.5. This is due to insufficient input sanitization and output escaping in the vc_raw_html::render() method, which base64-decodes shortcode content (after a strip_tags() that is bypassed because the encoded payload contains no tags on save) and concatenates the result directly into the page HTML. Because WordPress's save-time wp_kses_post() filter only sees the inert base64 text inside a normal shortcode bracket and does not decode it, the dangerous tags survive into post_content and are emitted unescaped at render time. This makes it possible for authenticated attackers, with Contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page (for example, when an Editor or Administrator previews the pending post).",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12561"
     }
   ]
 }
