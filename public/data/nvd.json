@@ -1,6 +1,78 @@
 {
-  "syncedAt": "2026-09-01T05:44:21.908Z",
+  "syncedAt": "2026-09-01T06:24:49.239Z",
   "items": [
+    {
+      "id": "CVE-2026-54874",
+      "published": "2026-08-25T13:19:24.033",
+      "lastModified": "2026-08-28T19:46:29.323",
+      "description": "Issue summary: Receiving a DTLS record for a future epoch while a handshake\nis in progress causes OpenSSL to buffer far more memory than the record\nitself requires.\n\nImpact summary: A peer can use a small amount of network traffic to make an\nOpenSSL DTLS endpoint retain a disproportionately large amount of memory,\nwhich may lead to a Denial of Service.\n\nCWE: CWE-405: Asymmetric Resource Consumption (Amplification)\n\nDescription: While a DTLS handshake is in progress, a peer may legitimately\nhave already moved on to the next epoch (for example, having sent its\nChangeCipherSpec and Finished messages) before the local endpoint has\nprocessed the same transition, typically because of reordering on the\nunderlying UDP transport. OpenSSL buffers such early records so that they\ncan be processed once the local endpoint catches up.\n\nBuffering a record currently retains the entire read buffer it arrived in,\nwhich is sized to hold the largest possible DTLS record (around 16\nkilobytes), rather than just the bytes that make up the record itself. Up\nto 100 such records may be buffered per connection. As a result, a peer\nthat sends a stream of small forged records claiming to belong to the next\nepoch can cause an OpenSSL DTLS endpoint to retain around 1.7 megabytes of\nmemory, despite sending only a small fraction of that amount of data over\nthe network.\n\nAn attacker therefore gains a memory amplification factor of around 1200,\nand can multiply the effect across as many associations as it is able to\nopen, making this a remote memory exhaustion Denial of Service risk for\nDTLS servers. Since the memory retained per connection remains bounded,\nand any limit an application already places on the number of concurrent\nassociations also bounds the total exposure, this issue has been assessed\nas Low severity.\n\nFIPS impact: no\n\nNo FIPS modules are affected by this issue as the affected code is outside\nthe OpenSSL FIPS module boundary.\n\nOpenSSL 4.0, 3.6, 3.5, 3.4, 3.0, 1.1.1 and 1.0.2 are vulnerable to this\nissue.\n\nOpenSSL 4.0 users should upgrade to OpenSSL 4.0.2.\nOpenSSL 3.6 users should upgrade to OpenSSL 3.6.4.\nOpenSSL 3.5 users should upgrade to OpenSSL 3.5.8.\nOpenSSL 3.4 users should upgrade to OpenSSL 3.4.7.\nOpenSSL 3.0 users should upgrade to OpenSSL 3.0.22.\n\nPremium support customers only:\nOpenSSL 1.1.1 users should upgrade to OpenSSL 1.1.1zi\nOpenSSL 1.0.2 users should upgrade to OpenSSL 1.0.2zr\n\nThis issue was reported on 18 May 2026 by Amazon Web Services.\nThe fix has been developed by Matt Caswell.\n\n-- cut (non-publishing metadata for internal use) --\nReported by: Amazon Web Services\nFixed by: Matt Caswell",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54874"
+    },
+    {
+      "id": "CVE-2026-18798",
+      "published": "2026-08-25T13:17:49.813",
+      "lastModified": "2026-08-28T19:46:29.323",
+      "description": "Issue summary: QUIC server may double free QRX (QUIC record layer RX) object\nwhen channel creation fails for initial packet.\n\nImpact summary: Double free leads to heap corruption, which typically results in \ntermination of QUIC server process, leading to Denial of Service. There is so\nfar no evidence that this double free is exploitable for remote code execution,\nthus it is considered highly improbable.\n\nCWE: CWE-415: Double Free\n\nDescription: In order to validate initial packet, OpenSSL QUIC stack default\npacket handler (port_default_packet_handler()) creates a so-called QRX object.\nIf the initial packet validates successfully with QRX object, the default packet\nhandler proceeds to channel (connection object) creation. The QRX object used\nfor packet validation is passed to port_bind_channel(), so it becomes part of\nthe newly created connection. If port_bind_channel() fails, then it also frees\nthe QRX object. Once port_bind_channel() returns, the port_default_packet_handler()\ndetects the failure and proceeds to the error branch, where the same QRX object is\nfreed for the second time.\n\nThe failure in port_bind_channel() function can be induced with a relatively\nlow effort by a malformed (non RFC 9000 compliant) INITIAL packet. If the packet\ncarries DCID (destination connection ID) which is shorter than 8 bytes, then\nport_bind_channel() jumps to the error path after ossl_quic_lcidm_enrol_odcid()\ndetects that the DCID has invalid length.\n\nFIPS impact: no\nThe FIPS module is not affected, as the QUIC implementation is outside of\nthe OpenSSL FIPS module boundary.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18798"
+    },
+    {
+      "id": "CVE-2026-14457",
+      "published": "2026-08-25T13:17:49.533",
+      "lastModified": "2026-08-28T19:46:29.323",
+      "description": "Issue summary: In a server or client configuration with RFC7250 Raw Public Keys (RPKs)\nenabled, and only the private key (with no associated certificate) configured locally,\na NULL pointer dereference may occur when the remote peer solicits raw public keys and\nalso sends the typically omitted \"signature_algorithms_cert\" TLS extension.\n\nImpact summary: The impact is limited to a possible Denial of Service as a result of\nan application abort, no data disclosure or remote command execution are possible.\n\nCWE: CWE-476: NULL Pointer Dereference\n\nDescription: While a passing comment in sample code in the documentation suggests\nthat key-only RPK configurations are supported, the best-practice RPK configuration\nis to always configure a corresponding certificate (possibly self-signed or\nsigned by any convenient CA).\n\nWhen the private key is configured along with a matching certificate, the\n\"signature_algorithms_cert\" extension is handled reliably even without the\nfix, and peer clients or servers that don't support raw public keys may be\nable to complete a TLS connection by pinning or verifying the corresponding\ncertificate or its public key.\n\nDeployments that prefer to configure just a private key with no certificate\nneed to upgrade to an updated release as noted below.\n\nFIPS impact: no\n\nNo FIPS modules are affected by this issue, as the SSL protocol implementation\nis outside the OpenSSL FIPS module boundary.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14457"
+    },
+    {
+      "id": "CVE-2026-79673",
+      "published": "2026-08-25T12:16:35.680",
+      "lastModified": "2026-08-31T20:38:54.340",
+      "description": "Ech0 before 4.4.3 protects the PUT /user endpoint with the profile:read scope, a read-only scope, but allows write operations including password changes. An attacker with an admin's profile:read access token can change the admin's password and login to obtain an unrestricted session token that bypasses all scope enforcement.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79673"
+    },
+    {
+      "id": "CVE-2026-79672",
+      "published": "2026-08-25T12:16:35.537",
+      "lastModified": "2026-08-31T20:50:15.927",
+      "description": "Ech0 before 4.4.3 fails to enforce scope-based authorization on nine comment panel admin endpoints, allowing access tokens with minimal scopes to perform full comment moderation operations. Attackers with a limited-scope access token can list, approve, reject, delete comments, and modify comment system settings by directly accessing the unprotected panel endpoints.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79672"
+    },
+    {
+      "id": "CVE-2026-79671",
+      "published": "2026-08-25T12:16:35.390",
+      "lastModified": "2026-08-31T20:50:15.927",
+      "description": "Ech0 before 4.4.3 contains a server-side request forgery vulnerability in the validateWebhookURL function (webhook_setting_service.go), which only validates literal IP addresses via net.ParseIP() and fails to reject hostnames that DNS-resolve to private or internal IPs (e.g., 169.254.169.254.nip.io). An attacker with admin privileges can create a webhook with such a hostname to bypass validation and cause the server to make requests to internal services, cloud metadata endpoints, and private network resources. The issue is fixed in 4.4.3.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79671"
+    },
+    {
+      "id": "CVE-2026-79670",
+      "published": "2026-08-25T12:16:35.247",
+      "lastModified": "2026-08-31T20:52:56.343",
+      "description": "Ech0 before 4.4.3 contains a stored cross-site scripting vulnerability in the file upload endpoint that validates Content-Type using only client-supplied headers without server-side inspection. Attackers with admin privileges can upload SVG or HTML files containing JavaScript that executes in the application origin when accessed by any user, enabling session hijacking and data exfiltration.",
+      "score": 4.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79670"
+    },
+    {
+      "id": "CVE-2026-79669",
+      "published": "2026-08-25T12:16:35.107",
+      "lastModified": "2026-08-25T13:19:32.983",
+      "description": "Ech0 before 4.4.3 lacks authorization checks on system log endpoints allowing any authenticated non-admin user to read and stream all server logs. Attackers can access historical logs and real-time log streams via GET /api/system/logs, GET /api/system/logs/stream, and WS /ws/system/logs to gather reconnaissance data including internal file paths, error stack traces, and application state.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79669"
+    },
     {
       "id": "CVE-2026-79668",
       "published": "2026-08-25T12:16:34.967",
@@ -828,76 +900,6 @@
       "score": 7.8,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66109"
-    },
-    {
-      "id": "CVE-2026-78654",
-      "published": "2026-08-25T06:19:01.940",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "A vulnerability has been found in cleverbrush framework and deep up to 4.4.0. This impacts the function deepExtend of the file libs/deep/src/deepExtend.ts. The manipulation leads to improperly controlled modification of object prototype attributes. Remote exploitation of the attack is possible. The exploit has been disclosed to the public and may be used. Upgrading to version 4.4.1 will fix this issue. The identifier of the patch is 810398c1308c500c3b8b6af380b5a89371389327. You should upgrade the affected component.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78654"
-    },
-    {
-      "id": "CVE-2026-78638",
-      "published": "2026-08-25T06:19:01.573",
-      "lastModified": "2026-08-27T17:20:43.347",
-      "description": "A flaw has been found in peerigon unzip-crx and unzip-crx-3 up to 0.2.0. This affects the function unzip of the file dist/index.js of the component Archive Extraction. Executing a manipulation of the argument destination can lead to path traversal. The attack can only be executed locally. The exploit has been published and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 3.3,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78638"
-    },
-    {
-      "id": "CVE-2026-78478",
-      "published": "2026-08-25T06:19:01.353",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "The Mane theme for WordPress is vulnerable to Local File Inclusion in all versions up to, and including, 1.7. This makes it possible for unauthenticated attackers to include and execute arbitrary files on the server, allowing the execution of any PHP code in those files. This can be used to bypass access controls, obtain sensitive data, or achieve code execution in cases where images and other “safe” file types can be uploaded and included.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78478"
-    },
-    {
-      "id": "CVE-2026-78477",
-      "published": "2026-08-25T06:19:01.147",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "The Jawn theme for WordPress is vulnerable to Privilege Escalation in all versions up to, and including, 1.4.2. This makes it possible for unauthenticated attackers to elevate their privileges to that of an administrator.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78477"
-    },
-    {
-      "id": "CVE-2026-78470",
-      "published": "2026-08-25T06:19:00.907",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "The WP Project Manager Pro plugin for WordPress is vulnerable to SQL Injection in all versions up to, and including, 4.0.1 due to insufficient escaping on the user supplied parameter and lack of sufficient preparation on the existing SQL query.  This makes it possible for authenticated attackers, with Subscriber-level access and above, to append additional SQL queries into already existing queries that can be used to extract sensitive information from the database.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78470"
-    },
-    {
-      "id": "CVE-2026-78467",
-      "published": "2026-08-25T06:19:00.660",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "The Fluent Support Pro plugin for WordPress is vulnerable to unauthorized access due to a missing capability check on a function in all versions up to, and including, 2.3.1. This makes it possible for authenticated attackers, with Subscriber-level access and above, to perform an unauthorized action.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78467"
-    },
-    {
-      "id": "CVE-2026-78466",
-      "published": "2026-08-25T06:19:00.227",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "The Fluent Boards Pro plugin for WordPress is vulnerable to Insecure Direct Object Reference in all versions up to, and including, 2.0.11 due to missing validation on a user controlled key. This makes it possible for authenticated attackers, with Subscriber-level access and above, to perform an unauthorized action.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78466"
-    },
-    {
-      "id": "CVE-2025-41741",
-      "published": "2026-08-25T06:18:26.190",
-      "lastModified": "2026-08-25T06:18:26.190",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-41741"
     }
   ]
 }
