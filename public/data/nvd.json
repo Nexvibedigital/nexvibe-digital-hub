@@ -1,6 +1,101 @@
 {
-  "syncedAt": "2026-09-02T08:46:13.375Z",
+  "syncedAt": "2026-09-02T09:20:22.859Z",
   "items": [
+    {
+      "id": "CVE-2026-80528",
+      "published": "2026-08-26T15:17:06.667",
+      "lastModified": "2026-08-27T06:17:32.740",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nceph: avoid fs reclaim while using current->journal_info\n\nhandle_reply() stores a `ceph_mds_request` pointer in\n`current->journal_info` while filling the inode and dentry cache from\nan MDS reply.\n\nAn allocation in this section can enter direct reclaim and prune\ndentries from another filesystem.  If this dirties an ext4 inode, ext4\nstarts a JBD2 transaction.  JBD2 interprets the Ceph request in\n`current->journal_info` as a journal handle and dereferences the\nrequest's `r_tid` as `h_transaction`, causing a kernel crash, e.g.:\n\n Unable to handle kernel paging request at virtual address 00000000077b4818\n [...]\n Internal error: Oops: 0000000096000004 [#1]  SMP\n Modules linked in:\n CPU: 6 UID: 0 PID: 2699135 Comm: kworker/6:3 Tainted: G        W           6.18.38-i3 #1113 NONE\n [...]\n Workqueue: ceph-msgr ceph_con_workfn\n pstate: 80400009 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)\n pc : jbd2__journal_start+0x2c/0x208\n lr : __ext4_journal_start_sb+0x100/0x178\n [...]\n Call trace:\n  jbd2__journal_start+0x2c/0x208 (P)\n  __ext4_journal_start_sb+0x100/0x178\n  ext4_dirty_inode+0x3c/0x90\n  __mark_inode_dirty+0x58/0x400\n  iput.part.0+0x2b0/0x370\n  iput+0x18/0x30\n  dentry_unlink_inode+0xc0/0x158\n  __dentry_kill+0x80/0x250\n  shrink_dentry_list+0x90/0x130\n  prune_dcache_sb+0x60/0x98\n  super_cache_scan+0xe8/0x190\n  do_shrink_slab+0x174/0x388\n  shrink_slab+0xd8/0x4c0\n  shrink_node+0x31c/0x908\n  do_try_to_free_pages+0xd0/0x508\n  try_to_free_pages+0x11c/0x238\n  __alloc_frozen_pages_noprof+0x4d0/0xdd0\n  __folio_alloc_noprof+0x18/0x70\n  __filemap_get_folio+0x248/0x440\n  ceph_readdir_prepopulate+0x570/0x9e8\n  mds_dispatch+0x1424/0x1ba0\n  ceph_con_process_message+0x74/0xa0\n  ceph_con_v1_try_read+0x3a0/0x1510\n  ceph_con_workfn+0x260/0x460\n\nEnter a scoped NOFS allocation context and leave it after clearing\n`journal_info`.  This prevents filesystem reclaim from recursing into\nanother filesystem while the field contains Ceph-private data.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80528"
+    },
+    {
+      "id": "CVE-2026-80527",
+      "published": "2026-08-26T15:17:06.490",
+      "lastModified": "2026-08-27T06:17:32.233",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nceph: fix hanging __ceph_get_caps() with stale mds_wanted\n\nA reader can hang forever in __ceph_get_caps() when the client no\nlonger holds `FILE_RD`, but local cap state still says that the\ncapability is already wanted (via `mds_wanted`).\n\nOne way to trigger this is through MDS cap revocation.  If another\nclient performs a conflicting operation, the MDS can revoke `FILE_RD`\nfrom the reader; the next read then has to reacquire `FILE_RD`.  If\nthe cap update that should request `FILE_RD` never reaches the MDS\nafter `cap->mds_wanted` was raised, the reader is left holding only\nnon-file caps while local `mds_wanted` still includes the file read\ncaps.\n\nIn that state, try_get_cap_refs() sees `need <= mds_wanted` and\nreturns 0, so __ceph_get_caps() just waits on `i_cap_wq`.  If the cap\nupdate that was supposed to request `FILE_RD never reaches the MDS\nafter `cap->mds_wanted was` raised, no further request is sent and the\nwaiter can sleep indefinitely until unrelated cap traffic happens to\nwake it up.\n\nThe ordering issue is that `cap->mds_wanted` is updated in\n__prep_cap() before the `CEPH_MSG_CLIENT_CAPS message` is actually\nqueued for send.  That makes one field serve two different meanings at\nonce: what this client wants, and what the client believes the MDS\nalready knows it wants.\n\nA proper fix would be to split those states and track whether a cap\nupdate is actually in flight or has been observed by the MDS.\nHowever, simply moving the `cap->mds_wanted assignment` later would\nnot be sufficient: queueing the message in the messenger does not\nguarantee that the MDS processed that specific wanted set, and\nreconnect or message loss can still invalidate that assumption.\nFixing that properly would require a larger rework of the cap state\nmachine.\n\nTo allow simpler backports to stable kernels, this patch implements a\nsimpler workaround:\n\n- stop waiting forever in __ceph_get_caps(); after a bounded wait,\n  fall back to the renew path\n\n- make ceph_renew_caps() issue a synchronous `OPEN` request whenever\n  the inode still does not actually hold the wanted caps, instead of\n  only calling ceph_check_caps()\n\nThe extra issued-vs-wanted check in ceph_renew_caps() is necessary\nbecause the previous test only checked whether the inode still had any\nreal caps at all.  That is not enough after revocation: the client can\nstill hold something like `pLs` and yet be missing `FILE_RD`\ncompletely.  In that case, falling back to ceph_check_caps() is not\nsufficient, because it still trusts `cap->mds_wanted` and may resend\nnothing.  By requiring `(issued & wanted) == wanted` before taking the\nasynchronous path, the code only uses ceph_check_caps() when the\n`wanted caps` are already actually issued.  Otherwise, it sends the\nsynchronous `OPEN` renew.\n\nThis preserves the existing asynchronous fast path when the wanted\ncaps are already issued, avoids changing cap-state semantics, and\nfixes the hang by guaranteeing that a stalled waiter eventually\nretries through a path that does not rely on the stale `mds_wanted`\nstate.\n\n[ idryomov: move CEPH_GET_CAPS_WAIT_TIMEOUT from libceph.h to\n  mds_client.h, formatting ]",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80527"
+    },
+    {
+      "id": "CVE-2026-80526",
+      "published": "2026-08-26T15:17:06.350",
+      "lastModified": "2026-08-27T06:17:31.797",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nASoC: tas2562: Validate values for volume writes\n\ntas2562_volume_control_put() does not do any validation of the control\nvalue written by userspace, it uses it to look up a value in a fixed\nsize array which can easily be overflowed and then writes whatever value\nit gets back to the device.  Add validation that we are loading a value\nwe have in the array.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80526"
+    },
+    {
+      "id": "CVE-2026-80525",
+      "published": "2026-08-26T15:17:06.200",
+      "lastModified": "2026-08-26T15:17:06.200",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nASoC: SOF: ipc4-topology: Refresh copier IPC payload before widget setup\n\nThe ipc_config_data buffer for copier widgets is built once during\nipc_prepare (called from sof_pcm_setup_connected_widgets) and cached\nfor reuse. For host copiers this buffer contains the copier_data with\ngtw_cfg.node_id (host DMA ID). For DAI copiers it additionally includes\na dma_config_tlv trailer with stream_id and dma_channel_id for HDA link\nDMA.\n\nOn suspend/resume, both host and link DMA streams are released and\nre-allocated with potentially different stream tags. The underlying\ncopier_data and dma_config_tlv structures are correctly updated by\nhost_config and sdw_hda_dai_hw_params respectively. However, since the\nwidget list (spcm->stream[].list) persists across suspend,\nsof_pcm_hw_params skips sof_pcm_setup_connected_widgets and ipc_prepare\nnever runs again to rebuild ipc_config_data. The stale cached payload\nis then sent to firmware with boot-time DMA channel assignments, causing\nDMA channel conflicts that lead to firmware errors and crashes.\n\nFix this by refreshing copier_data and dma_config_tlv portions of\nipc_config_data in sof_ipc4_widget_setup right before the IPC message\nis sent. This ensures the payload always reflects the current DMA state\nregardless of whether ipc_prepare ran.\n\nFor DAI copiers, the gtw_cfg.config_length in copier_data is temporarily\ninflated to include the TLV size (matching the ipc_config_data layout)\nbefore copying, then restored, mirroring what\nsof_ipc4_prepare_copier_module does when first building the buffer.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80525"
+    },
+    {
+      "id": "CVE-2026-80524",
+      "published": "2026-08-26T15:17:06.077",
+      "lastModified": "2026-08-26T15:17:06.077",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\noptee: ffa: Add NULL check in optee_ffa_lend_protmem\n\nSashiko (locally) reports a possible null dereference under memory\npressure due to the lack of validation of the allocated pointer.\n\nFix that by adding the missing check.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80524"
+    },
+    {
+      "id": "CVE-2026-80523",
+      "published": "2026-08-26T15:17:05.940",
+      "lastModified": "2026-08-27T06:17:31.467",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nclk: spacemit: k3: set hdma clock as critical\n\nHDMA clock is responsible for the internal TCM access path of X100 RISC-V\ncore, so set the clock flag as critical to prevent it from being shut off,\notherwise the Linux system will hang, for example in the case of a vector\ninstruction access generates a page fault.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80523"
+    },
+    {
+      "id": "CVE-2026-80522",
+      "published": "2026-08-26T15:17:05.800",
+      "lastModified": "2026-08-27T06:17:31.137",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ncrypto: tegra - fix rctx->cryptlen calculation in tegra_gcm_do_one_req()\n\nPerform rctx->cryptlen calculation in tegra_gcm_do_one_req() the same way\nit is done in tegra_ccm_crypt_init(). The current formulae may lead to a\ncrash if a caller does not call tegra_gcm_setauthsize() and so ctx->authsize\nremains zero. Then a decrypt operation with incorrect rctx->cryptlen will\nlead to a write beyound rctx->dst_sg buffer.\n\nAs a follow-up cleanup delete struct tegra_aead_ctx->authsize field since\nit appears to be completely unused. Also simplify tegra_ccm_setauthsize()\nand tegra_gcm_setauthsize() functions respectively.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80522"
+    },
+    {
+      "id": "CVE-2026-80521",
+      "published": "2026-08-26T15:17:05.677",
+      "lastModified": "2026-08-27T06:17:30.780",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\naf_unix: Unlink scc_entry in unix_del_edge().\n\nKyle Zeng reported that GC could free a dead SCC partially.\n\nThe scenario is as follows:\n\n   1) Create two SCCs:\n\n       X -.   A <-> B\n       ^--'\n\n   2) Run the following concurrently:\n\n      2-1) send() sk-B to sk-B from sk-X\n      2-2) close() both A and B\n\nAt 2-1), there is a small window where unix_add_edges()\npublishes a new edge (B <-> B) to GC but its skb is not queued\nby skb_queue_tail().\n\nIf 2-2) completes before skb_queue_tail() and GC is triggered,\nit judges A <-> B as dead, but B is not freed because GC cannot\ncollect the not-yet-queued skb holding the B <-> B edge.\n\n       X -.   A <-> B -. This edge is visible\n       ^--'         ^..'  but skb is not\n\nThis itself is not a problem since the next GC run will judge\nB as dead as well and free it finally.\n\n       X -.   A <.> B -.\n       ^--'         ^--'\n\nHowever, X's SCC forces the next GC to call unix_walk_scc_fast(),\nand it iterates over A through B's scc_entry.\n\nLet's unlink scc_entry before freeing the vertex in unix_del_edge().",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80521"
+    },
+    {
+      "id": "CVE-2026-80520",
+      "published": "2026-08-26T15:17:05.553",
+      "lastModified": "2026-08-27T06:17:30.450",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\novpn: fix NULL dereference when killing missing key\n\novpn_crypto_kill_key assumes both crypto slots are populated and\ndereferences each slot before checking it. That is not guaranteed: a\npeer can have only one installed key, and the kill path may be asked to\nremove a key that is not present.\n\nRead each slot once while holding the crypto state lock, check for NULL\nbefore looking at key_id, and only replace the slot that actually\nmatches.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80520"
+    },
+    {
+      "id": "CVE-2026-80519",
+      "published": "2026-08-26T15:17:05.420",
+      "lastModified": "2026-08-27T06:17:30.167",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\novpn: finish crypto callback cleanup before peer release\n\nCrypto completion callbacks hold both key-slot and peer references. The\npeer reference pins the netdev, and dropping the last peer reference can\nlet netdev unregistration and module removal make progress.\n\nDo not release that peer reference before the callback has finished its\nown cleanup. If ovpn_crypto_key_slot_put runs after ovpn_peer_put, it can\nschedule an RCU callback backed by module text after ovpn_cleanup\nrcu_barrier has already run. The TX error path also freed the remaining\nskb after ovpn_peer_put, leaving callback cleanup outside the peer/netdev\nlifetime window.\n\nRelease the key slot and free any remaining skb first, then drop the peer\nreference as the last callback action.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80519"
+    },
+    {
+      "id": "CVE-2026-75062",
+      "published": "2026-08-26T15:16:55.853",
+      "lastModified": "2026-08-31T18:50:00.053",
+      "description": "Improper Neutralization of Directives in Dynamically Evaluated Code ('Eval Injection') in the default lf.query Python protocol in Google langfun versions prior to 0.1.2 allows remote unauthenticated attackers to execute arbitrary Python code in the context of the host application via crafted prompt inputs that cause the model to generate executable Python expressions evaluated without a sandbox.",
+      "score": 9.2,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75062"
+    },
     {
       "id": "CVE-2026-74754",
       "published": "2026-08-26T15:16:54.500",
@@ -789,105 +884,6 @@
       "score": 7.5,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16444"
-    },
-    {
-      "id": "CVE-2026-80237",
-      "published": "2026-08-26T09:16:49.327",
-      "lastModified": "2026-08-26T16:40:21.650",
-      "description": "EFence developed by Thinking Software Technology has an Arbitrary File Upload vulnerability. Authenticated remote attackers can upload and execute web shell backdoors, thereby enabling arbitrary code execution on the server.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80237"
-    },
-    {
-      "id": "CVE-2026-80236",
-      "published": "2026-08-26T09:16:49.180",
-      "lastModified": "2026-08-26T17:13:24.800",
-      "description": "Efence developed by Thinking Software Technology has a SQL Injection vulnerability. Unauthenticated remote attackers can access file upload functionality and read database contents.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80236"
-    },
-    {
-      "id": "CVE-2026-80235",
-      "published": "2026-08-26T09:16:49.027",
-      "lastModified": "2026-08-26T16:40:21.650",
-      "description": "EFence developed by Thinking Software Technology has an Arbitrary File Upload vulnerability. Unauthenticated remote attackers can upload and execute web shell backdoors, thereby enabling arbitrary code execution on the server.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80235"
-    },
-    {
-      "id": "CVE-2026-80234",
-      "published": "2026-08-26T09:16:48.880",
-      "lastModified": "2026-08-26T16:40:21.650",
-      "description": "CAYIN CMS-WS and CMS-SE developed by CAYIN Technology have a Missing Authentication vulnerability. Unauthenticated remote attackers can obtain media file lists via specific functionality, resulting in partial information disclosure.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80234"
-    },
-    {
-      "id": "CVE-2026-80233",
-      "published": "2026-08-26T09:16:48.717",
-      "lastModified": "2026-08-26T16:40:21.650",
-      "description": "CAYIN CMS-WS, CMS-SE, and SMP series products developed by CAYIN Technology have an Arbitrary File Upload vulnerability. Privileged remote attackers can upload and execute web shells backdoors, thereby enabling arbitrary code execution on the server.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80233"
-    },
-    {
-      "id": "CVE-2026-77533",
-      "published": "2026-08-26T09:16:48.563",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network and low privileges could exploit an Improper Input Validation vulnerability found in UniFi Protect Application to execute a Command Injection on the host device.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77533"
-    },
-    {
-      "id": "CVE-2026-19538",
-      "published": "2026-08-26T09:16:46.057",
-      "lastModified": "2026-09-01T21:03:04.987",
-      "description": "The BLOCKED access control list items that are evaluated to deny access on the the proxy protocol port can be bypassed completely when connecting over TCP or TLS and sending the query twice on connection that is kept open.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19538"
-    },
-    {
-      "id": "CVE-2026-19401",
-      "published": "2026-08-26T09:16:45.857",
-      "lastModified": "2026-09-01T21:03:04.987",
-      "description": "Any remote client can crash a (debugging/non-release build type) NSD serve child by sending it a special crafted message with a specially tuned number of DNS Cookie options (17 when UDP payload size is 512). By continuously crashing the serve childs, the remote client can severely hamper or, when positioned sufficiently close, deny all DNS service.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19401"
-    },
-    {
-      "id": "CVE-2026-19197",
-      "published": "2026-08-26T09:16:45.727",
-      "lastModified": "2026-08-31T18:50:00.053",
-      "description": "A user with organization administrator permissions can delete dashboard snapshots belonging to other organizations on the same Grafana instance, and can recover a snapshot's secret delete key using only its public share key (broken access control).",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19197"
-    },
-    {
-      "id": "CVE-2026-18916",
-      "published": "2026-08-26T09:16:45.597",
-      "lastModified": "2026-09-01T21:03:04.987",
-      "description": "Any remote client can crash a NSD serve child, by throttling the TCP receive window after a TCP query. By continuously crashing the serve childs, the remote client can denial all TCP service to this NSD instance.",
-      "score": 6.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18916"
-    },
-    {
-      "id": "CVE-2026-18664",
-      "published": "2026-08-26T09:16:45.437",
-      "lastModified": "2026-09-01T21:03:04.987",
-      "description": "When ranges are used for access control (i.e. of the form 1.2.3.4-1.2.3.25), because NSD wrongly compares the IP address with the range on little endian systems, IPs that were meant to be allowed may be denied, and, IPs that were meant to be denied access could be allowed. An IPv4 address is compared with IPv4 ranges as unsigned 32 bit numbers directly with the endianness of the host, but the values to compare are in network byte order (big-endian).  With IPv6 addresses the comparison is done in 4 times a unsigned 32 bit number comparison, again with the endianness of the host where all values are actually in network bye order.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18664"
     }
   ]
 }
