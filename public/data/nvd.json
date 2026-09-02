@@ -1,6 +1,60 @@
 {
-  "syncedAt": "2026-09-02T06:49:48.161Z",
+  "syncedAt": "2026-09-02T07:19:31.171Z",
   "items": [
+    {
+      "id": "CVE-2026-74748",
+      "published": "2026-08-26T15:16:53.770",
+      "lastModified": "2026-08-27T06:17:25.680",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: ipset: fix refcount race between list:set GC and swap\n\n__ip_set_put_byindex() resolved the index to a set pointer under RCU,\nthen took ip_set_ref_lock in __ip_set_put() to decrement set->ref.\nip_set_swap() holds that same lock while swapping both the ip_set_list\nslots and the two sets' ref counters, so it can interleave between the\ndereference and the lock acquisition, leaving the caller to decrement a\nset whose reference already moved to the other index and hit\nBUG_ON(set->ref == 0). list_set_gc() reaches this from timer softirq,\nwhich the nfnl mutex does not serialize against swap: an expiring\nlist:set member calls list_set_del() -> ip_set_put_byindex() while\nIPSET_CMD_SWAP runs on the referenced sets.\n\nResolve the index and decrement under ip_set_ref_lock, as ip_set_swap()\nalready does, keeping the refcount tied to the index rather than to a\nstale set pointer.\n\n  kernel BUG at net/netfilter/ipset/ip_set_core.c:685!\n  Oops: invalid opcode: 0000 [#1] SMP KASAN NOPTI\n  RIP: 0010:ip_set_put_byindex (net/netfilter/ipset/ip_set_core.c:870)\n  Call Trace:\n   <IRQ>\n   list_set_del (net/netfilter/ipset/ip_set_list_set.c:159)\n   set_cleanup_entries (net/netfilter/ipset/ip_set_list_set.c:181)\n   list_set_gc (net/netfilter/ipset/ip_set_list_set.c:578)\n   call_timer_fn (kernel/time/timer.c:1748)\n   __run_timers (kernel/time/timer.c:1799 kernel/time/timer.c:2374)\n   run_timer_softirq (kernel/time/timer.c:2405)\n   </IRQ>\n  Kernel panic - not syncing: Fatal exception in interrupt",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74748"
+    },
+    {
+      "id": "CVE-2026-74747",
+      "published": "2026-08-26T15:16:53.657",
+      "lastModified": "2026-08-27T06:17:25.410",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nipvs: revalidate ihl to prevent out-of-bounds access\n\nWhile the outer IP header is already pulled into the skb head,\nwe must be careful and revalidate the embedded headers after\nreading them from the skb frags to prevent out-of-bounds\naccess.\n\nOne such place reported by Sashiko is ip_vs_nat_icmp() where\nlocal process can change the ihl field and after\nskb_ensure_writable() we can see larger value which is a\nproblem for the ip_send_check(cih) calls.\n\nAdd check to drop the packet if the ihl field is changed.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74747"
+    },
+    {
+      "id": "CVE-2026-74746",
+      "published": "2026-08-26T15:16:53.503",
+      "lastModified": "2026-08-27T06:17:25.033",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: flowtable: publish GC-visible tuple last\n\nnf_flow_table_iterate() only treats original-direction tuple nodes as\nowning entries. Publishing the original node first lets GC observe and\nfree a flow while flow_offload_add() is still inserting the reply node.\nPublish the reply node first and the original node last so GC never\nsees a partially installed flow.\n\nKASAN can trigger slab-use-after-free read and write reports in the\nflowtable/rhashtable path (rht_deferred_worker, jhash, flow_offload_del,\nflow_offload_lookup, etc.).",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74746"
+    },
+    {
+      "id": "CVE-2026-74745",
+      "published": "2026-08-26T15:16:53.387",
+      "lastModified": "2026-08-27T06:17:24.793",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\neth: bnxt: avoid deadlock when canceling IRQ affinity notifier\n\nUnregistering IRQ affinity notifiers waits for the callback synchronously.\nbnxt takes the netdev instance lock in the notifier (to restart the queue)\nand cancels the work under the same lock. This may obviously deadlock.\n\nMove the restart to the async service task. The queue restart isn't\nsuper time sensitive. Store the new TPH tag, schedule the task.\nSafely canceling the service task is already ironed out.\n\nIn bnxt_request_irq() the order of registering notifier, affinity and\ninitial TPH programming has to be inverted. I think it was racy\npreviously since user may trigger an update as soon as notifier\nis installed.\n\nThere's a small known gap - if pcie_tph_get_cpu_st() fails at init\nand the target tag is 0 we may miss programming the entry.\nThis does not seem worth fixing, the code has skip-on-failure\nall over the place, anyway.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74745"
+    },
+    {
+      "id": "CVE-2026-74744",
+      "published": "2026-08-26T15:16:53.250",
+      "lastModified": "2026-08-27T06:17:24.440",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nipvlan: inherit needed_headroom and needed_tailroom from phy_dev\n\nipvlan devices inherit hard_header_len from phy_dev during ipvlan_init(),\nbut leave needed_headroom and needed_tailroom set to 0.\n\nWhen the underlying phy_dev (or stacked lower device) requires extra headroom\nor tailroom for headers/trailers (e.g. macsec, ipsec, wireguard, tunnels, or\nveth with rx headroom), upper layers calculating packet headroom and tailroom\nfail to reserve sufficient space.\n\nThis can result in reallocation overhead, skb headroom underflows, or KASAN\nslab-use-after-free crashes when dev_hard_header() / ipvlan_hard_header()\nprepends header data or when lower devices append tailroom.\n\nFix this by:\n1. Inheriting needed_headroom and needed_tailroom from phy_dev in ipvlan_init().\n2. Propagating needed_headroom and needed_tailroom updates to attached ipvlans\n   in ipvlan_device_event() when receiving NETDEV_FEAT_CHANGE events.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74744"
+    },
+    {
+      "id": "CVE-2026-74743",
+      "published": "2026-08-26T15:16:53.113",
+      "lastModified": "2026-08-27T06:17:24.113",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmacvlan: inherit needed_headroom and needed_tailroom from lowerdev\n\nmacvlan devices inherit hard_header_len from lowerdev during macvlan_init(),\nbut leave needed_headroom and needed_tailroom set to 0.\n\nWhen the underlying lowerdev requires extra headroom or tailroom for\nheaders/trailers (e.g. macsec, ipsec, wireguard, tunnels, or veth with rx\nheadroom), upper layers calculating packet headroom and tailroom fail to\nreserve sufficient space.\n\nThis can result in reallocation overhead, skb headroom underflows, or KASAN\nslab-use-after-free crashes when dev_hard_header() / macvlan_hard_header()\nprepends header data or when lower devices append tailroom.\n\nFix this by:\n1. Inheriting needed_headroom and needed_tailroom from lowerdev in macvlan_init().\n2. Propagating needed_headroom and needed_tailroom updates to attached macvlans\n   in macvlan_device_event() when receiving NETDEV_FEAT_CHANGE events.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74743"
+    },
     {
       "id": "CVE-2026-74742",
       "published": "2026-08-26T15:16:52.990",
@@ -838,60 +892,6 @@
       "score": 7.5,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18884"
-    },
-    {
-      "id": "CVE-2026-58108",
-      "published": "2026-08-26T07:16:45.780",
-      "lastModified": "2026-09-01T21:07:58.980",
-      "description": "The personal access token removal query selects from PersonalAccessTokenDB but filters on columns of Session, with no join between them. SQLAlchemy resolves that as an implicit cross join, so the filter does not constrain the delete to the calling user's own token in the way the code reads as intending. This way a user can delete all personal access tokens in the system.",
-      "score": 1.2,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-58108"
-    },
-    {
-      "id": "CVE-2026-3002",
-      "published": "2026-08-26T07:16:45.633",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "The Gutenverse – Ultimate WordPress FSE Blocks Addons & Ecosystem plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the multiple blocks in all versions up to, and including, 4.0.2 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with Contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-3002"
-    },
-    {
-      "id": "CVE-2026-18431",
-      "published": "2026-08-26T07:16:45.500",
-      "lastModified": "2026-08-27T17:17:29.533",
-      "description": "The Avada theme for WordPress is vulnerable to Arbitrary File Write in all versions up to, and including, 7.16 when the Fusion Builder plugin is installed and active in versions up to, and including, 3.16. This is due to a chain of authorization and input validation weaknesses across the two components that makes it possible for unauthenticated attackers to write attacker-controlled files to the server. This can be used to create and execute arbitrary PHP files, resulting in remote code execution and complete site compromise. Successful exploitation requires both Avada and Fusion Builder to be installed and active, as well as certain administrator-authored content to be present.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18431"
-    },
-    {
-      "id": "CVE-2026-18331",
-      "published": "2026-08-26T07:16:45.360",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "The Formidable Forms – WordPress Form Builder for Contact Forms, Calculators, Quizzes & More plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'frm_user_id' parameter in all versions up to, and including, 6.33.1 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. By forging frm_user_id to match an administrator's user ID — discoverable via the public WordPress REST API — an unauthenticated attacker causes wp_kses_post() to serve as the only output filter, which preserves the injected payload structurally intact; the plugin's admin JavaScript then decodes and executes it automatically on page load.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18331"
-    },
-    {
-      "id": "CVE-2026-15366",
-      "published": "2026-08-26T07:16:45.210",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A control logic defect in a specific built-in webpage of Kids Mode allows users to view local gallery photos directly within the page",
-      "score": 2.4,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15366"
-    },
-    {
-      "id": "CVE-2026-15365",
-      "published": "2026-08-26T07:16:45.070",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A pop-up logic flaw in a certain feature of Kids Mode allows users to bypass password verification and use Quick Apps outside the app.",
-      "score": 2.4,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15365"
     }
   ]
 }
