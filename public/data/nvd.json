@@ -1,6 +1,313 @@
 {
-  "syncedAt": "2026-09-02T05:45:22.858Z",
+  "syncedAt": "2026-09-02T06:29:23.548Z",
   "items": [
+    {
+      "id": "CVE-2026-74742",
+      "published": "2026-08-26T15:16:52.990",
+      "lastModified": "2026-08-27T06:17:23.867",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nveth: fix queue index used to wake the peer txq in veth_poll\n\nveth_poll() derives the index of the peer TX queue to wake from\nrq->xdp_rxq.queue_index. That field is only initialized by\nxdp_rxq_info_reg() in veth_enable_xdp_range(), which runs only when an\nXDP program is attached. On the plain GRO/NAPI path\n(veth_napi_enable_range()) xdp_rxq_info_reg() is never called, so\nqueue_index stays 0 for every queue, as priv->rq is zero-allocated.\n\nSo in a multi-queue setup with GRO enabled and no XDP program attached,\nevery NAPI instance looks at the peer's TX queue 0. If veth_xmit() stops\npeer TX queue 1 because the ptr_ring is full (NETDEV_TX_BUSY), nothing\never wakes it again: the poller draining queue 1 wakes queue 0 instead.\nveth implements no ndo_tx_timeout, so the netdev watchdog does not kick\nin either, and the queue stays stopped indefinitely.\n\nDerive the index from the position of the rq within priv->rq instead,\nwhich is correct regardless of whether XDP was ever enabled.\n\nScripts to reproduce the stall are available at\nhttps://github.com/netoptimizer/veth-backpressure-performance-testing",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74742"
+    },
+    {
+      "id": "CVE-2026-74741",
+      "published": "2026-08-26T15:16:52.867",
+      "lastModified": "2026-08-27T06:17:23.583",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: ngbe: fix NULL pointer dereference in non-MSI-X interrupt enabling\n\nIn non-MSI-X mode (such as legacy INTx or single MSI), wx->msix_entry is\nnot allocated or initialized. Calling NGBE_INTR_MISC(wx) dereferences\nwx->msix_entry->entry, leading to a NULL pointer dereference crash.\n\nThis issue was introduced by fixing the IRQ vector when the number of\nVFs is 7. Fix the issue by explicitly checking `pdev->msix_enabled` to\ndetermine the correct vector index.\n\nAdditionally, as a side fix, set the interrupt mask to BIT(0) for the\nnon-MSI-X fallback. In MSI/INTx mode, the MISC and queue interrupts\nshare vector 0, and the WX_PX_MISC_IVAR register is only valid in the\nMSI-X case. Thus, BIT(0) is the correct mask for the miscellaneous cause\nwhen MSI-X is disabled.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74741"
+    },
+    {
+      "id": "CVE-2026-74740",
+      "published": "2026-08-26T15:16:52.743",
+      "lastModified": "2026-08-26T15:16:52.743",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/sched: act_api: fix TOCTOU NULL deref on a->goto_chain\n\ntcf_action_exec() handles TC_ACT_GOTO_CHAIN by first checking\nrcu_access_pointer(a->goto_chain) and then calling\ntcf_action_goto_chain_exec(), which does a second, independent\nrcu_dereference_bh(a->goto_chain) read and immediately dereferences\nchain->filter_chain. A concurrent tcf_action_set_ctrlact() (e.g. the gact\nreplace path) can clear a->goto_chain between the two reads, so the second\nread returns NULL and tcf_action_goto_chain_exec() dereferences NULL.\n\nFix the race by doing a single rcu_dereference_bh() read of a->goto_chain\nin tcf_action_exec(), checking it once for NULL, and passing the resulting\nchain pointer into tcf_action_goto_chain_exec(). This turns the split\ncheck/use into a single check/use on one value.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74740"
+    },
+    {
+      "id": "CVE-2026-74739",
+      "published": "2026-08-26T15:16:52.603",
+      "lastModified": "2026-08-27T06:17:23.220",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/sched: cls_u32: skip hash tables in u32_bind_class()\n\nu32_walk() enumerates both struct tc_u_hnode and struct tc_u_knode\nthrough the walker callback. u32_bind_class() unconditionally casts the\npassed fh to tc_u_knode and accesses &n->res, so when fh is actually a\ntc_u_hnode, which has no tcf_result member, this results in a\nslab-out-of-bounds read of res->classid in tc_cls_bind_class().\n\nThe issue can be reproduced with the following commands:\n\n    tc qdisc add dev lo root handle 1: hfsc\n    tc class add dev lo parent 1: classid 1:1 hfsc sc rate 1000kbit\n    tc filter add dev lo parent 1:1 protocol ip prio 1 u32 match u32 0 0 flowid 1:1\n    tc class add dev lo parent 1: classid 1:2 hfsc sc rate 2000kbit\n\nFix this by skipping hash tables via the TC_U32_KEY(handle) check.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74739"
+    },
+    {
+      "id": "CVE-2026-74738",
+      "published": "2026-08-26T15:16:52.480",
+      "lastModified": "2026-08-26T15:16:52.480",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nregmap: sdw-mbq: don't call an unset readable_reg callback\n\nregmap_sdw_mbq_poll_busy() decides whether to poll the Function Busy bit\nby calling ctx->readable_reg(), which is a straight copy of\nconfig->readable_reg. That callback is optional: regmap_readable() treats\na NULL ->readable_reg as \"every register is readable\", and drivers rely on\nthat. es9356 and tac5xx2-sdw both build an MBQ regmap without one.\n\nSince commit ca1b11b36d82 (\"regmap: sdw-mbq: Allow defers on undeferrable\ncontrols\") the poll runs on every -ENODATA, not only for Controls the\ndriver marked deferrable, so any of those devices answering\nCOMMAND_IGNORED takes the kernel through a NULL function pointer.\n\nTreat a missing callback the way the rest of regmap does and poll.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74738"
+    },
+    {
+      "id": "CVE-2026-74737",
+      "published": "2026-08-26T15:16:52.313",
+      "lastModified": "2026-08-27T06:17:22.950",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: ethernet: ti: am65-cpsw-nuss: Fix port_id extraction from SRC TAG\n\nOn the packet reception path, the ID of the MAC Port on which the packet\nwas received, is embedded in the RX DMA Descriptor's metadata. The ID is\nextracted using the helper function cppi5_desc_get_tags_ids() which fills\nin the 16-bit Source Tag into the 'port_id' variable. However, it is only\nthe lower 8-bits of the 16-bit Source Tag that represent the MAC Port ID,\nwhile the upper 8-bits are Hardware-Reserved and carry an arbitrary value.\nWith the existing logic, sporadic kernel crash is observed due to the\nsubsequent driver code accessing out-of-bound memory because of an invalid\nport_id.\n\nHence, fix the port_id extraction logic to use only the lower 8-bits of the\nSource Tag as the MAC Port ID.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74737"
+    },
+    {
+      "id": "CVE-2026-74736",
+      "published": "2026-08-26T15:16:52.173",
+      "lastModified": "2026-08-27T06:17:22.650",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/sched: cls_bpf: reject dev-bound programs bound to a different device\n\ncls_bpf_prog_from_efd() obtained a SCHED_CLS program via\nbpf_prog_get_type_dev() but never verified that a device-bound (offloaded)\nprogram's bound netdev matches the TC netdev the classifier is being\nattached to. This let a program loaded with prog_ifindex for device A be\nattached via cls_bpf + skip_sw to device B; deleting device A then\ndestroyed the program's offload state while it was still attached to\ndevice B, triggering a netdevsim WARN (panic with panic_on_warn=1).\n\nMirror the XDP attach path (net/core/dev.c) and reject the attach with\n-EINVAL when a dev-bound program's bound device does not match the\ntarget device.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74736"
+    },
+    {
+      "id": "CVE-2026-74735",
+      "published": "2026-08-26T15:16:52.057",
+      "lastModified": "2026-08-26T15:16:52.057",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nl2tp: fix tunnel and session refcount leak on seq_file release\n\nIn pppol2tp_proc_open() and l2tp_dfs_seq_open(), iteration state\n(pd->tunnel and pd->session) is kept in seq_file private data to allow\niteration across multiple read() system calls.\n\nHowever, if userspace closes /proc/net/pppol2tp or /sys/kernel/debug/l2tp/tunnels\nbefore reading to end-of-file (EOF), any tunnel or session reference stored in\npd->tunnel / pd->session is left un-dropped when seq_file private data is freed.\n\nFix this by dropping any remaining pd->tunnel and pd->session references in\npppol2tp_proc_release() and l2tp_dfs_seq_release() when closing the file.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74735"
+    },
+    {
+      "id": "CVE-2026-74734",
+      "published": "2026-08-26T15:16:51.927",
+      "lastModified": "2026-08-26T15:16:51.927",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfirewire: ohci: fix NULL pointer dereference in ar_context_release\n\nDuring the error handling path of the driver's probe function, a NULL\npointer dereference can occur in ar_context_release().\n\nWhen pci_probe() fails early (e.g., if pcim_enable_device() or MMIO mapping\nfails), the devres cleanup mechanism invokes release_ohci(). This function\nunconditionally calls ar_context_release() to clean up the asynchronous\nreceive contexts. However, if ar_context_init() was not yet called,\nctx->ohci remains NULL (as the fw_ohci structure is zero-initialized by\ndevres_alloc()).\n\nar_context_release() immediately dereferences ctx->ohci to get the dev\npointer before checking if the context was actually initialized, leading to\na crash:\n\nOops: general protection fault, probably for non-canonical address\n0xdffffc0000000001: 0000 [#1] SMP KASAN NOPTI\nKASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]\nRIP: 0010:ar_context_release+0x3f/0x380 drivers/firewire/ohci.c:543\nCall Trace:\n release_ohci+0x3f/0x60 drivers/firewire/ohci.c:3567\n release_nodes drivers/base/devres.c:546 [inline]\n devres_release_all+0x1a8/0x260 drivers/base/devres.c:576\n device_unbind_cleanup drivers/base/dd.c:597 [inline]\n really_probe+0x451/0xae0 drivers/base/dd.c:772\n\nTo fix this, move the assignment of the dev pointer after the !ctx->buffer\ncheck. If ctx->buffer is NULL, it indicates that the context was never\nsuccessfully initialized and there is nothing to release, safely avoiding\nthe dereference of the uninitialized ctx->ohci pointer.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74734"
+    },
+    {
+      "id": "CVE-2026-54556",
+      "published": "2026-08-26T15:16:49.527",
+      "lastModified": "2026-08-29T03:17:07.307",
+      "description": "Http4s is a Scala interface for HTTP services. Prior to 0.23.35 and 1.0.0-M47, an unauthenticated HTTP/2 peer can cause an out-of-memory denial of service in the Ember backend with HTTP/2 enabled. The Hpack wrapper in ember-core/shared/src/main/scala/org/http4s/ember/core/h2/Hpack.scala concatenates HEADERS and CONTINUATION frame fragments and decodes them into a single List, but maxHeaderSize accounting does not include indexed headers or HPACK per-header overhead. A small compressed header block can therefore expand into a much larger decoded representation that remains in memory for processing. Servers exposed to untrusted HTTP/2 traffic and clients directed to an untrusted HTTP/2 server are affected, and concurrent malicious connections can exhaust the process heap. This issue is fixed in versions 0.23.35 and 1.0.0-M47.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54556"
+    },
+    {
+      "id": "CVE-2026-54553",
+      "published": "2026-08-26T15:16:49.370",
+      "lastModified": "2026-08-26T16:16:27.620",
+      "description": "Starlette-Admin is a fast, beautiful and extensible administrative interface framework for FastAPI and Starlette applications. Prior to 0.16.1, the list API does not validate user-supplied order_by and structured where field names against the configured sortable_fields and searchable_fields allowlists. An authenticated user with access to an affected list endpoint can submit arbitrary field names to starlette_admin/base.py and the BaseModelView validation path, bypassing restrictions presented by the administrative user interface. Requests can sort or filter on fields that are not intended to be sortable or searchable, causing limited information exposure. Invalid field names and special Python attribute names such as metadata and the class dunder attribute can also trigger unhandled exceptions and HTTP 500 responses, causing limited denial of service for targeted requests. This issue is fixed in version 0.16.1.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54553"
+    },
+    {
+      "id": "CVE-2026-54550",
+      "published": "2026-08-26T15:16:49.223",
+      "lastModified": "2026-08-26T16:16:27.500",
+      "description": "IzPack is a widely used tool for packaging applications on the Java platform as cross-platform installers. In 5.2.6 and earlier, UnpackerBase.unpack() in izpack-installer/src/main/java/com/izforge/izpack/installer/unpacker/UnpackerBase.java obtains an attacker-controlled PackFile targetPath, passes it through IoHelper.translatePath(), which only converts separators, and constructs a File without normalizing parent-directory segments or enforcing destination containment. A malicious installer pack entry containing ../ sequences can therefore write outside the intended installation directory to startup folders, executable search paths, or other locations accessible with the victim's privileges when the victim runs the installer.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54550"
+    },
+    {
+      "id": "CVE-2026-54548",
+      "published": "2026-08-26T15:16:49.070",
+      "lastModified": "2026-08-26T16:16:27.387",
+      "description": "kas is a setup tool for bitbake based projects. Prior to 5.4, internal SSH key setup triggered by SSH_PRIVATE_KEY or SSH_PRIVATE_KEY_FILE creates ~/.ssh/config when no user-specific SSH configuration exists and adds a global Host * rule containing StrictHostKeyChecking no. In kas/libcmds.py, ssh_no_host_key_check() runs without checking ctx.managed_env, so the setting persists after kas exits and affects future SSH sessions by the same local user, extending beyond the intended short-lived continuous integration environment. A later SSH connection can therefore accept an attacker-controlled host key without verification, increasing the risk of a man-in-the-middle attack that compromises session confidentiality or integrity. This issue is fixed in version 5.4.",
+      "score": 3.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54548"
+    },
+    {
+      "id": "CVE-2026-54523",
+      "published": "2026-08-26T15:16:48.910",
+      "lastModified": "2026-08-26T16:16:27.277",
+      "description": "Kyverno is a policy engine designed for cloud native platform engineering teams. From 1.18.0 until 1.18.2, the NamespacedMutatingPolicy CEL compiler exposes the generator library to matchConditions, allowing a namespace-scoped policy to invoke generator.apply(namespace, resources) with an arbitrary target namespace. The validation in pkg/cel/policies/mpol/validate.go checks that the policy compiles but does not enforce namespace scope, and GenerateResources in pkg/cel/libs/context.go does not reject the cross-namespace target. A user who can create NamespacedMutatingPolicy objects in one namespace can cause the admission controller, operating with cluster-wide privileges, to create ConfigMaps, NetworkPolicies, Secrets, RoleBindings, and other resources in another namespace, enabling unauthorized modification and potential privilege escalation. This issue is fixed in version 1.18.2.",
+      "score": 9.6,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54523"
+    },
+    {
+      "id": "CVE-2026-54511",
+      "published": "2026-08-26T15:16:48.727",
+      "lastModified": "2026-08-27T17:18:47.620",
+      "description": "LogTape is an unobtrusive logging library. Prior to 1.3.11, 2.0.14, and 2.1.5, the @logtape/syslog package's escapeStructuredDataValue() function in packages/syslog/src/syslog.ts does not neutralize C0 control characters from U+0000 through U+001F in structured data values, and formatStructuredData() inserts property keys without validating the RFC 5424 SD-NAME grammar. When includeStructuredData is true, an attacker-controlled newline can terminate an RFC 6587 non-transparent TCP syslog frame and make following bytes appear as a forged RFC 5424 record, while a key containing a closing bracket or other forbidden character can terminate or corrupt the structured-data element. Applications that forward attacker-controlled property values or keys can therefore allow forged records with arbitrary hosts, applications, process identifiers, facilities, or severity levels, undermining downstream collector and SIEM integrity. This issue is fixed in versions 1.3.11, 2.0.14, and 2.1.5.",
+      "score": 8.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54511"
+    },
+    {
+      "id": "CVE-2026-13481",
+      "published": "2026-08-26T15:16:42.953",
+      "lastModified": "2026-08-31T22:46:11.227",
+      "description": "The IEEE 1588 PTP management-message parser in subsys/net/lib/ptp/tlv.c mishandles the PTP_MGMT_TIME management id. In tlv_mgmt_post_recv(), the PTP_MGMT_TIME case casts mgmt_tlv->data to a 10-byte struct ptp_timestamp and reads it (then byte-swaps and writes it back) without first checking that the TLV data field is at least sizeof(struct ptp_timestamp). Every sibling management id in the same switch validates its length first; PTP_MGMT_TIME was the only case lacking that check.\n\nThe length passed in is the management data size (tlv->length - 2), and the upstream guard in ptp_tlv_post_recv() only requires tlv->length > 2, while msg_tlv_post_recv() validates only that the TLV fits within the received byte count, not a per-id minimum. A peer on the local PTP segment can therefore send a PTP_MSG_MANAGEMENT message carrying a short PTP_MGMT_TIME TLV (data as small as 2 bytes), causing the parser to read and write 8 bytes beyond the validated data. The message type and TLV contents are taken straight off the wire, so the path is reachable by any adjacent attacker when CONFIG_PTP is enabled.\n\nThe over-read and write-back stay within the struct ptp_msg allocation (mgmt_tlv->data lives in the leading mtu[NET_ETH_MTU] union member, so data + 10 lands at most a few bytes past mtu[], inside the same object), so this is an out-of-bounds read of adjacent in-object memory plus a bounded in-place corruption of the message's parsed timestamp, not past-allocation memory corruption. Impact is limited to minor information exposure of adjacent bytes and corruption of the device's parsed management TIME value; there is no crash on the access and no reachable reference-count corruption.\n\nThe fix adds if (length < sizeof(struct ptp_timestamp)) { return -EBADMSG; } before the cast, matching the other management-id cases and fully closing the receive-path defect.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13481"
+    },
+    {
+      "id": "CVE-2026-13480",
+      "published": "2026-08-26T15:16:42.830",
+      "lastModified": "2026-08-31T22:56:36.390",
+      "description": "The LoRaWAN TS004 Fragmented Data Block Transport handler frag_transport_package_callback() in subsys/lorawan/services/frag_transport.c parses downlink command bytes without validating that enough payload bytes remain before each access. The loop's only bound is rx_pos < len; after consuming the one-byte command id the handler cast rx_buf + rx_pos to a 10-byte struct frag_transport_setup_req, and for a DATA_FRAGMENT command passed &rx_buf[rx_pos] to the fragment decoder, which reads exactly ctx.frag_size bytes — with no remaining-length check in either case.\n\nThe fragment size is attacker-chosen in a preceding FRAG_SESSION_SETUP command (ctx.frag_size = req->frag_size, capped at CONFIG_LORAWAN_FRAG_TRANSPORT_MAX_FRAG_SIZE, default 232). rx_buf aliases the 255-byte static MacCtx.RxPayload buffer in the loramac-node MAC layer, while len is the actual decrypted payload length. By padding a downlink with mismatched-index DATA_FRAGMENT filler commands (each advancing rx_pos by three bytes without producing an answer) and appending one matching-index fragment near the end of the payload, an attacker can make the decoder read up to roughly frag_size bytes past the end of RxPayload, copying adjacent static memory into the decoder buffers and the FUOTA flash image.\n\nThe handler runs only on downlinks that have already passed the LoRaWAN frame MIC and FRMPayload decryption, so the defect is reachable only by a party holding the device's session keys (the FUOTA server or an attacker who has compromised those keys). The out-of-bounds bytes are never returned to the sender — the only uplink emitted is a status answer carrying fragment counts — so there is no direct disclosure channel, and on typical flat-memory LoRaWAN MCUs the over-read stays within mapped memory, making a crash unlikely. The impact is therefore a bounded out-of-bounds read with limited confidentiality consequence and no write or control-flow primitive. The fix adds remaining-length guards before each access.",
+      "score": 3.1,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13480"
+    },
+    {
+      "id": "CVE-2026-13479",
+      "published": "2026-08-26T15:16:42.693",
+      "lastModified": "2026-08-31T23:30:49.027",
+      "description": "The LoRaWAN application-layer clock-synchronization service parses downlinks in clock_sync_package_callback() (subsys/lorawan/services/clock_sync.c). Its command loop only guarantees that the one-byte command id is in bounds; for the CLOCK_SYNC_CMD_APP_TIME (AppTimeAns) command the handler then reads a 4-byte time correction via sys_get_le32() plus a 1-byte token without checking that 5 bytes remain in the receive buffer (len - rx_pos). A short or crafted AppTimeAns therefore reads up to 5 bytes past the end of the decrypted payload.\n\nThe payload (rx_buf/len) is the decrypted application frame delivered to the registered downlink callback (mcps_indication->Buffer/BufferSize). Reaching the handler requires a frame on the clock-sync port that passes LoRaWAN's MAC integrity check and FRMPayload decryption, so the practical attacker is a malicious or compromised network/application server (the designated sender of AppTimeAns) or a party holding the session keys, rather than an arbitrary radio listener.\n\nThe over-read is bounded: the backing store is a fixed 255-byte static buffer, so the few stray bytes do not fault, and the read values (time_correction, token) are used only internally and never transmitted, so there is no disclosure to the attacker and no crash. The sole effect is that a stale token matching ctx.req_token can apply a garbage time_correction to the device's own clock offset (ctx.time_offset), a minor integrity impact confined to the victim's time estimate. The fix adds an explicit length check that drops a too-short AppTimeAns. Note the sibling one-byte reads in the periodicity and force-resync handlers remain unguarded with the same negligible impact.",
+      "score": 3.1,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13479"
+    },
+    {
+      "id": "CVE-2026-7487",
+      "published": "2026-08-26T14:17:16.570",
+      "lastModified": "2026-08-31T15:43:30.173",
+      "description": "GitLab has remediated an issue in GitLab EE affecting all versions from 13.1 before 19.1.7, 19.2 before 19.2.5, and 19.3 before 19.3.1 that, under certain conditions, an authenticated user with reporter-role permissions who authored a merge request could have reset merge request approval rules due to improper authorization checks.",
+      "score": 3.5,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7487"
+    },
+    {
+      "id": "CVE-2026-79902",
+      "published": "2026-08-26T14:17:16.430",
+      "lastModified": "2026-09-01T14:18:08.680",
+      "description": "A flaw was found in the Seattle FilmWorks plugin in GIMP. When processing a specially crafted SFW image file, the plugin allocates a Variable-Length Array (VLA) on the stack without integer overflow checks, causing an unbounded stack allocation. This issue leads to an application crash, resulting in a denial of service.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79902"
+    },
+    {
+      "id": "CVE-2026-77801",
+      "published": "2026-08-26T14:17:15.757",
+      "lastModified": "2026-08-31T15:42:30.373",
+      "description": "GitLab has remediated an issue in GitLab CE/EE affecting all versions from 12.8 before 19.1.7, 19.2 before 19.2.5, and 19.3 before 19.3.1 that, under certain conditions, could have allowed an authenticated user to cause a denial of service affecting background job processing, due to missing object count limits.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77801"
+    },
+    {
+      "id": "CVE-2026-75960",
+      "published": "2026-08-26T14:17:13.220",
+      "lastModified": "2026-08-26T18:17:01.453",
+      "description": "Rently Smart Home versions 20.1.0 and prior are vulnerable to an Insufficiently Protected Credentials vulnerability. This could allow an attacker to retrieve pins including the Master Pin, overriding standard user permissions.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75960"
+    },
+    {
+      "id": "CVE-2026-75896",
+      "published": "2026-08-26T14:17:13.080",
+      "lastModified": "2026-08-26T18:17:01.010",
+      "description": "Use of Hard-coded Credentials vulnerability in TÜBİTAK BİLGEM Software Technologies Research Institute Liderahenk allows Try Common or Default Usernames and Passwords.\n\nThis issue affects Liderahenk: before 3.5.5.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75896"
+    },
+    {
+      "id": "CVE-2026-73108",
+      "published": "2026-08-26T14:17:12.830",
+      "lastModified": "2026-08-28T23:17:11.710",
+      "description": "RustDesk versions before 1.4.7 contain an uncontrolled speculative memory allocation vulnerability in BytesCodec. Before authentication, the decoder trusts the payload length encoded in a four-byte frame header and reserves that amount before receiving the payload. A crafted header can request up to 1,073,741,823 bytes of capacity, allowing unauthenticated attackers to use concurrent TCP connections to cause memory exhaustion and denial of service. The fix caps header-triggered speculative preallocation at 256 KiB.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73108"
+    },
+    {
+      "id": "CVE-2026-73102",
+      "published": "2026-08-26T14:17:12.667",
+      "lastModified": "2026-08-26T14:17:12.667",
+      "description": "RustDesk versions 1.3.9 through 1.4.9 contain a path traversal vulnerability in the macOS clipboard file-paste code path. The application accepts peer-supplied file descriptor names and joins them to the selected target directory without requiring normalized relative paths. A remote peer in an active clipboard file-paste session can use parent-directory components or absolute paths to write files outside the intended target directory at locations writable by the RustDesk process. Commit 6f1eb16 fixes the issue by validating descriptor names and safely joining paths.",
+      "score": 5.7,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73102"
+    },
+    {
+      "id": "CVE-2026-3035",
+      "published": "2026-08-26T14:17:10.680",
+      "lastModified": "2026-08-31T15:42:23.067",
+      "description": "GitLab has remediated an issue in GitLab EE affecting all versions from 11.3 before 19.1.7, 19.2 before 19.2.5, and 19.3 before 19.3.1 that, under certain conditions, an authenticated user with project Maintainer permissions could have accessed the terminal of a protected environment they were not authorized to use due to improper authorization checks.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-3035"
+    },
+    {
+      "id": "CVE-2026-19271",
+      "published": "2026-08-26T14:17:08.500",
+      "lastModified": "2026-08-26T16:51:19.490",
+      "description": "Improper Neutralization of Special Elements used in an LDAP Query ('LDAP Injection') vulnerability in TÜBİTAK BİLGEM Software Technologies Research Institute Liderahenk allows LDAP Injection.\n\nThis issue affects Liderahenk: from 3.4.0 before 3.5.5.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19271"
+    },
+    {
+      "id": "CVE-2026-18252",
+      "published": "2026-08-26T14:17:08.000",
+      "lastModified": "2026-08-31T15:42:04.433",
+      "description": "GitLab has remediated an issue in GitLab EE affecting all versions from 18.9 before 19.1.7, 19.2 before 19.2.5, and 19.3 before 19.3.1 that, under certain conditions, an authenticated user with developer-role permissions could have executed arbitrary commands in a CI context, due to the Claude agent processing configuration from a user-controlled source.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18252"
+    },
+    {
+      "id": "CVE-2026-15990",
+      "published": "2026-08-26T14:17:07.707",
+      "lastModified": "2026-08-27T17:17:14.017",
+      "description": "The Formidable Charts plugin for WordPress is vulnerable to Directory Traversal in all versions up to, and including, 2.0.1 via the 'frm_graph' parameter. This makes it possible for unauthenticated attackers to read the contents of arbitrary files on the server, which can contain sensitive information. Successful exploitation requires Formidable Forms Lite, Formidable Forms Pro, and Formidable Charts to be active and requires the wp-content/uploads/frm-charts/ directory to exist, normally after an image-format chart is rendered.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15990"
+    },
+    {
+      "id": "CVE-2026-15387",
+      "published": "2026-08-26T14:17:07.540",
+      "lastModified": "2026-08-31T15:41:20.753",
+      "description": "GitLab has remediated an issue in GitLab EE affecting all versions from 19.1 before 19.1.7, 19.2 before 19.2.5, and 19.3 before 19.3.1 that, under certain conditions, an authenticated user with developer-role permissions could have influenced the execution environment of Pipeline Execution Policy enforcement jobs, due to improper handling of job dependencies.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15387"
+    },
+    {
+      "id": "CVE-2026-12717",
+      "published": "2026-08-26T14:17:07.250",
+      "lastModified": "2026-08-31T18:50:00.053",
+      "description": "An Improper Input Validation vulnerability in CData JDBC driver integration in Google Cloud BigQuery Data Transfer Service versions prior to 2026-05-01 on Google Cloud Platform allows an authenticated attacker to achieve remote code execution in the connector container and escalate privileges in the tenant project using crafted JDBC connection string parameters.\n\n\nThis vulnerability was patched on 1 May 2026, and no customer action is needed.",
+      "score": 9.4,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12717"
+    },
+    {
+      "id": "CVE-2025-10903",
+      "published": "2026-08-26T14:17:06.597",
+      "lastModified": "2026-08-31T15:41:10.070",
+      "description": "GitLab has remediated an issue in GitLab EE affecting all versions from 11.10 before 19.1.7, 19.2 before 19.2.5, and 19.3 before 19.3.1 that, under certain conditions, an authenticated user could have caused denial of service, due to an unbounded loop triggered by specially crafted input in the SCIM user provisioning feature.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-10903"
+    },
+    {
+      "id": "CVE-2026-79619",
+      "published": "2026-08-26T13:19:24.003",
+      "lastModified": "2026-08-28T15:24:38.600",
+      "description": "On Linux, several OpenZFS ioctl authorization checks accept a capability held only within a user-created, unprivileged namespace as equivalent to real host privilege, allowing an unprivileged local user to perform operations that should require root. Affected operations include pool-administrative operations (eg create, import, destroy), pool event log access (zpool events) and fault injection (zinject). Exploiting the problem requires only that the local user is permitted to open /dev/zfs (governed by local device permissions) and that the kernel permits unprivileged user namespace creation. No prior access to the target pool or its underlying devices is needed.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79619"
+    },
+    {
+      "id": "CVE-2026-77658",
+      "published": "2026-08-26T13:19:22.043",
+      "lastModified": "2026-08-28T15:44:39.323",
+      "description": "A stack-based buffer overflow vulnerability exists in the Dia diagram editor when processing Network Bus objects from Dia XML project files.\n\nIn objects/network/bus.c, bus_load() reads the number of bus handles from the file attribute \"bus_handles\" using attribute_num_data() without validating an upper bound:\n\n    bus->num_handles = attribute_num_data(attr);\n\nWhen a bus handle is subsequently moved, bus_handle_moved() allocates two temporary arrays on the stack:\n\n    parallel = (real *)g_alloca(num_handles * sizeof(real));\n    perp = (real *)g_alloca(num_handles * sizeof(real));\n\nBecause num_handles is fully attacker-controlled via the project file, sufficiently large values (for example 262144 or higher) cause g_alloca() to consume more stack space than the default thread stack limit (typically 8 MB on Linux), resulting in stack overflow, SIGSEGV, and potential stack frame / return-address corruption.\n\nAn attacker can embed a Bus object with an excessive bus_handles count in a malicious .dia file. Exploitation requires the victim to open the file in Dia (file dialog, command line, or file association) and trigger handle manipulation (moving a bus handle), which exercises the vulnerable code path.\n\nThe identical g_alloca pattern is present in objects/Misc/tree.c (copied from bus.c) and is likely vulnerable to the same class of attack via Tree objects.\n\nAffected versions: Dia 0.98.0 and earlier versions containing this code; issue confirmed on upstream master as of 2026-08-21.\nUpstream report: https://gitlab.gnome.org/GNOME/dia/-/issues/581",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77658"
+    },
+    {
+      "id": "CVE-2026-12587",
+      "published": "2026-08-26T13:17:45.663",
+      "lastModified": "2026-08-28T18:58:47.740",
+      "description": "The vulnerability allows the unauthorised generation of physical access QR codes due to the use of hard-coded credentials within the application. The generation mechanism uses the 'badge_number' parameter as the HMAC private key, the value of which remains static and is accessible via the API using the endpoint '/club/_id_club_/member/_id_member_/resamania_qr_info'. An attacker with access to this value and to the application’s cryptographic logic, which can be extracted by reverse engineering the APK as there is no code obfuscation, could generate valid QR codes indefinitely, even after the user has changed their password or logged out.",
+      "score": 8.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12587"
+    },
     {
       "id": "CVE-2026-63041",
       "published": "2026-08-26T12:16:21.353",
@@ -585,319 +892,6 @@
       "score": 2.4,
       "severity": "LOW",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15365"
-    },
-    {
-      "id": "CVE-2026-79654",
-      "published": "2026-08-26T06:16:30.110",
-      "lastModified": "2026-08-28T23:17:11.833",
-      "description": "A flaw was found in Katello where the Content View History API does not properly enforce authorization when accessing a Content View specified by the user. An authenticated user with permission to view Content Views in one organization may be able to access the lifecycle history of a Content View belonging to another organization by supplying its identifier to the affected API endpoint. This can result in unauthorized disclosure of Content View lifecycle information, including publication and promotion events, associated users, and timestamps.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79654"
-    },
-    {
-      "id": "CVE-2026-78146",
-      "published": "2026-08-26T06:16:30.007",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Simple Newsletter Plugin  WordPress plugin before 4.3.3 does not verify that the requester is the subscriber named in a public request before rendering that subscriber's stored details, allowing unauthenticated users to disclose a subscriber's personal data along with the key that authorises changes to their record.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78146"
-    },
-    {
-      "id": "CVE-2026-77790",
-      "published": "2026-08-26T06:16:29.910",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The RegistrationMagic  WordPress plugin before 6.0.9.4 does not sanitise and escape a parameter before using it in a SQL statement, which could allow high privilege users such as admin to perform SQL injection attacks.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77790"
-    },
-    {
-      "id": "CVE-2026-77789",
-      "published": "2026-08-26T06:16:29.810",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Stripe Payment Forms by WP Full Pay  WordPress plugin before 8.5.1 does not verify that a subscription belongs to the customer bound to the requesting customer-portal session before acting on it, allowing a user with a confirmed portal session to cancel, reactivate or modify subscriptions belonging to other customers.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77789"
-    },
-    {
-      "id": "CVE-2026-77758",
-      "published": "2026-08-26T06:16:29.710",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Stripe Payment Forms by WP Full Pay  WordPress plugin before 8.5.1 does not properly verify that a customer portal session has completed its confirmation step before returning data, allowing unauthenticated users to read another customer's subscription and billing information.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77758"
-    },
-    {
-      "id": "CVE-2026-77757",
-      "published": "2026-08-26T06:16:29.610",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Directorist: AI-Powered Business Directory, Listings & Classified Ads WordPress plugin before 8.9.3 does not sanitize a user-supplied image reference before using it as the source of a file move, allowing users with a subscriber-level account to relocate arbitrary server-readable image files into a publicly accessible directory, and to delete them from their original location.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77757"
-    },
-    {
-      "id": "CVE-2026-77754",
-      "published": "2026-08-26T06:16:29.510",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Kirki  WordPress plugin before 6.0.14 does not perform a capability check on some endpoints of one of its public AJAX actions, allowing unauthenticated users to retrieve the email addresses of registered users and comment authors, as well as non-public page content and settings.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77754"
-    },
-    {
-      "id": "CVE-2026-77695",
-      "published": "2026-08-26T06:16:29.410",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Return Refund and Exchange For WooCommerce WordPress plugin before 4.6.4 does not correctly verify the ownership of guest orders in some of the AJAX actions it exposes to unauthenticated users, allowing them to read private order messages, post messages and attachments in the customer's name, and cancel return requests on any guest order.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77695"
-    },
-    {
-      "id": "CVE-2026-77694",
-      "published": "2026-08-26T06:16:29.313",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Eventin  WordPress plugin before 4.1.19 does not properly restrict which changes a guest checkout token is allowed to authorise on an order, allowing unauthenticated users to mark their own unpaid order as completed and be issued a valid paid ticket with no payment taken.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77694"
-    },
-    {
-      "id": "CVE-2026-77693",
-      "published": "2026-08-26T06:16:29.210",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Order Tip for WooCommerce WordPress plugin before 1.6.0 does not check the capability of the user requesting a file deletion, nor does it restrict which path may be deleted, allowing users with the Shop Manager role and above to delete arbitrary files on the server, which could lead to the site being taken over.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77693"
-    },
-    {
-      "id": "CVE-2026-75798",
-      "published": "2026-08-26T06:16:27.333",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The AI Engine  WordPress plugin before 3.7.2 does not perform an authorisation check on one of its administration-only features, relying instead on a token it hands out to anonymous visitors, allowing unauthenticated attackers to run AI queries of their own choosing against the site owner's configured provider account.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75798"
-    },
-    {
-      "id": "CVE-2026-75797",
-      "published": "2026-08-26T06:16:27.230",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The AI Engine  WordPress plugin before 3.7.2 does not confine a caller-supplied URL when mapping it to a local filesystem path before reading the file and forwarding its contents to an external service, allowing users with a subscriber-level account to read arbitrary files from the server and exfiltrate them off-host. Reaching the issue at subscriber level requires a non-default public API feature to be enabled; otherwise the same issue is reachable by an administrator, which on multisite allows a non-super subsite administrator to read the network-shared configuration and its secrets.",
-      "score": 7.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75797"
-    },
-    {
-      "id": "CVE-2026-74930",
-      "published": "2026-08-26T06:16:27.133",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Project Manager  WordPress plugin before 4.0.7 does not check that the user whose activity is being requested is the one making the request in one of its REST API routes, allowing any authenticated user, such as a subscriber, to read any other user's activity history along with their email address and the details of projects they have no access to.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74930"
-    },
-    {
-      "id": "CVE-2026-74929",
-      "published": "2026-08-26T06:16:27.037",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Project Manager  WordPress plugin before 4.0.7 does not restrict several of its REST API routes to the projects a user belongs to, allowing any authenticated user, such as a subscriber, to read other projects' task content and user email addresses and to modify other projects' task boards.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74929"
-    },
-    {
-      "id": "CVE-2026-74928",
-      "published": "2026-08-26T06:16:26.930",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Project Manager  WordPress plugin before 4.0.7 does not have any authorisation check on its import routes, allowing unauthenticated users to create WordPress accounts with a password the attacker already knows, bypassing the site's own registration setting.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74928"
-    },
-    {
-      "id": "CVE-2026-74851",
-      "published": "2026-08-26T06:16:26.830",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Pods  WordPress plugin before 3.3.9.1 does not correctly compare a display callback against its list of blocked functions, allowing users with the author role and above to execute arbitrary code on the server. Only sites using the restricted display-callback mode are affected, which is the automatic default on installations whose first Pods version predates 3.1.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74851"
-    },
-    {
-      "id": "CVE-2026-58097",
-      "published": "2026-08-26T06:16:26.700",
-      "lastModified": "2026-08-27T04:16:44.743",
-      "description": "mp_SetEnddisc() copied a user-supplied PSN endpoint value without length validation, allowing a buffer overflow via the ppp(8) command interface.\n\nA local user with access to the ppp(8) command interface can crash ppp(8) or potentially execute arbitrary code as root.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-58097"
-    },
-    {
-      "id": "CVE-2026-58096",
-      "published": "2026-08-26T06:16:26.577",
-      "lastModified": "2026-08-27T17:18:53.580",
-      "description": "LcpDecodeConfig() did not validate the length of received endpoint discriminator options against the minimum required by RFC 1717.  Undersized options would trigger an out-of-bounds write.\n\nA malicious PPP peer can exploit CVE-2026-58095 and CVE-2026-58096 to crash ppp(8) or potentially execute arbitrary code as root.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-58096"
-    },
-    {
-      "id": "CVE-2026-58095",
-      "published": "2026-08-26T06:16:26.460",
-      "lastModified": "2026-08-27T17:18:53.397",
-      "description": "mp_Enddisc() used incorrect length calculations when formatting endpoint discriminator addresses for display, allowing a received endpoint option to overflow a global result buffer.\n\nA malicious PPP peer can crash ppp(8) or potentially execute arbitrary code as root.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-58095"
-    },
-    {
-      "id": "CVE-2026-58094",
-      "published": "2026-08-26T06:16:26.350",
-      "lastModified": "2026-08-27T04:16:44.223",
-      "description": "The FIOSSHMLPGCNF ioctl(2) operation configures the page size for a largepage shared memory object.  This is intended to be used immediately after creating the object, before any memory is allocated for the object.  The handler checked whether a page size had already been configured without holding the rangelock.  Two concurrent callers could both observe an unconfigured object and set conflicting page sizes, leaving the object in an inconsistent state.\n\nAn unprivileged local user can exploit this race to escalate privileges.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-58094"
-    },
-    {
-      "id": "CVE-2026-58093",
-      "published": "2026-08-26T06:16:26.227",
-      "lastModified": "2026-08-27T04:16:44.040",
-      "description": "The TIOCSCTTY ioctl handler drops the tty lock in order to acquire the process tree lock.  After reacquiring the tty lock, the handler did not revalidate the state of the terminal, and could proceed to link a terminal that was concurrently being destroyed to the calling process' session.\n\nAn unprivileged local user can exploit this race condition to escalate privileges.",
-      "score": 7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-58093"
-    },
-    {
-      "id": "CVE-2026-19760",
-      "published": "2026-08-26T06:16:26.007",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "The WP Fastest Cache – WordPress Cache Plugin plugin for WordPress is vulnerable to Stored Cross-Site Scripting via HTTP Host Header in all versions up to, and including, 1.5.0 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. This requires the Polylang or Polylang Pro plugin to be active and the Combine JS option to be enabled, as these conditions trigger the vulnerable Host-header-to-URL code path that writes attacker-controlled script src values into the shared page-cache file served to all subsequent visitors.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19760"
-    },
-    {
-      "id": "CVE-2026-19718",
-      "published": "2026-08-26T06:16:25.900",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The BlogVault Backup & Staging WordPress plugin before 6.65, MalCare WordPress Security Plugin  WordPress plugin before 6.65, The WP Remote WordPress Plugin WordPress plugin before 6.65 do not prevent unauthenticated users from obtaining data derived from the secret that binds a site to its remote management service, and generate that secret with a weak pseudo-random number generator, allowing attackers to recover it and gain administrative access to the site.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19718"
-    },
-    {
-      "id": "CVE-2026-19226",
-      "published": "2026-08-26T06:16:25.803",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Royal Addons for Elementor  WordPress plugin before 1.7.1066 does not validate some widget settings before outputting them inside an HTML attribute, which could allow users with the Contributor role and above to perform Stored Cross-Site Scripting attacks.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19226"
-    },
-    {
-      "id": "CVE-2026-19220",
-      "published": "2026-08-26T06:16:25.703",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Forminator Forms  WordPress plugin before 1.57.1 does not verify that site registration is enabled on the network before creating a site signup, allowing unauthenticated visitors to create a new site on a WordPress multisite network and gain administrator privileges on it.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19220"
-    },
-    {
-      "id": "CVE-2026-19094",
-      "published": "2026-08-26T06:16:25.600",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Tutor LMS  WordPress plugin before 4.0.6 does not validate values used to build a database query, and does not restrict which template file a request may load, allowing unauthenticated users to inject SQL and to read question and answer content belonging to courses that are not publicly available.\n\nThe injected text reaches the query as grammar rather than as data, and on the database engines tested it does not yield extraction of arbitrary data, so the confidentiality impact is the disclosed course content rather than the database at large.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19094"
-    },
-    {
-      "id": "CVE-2026-16986",
-      "published": "2026-08-26T06:16:25.500",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Booking Package WordPress plugin before 1.7.25 does not validate the payment amount server-side against the stored service price, deriving the expected charge from attacker-supplied request values instead, so an unauthenticated attacker can pay an arbitrary fraction of a service's real price.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16986"
-    },
-    {
-      "id": "CVE-2026-16984",
-      "published": "2026-08-26T06:16:25.393",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Privacy Policy Generator, Terms & Conditions, GDPR, CCPA, Cookie Policy & Disclaimer Templates  WordPress plugin before 3.7.1 does not include an authorization check on a REST route that returns stored account data, allowing unauthenticated visitors to retrieve the connected service's API secret and account details, which can then be used to disconnect the Privacy Policy Generator, Terms & Conditions, GDPR, CCPA, Cookie Policy & Disclaimer Templates  WordPress plugin before 3.7.1's integration.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16984"
-    },
-    {
-      "id": "CVE-2026-15203",
-      "published": "2026-08-26T06:16:25.130",
-      "lastModified": "2026-08-26T15:16:43.550",
-      "description": "Improper access control in debug and engineering interfaces in Danfoss iC7-Automation SP, iC7-Marine, and iC7-Hybrid GR3 allows attackers to gain read/write access to internal values, upload and execute unsigned applications, and upload unsigned EEPROM data and firmware via exposed service interfaces and software update mechanisms",
-      "score": 9.3,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15203"
-    },
-    {
-      "id": "CVE-2026-14550",
-      "published": "2026-08-26T06:16:25.007",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The WPCafe  WordPress plugin before 3.0.18 does not perform an authorization check when creating a reservation through its REST API, verifying only a publicly available nonce, allowing unauthenticated users to submit reservations with an arbitrary approval status and bypass the administrator moderation workflow.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14550"
-    },
-    {
-      "id": "CVE-2026-14216",
-      "published": "2026-08-26T06:16:24.910",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Booking for Appointments and Events Calendar  WordPress plugin before 2.4.7 does not require authentication before processing its pending notification queue, allowing an unauthenticated user to force the dispatch of queued notifications and integration callbacks.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14216"
-    },
-    {
-      "id": "CVE-2026-14212",
-      "published": "2026-08-26T06:16:24.800",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Booking for Appointments and Events Calendar  WordPress plugin before 9.8 does not verify that an authenticated employee (provider) owns the provider account being updated, allowing any employee with an Employee Panel login to overwrite another employee's cabinet password and take over their account.",
-      "score": 4.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14212"
-    },
-    {
-      "id": "CVE-2026-13406",
-      "published": "2026-08-26T06:16:24.700",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Royal Addons for Elementor  WordPress plugin before 1.7.1066 does not perform any capability or nonce check before returning taxonomy term data for an arbitrary, caller-supplied taxonomy, allowing unauthenticated users to disclose the names and IDs of terms belonging to non-public taxonomies.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13406"
-    },
-    {
-      "id": "CVE-2026-13404",
-      "published": "2026-08-26T06:16:24.593",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Royal Addons for Elementor  WordPress plugin before 1.7.1066 does not perform any capability or ownership check (relying only on a publicly-scrapeable nonce) before writing like-count and visitor-tracking post meta keyed on an arbitrary post ID, allowing unauthenticated users to modify that metadata on any post, including private and draft posts.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13404"
-    },
-    {
-      "id": "CVE-2026-13172",
-      "published": "2026-08-26T06:16:23.350",
-      "lastModified": "2026-08-26T16:30:52.723",
-      "description": "The Eventin  WordPress plugin before 4.1.22 does not restrict access to non-published content by status or ownership in one of its REST API namespaces, allowing unauthenticated users to retrieve draft, pending and private posts belonging to other users, along with the passwords and contents of password-protected ones.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13172"
     }
   ]
 }
