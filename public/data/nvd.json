@@ -1,6 +1,188 @@
 {
-  "syncedAt": "2026-09-02T09:45:43.437Z",
+  "syncedAt": "2026-09-02T10:20:55.155Z",
   "items": [
+    {
+      "id": "CVE-2026-80550",
+      "published": "2026-08-26T15:17:09.477",
+      "lastModified": "2026-08-27T06:17:37.617",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ns390/vfio_ccw: Fix out of bounds check on CCW array\n\nThe routine ccwchain_calc_length() counts the number of channel\ncommand words (CCWs) that are chained together in a single channel\nprogram, and rejects anything larger than CCWCHAIN_LEN_MAX (256) CCWs.\n\nThe loop itself is \"do..while (count < 257)\", and while the logic in\nis_cpa_within_range() correctly adjusts between the 0-index array of\nCCWs and the count of CCWs starting at 1, this means it would look\nat a possible 257th CCW before ending the loop and (correctly)\nreturning an error.\n\nFix this by restructuring the loop to break as soon as 256 CCWs\n(thus indexes 0-255) are examined, without looking at memory\noutside the range.",
+      "score": 7.9,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80550"
+    },
+    {
+      "id": "CVE-2026-80549",
+      "published": "2026-08-26T15:17:09.323",
+      "lastModified": "2026-08-27T13:18:39.583",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ns390/vfio_ccw: Move cp cleanup out of not operational\n\nThe fsm_notoper() routine is called when the device has been\nlost, and is (by definition) no longer operational. Since this\ncan happen asynchronously from the normal behavior of the\ndriver, the cleanup may happen when holding other locks\nin the calling sequence (notably, the cio subchannel lock).\n\nPush the cleanup of the private->cp resources to a workqueue,\nwhere it can be done out from under that lock sequence and\na future patch can safely manage the locking requirements.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80549"
+    },
+    {
+      "id": "CVE-2026-80548",
+      "published": "2026-08-26T15:17:09.200",
+      "lastModified": "2026-08-27T13:18:39.397",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ns390/vfio_ccw: Selectively expand io_mutex\n\nThe io_mutex was defined to serialize the io_regions, but then has\nalso sort of been associated with the I/O themselves because of\nthe close relationship they share.\n\nWith the handful of races that are possible, the choices are either to:\n A) expand the scope of io_mutex to close these remaining windows, or\n B) reduce the scope of io_mutex to just io_region, and introduce a new\n    lock mechanism for the remaining I/O resources\n\nThis patch implements A, since B brings with it a lot more interactions\nthat would need to be tracked and kept in a correct hierarchy. It also\ntakes advantage of the workqueue element for cp_free() that now gets\ncalled out of fsm_notoper(), which could be invoked out of an interrupt\ncontext and thus cannot acquire a mutex itself.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80548"
+    },
+    {
+      "id": "CVE-2026-80547",
+      "published": "2026-08-26T15:17:09.087",
+      "lastModified": "2026-08-27T13:18:39.240",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ns390/vfio_ccw: Implement a crw lock\n\nUnlike the channel_program struct, which covers synchronous I/O\nsubmissions and asynchronous interrupts, the CRW region relies\nexclusively on asynchronous events coming from hardware.\n\nImplement a lock to manage the list of those payloads, to ensure\nthey are read cohesively.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80547"
+    },
+    {
+      "id": "CVE-2026-80546",
+      "published": "2026-08-26T15:17:08.977",
+      "lastModified": "2026-08-27T06:17:36.067",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ns390/zcrypt: Improve CCA CPRB length and overflow checks\n\nThe xcrb_msg_to_type6cprb_msgx() function lacks proper input\nvalidation, creating security vulnerabilities:\n1. Integer overflow after CEIL4 alignment: Signed int variables could\n   overflow during 4-byte boundary alignment, causing undersized\n   buffer allocations or incorrect bounds checking.\n2. Missing minimum size validation: The CPRBX structure is copied from\n   userspace without verifying sufficient buffer length. Undersized\n   buffers cause uninitialized memory access when reading structure\n   fields like cprbx.cprb_len and cprbx.domain.\n3. Arithmetic overflow in sum calculations: Adding control block and\n   data block sizes could overflow, bypassing size checks and enabling\n   buffer overflows.\n\nFix by using size_t for length calculations, adding U32_MAX boundary\nchecks after alignment, validating minimum control block size before\ncopying from userspace, and detecting sum calculation overflows.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80546"
+    },
+    {
+      "id": "CVE-2026-80545",
+      "published": "2026-08-26T15:17:08.870",
+      "lastModified": "2026-08-27T06:17:35.780",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ns390/zcrypt: Improve EP11 CPRB length and overflow checks\n\nThe xcrb_msg_to_type6_ep11cprb_msgx() function lacks proper input\nvalidation, creating security vulnerabilities:\n1. Missing minimum size validation: The ep11_cprb structure and\n   subsequent payload fields (pld_tag, pld_lenfmt) are copied from\n   userspace without verifying sufficient buffer length.\n2. Arithmetic overflow in length calculations: CEIL4 alignment could\n   overflow, bypassing size checks and enabling buffer overflows.\n3. The payload is asn1 encoded but the function just uses a simple c\n   struct overlay to access some fields of the payload.\n\nFix by using size_t for length calculations, adding U32_MAX boundary\nchecks after alignment, and validating minimum request size and\nminimum reply size before copying from userspace. Do a very simple\nasn1 parsing of the payload up to the function value field.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80545"
+    },
+    {
+      "id": "CVE-2026-80544",
+      "published": "2026-08-26T15:17:08.763",
+      "lastModified": "2026-08-27T06:17:35.497",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ns390/zcrypt: Improve EP11 CPRB domain handling with ASN.1 parsing\n\nThe zcrypt_msgtype6_send_ep11_cprb() function uses fragile struct\noverlays to access and modify the domain field in the EP11 CPRB\npayload, creating maintainability and security concerns:\n1. Struct overlay approach (pld_hdr) assumes fixed payload structure\n   and doesn't validate the actual ASN.1 encoding.\n2. Complex length format detection logic is error-prone and doesn't\n   properly validate bounds at each parsing step.\n3. Direct struct member access bypasses proper ASN.1 validation.\n\nFix by replacing struct overlays with explicit ASN.1 parsing that\nvalidates each field (payload tag/length, function tag/length/value,\noptional domain tag/length/value) with proper bounds checking at every\nstep. Add asn1_int_encode() helper function to safely write integer\nvalues with correct endianness conversion. This makes the code\nconsistent with the validation pattern introduced with the rework of\nthe xcrb_msg_to_type6_ep11cprb_msgx() function.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80544"
+    },
+    {
+      "id": "CVE-2026-80543",
+      "published": "2026-08-26T15:17:08.657",
+      "lastModified": "2026-08-26T15:17:08.657",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ns390/zcrypt: Pad trailing CCA or EP11 message with zeros\n\nThe both functions xcrb_msg_to_type6cprb_msgx() and\nxcrb_msg_to_type6_ep11cprb_msgx() copy the user space message into a\nkernel buffer based on the message length. But on further processing\nthe message is supposed to be 4 byte length adjusted. Thus up to 3\nbytes of uninitialized kernel memory are forwarded to further\nprocessing steps and may unwanted expose kernel memory to the crypto\ncard firmware.\n\nThis patch contains code to pad the gap between user space copied\nmessage and message buffer length sent down to further processing of\nthe CCA or EP11 message to zeros.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80543"
+    },
+    {
+      "id": "CVE-2026-80542",
+      "published": "2026-08-26T15:17:08.540",
+      "lastModified": "2026-08-26T15:17:08.540",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amd/display: Fix NULL pointer dereference in amdgpu_dm_crtc_set_vblank()\n\namdgpu_dm_crtc_set_vblank() dereferences acrtc_state->stream when\nvblank is enabled/queried from DRM_IOCTL_MODE_CRTC_GET_SEQUENCE before\na stream is attached to it.\n\nBUG: kernel NULL pointer dereference, address: 0000000000000008\nRIP: amdgpu_dm_crtc_set_vblank+0x6b/0x4d0 [amdgpu]\nCall Trace:\n drm_vblank_enable\n drm_vblank_get\n drm_crtc_get_sequence_ioctl\n drm_ioctl_kernel\n drm_ioctl\n\nReproduced by running VKCTS with WSI tests enabled on RADV.\n\nGuard the enable path on acrtc_state->stream being non-NULL, matching\nthe existing checks in this function.\n\n(cherry picked from commit 7b1b31bf6942e6f43509b48da23f8e27269aac39)",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80542"
+    },
+    {
+      "id": "CVE-2026-80541",
+      "published": "2026-08-26T15:17:08.400",
+      "lastModified": "2026-08-27T06:17:35.123",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amdgpu: validate GEM_CREATE domain combinations\n\nAMDGPU_GEM_CREATE checked domain bits against AMDGPU_GEM_DOMAIN_MASK,\nbut did not validate domain combinations. Userspace could combine\nCPU|GTT|VRAM with DOORBELL, GDS, GWS, or OA, making\namdgpu_bo_placement_from_domain() exceed AMDGPU_BO_MAX_PLACEMENTS and\nhit BUG_ON().\n\nAllow combinations only within CPU/GTT/VRAM, and require non-CPU/GTT/\nVRAM domains to be specified one at a time. Return -EINVAL for invalid\ncombinations in amdgpu_gem_create_ioctl().\n\nv2: Rename helper from amdgpu_gem_domain_valid() to\n    amdgpu_gem_are_domains_valid() (Christian)\n\n(cherry picked from commit db39852d0c39843cb02048dfb47e4b8c703e9080)",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80541"
+    },
+    {
+      "id": "CVE-2026-80540",
+      "published": "2026-08-26T15:17:08.257",
+      "lastModified": "2026-08-27T06:17:34.813",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amdgpu: Fix UVD decode image min size calculation\n\nThis needs to use pitch instead of width. Also reject pitch\nover 4096 to avoid overflow.\n\n(cherry picked from commit b41c8cb12e202b220353332ab87dc01a11f69304)",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80540"
+    },
+    {
+      "id": "CVE-2026-80539",
+      "published": "2026-08-26T15:17:08.133",
+      "lastModified": "2026-08-27T13:18:39.113",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amdgpu: disallow multiple FENCE chunks in one submit\n\namdgpu_cs_pass1() dispatches on chunk_id once per chunk without\nrejecting repeated ids. p->uf_bo is a single-slot field, so a\nsubmission carrying two AMDGPU_CHUNK_ID_FENCE chunks runs\namdgpu_cs_p1_user_fence() twice, and the second run overwrites\np->uf_bo with a freshly referenced BO without dropping the reference\ntaken by the first.\n\namdgpu_cs_parser_fini() only unrefs the final p->uf_bo, so every FENCE\nchunk but the last leaks a BO reference. The leaked BO outlives handle\nclose and process exit.\n\nReject duplicate FENCE chunks the same way commit fec5f8e8c6bc\n(\"drm/amdgpu: disallow multiple BO_HANDLES chunks in one submit\") did\nfor p->bo_list.\n\n(cherry picked from commit 665b1fc2a1845206408f9a2c6da67101789edb82)",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80539"
+    },
+    {
+      "id": "CVE-2026-80538",
+      "published": "2026-08-26T15:17:08.017",
+      "lastModified": "2026-08-27T06:17:34.550",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: propagate errors from xfs_rtginode_load\n\nxfs_rtginode_ensure() treats every xfs_rtginode_load() error other than\n-ENOENT as success.  This can leave the realtime group inode unset after an\nI/O, allocation, or corruption error.  Growfs then continues as though the\ninode had been loaded.\n\nOnly -ENOENT means that the inode needs to be created.  Return all other\nerrors to the growfs caller.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80538"
+    },
+    {
+      "id": "CVE-2026-80537",
+      "published": "2026-08-26T15:17:07.890",
+      "lastModified": "2026-08-27T06:17:34.210",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: fix off-by-one in rtrefcount btree root level validation\n\nxfs_rtrefcountbt_compute_maxlevels() sets\n\n\tmp->m_rtrefc_maxlevels = min(d_maxlevels, r_maxlevels) + 1;\n\nwhere the trailing \"+ 1\" already accounts for the inode-root level, so the\ndeepest valid on-disk root level is m_rtrefc_maxlevels - 1 and a cursor must\nsatisfy bc_nlevels <= bc_maxlevels (= m_rtrefc_maxlevels).\n\nThe two on-disk validation paths, xfs_rtrefcountbt_verify() and\nxfs_iformat_rtrefcount(), check the root level with \">\" instead of \">=\", so a\ncrafted rtreflink (metadir + realtime + reflink) image whose\n/rtgroups/N.refcount inode has bb_level == m_rtrefc_maxlevels is accepted on\nmount. xfs_rtrefcountbt_init_cursor() then sets bc_nlevels = bb_level + 1,\nexceeding bc_maxlevels by one. Since the xfs_rtrefcountbt_cur slab object is\nsized for exactly bc_maxlevels entries, the first btree op on such a cursor\nindexes bc_levels[m_rtrefc_maxlevels] past the end of the object. This is\nreached by the first rtrefcount cursor built after mount, via log/CoW\nrecovery (xfs_reflink_recover_cow() during xfs_mountfs()) or an\nFS_IOC_GETFSMAP over the realtime device.\n\nReject a root level equal to m_rtrefc_maxlevels, matching the \">=\" form\nalready used by the sibling data-device refcount/rmap verifiers and the\nin-memory rtrmap verifier.\n\n  BUG: KASAN: slab-out-of-bounds in xfs_btree_lookup (fs/xfs/libxfs/xfs_btree.c:2101)\n  Write of size 2 at addr ffff888018391658 by task exploit/144\n   xfs_btree_lookup (fs/xfs/libxfs/xfs_btree.c:2101)\n   xfs_btree_query_range (fs/xfs/libxfs/xfs_btree.c:5308)\n   xfs_refcount_recover_cow_leftovers (fs/xfs/libxfs/xfs_refcount.c:2113)\n   xfs_reflink_recover_cow (fs/xfs/xfs_reflink.c:1085)\n   xlog_recover_finish (fs/xfs/xfs_log_recover.c:3551)\n   xfs_mountfs (fs/xfs/xfs_mount.c:1158)\n   xfs_fs_fill_super (fs/xfs/xfs_super.c:1940)\n   get_tree_bdev_flags (fs/super.c:1634)\n   vfs_get_tree (fs/super.c:1694)\n   path_mount (fs/namespace.c:4161)\n   __x64_sys_mount (fs/namespace.c:4367)\n   entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:121)\n  The buggy address belongs to the cache xfs_rtrefcountbt_cur of size 216\n  The buggy address is located 8 bytes to the right of\n   allocated 216-byte region [ffff888018391578, ffff888018391650)\n  Kernel panic - not syncing: Fatal exception",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80537"
+    },
+    {
+      "id": "CVE-2026-80536",
+      "published": "2026-08-26T15:17:07.777",
+      "lastModified": "2026-08-27T13:18:38.940",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: bounds-check buffer log item's dirty bitmap\n\nxlog_recover_do_reg_buffer() replays each dirty region described by a\nbuffer log item's bitmap into the buffer read for that item:\n\n\tmemcpy(xfs_buf_offset(bp, (uint)bit << XFS_BLF_SHIFT),\n\t\titem->ri_buf[i].iov_base,\n\t\tnbits << XFS_BLF_SHIFT);\n\nThe destination offset (bit/nbits, from the logged dirty bitmap) and the\nbuffer size (from the logged blf_len) are both attacker-controlled and\notherwise unrelated, yet the only thing bounding the copy is an ASSERT(),\nwhich compiles away on production kernels. A crafted image logging a\nsmall blf_len together with a bitmap bit past the end of that buffer\ndrives the memcpy() past the buffer's allocation, corrupting adjacent\nkernel heap during mount-time log recovery. This is reachable by anyone\nwho can get a crafted image mounted -- the malicious-filesystem threat\nmodel XFS already guards against elsewhere.\n\nTurn the ASSERT() into a real XFS_IS_CORRUPT() check that aborts recovery\nof the buffer with -EFSCORRUPTED, consistent with the validate-and-fail\nidiom already used in xlog_recover_do_inode_buffer() and\nxfs_dquot_item_recover.c. xlog_recover_do_reg_buffer() therefore becomes\nSTATIC int and its three callers propagate the error.\n\nFound and confirmed with KASAN on a CONFIG_XFS_DEBUG=n build: the crafted\nimage trips a slab-out-of-bounds write before this change and fails\nrecovery cleanly with -EFSCORRUPTED after it.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80536"
+    },
+    {
+      "id": "CVE-2026-80535",
+      "published": "2026-08-26T15:17:07.663",
+      "lastModified": "2026-08-26T15:17:07.663",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: don't double-lock when deleting a self-referential directory\n\nLOLLM notices that the dirtree scrubber can detect a directory that\nrefers to itself.  In this case, it's not correct for the directory tree\nrepair code to try to iolock/ilock both sc->ip and dp, because they're\nthe same inode.  Fix this by detecting that corner case and handling it\nappropriately.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80535"
+    },
+    {
+      "id": "CVE-2026-80534",
+      "published": "2026-08-26T15:17:07.530",
+      "lastModified": "2026-08-27T13:18:38.800",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: fix ilock leak on error in xfs_dq_get_next_id\n\nxfs_dq_get_next_id() takes the quota inode ILOCK before calling\nxfs_iread_extents().  If xfs_iread_extents() fails, the function returns\nimmediately without releasing the lock, leaking the quota inode ILOCK.\nThis can leave the quota inode locked and cause subsequent quota\noperations to hang.\n\nFix this by jumping to a common unlock path on error instead of returning\ndirectly.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80534"
+    },
+    {
+      "id": "CVE-2026-80533",
+      "published": "2026-08-26T15:17:07.410",
+      "lastModified": "2026-08-26T15:17:07.410",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: don't walk off the end of a null sc->sa.agi_bp in AGI repair\n\nLOLLM noticed a longstanding bug where xrep_iunlink_walk_ondisk_bucket\ntries to walk ragi->sc->sa.agi_bp to rebuild the unlinked inode lists.\nUnfortunately, it's possible for agi_bp to be null if the buffer\nverifier fails, so we have to use ragi->agi_bp (which skips verifier\nchecks) instead.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80533"
+    },
+    {
+      "id": "CVE-2026-80532",
+      "published": "2026-08-26T15:17:07.270",
+      "lastModified": "2026-08-26T15:17:07.270",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: fix another iunlink infinite loop bug in online fsck\n\nxrep_iunlink_resolve_bucket is supposed to reconstruct as much of the\nincore prev and next unlinked list pointers based on what it finds on\ndisk and in memory before we move on to relinking the truly lost inodes\nback into the unlinked list.  However, it's still vulnerable to infinite\nloops that come in via the next_unlinked pointers.\n\nFix this problem by remembering which inodes we've already seen and\nchecking new agino pointers against that.  If a bit is already set,\neither this is a loop or the inode has nonzero link count.  We'll deal\nwith the second case in a subsequent patch.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80532"
+    },
+    {
+      "id": "CVE-2026-80531",
+      "published": "2026-08-26T15:17:07.140",
+      "lastModified": "2026-08-27T06:17:33.500",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: avoid UAF on sc->tempip in xrep_tempfile_create\n\nLOLLM noticed a potential UAF if the tempfile creation code fails after\nit set sc->tempip.  Fix that.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80531"
+    },
+    {
+      "id": "CVE-2026-80530",
+      "published": "2026-08-26T15:17:06.990",
+      "lastModified": "2026-08-27T06:17:33.150",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: fix exchange-range reflink flag clearing issue with INO1_WRITTEN\n\nWhen exchanging two full-file ranges, xmi_can_exchange_reflink_flags()\ncan move the reflink inode flag from the file that currently has it to\nthe other file, as long as exactly one side is marked.  This assumes\nthat the file contents, and therefore all shared extents, are exchanged.\n\nThat assumption is not true when XFS_EXCHMAPS_INO1_WRITTEN is set.\nxfs_exchmaps_can_skip_mapping() can skip hole and unwritten mappings\nfrom file1, so an exchange can complete without moving every mapping\nthat the earlier flag-swap decision accounted for.  In that case the\npost-operation cleanup can clear the reflink flag from an inode that\nstill owns shared written extents.  Later writes then take the\nnon-reflink write path and may update blocks that should still have\nbeen protected by CoW, which shows up as data corruption between\nreflink-related files.\n\nFix this by disabling the reflink flag exchange whenever\nXFS_EXCHMAPS_INO1_WRITTEN is requested.  The contents exchange can still\nproceed; the conservative outcome is that both inodes keep the reflink\nflag.  The regular reflink flag cleanup path can drop the extra flag\nlater once the inode no longer has shared extents.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80530"
+    },
+    {
+      "id": "CVE-2026-80529",
+      "published": "2026-08-26T15:17:06.837",
+      "lastModified": "2026-08-26T15:17:06.837",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: don't swallow dquot recovery verification errors\n\nxlog_recover_dquot_commit_pass2() validates the recovered dquot with\nxfs_dqblk_verify() and, on failure, sets error = -EFSCORRUPTED and jumps\nto out_release.  But out_release unconditionally returns 0, so the\ncorruption error is discarded: the caller xlog_recover_items_pass2()\nsees success, log recovery proceeds as if the dquot were valid, and the\ncorrupt quota buffer can be written back to disk.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80529"
+    },
     {
       "id": "CVE-2026-80528",
       "published": "2026-08-26T15:17:06.667",
@@ -686,204 +868,6 @@
       "score": 9.8,
       "severity": "CRITICAL",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18080"
-    },
-    {
-      "id": "CVE-2026-80350",
-      "published": "2026-08-26T10:16:43.237",
-      "lastModified": "2026-08-26T14:17:18.107",
-      "description": "OneUptime's webhook target check rejects private and loopback addresses given in IPv4 form and a small set of IPv6 forms, but has no case for the IPv4-mapped IPv6 range. The webhook delivery path calls SSRFProtection.validateWebhookTargetIsSafe, and the host-literal screening inside Common/Server/Utils/SSRFProtection.ts, performed by isBlockedHostnameLiteral, rejects private and loopback IPv4 ranges and tests an IPv6 value against the unspecified address, the loopback, the link-local prefix and the unique-local prefixes. A value such as [::ffff:127.0.0.1] matches none of them. The value is also recognised as an address literal rather than a name, so the path that re-checks addresses obtained from resolution is not taken. The HTTP client treats the mapped form as the embedded IPv4 address and connects to it, so an authenticated project member who can configure a webhook can direct the server at loopback services, private network ranges and link-local metadata endpoints, and the response is recorded where the webhook result can be read. Version 12.0.7 adds handling for the mapped range.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80350"
-    },
-    {
-      "id": "CVE-2026-80349",
-      "published": "2026-08-26T10:16:43.097",
-      "lastModified": "2026-08-26T14:17:17.950",
-      "description": "TarsWeb decides whether a request comes from a trusted local caller using a client-controlled header. app.js sets Koa's proxy option to true without naming which upstream proxies may be trusted and without limiting the number of forwarded hops, so the request address Koa reports is taken from the X-Forwarded-For header supplied by the caller. In midware/ssoMidware.js a single branch covers both the ignored-path list and the ignoreIps allowlist from config/loginConf.js, which contains the loopback address, and that branch assigns the effective account identity from the uid query parameter before falling through to the request without validating any ticket, cookie or password. A request carrying a forged X-Forwarded-For value naming the loopback address and a uid naming an existing account therefore reaches every route the console mounts as that account, including an administrator, with no credential of any kind. Those routes include user and role administration, service configuration, and package upload and deployment. Version 3.0.16 separates the two branches so that a match on the address allowlist assigns the configured default account rather than one named by the caller.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80349"
-    },
-    {
-      "id": "CVE-2026-80348",
-      "published": "2026-08-26T10:16:42.947",
-      "lastModified": "2026-08-26T17:17:25.993",
-      "description": "TarsWeb enforces its per-application roles by calling AuthService from individual controller methods, and four methods in app/controller/patch/PatchController.js make no such call. uploadAndPublish accepts a package upload and then builds and dispatches a deployment task to every server matching the supplied application and module name, while its sibling uploadPatchPackage, which only stores the package, does check developer authorization first. The only precondition uploadAndPublish enforces is that the named server is registered, and any registered server in the installation satisfies it. downloadPackage and deletePatchPackage select a package by an unscoped sequential primary key covering every application's uploads, and setPatchPackageDefault changes which package a given application deploys by default. Any authenticated account, including one holding a role scoped to a single unrelated application, can therefore push a package to and trigger its deployment on any server the console manages, retrieve or delete any other application's package, and change which package is deployed by default.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80348"
-    },
-    {
-      "id": "CVE-2026-80347",
-      "published": "2026-08-26T10:16:42.803",
-      "lastModified": "2026-08-26T13:19:24.960",
-      "description": "mcp-fetch checks a fetch target against its SSRF guard without removing the brackets that surround an IPv6 literal. isSafeUrl reads the hostname from the parsed URL, which for a literal such as http://[::1]/ yields the bracketed string, and then tests it with net.isIP. That call returns zero for a bracketed value, so the branch holding the private-address checks is skipped entirely. The guard falls back to resolving the hostname, the bracketed string is not a resolvable name, no addresses are returned, and the target is reported safe. The HTTP client then strips the brackets and connects. Because the address may be given in IPv4-mapped form, the same path reaches any IPv4 target the loopback and private checks were meant to exclude, including link-local metadata endpoints. isPrivateIPv6 also has no case for the ::ffff: prefix, so the mapped form would still pass even if the brackets were removed. The fetch target is supplied as a tool argument, so an attacker who can influence what the model requests can read internal responses back into the model context.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80347"
-    },
-    {
-      "id": "CVE-2026-80346",
-      "published": "2026-08-26T10:16:42.637",
-      "lastModified": "2026-08-28T23:17:13.100",
-      "description": "StarRocks performs no privilege check when a legacy synchronous materialized view is dropped. Every other statement type routed through AuthorizerStmtVisitor calls into Authorizer before execution, but visitDropMaterializedViewStatement returns immediately with a comment stating the check happens in execution logic. That holds only for asynchronous materialized views: LocalMetastore.dropMaterializedView calls Authorizer.checkMaterializedViewAction inside a branch taken when the resolved table is a MaterializedView. A legacy synchronous materialized view is stored as a rollup index on an OlapTable rather than a MaterializedView, so the other branch runs, reaching AlterJobMgr.processDropMaterializedView and MaterializedViewHandler, neither of which contains any Authorizer call. The former locates the target by scanning every OlapTable in the named database for a matching rollup index, and the latter validates only table state and name conflicts. Any authenticated account can therefore drop a legacy synchronous materialized view belonging to any database, holding no grant on the view, the base table or the database, and the drop is indistinguishable from an authorized one.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80346"
-    },
-    {
-      "id": "CVE-2026-77545",
-      "published": "2026-08-26T10:16:42.407",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network, low privileges and under certain conditions could exploit an Active Debug Code vulnerability found in certain devices running UniFi OS to escalate privileges within such UniFi OS devices or instances.",
-      "score": 9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77545"
-    },
-    {
-      "id": "CVE-2026-77543",
-      "published": "2026-08-26T10:16:42.283",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network and low privileges could exploit an Improper Input Validation vulnerability found in UniFi Access Application to execute a Command Injection on the host device.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77543"
-    },
-    {
-      "id": "CVE-2026-77542",
-      "published": "2026-08-26T10:16:42.170",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network and high privileges could exploit an Improper Input Validation vulnerability found in UID Enterprise Agent to execute a Command Injection on the host device.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77542"
-    },
-    {
-      "id": "CVE-2026-77541",
-      "published": "2026-08-26T10:16:42.053",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network and high privileges could exploit an Improper Access Control vulnerability found in UniFi Network Application to escalate privileges within the UniFi Network Application.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77541"
-    },
-    {
-      "id": "CVE-2026-77540",
-      "published": "2026-08-26T10:16:41.920",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network and high privileges could exploit an Improper Input Validation vulnerability found in UniFi OS Server to execute a Command Injection on the host device.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77540"
-    },
-    {
-      "id": "CVE-2026-77539",
-      "published": "2026-08-26T10:16:41.783",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network and high privileges could exploit an Improper Input Validation vulnerability found in UniFi OS Server to execute a Command Injection on the host device.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77539"
-    },
-    {
-      "id": "CVE-2026-77538",
-      "published": "2026-08-26T10:16:41.650",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network could exploit an Improper Access Control vulnerability found in UniFi Connect Application to escalate privileges within the UniFi Connect Application.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77538"
-    },
-    {
-      "id": "CVE-2026-77537",
-      "published": "2026-08-26T10:16:41.540",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network could exploit an Improper Input Validation vulnerability found in UniFi Protect Application to execute a Command Injection on the host device.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77537"
-    },
-    {
-      "id": "CVE-2026-77536",
-      "published": "2026-08-26T10:16:41.417",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network and low privileges could exploit an Improper Access Control vulnerability found in certain devices running UniFi OS to escalate privileges within such UniFi OS devices or instances.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77536"
-    },
-    {
-      "id": "CVE-2026-77535",
-      "published": "2026-08-26T10:16:41.300",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network and high privileges could exploit an Improper Input Validation vulnerability found in UniFi Network Application to execute a Command Injection on an adopted device.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77535"
-    },
-    {
-      "id": "CVE-2026-77534",
-      "published": "2026-08-26T10:16:41.173",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network and low privileges could exploit an Improper Access Control vulnerability found in certain devices running UniFi OS to escalate privileges within such UniFi OS devices or instances.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77534"
-    },
-    {
-      "id": "CVE-2026-59683",
-      "published": "2026-08-26T10:16:41.037",
-      "lastModified": "2026-09-01T20:54:51.287",
-      "description": "The OpenRGB network protocol allows to write attacker controlled strings into arbitrary file system paths (extension of CVE-2026-59682). This allows either a full system compromise from local or remote (if the daemon is running as root) or a full account takeover (if the daemon is running in user context).",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59683"
-    },
-    {
-      "id": "CVE-2026-59682",
-      "published": "2026-08-26T10:16:40.893",
-      "lastModified": "2026-09-01T20:54:51.287",
-      "description": "Arbitrary file overwrite via SAVE_PROFILE message in OpenRGB. This issue affects OpenRGB through 1.0rc3.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59682"
-    },
-    {
-      "id": "CVE-2026-2388",
-      "published": "2026-08-26T10:16:40.447",
-      "lastModified": "2026-08-27T17:17:49.727",
-      "description": "The Reviews and Rating – Google Reviews plugin for WordPress is vulnerable to Stored Cross-Site Scripting in all versions up to, and including, 5.10. This is due to the wp_display() shortcode handler, used by multiple shortcodes, allowing attacker-controlled html_tags values to define raw HTML tags and then embedding untrusted vicinity content inside those tags. This makes it possible for authenticated attackers, with Contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-2388"
-    },
-    {
-      "id": "CVE-2026-19042",
-      "published": "2026-08-26T10:16:40.323",
-      "lastModified": "2026-09-01T20:50:58.753",
-      "description": "A command injection vulnerability in TeamViewer Full\nClient and Host for Linux prior to version 15.81.5 allows a remote attacker to\nexecute arbitrary commands in the context of the current user via a specially\ncrafted URL sent through the out-of-session chat feature. Exploitation requires\nuser interaction by clicking the malicious link.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19042"
-    },
-    {
-      "id": "CVE-2026-18794",
-      "published": "2026-08-26T10:16:40.167",
-      "lastModified": "2026-09-01T20:54:51.287",
-      "description": "The OpenRGB network protocol allows attackers to cause memory exhaustion and out-of-bounds memory reads and writes by passing inconsistent data.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18794"
-    },
-    {
-      "id": "CVE-2026-16444",
-      "published": "2026-08-26T10:16:39.940",
-      "lastModified": "2026-09-01T20:50:58.753",
-      "description": "Improper\nneutralization of path traversal sequences in TeamViewer Desktop Clients prior\nVersion 15.81.5 allows an authenticated remote session participant to write files\nto unintended locations on the local file system via file transfer or virtual\nfile clipboard mechanisms. An attacker can leverage this behavior to achieve\narbitrary file write and potentially execute code with the privileges of the\naffected user.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16444"
     }
   ]
 }
