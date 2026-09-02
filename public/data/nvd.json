@@ -1,6 +1,128 @@
 {
-  "syncedAt": "2026-09-02T13:20:26.152Z",
+  "syncedAt": "2026-09-02T14:19:40.784Z",
   "items": [
+    {
+      "id": "CVE-2026-80587",
+      "published": "2026-08-26T15:17:15.017",
+      "lastModified": "2026-08-27T13:18:41.093",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmptcp: avoid combining some incoming suboptions\n\nSome MPTCP suboptions are mutually exclusive according to the RFC8684,\nbut also because in different places, the code doesn't expect some\ncombinations to be present. That's specially true for suboptions that\nwould be present twice, but with different attributes.\n\nThe new restrictions are the same as the ones applied on the output\nside, with mptcp_write_options. The same rules can be reused with a\nsmall fix: an MP_FASTCLOSE can be used with a DSS when the sender picks\nthis option [1], which is not the case on Linux. Here are the rules:\n\n  Which options can be used together?\n\n  X: mutually exclusive\n  O: often used together\n  C: can be used together in some cases\n  P: could be used together but we prefer not to (optimisations)\n\n  | Opt: | MPC  | MPJ  | DSS  | ADD  |  RM  | PRIO | FAIL |  FC  |\n  |------|------|------|------|------|------|------|------|------|\n  | MPC  |------|------|------|------|------|------|------|------|\n  | MPJ  |  X   |------|------|------|------|------|------|------|\n  | DSS  |  X   |  X   |------|------|------|------|------|------|\n  | ADD  |  X   |  X   |  P   |------|------|------|------|------|\n  | RM   |  C   |  C   |  C   |  P   |------|------|------|------|\n  | PRIO |  X   |  C   |  C   |  C   |  C   |------|------|------|\n  | FAIL |  X   |  X   |  C   |  X   |  X   |  X   |------|------|\n  | FC   |  X   |  X   |  P   |  X   |  X   |  X   |  X   |------|\n  | RST  |  X   |  X   |  X   |  X   |  X   |  X   |  O   |  O   |\n  |------|------|------|------|------|------|------|------|------|\n\nThe only difference is with the 'P': another stack could send and\nADD_ADDR with other suboptions (DSS, RM_ADDR), and this should be\nallowed.\n\nA few points of attention:\n\n - In theory, an MP_CAPABLE could be used with a RM_ADDR, but there is\n   no reason to add it with a SYN. Note that even with a 4th ACK, it\n   doesn't seem to be useful, except when IDs are known in advance via\n   another channel. Better not to break that.\n\n - Now, combining both an MP_CAPABLE and an MP_JOIN will no longer\n   result to a reject of the two options, but only the second suboption\n   is ignored. That seems OK to do that for this unexpected error. At\n   least now all inconsistent combinations are handled the same way.\n   This could change later in next. This also means the explicit checks\n   for having both MPC + MPJ in subflow.c will now be unreachable.\n   That's fine, they will be removed in a follow-up patch.\n\n - In case of conflicting combinations, the extra suboption(s) is/are\n   ignored: having such combinations either means the remote peer is\n   buggy, or is evil. The simplest action is then taken in this case:\n   stop processing the current suboption.\n\n - In mp_opt->suboptions, there is also a bit reserved to the checksum,\n   which can be used in an MP_CAPABLE and a DSS. Each time a DSS option\n   can be used in parallel with another option, the checksum can be set,\n   so the verification is combined into a new OPTIONS_MPTCP_DSS macro.\n\n - An MP_CAPABLE ACK can carry a Data-Level Length, and an optional\n   Checksum: they are the same as the ones found in a DSS, because a DSS\n   cannot be used in parallel to an MP_CAPABLE. Similarly, even if there\n   is room, a DSS cannot be used with an MP_JOIN.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80587"
+    },
+    {
+      "id": "CVE-2026-80586",
+      "published": "2026-08-26T15:17:14.873",
+      "lastModified": "2026-08-27T06:17:45.700",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmptcp: options: reset DSS fields in case of unexpected size\n\nA remote peer could send a malformed DSS with a wrong size, followed by\nanother DSS or MPC + Data. In this case, the first suboption will be\nignored, but leaving some fields written, which could lead to\ninconsistency or access uninitialized data.\n\nExplicitly reset the fields that could have been modified in case of\nunexpected size.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80586"
+    },
+    {
+      "id": "CVE-2026-80585",
+      "published": "2026-08-26T15:17:14.750",
+      "lastModified": "2026-08-27T06:17:45.397",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmptcp: fastopen: only mark MPTFO subflows with SYN data\n\nPassive TCP Fast Open accepts a valid-cookie SYN even when it carries\nno data. In that case the child socket's receive queue is intentionally\nleft empty.\n\nmptcp_fastopen_subflow_synack_set_params() set is_mptfo before checking\nfor queued SYN data. That made data-less TFO SYNs hit a WARN and, if\nthe warning was non-fatal, left stale MPTFO state behind. The stale\nflag could later trigger a state-confusion bug in\ncheck_fully_established().\n\nOnly mark the subflow as MPTFO after confirming that an SKB was queued.\nReturn quietly when the receive queue is empty.\n\nNote that mptcp_subflow_context's is_mptfo field is now not just about\nsubflows where the TFO was present, but about MPTFO subflow that\nconsumed SYN data. Only having a valid cookie but not carrying data is\nnot really \"doing TFO\".",
+      "score": 9.4,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80585"
+    },
+    {
+      "id": "CVE-2026-80584",
+      "published": "2026-08-26T15:17:14.577",
+      "lastModified": "2026-08-27T06:17:45.070",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ns390/qeth: validate user buffer length in SNMP and ARP query ioctls\n\nqeth_snmp_command() and qeth_l3_arp_query() allocate a buffer sized by\na user-supplied length (udata_len) without checking a lower bound, then\nset udata_offset to a fixed non-zero value and pass both to a reply\ncallback. The callback bounds-checks the copy with\n\n        if ((udata_len - udata_offset) < len)\n\nBoth fields are u32, so a udata_len smaller than udata_offset makes the\nsubtraction wrap and the check pass, and the following memcpy() writes\npast the allocation. A udata_len of 0 also yields ZERO_SIZE_PTR from\nkzalloc(), which the existing NULL check does not catch.\n\nReject buffers smaller than udata_offset before allocating, so the\ncallback subtraction can no longer underflow.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80584"
+    },
+    {
+      "id": "CVE-2026-80583",
+      "published": "2026-08-26T15:17:14.437",
+      "lastModified": "2026-08-27T13:18:40.937",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nASoC: codecs: lpass-tx-macro: Fix enum kcontrol accesses\n\nThe \"DEC0 MODE\" to \"DEC7 MODE\" controls are enumerated, but\ntx_macro_dec_mode_get() and tx_macro_dec_mode_put() access their\nvalue through ucontrol->value.integer.value[0] (a long) instead of\nucontrol->value.enumerated.item[0] (an unsigned int).\n\nThis same pattern was fixed in the sibling drivers by\ncommit bcfe5f76cc40 (\"ASoC: codecs: rx-macro: fix accessing array\nout of bounds for enum type\") and\ncommit 0ea5eff7c606 (\"ASoC: codecs: va-macro: fix accessing array\nout of bounds for enum type\"), but tx-macro was missed.\n\nOn 64-bit kernels built with CONFIG_SND_CTL_DEBUG, the elem value\nsanity check catches the 4 bytes written past the enumerated item\nand every read of these controls fails with -EINVAL:\n\n  snd-sm8250 sound: control 2:0:0:DEC0 MODE:0: access overflow",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80583"
+    },
+    {
+      "id": "CVE-2026-80582",
+      "published": "2026-08-26T15:17:14.337",
+      "lastModified": "2026-08-27T06:17:44.570",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/shmem_helper: Check VMA boundaries for PMD mappings\n\nIn the ->huge_fault handler do not install a PMD huge page\nmapping if the huge page exceeds the boundaries of the VMA.\n\nAll other ->huge_fault handlers have similar checks and the\nresulting mapping will trigger a VM_BUG_ON_VMA() if it ever\nreaches copy_pmd_range().",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80582"
+    },
+    {
+      "id": "CVE-2026-80581",
+      "published": "2026-08-26T15:17:14.220",
+      "lastModified": "2026-08-27T13:18:40.823",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nASoC: SOF: ipc4-pcm: Continue the pipeline trigger in case of IPC timeout\n\nIgnore IPC errors for pipeline state change if the firmware state is\ncrashed or the IPC has timed out.\n\nIf the firmware has crashed the kernel still needs to go through the state\nchanges to reset its internal to be able to correctly work the next time\nthe DSP is booted up.\n\nThe case with IPC timeout is a bit more problematic, but it has been\nrootcaused to be the result of system scheduling blockage and the firmware\ndid actually received and handled the message, but the reply handling got\nblocked by issues outside of the SOF stack.\nSo far the best way to handle this is to continue with setting the state.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80581"
+    },
+    {
+      "id": "CVE-2026-80580",
+      "published": "2026-08-26T15:17:14.103",
+      "lastModified": "2026-08-27T06:17:44.300",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfbdev: bound mode sysfs output to the sysfs buffer\n\nmode_string() uses snprintf() which can return a value larger than the\nremaining buffer space. show_modes() accumulates the return value into i\nwithout checking whether i has reached PAGE_SIZE, causing the offset to\nadvance past the sysfs buffer if the modelist is long enough.\n\nAdd a size parameter to mode_string() and use scnprintf() to return\nonly the bytes actually written. Add an early return when offset\nalready exceeds the buffer. In show_modes(), stop accumulating once\nthe buffer is full.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80580"
+    },
+    {
+      "id": "CVE-2026-80579",
+      "published": "2026-08-26T15:17:14.007",
+      "lastModified": "2026-08-27T06:17:44.093",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfbdev: clear fb_info->mode before deleting a videomode\n\nfb_set_var() can delete a mode from info->modelist when userspace\npasses FB_ACTIVATE_INV_MODE through FBIOPUT_VSCREENINFO. The code\nchecks that the mode being deleted is not the current info->var and\nthat fbcon is not using it, but it does not check fb_info->mode.\n\nfb_info->mode may still point into the modelist entry being deleted.\nIf the entry is freed, later mode sysfs reads through show_mode() can\ndereference a stale pointer.\n\nClear fb_info->mode before calling fb_delete_videomode() when it\nmatches the mode being removed.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80579"
+    },
+    {
+      "id": "CVE-2026-80578",
+      "published": "2026-08-26T15:17:13.880",
+      "lastModified": "2026-08-27T06:17:43.823",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfbdev: core: Fix pointer desynchronization in fb_io_read()\n\nIn fb_io_read(), if copy_to_user() performs a partial copy (e.g., due to\na faulty user buffer), the loop adjusts the chunk size 'c' and updates\nthe remaining 'count'. However, the hardware 'src' pointer has already\nbeen eagerly advanced by the original chunk size.\n\nIf the loop is allowed to continue, the read will resume from an\nincorrect, over-advanced offset. Since the remaining 'count' was only\ndecremented by the successful bytes, this desynchronization causes the\nnext iterations to execute more hardware reads than originally bounded,\neventually leading to out-of-bounds I/O reads.\n\nFix this by breaking out of the loop immediately upon a partial\ncopy_to_user(). A partial copy indicates a faulty user buffer, making\nsubsequent read attempts futile. Breaking out ensures we return the\nnumber of successfully read bytes without risking out-of-bounds hardware\naccesses in subsequent mismatched iterations.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80578"
+    },
+    {
+      "id": "CVE-2026-80577",
+      "published": "2026-08-26T15:17:13.763",
+      "lastModified": "2026-08-26T15:17:13.763",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/panthor: skip zero-sized firmware sections\n\npanthor_fw_load_section_entry() skips BO creation when the firmware section\nVA range is empty. If such a section is added to the firmware section list,\nsection->mem is left as NULL.\n\nLater reload and unplug paths iterate over all firmware sections and\ndereference section->mem, which can lead to a NULL pointer dereference.\n\nZero-sized firmware sections are valid, so accept them as no-op entries but\nskip adding them to the section list.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80577"
+    },
+    {
+      "id": "CVE-2026-80576",
+      "published": "2026-08-26T15:17:13.653",
+      "lastModified": "2026-08-27T06:17:43.533",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amdgpu: reject oversized IBs with per-ring packet limits\n\nOn GFX rings, amdgpu_cs_p2_ib() passed user-supplied ib_bytes through\nto ib->length_dw without a limit, while ring_emit_ib() encodes length\ninto packet fields. Oversized values can corrupt adjacent control bits\nand destabilize command submission.\n\nAdd a per-ring IB packet size limit helper and reject command\nsubmissions exceeding the corresponding dword limit before IB\nallocation. Use the documented 20-bit limit for GFX/compute/SDMA/VPE,\nand apply the MM fallback limit for other ring types.\n\n(cherry picked from commit 7f48fa2cf62e3fa6c9c3870aa74988f773247e52)",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80576"
+    },
+    {
+      "id": "CVE-2026-80575",
+      "published": "2026-08-26T15:17:13.530",
+      "lastModified": "2026-08-27T06:17:43.243",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nInput: cs40l50-vibra - validate custom data from user space\n\ncs40l50_add() copies the custom data of an FF_PERIODIC/FF_CUSTOM effect\nstraight from the ff_effect the user passed to EVIOCSFF, without\nrequiring it to hold anything:\n\n    work_data.custom_data = memdup_array_user(periodic->custom_data,\n                                              periodic->custom_len,\n                                              sizeof(s16));\n    work_data.custom_len = periodic->custom_len;\n\nThe driver then reads two words out of that buffer: custom_data[0] as the\nwaveform bank in cs40l50_effect_bank_set(), and custom_data[1] as the\nindex within the bank in cs40l50_effect_index_set().  Neither read is\ncovered by a length check, and custom_len is fully user controlled:\n\n  - custom_len == 0 makes memdup_array_user() call memdup_user() with a\n    length of zero, which returns ZERO_SIZE_PTR rather than an error, so\n    custom_data[0] dereferences it.\n\n  - custom_len == 1 allocates two bytes.  A bank of ROM or RAM keeps\n    effect->type out of the OWT case, and custom_data[1] is then read one\n    word past the allocation.\n\nThe bank value itself is also mishandled.  It is masked with\nCS40L50_CUSTOM_DATA_MASK (0xffff) but stored in an s16, so a\ncustom_data[0] of 0x8000 or above wraps to a negative value that passes\nthe \"bank_type >= CS40L50_WVFRM_BANK_NUM\" test.\ncs40l50_effect_index_set() indexes vib->dsp.banks[] with it before the\nswitch statement's default case gets a chance to reject it:\n\n    base_index = vib->dsp.banks[effect->type].base_index;\n    max_index = vib->dsp.banks[effect->type].max_index;\n\nRequire the two words the driver reads to be present, and hold the masked\nbank in a u32 so the existing upper-bound test covers the whole range.\nThe da7280 haptic driver already range checks custom_len this way.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80575"
+    },
+    {
+      "id": "CVE-2026-80574",
+      "published": "2026-08-26T15:17:13.393",
+      "lastModified": "2026-08-27T06:17:43.003",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nInput: focaltech - fix array out-of-bounds in focaltech_process_rel_packet\n\nMake finger2 (and also finger1) unsigned, so that if the finger index in\nthe packet is 0 then subtracting 1 creates an array index which overflows\nabove the existing check for FOC_MAX_FINGERS, as the existing comment says\nit should, instead of writing to state->fingers[-1].",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80574"
+    },
     {
       "id": "CVE-2026-80573",
       "published": "2026-08-26T15:17:13.253",
@@ -728,132 +850,6 @@
       "score": 3.1,
       "severity": "LOW",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13479"
-    },
-    {
-      "id": "CVE-2026-7487",
-      "published": "2026-08-26T14:17:16.570",
-      "lastModified": "2026-08-31T15:43:30.173",
-      "description": "GitLab has remediated an issue in GitLab EE affecting all versions from 13.1 before 19.1.7, 19.2 before 19.2.5, and 19.3 before 19.3.1 that, under certain conditions, an authenticated user with reporter-role permissions who authored a merge request could have reset merge request approval rules due to improper authorization checks.",
-      "score": 3.5,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7487"
-    },
-    {
-      "id": "CVE-2026-79902",
-      "published": "2026-08-26T14:17:16.430",
-      "lastModified": "2026-09-01T14:18:08.680",
-      "description": "A flaw was found in the Seattle FilmWorks plugin in GIMP. When processing a specially crafted SFW image file, the plugin allocates a Variable-Length Array (VLA) on the stack without integer overflow checks, causing an unbounded stack allocation. This issue leads to an application crash, resulting in a denial of service.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79902"
-    },
-    {
-      "id": "CVE-2026-77801",
-      "published": "2026-08-26T14:17:15.757",
-      "lastModified": "2026-08-31T15:42:30.373",
-      "description": "GitLab has remediated an issue in GitLab CE/EE affecting all versions from 12.8 before 19.1.7, 19.2 before 19.2.5, and 19.3 before 19.3.1 that, under certain conditions, could have allowed an authenticated user to cause a denial of service affecting background job processing, due to missing object count limits.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77801"
-    },
-    {
-      "id": "CVE-2026-75960",
-      "published": "2026-08-26T14:17:13.220",
-      "lastModified": "2026-08-26T18:17:01.453",
-      "description": "Rently Smart Home versions 20.1.0 and prior are vulnerable to an Insufficiently Protected Credentials vulnerability. This could allow an attacker to retrieve pins including the Master Pin, overriding standard user permissions.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75960"
-    },
-    {
-      "id": "CVE-2026-75896",
-      "published": "2026-08-26T14:17:13.080",
-      "lastModified": "2026-08-26T18:17:01.010",
-      "description": "Use of Hard-coded Credentials vulnerability in TÜBİTAK BİLGEM Software Technologies Research Institute Liderahenk allows Try Common or Default Usernames and Passwords.\n\nThis issue affects Liderahenk: before 3.5.5.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75896"
-    },
-    {
-      "id": "CVE-2026-73108",
-      "published": "2026-08-26T14:17:12.830",
-      "lastModified": "2026-08-28T23:17:11.710",
-      "description": "RustDesk versions before 1.4.7 contain an uncontrolled speculative memory allocation vulnerability in BytesCodec. Before authentication, the decoder trusts the payload length encoded in a four-byte frame header and reserves that amount before receiving the payload. A crafted header can request up to 1,073,741,823 bytes of capacity, allowing unauthenticated attackers to use concurrent TCP connections to cause memory exhaustion and denial of service. The fix caps header-triggered speculative preallocation at 256 KiB.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73108"
-    },
-    {
-      "id": "CVE-2026-73102",
-      "published": "2026-08-26T14:17:12.667",
-      "lastModified": "2026-08-26T14:17:12.667",
-      "description": "RustDesk versions 1.3.9 through 1.4.9 contain a path traversal vulnerability in the macOS clipboard file-paste code path. The application accepts peer-supplied file descriptor names and joins them to the selected target directory without requiring normalized relative paths. A remote peer in an active clipboard file-paste session can use parent-directory components or absolute paths to write files outside the intended target directory at locations writable by the RustDesk process. Commit 6f1eb16 fixes the issue by validating descriptor names and safely joining paths.",
-      "score": 5.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73102"
-    },
-    {
-      "id": "CVE-2026-3035",
-      "published": "2026-08-26T14:17:10.680",
-      "lastModified": "2026-08-31T15:42:23.067",
-      "description": "GitLab has remediated an issue in GitLab EE affecting all versions from 11.3 before 19.1.7, 19.2 before 19.2.5, and 19.3 before 19.3.1 that, under certain conditions, an authenticated user with project Maintainer permissions could have accessed the terminal of a protected environment they were not authorized to use due to improper authorization checks.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-3035"
-    },
-    {
-      "id": "CVE-2026-19271",
-      "published": "2026-08-26T14:17:08.500",
-      "lastModified": "2026-08-26T16:51:19.490",
-      "description": "Improper Neutralization of Special Elements used in an LDAP Query ('LDAP Injection') vulnerability in TÜBİTAK BİLGEM Software Technologies Research Institute Liderahenk allows LDAP Injection.\n\nThis issue affects Liderahenk: from 3.4.0 before 3.5.5.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19271"
-    },
-    {
-      "id": "CVE-2026-18252",
-      "published": "2026-08-26T14:17:08.000",
-      "lastModified": "2026-08-31T15:42:04.433",
-      "description": "GitLab has remediated an issue in GitLab EE affecting all versions from 18.9 before 19.1.7, 19.2 before 19.2.5, and 19.3 before 19.3.1 that, under certain conditions, an authenticated user with developer-role permissions could have executed arbitrary commands in a CI context, due to the Claude agent processing configuration from a user-controlled source.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18252"
-    },
-    {
-      "id": "CVE-2026-15990",
-      "published": "2026-08-26T14:17:07.707",
-      "lastModified": "2026-08-27T17:17:14.017",
-      "description": "The Formidable Charts plugin for WordPress is vulnerable to Directory Traversal in all versions up to, and including, 2.0.1 via the 'frm_graph' parameter. This makes it possible for unauthenticated attackers to read the contents of arbitrary files on the server, which can contain sensitive information. Successful exploitation requires Formidable Forms Lite, Formidable Forms Pro, and Formidable Charts to be active and requires the wp-content/uploads/frm-charts/ directory to exist, normally after an image-format chart is rendered.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15990"
-    },
-    {
-      "id": "CVE-2026-15387",
-      "published": "2026-08-26T14:17:07.540",
-      "lastModified": "2026-08-31T15:41:20.753",
-      "description": "GitLab has remediated an issue in GitLab EE affecting all versions from 19.1 before 19.1.7, 19.2 before 19.2.5, and 19.3 before 19.3.1 that, under certain conditions, an authenticated user with developer-role permissions could have influenced the execution environment of Pipeline Execution Policy enforcement jobs, due to improper handling of job dependencies.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15387"
-    },
-    {
-      "id": "CVE-2026-12717",
-      "published": "2026-08-26T14:17:07.250",
-      "lastModified": "2026-08-31T18:50:00.053",
-      "description": "An Improper Input Validation vulnerability in CData JDBC driver integration in Google Cloud BigQuery Data Transfer Service versions prior to 2026-05-01 on Google Cloud Platform allows an authenticated attacker to achieve remote code execution in the connector container and escalate privileges in the tenant project using crafted JDBC connection string parameters.\n\n\nThis vulnerability was patched on 1 May 2026, and no customer action is needed.",
-      "score": 9.4,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12717"
-    },
-    {
-      "id": "CVE-2025-10903",
-      "published": "2026-08-26T14:17:06.597",
-      "lastModified": "2026-08-31T15:41:10.070",
-      "description": "GitLab has remediated an issue in GitLab EE affecting all versions from 11.10 before 19.1.7, 19.2 before 19.2.5, and 19.3 before 19.3.1 that, under certain conditions, an authenticated user could have caused denial of service, due to an unbounded loop triggered by specially crafted input in the SCIM user provisioning feature.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-10903"
     }
   ]
 }
