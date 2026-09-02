@@ -1,6 +1,29 @@
 {
-  "syncedAt": "2026-09-02T12:49:22.954Z",
+  "syncedAt": "2026-09-02T13:20:26.152Z",
   "items": [
+    {
+      "id": "CVE-2026-80573",
+      "published": "2026-08-26T15:17:13.253",
+      "lastModified": "2026-08-27T06:17:42.820",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nInput: iforce - validate input packet lengths\n\niforce_process_packet() reads fixed fields from joystick, wheel and\nstatus packets without first checking their lengths. In particular, the\nshared hats-and-buttons helper unconditionally reads data[6]. The status\ntail is a sequence of 16-bit effect addresses, but an incomplete final\naddress is also consumed. A successful zero-length USB URB additionally\nreads the packet ID before the common parser is called.\n\nReject the zero-length USB transfer, require the seven-byte joystick and\nwheel prefixes and the two-byte status prefix, and consume only complete\nstatus-tail addresses.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80573"
+    },
+    {
+      "id": "CVE-2026-80572",
+      "published": "2026-08-26T15:17:13.140",
+      "lastModified": "2026-08-27T13:18:40.680",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nInput: byd - synchronize timer deletion before freeing private data\n\nbyd_disconnect() uses timer_delete() before freeing the driver's private\ndata.  This does not wait for a running byd_clear_touch() callback, which\ndereferences the private data and its psmouse pointer.  A callback racing\nwith disconnect can therefore access the private data after it has been\nfreed.  The timer can also still be re-armed by byd_process_byte() while\nthe disconnect is in progress.\n\nUse timer_shutdown_sync() before freeing the private data: it waits for\na running callback and turns any later re-arm attempt into a no-op.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80572"
+    },
+    {
+      "id": "CVE-2026-80571",
+      "published": "2026-08-26T15:17:13.020",
+      "lastModified": "2026-08-26T15:17:13.020",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\npowerpc/pseries: papr-phy-attest - validate cmd.length, plug mem leak\n\nIn papr_phy_attest_create_handle(), the params->cmd.length is not\nvalidated before use, which can result in a buffer overlow.  Check it and\nreturn -EINVAL if it is either 0 or exceeds sizeof(params->cmd).\n\nAlso, params is freed on the success path but not error. Free it on\nerrors after memory allocation.  And free it on negative fd.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80571"
+    },
     {
       "id": "CVE-2026-80570",
       "published": "2026-08-26T15:17:12.880",
@@ -458,7 +481,7 @@
     {
       "id": "CVE-2026-74753",
       "published": "2026-08-26T15:16:54.387",
-      "lastModified": "2026-08-27T06:17:26.637",
+      "lastModified": "2026-09-02T13:18:10.493",
       "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nperf: Reject exited events as group leaders\n\nperf_event_remove_on_exec() sets remove-on-exec events to the EXIT state\nand detaches their group relationships.  The event's file descriptor can\nremain open, however, and perf_event_open() currently accepts that event\nas a group leader because its early validation rejects only REVOKED and\nDEAD events.\n\nA new sibling can consequently be linked to the detached leader.  When\nthe leader is closed, perf_group_detach() observes that its\nPERF_ATTACH_GROUP bit is already clear and skips the new sibling.  The\nsibling then retains a group_leader pointer to the freed event.\n\nReject group leaders in the EXIT state.  Perform the check while holding\nthe shared context mutex so that an exec in the target task cannot detach\nthe leader between validation and group attachment.\n\n[peterz: make the earlier test fully consistent]",
       "score": 7.8,
       "severity": "HIGH",
@@ -831,33 +854,6 @@
       "score": 6.5,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-10903"
-    },
-    {
-      "id": "CVE-2026-79619",
-      "published": "2026-08-26T13:19:24.003",
-      "lastModified": "2026-08-28T15:24:38.600",
-      "description": "On Linux, several OpenZFS ioctl authorization checks accept a capability held only within a user-created, unprivileged namespace as equivalent to real host privilege, allowing an unprivileged local user to perform operations that should require root. Affected operations include pool-administrative operations (eg create, import, destroy), pool event log access (zpool events) and fault injection (zinject). Exploiting the problem requires only that the local user is permitted to open /dev/zfs (governed by local device permissions) and that the kernel permits unprivileged user namespace creation. No prior access to the target pool or its underlying devices is needed.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79619"
-    },
-    {
-      "id": "CVE-2026-77658",
-      "published": "2026-08-26T13:19:22.043",
-      "lastModified": "2026-08-28T15:44:39.323",
-      "description": "A stack-based buffer overflow vulnerability exists in the Dia diagram editor when processing Network Bus objects from Dia XML project files.\n\nIn objects/network/bus.c, bus_load() reads the number of bus handles from the file attribute \"bus_handles\" using attribute_num_data() without validating an upper bound:\n\n    bus->num_handles = attribute_num_data(attr);\n\nWhen a bus handle is subsequently moved, bus_handle_moved() allocates two temporary arrays on the stack:\n\n    parallel = (real *)g_alloca(num_handles * sizeof(real));\n    perp = (real *)g_alloca(num_handles * sizeof(real));\n\nBecause num_handles is fully attacker-controlled via the project file, sufficiently large values (for example 262144 or higher) cause g_alloca() to consume more stack space than the default thread stack limit (typically 8 MB on Linux), resulting in stack overflow, SIGSEGV, and potential stack frame / return-address corruption.\n\nAn attacker can embed a Bus object with an excessive bus_handles count in a malicious .dia file. Exploitation requires the victim to open the file in Dia (file dialog, command line, or file association) and trigger handle manipulation (moving a bus handle), which exercises the vulnerable code path.\n\nThe identical g_alloca pattern is present in objects/Misc/tree.c (copied from bus.c) and is likely vulnerable to the same class of attack via Tree objects.\n\nAffected versions: Dia 0.98.0 and earlier versions containing this code; issue confirmed on upstream master as of 2026-08-21.\nUpstream report: https://gitlab.gnome.org/GNOME/dia/-/issues/581",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77658"
-    },
-    {
-      "id": "CVE-2026-12587",
-      "published": "2026-08-26T13:17:45.663",
-      "lastModified": "2026-08-28T18:58:47.740",
-      "description": "The vulnerability allows the unauthorised generation of physical access QR codes due to the use of hard-coded credentials within the application. The generation mechanism uses the 'badge_number' parameter as the HMAC private key, the value of which remains static and is accessible via the API using the endpoint '/club/_id_club_/member/_id_member_/resamania_qr_info'. An attacker with access to this value and to the application’s cryptographic logic, which can be extracted by reverse engineering the APK as there is no code obfuscation, could generate valid QR codes indefinitely, even after the user has changed their password or logged out.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12587"
     }
   ]
 }
