@@ -1,6 +1,56 @@
 {
-  "syncedAt": "2026-09-02T07:44:52.031Z",
+  "syncedAt": "2026-09-02T08:21:21.149Z",
   "items": [
+    {
+      "id": "CVE-2026-74754",
+      "published": "2026-08-26T15:16:54.500",
+      "lastModified": "2026-08-26T15:16:54.500",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: core: pair EH runtime PM get and put\n\nshost->eh_noresume is currently consulted twice in one error handling\niteration: once before scsi_autopm_get_host() and once again before\nscsi_autopm_put_host().\n\nThat is racy when a PM-triggered error path flips shost->eh_noresume\nwhile the SCSI EH thread is still running.\n\nThe problem flow looks like this:\nPM path\n  ufshcd_set_dev_pwr_mode()\n    shost->eh_noresume = 1\n    ufshcd_execute_start_stop  <-- trigger EH\n    ...\n    shost->eh_noresume = 0\n\nEH path\n  scsi_error_handler()\n    if (!shost->eh_noresume)\n      scsi_autopm_get_host()  <-- skipped\n    ...\n    if (!shost->eh_noresume)\n       scsi_autopm_put_host()  <-- executed later\n\nIn that case one EH iteration can skip autoresume on entry and still\ndrop a runtime PM reference on exit. That leaves an unmatched runtime PM\nput and can trigger a runtime PM usage count underflow.\n\nFix this by making eh_noresume a regular bool so it can be accessed with\nREAD_ONCE() and WRITE_ONCE(). Snapshot it once per EH iteration and use\nthat snapshot for both runtime PM get and put decisions.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74754"
+    },
+    {
+      "id": "CVE-2026-74753",
+      "published": "2026-08-26T15:16:54.387",
+      "lastModified": "2026-08-27T06:17:26.637",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nperf: Reject exited events as group leaders\n\nperf_event_remove_on_exec() sets remove-on-exec events to the EXIT state\nand detaches their group relationships.  The event's file descriptor can\nremain open, however, and perf_event_open() currently accepts that event\nas a group leader because its early validation rejects only REVOKED and\nDEAD events.\n\nA new sibling can consequently be linked to the detached leader.  When\nthe leader is closed, perf_group_detach() observes that its\nPERF_ATTACH_GROUP bit is already clear and skips the new sibling.  The\nsibling then retains a group_leader pointer to the freed event.\n\nReject group leaders in the EXIT state.  Perform the check while holding\nthe shared context mutex so that an exec in the target task cannot detach\nthe leader between validation and group attachment.\n\n[peterz: make the earlier test fully consistent]",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74753"
+    },
+    {
+      "id": "CVE-2026-74752",
+      "published": "2026-08-26T15:16:54.270",
+      "lastModified": "2026-08-27T06:17:26.440",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsctp: validate cookie AUTH state before use\n\nWhen cookie authentication is disabled, COOKIE_ECHO restores fixed-size\nAUTH fields directly from peer-controlled cookie bytes.  A forged RANDOM\nlength, HMAC list, or CHUNKS list can then reach association consumers\nwith lengths or identifiers that were never validated against the local\nbacking arrays.\n\nA forged RANDOM length can cause out-of-bounds reads during key-vector\nconstruction.  A forged HMAC identifier also caused a 32-byte write past\na zero-length AUTH chunk, providing a primitive for a local privilege\nescalation chain.\n\nValidate the cookie's RANDOM, HMACS, and CHUNKS parameters at the cookie\ntrust boundary before copying them into the association.  Reject invalid\ntypes, malformed lengths, unsupported HMAC identifiers, HMAC lists\nwithout SHA1, and forbidden chunk ids.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74752"
+    },
+    {
+      "id": "CVE-2026-74751",
+      "published": "2026-08-26T15:16:54.160",
+      "lastModified": "2026-08-27T06:17:26.247",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nriscv: lib: Fix ZBB strnlen reading past count boundary\n\nThe ZBB-optimized strnlen loop loads one word ahead before checking the\naligned boundary:\n\n    REG_L   t1, SZREG(t0)       // load next word\n    addi    t0, t0, SZREG       // advance\n    orc.b   t1, t1\n    bgeu    t0, t4, 4f          // boundary check AFTER load\n\nwhere t4 = (s + count) & -SZREG.  When s is aligned and count is a\nmultiple of SZREG, t4 equals s + count and the loop loads a full word\nstarting at exactly s + count.  If s + count falls on a page boundary\nwith the next page unmapped, this faults.\n\nFix by computing the aligned boundary from the last valid byte\n(s + count - 1) instead of s + count.  This makes the loop stop at the\nword containing the last valid byte rather than potentially loading the\nword after it.  The count == 0 case is already handled by the beqz\nearly exit.\n\nAlso add a pre-loop guard (bgeu t0, t4) for the case where all valid\nbytes fit within the first word.  With the adjusted boundary, t4 can\nequal t0, and entering the loop with stale register state from the\nfirst-word processing would produce incorrect results.\n\nThe final minu clamp ensures the result is still correct when the last\nloaded word extends past s + count - 1 within the same aligned word.",
+      "score": 9.4,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74751"
+    },
+    {
+      "id": "CVE-2026-74750",
+      "published": "2026-08-26T15:16:54.050",
+      "lastModified": "2026-08-27T06:17:26.000",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\novpn: defer key slot crypto freeing to workqueue\n\nKey slots are released through a kref and the existing release path\nfrees the AEAD transforms from an RCU callback. That is not safe for all\ncrypto implementations: crypto_free_aead can sleep, for example when an\nasync or hardware implementation has teardown work to complete.\n\nUse queue_rcu_work for key-slot release. This keeps the RCU grace period\nneeded by lockless key-slot readers, but runs the actual crypto teardown\nfrom workqueue context where sleeping is allowed. Once the rcu_work\ncallback runs, pre-existing RCU readers are gone, and the final kref put\nalready proves that no transform user remains, so the worker can release\nthe AEAD transforms and free the slot directly.\n\nThe previous patch drains ovpn_wq during module exit, so queued key-slot\nteardown work cannot outlive module text.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74750"
+    },
+    {
+      "id": "CVE-2026-74749",
+      "published": "2026-08-26T15:16:53.933",
+      "lastModified": "2026-08-26T15:16:53.933",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nrseq: Prevent hard lockup on granted time slice extension\n\n__exit_to_user_mode_loop() invokes rseq_grant_timeslice_extension() with\ninterrupts enabled. If the extension is granted it invokes\nhrtimer_rearm_deferred_tif() to ensure that a pending deferred hrtimer\nrearm is handled before exiting to user space.\n\nThough this invokes __hrtimer_rearm_deferred() which expects to be invoked\nwith interrupts disabled as it takes hrtimer_cpu_base::lock with\nraw_spin_lock(). That's a livelock waiting to happen and caught by lockdep:\n\n    WARNING: ./include/linux/hrtimer_rearm.h:17 at irqentry_exit, CPU#1: slice_test\n    WARNING: inconsistent lock state\n    inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.\n\nPrevent this by disabling interrupts around the invocation of\nhrtimer_rearm_deferred_tif() in rseq_grant_timeslice_extension().\n\n[ tglx: Massaged change log ]",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74749"
+    },
     {
       "id": "CVE-2026-74748",
       "published": "2026-08-26T15:16:53.770",
@@ -838,60 +888,6 @@
       "score": 8.2,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18664"
-    },
-    {
-      "id": "CVE-2026-9668",
-      "published": "2026-08-26T08:16:46.830",
-      "lastModified": "2026-08-26T16:55:49.920",
-      "description": "With legitimate user credentials in hand, attackers can construct malicious SQL statements to bypass authentication logic and execute arbitrary database queries directly. This will consequently lead to slow database queries and expanded query coverage. This vulnerability features a low exploitation threshold, wide scope of impact, requires no external privilege escalation, and is classified as a high-priority fix.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-9668"
-    },
-    {
-      "id": "CVE-2026-78237",
-      "published": "2026-08-26T08:16:46.720",
-      "lastModified": "2026-08-26T14:17:16.007",
-      "description": "Insufficient input validation in ABR allows a low-privileged user to inject malicious entries into the sudoers file, resulting in persistent root access that remained effective after the ABR session ended.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78237"
-    },
-    {
-      "id": "CVE-2026-78236",
-      "published": "2026-08-26T08:16:46.600",
-      "lastModified": "2026-08-26T14:17:15.887",
-      "description": "An insecure PIN derivation mechanism in ABR allows a low-privileged user to escalate privileges to administrator by communicating over Cross-Process Communication (XPC) while masquerading as an Apple-signed process.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78236"
-    },
-    {
-      "id": "CVE-2026-75977",
-      "published": "2026-08-26T08:16:46.383",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "The Mang Board WP plugin for WordPress is vulnerable to Missing Authorization via Authentication Cookie Forgery in all versions up to, and including, 2.3.7. This is due to flawed HMAC generation in the mbw_get_hash_key() function that uses the current user's identity instead of the cookie username parameter when a WordPress user is logged in, combined with insufficient validation in mbw_validate_auth_cookie(). This makes it possible for authenticated attackers, with subscriber-level access and above, to forge administrator authentication cookies and change administrator passwords to achieve complete site takeover.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75977"
-    },
-    {
-      "id": "CVE-2026-6178",
-      "published": "2026-08-26T08:16:45.783",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "The Betheme theme for WordPress is vulnerable to Stored Cross-Site Scripting via the theme's 'icon_box_2' shortcode in all versions up to, and including, 28.4 due to insufficient input sanitization and output escaping on user supplied attributes. This makes it possible for authenticated attackers, with contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-6178"
-    },
-    {
-      "id": "CVE-2026-18884",
-      "published": "2026-08-26T08:16:44.660",
-      "lastModified": "2026-08-26T20:17:09.153",
-      "description": "The WooCommerce Lottery plugin for WordPress is vulnerable to Time-Based SQL Injection via 'orderby' and 'order' GET Parameters in all versions up to, and including, 2.2.9 due to insufficient escaping on the user supplied parameter and lack of sufficient preparation on the existing SQL query. This makes it possible for unauthenticated attackers to append additional SQL queries into already existing queries that can be used to extract sensitive information from the database.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18884"
     }
   ]
 }
