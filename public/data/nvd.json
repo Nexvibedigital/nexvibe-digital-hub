@@ -1,6 +1,158 @@
 {
-  "syncedAt": "2026-09-02T10:45:20.841Z",
+  "syncedAt": "2026-09-02T11:19:47.010Z",
   "items": [
+    {
+      "id": "CVE-2026-80568",
+      "published": "2026-08-26T15:17:12.303",
+      "lastModified": "2026-08-27T06:17:41.767",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nInput: synaptics-rmi4 - block s_input when F54 queue is busy\n\nChanging the input (diagnostic report type) mid-stream changes the\nreport size. Since V4L2 buffers are allocated based on the size at\nstream start, changing the input while streaming could lead to a\nheap buffer overflow if the new size is larger than the allocated\nbuffers.\n\nPrevent this by blocking VIDIOC_S_INPUT with -EBUSY if the V4L2 queue\nis busy (streaming).",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80568"
+    },
+    {
+      "id": "CVE-2026-80567",
+      "published": "2026-08-26T15:17:12.140",
+      "lastModified": "2026-08-26T15:17:12.140",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nInput: synaptics-rmi4 - propagate F54 worker errors to V4L2 queue\n\nPreviously, rmi_f54_buffer_queue() waited for the worker thread to\nfinish but ignored whether it succeeded. If the worker failed (e.g.,\ndue to a timeout or register read failure), the queue thread would\nsilently return success, delivering stale or uninitialized memory to\nuserspace.\n\nAdd a 'report_error' field to struct f54_data to store the worker's exit\nstatus. Check this field in rmi_f54_buffer_queue() after the worker\nfinishes, and mark the buffer as VB2_BUF_STATE_ERROR if an error\noccurred.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80567"
+    },
+    {
+      "id": "CVE-2026-80566",
+      "published": "2026-08-26T15:17:11.727",
+      "lastModified": "2026-08-26T15:17:11.727",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nInput: hynitron_cstxxx - validate touch count and finger IDs\n\nThe driver allocates max_touch_num input slots, which are indexed from\nzero through max_touch_num - 1. The current check allows a finger ID\nequal to max_touch_num to reach cst3xx_report_contact(). While the input\ncore ignores out-of-range slot indices, reporting touch data without a\nvalid slot change corrupts the touch state of the previously active slot.\n\nThe touch count is read from the controller's report and is used to\nindex the fixed-size report buffer without first checking its range.\nReject counts larger than the supported number of touch slots before\nchecking the trailing byte or parsing touch data.\n\nReject finger IDs equal to or greater than max_touch_num, and return\nimmediately when an invalid finger ID is encountered so that corrupt\ntouch frames are discarded instead of reporting partial contact state.\n\nThe V821 Avaota F1 board configures the vendor driver with one touch\nslot, so finger ID 1 is already invalid on that device.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80566"
+    },
+    {
+      "id": "CVE-2026-80565",
+      "published": "2026-08-26T15:17:11.550",
+      "lastModified": "2026-08-27T06:17:41.390",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ncrypto: qce - fix error path in devm_qce_register_algs\n\nIf ops->register_algs() fails, the error path repeatedly calls the same\nops->unregister_algs() from the failed registration. Use the loop index\nto unregister the previously registered algorithms instead.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80565"
+    },
+    {
+      "id": "CVE-2026-80564",
+      "published": "2026-08-26T15:17:11.433",
+      "lastModified": "2026-08-26T15:17:11.433",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ngve: fix NULL dereference due to missing ptp adjfine\n\nFix NULL dereference due to missing implementation of adjfine, which can\nbe triggered from usermode as follows:\n\nsudo ./testptp -d /dev/ptp0 -f 0\n[  551.943697] BUG: kernel NULL pointer dereference, address: 0000000000000000\n[...]\n[  552.061946] Call Trace:\n[  552.064487]  <TASK>\n[  552.066681]  ptp_clock_adjtime+0x1c0/0x2c0\n[  552.070874]  ? get_clock_desc+0x6b/0xb0\n[  552.074825]  pc_clock_adjtime+0x78/0xc0\n[  552.078755]  __do_sys_clock_adjtime+0x85/0x110\n[  552.083293]  do_syscall_64+0xea/0x610",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80564"
+    },
+    {
+      "id": "CVE-2026-80563",
+      "published": "2026-08-26T15:17:11.310",
+      "lastModified": "2026-08-26T15:17:11.310",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ngpio: sloppy-logic-analyzer: fix use-after-free via debugfs trigger on unbind\n\nThe \"trigger\" debugfs file has a hand-rolled ->write handler\n(trigger_write()) that dereferences the per-device gpio_la_poll_priv. The\nfile is created with debugfs_create_file_unsafe(), and the handler never\ntakes a debugfs reference. Nothing keeps the object alive while the\nhandler runs.\n\npriv is allocated with devm_kzalloc(). devres frees it when the platform\ndevice is unbound. debugfs_create_file_unsafe() installs no full_proxy\nwrapper, so debugfs_remove_recursive() in gpio_la_poll_remove() does not\nwait for an in-flight trigger_write(). The blob_lock taken there does not\nhelp, because trigger_write() never takes it. A write that races an unbind\ntherefore writes into freed memory:\n\n  trigger_write()                  gpio_la_poll_remove()\n    priv = m->private\n    buf = memdup_user()  [may sleep]\n                                     mutex_lock(&priv->blob_lock)\n                                     debugfs_remove_recursive()  [no wait]\n                                     mutex_unlock(&priv->blob_lock)\n                                   (remove returns; devres frees priv)\n    priv->trig_data = buf   <-- use-after-free write\n    priv->trig_len  = count\n\nThe race is reachable by root via\n/sys/bus/platform/drivers/gpio-sloppy-logic-analyzer/unbind.\n\nCreate \"trigger\" with debugfs_create_file() instead. Its full_proxy\nwrapper makes debugfs_remove_recursive() drain any in-flight ->write\nbefore it returns.\n\nThe use-after-free is confirmed under KASAN with a minimal reproducer of\nthe same debugfs_create_file_unsafe() plus devm_kzalloc() pattern\n(available on request); it produces a slab-use-after-free write in the\nhandler.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80563"
+    },
+    {
+      "id": "CVE-2026-80562",
+      "published": "2026-08-26T15:17:11.183",
+      "lastModified": "2026-08-27T13:18:40.533",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ngpio: ml-ioh: use raw_spinlock_t for the register lock\n\nioh_irq_type() is registered as the irq_chip .irq_set_type callback and\ntakes chip->spinlock with spin_lock_irqsave().  This callback is reached\nfrom __setup_irq() -> __irq_set_trigger() -> chip->irq_set_type() while\nthe caller holds desc->lock, a raw_spinlock_t, with hardirqs disabled.\nThat context is not sleepable, but on PREEMPT_RT a regular spinlock_t is\nan rtmutex-backed sleeping lock, so acquiring it there is invalid.\nioh_irq_enable() and ioh_irq_disable() take the same lock from the\n.irq_enable/.irq_disable callbacks, which are likewise invoked with\ndesc->lock held.\n\nConvert the register lock to raw_spinlock_t.  The same lock also\nserializes the GPIO direction/value callbacks and the suspend/resume\nregister save/restore, and those critical sections only perform short\nsequences of MMIO register accesses (ioread32()/iowrite32()); the\n.irq_set_type callback additionally emits a dev_warn() on an unsupported\ntype.  None of these are sleepable operations, so keeping this register\nlock non-sleeping is appropriate for the irqchip callbacks and does not\nchange the GPIO-side locking contract.\n\nThis is the same fix as commit a02b8950d619 (\"gpio: pch: use\nraw_spinlock_t for the register lock\"); this driver shares the same\nstructure as gpio-pch.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80562"
+    },
+    {
+      "id": "CVE-2026-80561",
+      "published": "2026-08-26T15:17:11.007",
+      "lastModified": "2026-08-27T06:17:41.057",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nlibceph: fix multiple unsafe decodes in decode_locker()\n\ndecode_locker() in cls_lock_client.c contains three unsafe decode\noperations that allow a malicious or compromised OSD to trigger\nslab-out-of-bounds reads:\n\n1. ceph_decode_copy() at the locker_id_t name field has no preceding\n   bounds check. With p == end after ceph_start_decoding() accepts\n   struct_len=0, this reads sizeof(ceph_entity_name) = 9 bytes past\n   the validated buffer boundary.\n\n2. *p += sizeof(struct ceph_timespec) after the locker_info_t header\n   is an unchecked pointer advance. A malicious OSD can position p\n   past end, causing all subsequent _safe checks to pass against a\n   bogus boundary.\n\n3. len = ceph_decode_32(p) has no preceding bounds check, and the\n   immediately following *p += len is uncapped. A malicious OSD can\n   send len=0xffffffff, advancing p gigabytes past end and escaping\n   the decode window entirely.\n\nFix all three by replacing bare operations with their safe variants:\n  ceph_decode_copy   -> ceph_decode_copy_safe\n  *p += sizeof(...)  -> ceph_decode_skip_n\n  ceph_decode_32(p)  -> ceph_decode_32_safe\n  *p += len          -> ceph_decode_skip_n\n\nA new label is added to return -EINVAL on any bounds violation.\n-EINVAL is appropriate here: the data received from the OSD\nis structurally malformed, which is an invalid argument to the decode\ncontract regardless of whether the caller or the wire is at fault.\n\nAttacker model: a malicious or compromised OSD in a multi-tenant Ceph\ndeployment can trigger this against any kernel client that issues the\nlock.get_info class method (e.g. during RBD exclusive lock acquisition)\nwithout any further privileges beyond OSD session establishment.\n\n[ idryomov: use ceph_decode_skip_string() to skip description, trim\n  changelog ]",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80561"
+    },
+    {
+      "id": "CVE-2026-80560",
+      "published": "2026-08-26T15:17:10.850",
+      "lastModified": "2026-08-27T06:17:40.650",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nopenrisc: signal: do not restore privileged SR bits on sigreturn\n\nrestore_sigcontext() copies the whole supervision register (SR) from the\nsignal frame and only clears SPR_SR_SM before the value is reloaded into\nthe hardware SR (through ESR and l.rfe) on the return to user space.  All\nother SR bits are left under user control.\n\nAn unprivileged task can thus return from a signal handler through a\ncrafted sigframe that clears SPR_SR_DME.  With the data MMU disabled the\nCPU performs no translation or protection on data accesses, so the task\ngains read and write access to arbitrary physical memory, a local\nprivilege escalation.  SPR_SR_IME, SPR_SR_SUMRA, SPR_SR_LEE, SPR_SR_EPH\nand the cache-enable bits are exposed the same way.  The ptrace GPR regset\nalready refuses any change to SR for exactly this reason.\n\nRestore only the arithmetic flag bits (F, CY, OV) from the signal frame\nand take every privileged control bit from the SR the kernel saved on\nsignal entry.\n\nVerified with qemu-system-or1k -M or1k-sim: before this change an\nunprivileged PoC clears SPR_SR_DME in rt_sigreturn and writes a marker to\nphysical address 0x03000000 (beyond the kernel's mem=32M); afterwards the\nsame PoC receives SIGSEGV and physical memory is unchanged.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80560"
+    },
+    {
+      "id": "CVE-2026-80559",
+      "published": "2026-08-26T15:17:10.690",
+      "lastModified": "2026-08-27T06:17:40.253",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nInput: sur40 - fix input device registration ordering\n\nIn sur40_probe(), input_register_device() was previously called early before\nthe V4L2 video device and vb2_queue components were fully initialized. If\nuserspace opened the input device immediately upon registration, sur40_open()\nwould trigger and start the sur40_poll() worker thread. This worker thread\ninvokes sur40_process_video() and accesses the uninitialized vb2_queue\nstructure, leading to a data race and potential system crash.\n\nFurthermore, if V4L2 or video registration failed after input_register_device()\nsucceeded, the error path fell through to calling input_free_device() on a\nsuccessfully registered device instead of input_unregister_device(), corrupting\ninput core state.\n\nMove input_register_device() to the very end of sur40_probe(). This ensures\nthe V4L2 and video queue structures are fully initialized before polling can\nstart, and naturally resolves the error path bug since input_free_device()\nis now only called when input registration has not yet occurred.\n\nTo maintain strict LIFO (Last-In, First-Out) teardown ordering, also move\ninput_unregister_device() to the very beginning of sur40_disconnect(). This\nguarantees that the input polling worker thread is stopped before V4L2\nvideo components or control handlers are unregistered.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80559"
+    },
+    {
+      "id": "CVE-2026-80558",
+      "published": "2026-08-26T15:17:10.530",
+      "lastModified": "2026-08-27T06:17:39.903",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nlibceph: Avoid using invalid osd indices from primary_temp\n\nA corrupted osdmap received from a Ceph monitor or OSD may contain osd\nindices in its pg_temp, primary_temp, pg_upmap, and pg_upmap_items parts\nthat don't exist, i.e., that are greater than max_osd or smaller than\nCEPH_HOMELESS_OSD (-1). These indices are used to create the up and\nacting set in ceph_pg_to_up_acting_osds(), called from calc_target().\nWhile most of these osd indices are checked, the one from primary_temp\nis not. Subsequently, this may lead to calc_target() returning this\n(potentially invalid) index as target osd for a (linger) request.\nBecause the osd_state, osd_weight, and osd_addr arrays only contain\nmax_osd entries (with indices 0 to max_osd -1), this leads to\nout-of-bounds accesses when trying to read values from these arrays.\n\nThis patch fixes the issue by adding a check to get_temp_osds(), so that\nonly valid osd indices from primary_temp are used, and it falls back to\nusing the primary from pg_temp or the up set if it is invalid.\n\n[ idryomov: changelog ]",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80558"
+    },
+    {
+      "id": "CVE-2026-80557",
+      "published": "2026-08-26T15:17:10.400",
+      "lastModified": "2026-08-27T13:18:40.360",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nlibceph: fix OOB read in decode_watchers() via missing bounds check\n\nceph_start_decoding() validates that struct_len bytes remain in the\nbuffer after the encoding header, but accepts struct_len=0 as valid:\nceph_decode_need(p, end, 0, bad) always passes. When a malicious or\ncompromised OSD sends an obj_list_watch_response_t reply with\nstruct_len=0, ceph_start_decoding() returns success with p == end,\nleaving zero bytes guaranteed for subsequent reads.\n\nThe immediately following ceph_decode_32(p) in decode_watchers() has\nno preceding bounds check. With p == end this is a 4-byte read past\nthe validated buffer boundary. The garbage value is then passed\ndirectly to kzalloc_objs() as the watcher count.\n\nThe sibling function decode_watcher() already uses the safe variants\n(ceph_decode_copy_safe, ceph_decode_64_safe, ceph_decode_skip_32)\nafter its own ceph_start_decoding() call. decode_watchers() is the\nonly site that uses the bare variant, confirming an oversight.\n\nFix by replacing ceph_decode_32(p) with ceph_decode_32_safe(p, end,\n*num_watchers, bad), consistent with the established pattern.\n\nAttacker model: a malicious or compromised OSD in a multi-tenant Ceph\ndeployment (e.g. cloud) can trigger this against any kernel client\nthat calls CEPH_OSD_OP_LIST_WATCHERS, without any further privileges\nbeyond OSD session establishment.\n\n[ idryomov: trim changelog ]",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80557"
+    },
+    {
+      "id": "CVE-2026-80556",
+      "published": "2026-08-26T15:17:10.253",
+      "lastModified": "2026-08-27T06:17:39.387",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmmc: atmel-mci: Fix use-after-free in atmci_remove due to race condition\n\nIn atmci_probe, &host->bh_work is bound with atmci_work_func, and\natmci_interrupt, atmci_timeout_timer and atmci_dma_complete can all\nqueue this work on system_bh_wq.\n\nIf we remove the module, atmci_remove makes cleanup and the memory\nallocated for host with devm_kzalloc() is released after the remove\ncallback returns, while the work mentioned above may still be pending\nor running. The sequence of operations that may lead to a UAF bug is\nas follows:\n\nCPU0                                      CPU1\n\n                                          | atmci_interrupt\n                                          | queue_work(system_bh_wq,\n                                          |            &host->bh_work)\natmci_remove                              |\natmci_cleanup_slot(...)                   |\natmci_writel(host, ATMCI_IDR, ~0UL)       |\ntimer_delete_sync(&host->timer)           |\ndma_release_channel(host->dma.chan)       |\nfree_irq(platform_get_irq(pdev, 0), host) |\n                                          | atmci_work_func\n                                          | // use host\n// devm resources released after          |\n// remove returns, host is freed          |\n                                          | // use host (use-after-free)\n\nFix it by canceling the work after all the sources that can schedule\nit (IRQ handler, timeout timer and DMA completion callback) have been\nstopped, and before proceeding with the remaining cleanup in\natmci_remove.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80556"
+    },
+    {
+      "id": "CVE-2026-80555",
+      "published": "2026-08-26T15:17:10.130",
+      "lastModified": "2026-08-27T13:18:40.193",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ns390/vfio_ccw: Free all memory if cp_init() fails\n\nThe routine cp_free() is called to unpin/free any memory once an I/O\nis completed successfully, or if cp_prefetch() fails. But if cp_init()\nfails, and cp->initialized is not enabled, the same routine cannot be\nused to free all the memory.\n\nAn attempt to address this exists in ccwchain_handle_ccw(), where a\nsingle call to ccwchain_free() is made for the currently-processed\nCCW segment. But this will leak other segments (created as a result\nof a Transfer in Channel) that had been allocated as part of the same\nchannel program.\n\nAddress this by performing the cleanup outside of the recursive\nccwchain_handle_ccw()/ccwchain_loop_tic() logic.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80555"
+    },
+    {
+      "id": "CVE-2026-80554",
+      "published": "2026-08-26T15:17:09.990",
+      "lastModified": "2026-08-27T06:17:38.923",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ns390/vfio_ccw: Limit the number of channel program segments\n\nThe processing of channel programs, and the CCWs within them, is done\nrecursively. As such, there is an arbitrary (but not architectural)\nlimit to the number of CCWs that can exist in a single channel program.\n\nThe vfio-ccw logic breaks these channel programs into segments whenever\nit encounters a Transfer-In-Channel (TIC) CCW, and the combined number\nof segments count towards the global limit. Impose an equivalent limit\nto the number of segments until such logic can be made non-recursive.",
+      "score": 9.3,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80554"
+    },
+    {
+      "id": "CVE-2026-80553",
+      "published": "2026-08-26T15:17:09.863",
+      "lastModified": "2026-08-27T13:18:40.030",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ns390/vfio_ccw: Cancel existing workqueues\n\nThe initialization of the io_work and crw_work workqueues begs the\nquestion of whether they should be un-initialized. Add the corresponding\ncleanup tags in _release_dev to ensure work isn't dispatched after\nthe private struct is free'd.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80553"
+    },
+    {
+      "id": "CVE-2026-80552",
+      "published": "2026-08-26T15:17:09.723",
+      "lastModified": "2026-08-27T13:18:39.870",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ns390/vfio_ccw: Ensure index for read/write regions are within range\n\nThe introduction of the capability chain rightly clamped the\nregion indexes to the range of the capabilities itself, but\nneglected to do so for the existing read/write regions which\nshould also be enforced.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80552"
+    },
+    {
+      "id": "CVE-2026-80551",
+      "published": "2026-08-26T15:17:09.610",
+      "lastModified": "2026-08-27T13:18:39.733",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ns390/vfio_ccw: Ensure first IDAW remains constant\n\nThe first IDAW in a list does not need to be on a 2K/4K boundary\nlike all others, and so is read separately to accurately calculate\nthe size of the buffer needed to read the full IDAL.\n\nVerify that the address found in the first IDAW is unchanged between\nreads, to ensure a consistent set of IDAWs being worked with.",
+      "score": 9.3,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80551"
+    },
     {
       "id": "CVE-2026-80550",
       "published": "2026-08-26T15:17:09.477",
@@ -706,168 +858,6 @@
       "score": 8.1,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15985"
-    },
-    {
-      "id": "CVE-2026-80206",
-      "published": "2026-08-26T11:16:40.103",
-      "lastModified": "2026-09-01T20:07:46.190",
-      "description": "NLTK before 3.10.3 contains a regular expression denial of service (ReDoS) vulnerability in the tgrep module. The _tgrep_node_action function compiles user-supplied regular expressions embedded in /regex/ pattern nodes and executes them via re.search against tree node labels without any validation or timeout. An attacker who controls the tgrep pattern (e.g., via tgrep_positions() or tgrep_compile() exposed to external input) can supply a pattern that triggers catastrophic backtracking, causing indefinite CPU saturation that blocks the Python process.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80206"
-    },
-    {
-      "id": "CVE-2026-80205",
-      "published": "2026-08-26T11:16:39.950",
-      "lastModified": "2026-09-01T23:17:20.307",
-      "description": "NLTK versions before 3.10.0 contain a regular expression denial of service vulnerability in Text.findall() and TokenSearcher.findall() methods that accept user-supplied regular expressions without validation or timeout. Attackers can supply crafted regex patterns that cause catastrophic backtracking, resulting in indefinite CPU saturation and denial of service to all users of the Python process.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80205"
-    },
-    {
-      "id": "CVE-2026-80204",
-      "published": "2026-08-26T11:16:39.797",
-      "lastModified": "2026-08-31T20:52:56.343",
-      "description": "The Grav API plugin (getgrav/grav-plugin-api) before 1.0.18 does not apply the API-key scope cap in the injectSecurityTab() function of BlueprintController when deciding whether a page's security/permissions blueprint section is editable. Because the function performs raw isSuperAdmin()/hasPermission() checks without a request parameter, it cannot enforce scopeAllows(). A caller holding a scoped API key may therefore see (and potentially edit) page permission fields beyond the scope granted to the key. The end-to-end write-time impact was not fully confirmed by the reporter.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80204"
-    },
-    {
-      "id": "CVE-2026-80203",
-      "published": "2026-08-26T11:16:39.647",
-      "lastModified": "2026-08-31T20:52:56.343",
-      "description": "The getgrav/grav-plugin-api plugin before 1.0.18 does not enforce API-key scope in the requireNotSuperTarget() function in UsersController.php across seven sensitive user-management endpoints. The check uses isSuperAdmin() on the acting account rather than verifying whether the specific API key carries super authority (via isSuperWithinScope()). As a result, an API key scoped below full super authority but belonging to a super-admin account can act against other super-admin accounts—disabling their 2FA, deleting their avatar, minting new API keys under their identity, or deleting their existing API keys.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80203"
-    },
-    {
-      "id": "CVE-2026-77557",
-      "published": "2026-08-26T11:16:39.520",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network could exploit an Improper Access Control vulnerability found in UniFi Protect AI Key to escalate privileges on the device.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77557"
-    },
-    {
-      "id": "CVE-2026-77554",
-      "published": "2026-08-26T11:16:39.400",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network could exploit an Improper Input Validation vulnerability found in UniFi Talk Application to execute a Command Injection on the host device.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77554"
-    },
-    {
-      "id": "CVE-2026-77553",
-      "published": "2026-08-26T11:16:39.283",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network and low privileges could exploit an Improper Access Control vulnerability found in UniFi Access Application to escalate privileges on the host device.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77553"
-    },
-    {
-      "id": "CVE-2026-77552",
-      "published": "2026-08-26T11:16:39.167",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network could exploit an Improper Input Validation vulnerability found in UniFi Enterprise Audio/Video Bridge to execute a Command Injection on the device.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77552"
-    },
-    {
-      "id": "CVE-2026-77551",
-      "published": "2026-08-26T11:16:39.053",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network and under certain conditions could exploit an Improper Access Control vulnerability found in UniFi Connect Display Cast Pro to escalate privileges on the device.",
-      "score": 9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77551"
-    },
-    {
-      "id": "CVE-2026-77550",
-      "published": "2026-08-26T11:16:38.930",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network could exploit an Improper Neutralization of CRLF Sequences vulnerability found in certain devices running UniFi OS to bypass authentication to such UniFi OS devices or instances.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77550"
-    },
-    {
-      "id": "CVE-2026-77549",
-      "published": "2026-08-26T11:16:38.807",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network and under certain conditions could exploit an Improper Neutralization of CRLF Sequences vulnerability found in certain devices running UniFi OS to bypass authentication to such UniFi OS devices or instances.",
-      "score": 9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77549"
-    },
-    {
-      "id": "CVE-2026-77548",
-      "published": "2026-08-26T11:16:38.693",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network and low privileges could exploit an Improper Input Validation vulnerability found in UniFi Protect Application to execute a Command Injection on the host device.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77548"
-    },
-    {
-      "id": "CVE-2026-77547",
-      "published": "2026-08-26T11:16:38.573",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network and low privileges could exploit an Improper Input Validation vulnerability found in UniFi Access Application to execute a Command Injection on the host device.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77547"
-    },
-    {
-      "id": "CVE-2026-77546",
-      "published": "2026-08-26T11:16:38.463",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to the network and low privileges could exploit an Improper Input Validation vulnerability found in UniFi Access Application to execute a Command Injection on the host device.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77546"
-    },
-    {
-      "id": "CVE-2026-77532",
-      "published": "2026-08-26T11:16:38.343",
-      "lastModified": "2026-08-28T18:49:15.340",
-      "description": "A malicious actor with access to an adjacent network could exploit a Buffer Overflow vulnerability found in a DHCPv6-enabled EdgeMAX EdgeSwitch to initiate a Remote Code Execution on such device.",
-      "score": 9.6,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77532"
-    },
-    {
-      "id": "CVE-2026-5092",
-      "published": "2026-08-26T11:16:38.210",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "The Greenshift – animation and page builder blocks plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the customapi action handler in versions up to, and including, 12.8.9. This is due to insufficient sanitization of API responses before output via innerHTML. This makes it possible for authenticated attackers, with Contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses the injected page.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-5092"
-    },
-    {
-      "id": "CVE-2026-3235",
-      "published": "2026-08-26T11:16:38.073",
-      "lastModified": "2026-08-28T20:17:29.007",
-      "description": "The WP Data Access plugin for WordPress is vulnerable to Insecure Direct Object Reference in all versions up to, and including, 5.5.68 via the 'check_app_access' function due to missing validation on a user controlled key. This makes it possible for unauthenticated attackers to access data from protected app containers by exploiting a mismatch between the authorization check (performed against app_id) and data retrieval (performed using cnt_id without verifying container ownership).",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-3235"
-    },
-    {
-      "id": "CVE-2026-18080",
-      "published": "2026-08-26T11:16:37.930",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "The ERP: Complete HR, Accounting & CRM Suite Built for WooCommerce plugin for WordPress is vulnerable to Unrestricted File Type Upload in all versions up to, and including, 1.17.8 via the save_attachments() function. This is due to missing file extension validation and missing path normalization when CRM Email Connect processes inbound IMAP email attachments. This makes it possible for unauthenticated attackers to send a crafted email to the site's configured inbound mailbox with a forged References header matching the plugin's expected pattern and an attachment filename such as `../helper.php`, causing the cron-based IMAP sync job to write attacker-controlled PHP outside of the .htaccess-protected `crm-attachments` directory and into `wp-content/uploads/`. On configurations where PHP executes in uploads, this can lead to remote code execution. Exploitation requires the CRM module and IMAP Email Connect feature to be enabled and configured.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18080"
     }
   ]
 }
