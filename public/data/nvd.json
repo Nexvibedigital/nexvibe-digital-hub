@@ -1,6 +1,24 @@
 {
-  "syncedAt": "2026-09-02T11:44:26.627Z",
+  "syncedAt": "2026-09-02T12:25:28.684Z",
   "items": [
+    {
+      "id": "CVE-2026-80570",
+      "published": "2026-08-26T15:17:12.880",
+      "lastModified": "2026-08-27T06:17:42.377",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nInput: synaptics-rmi4 - zero report size on F54 work error\n\nIn rmi_f54_work(), if an error occurs during report request or command\nverification, the code jumped directly to the 'error' label, bypassing\nthe 'abort' label where f54->report_size was normally zeroed out.\n\nThis left f54->report_size containing its previous successful payload\nsize. If a user then altered the V4L2 format to a smaller size, and a\nsubsequent run failed, rmi_f54_buffer_queue() would copy the stale,\nlarger payload size into the shrunken V4L2 buffer, causing a heap\nbuffer overflow.\n\nFix this by merging the 'abort' and 'error' labels into a single 'out'\nexit path, and ensuring that f54->report_size is always set to 0 on\nfailure by checking for error and zeroing the local report_size first.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80570"
+    },
+    {
+      "id": "CVE-2026-80569",
+      "published": "2026-08-26T15:17:12.457",
+      "lastModified": "2026-08-27T06:17:42.103",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nInput: synaptics-rmi4 - bound the F54 report size to the allocated buffer\n\nrmi_f54_work() reads a diagnostics report from the device into\nf54->report_data, sizing the transfer with rmi_f54_get_report_size():\n\n\treport_size = rmi_f54_get_report_size(f54);\n\t...\n\tfor (i = 0; i < report_size; i += F54_REPORT_DATA_SIZE) {\n\t\tint size = min(F54_REPORT_DATA_SIZE, report_size - i);\n\t\t...\n\t\trmi_read_block(.., f54->report_data + i, size);\n\t}\n\nreport_data is allocated once at probe from F54's own electrode counts\n(array3_size(f54->num_tx_electrodes, f54->num_rx_electrodes, sizeof(u16))),\nbut rmi_f54_get_report_size() computes the size from\ndrv_data->num_*_electrodes when those are set, i.e. from the F55\nfunction's electrode counts. Both counts come straight from device\nqueries (F54 and F55 each report up to 255 electrodes) and nothing\nconstrains the F55 counts to the F54 ones.\n\nA malicious or malfunctioning RMI4 device that reports larger F55\nelectrode counts than its F54 counts makes report_size exceed the\nallocation, so the read loop writes past report_data (and the V4L2\ndequeue memcpy() then reads past it). On conforming hardware the F55\nconfigured electrodes are a subset of the F54 physical electrodes, so\nreport_size never exceeds the buffer and well-behaved devices are\nunaffected.\n\nRecord the allocation size and reject a report that does not fit,\nmirroring the existing zero-size check.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80569"
+    },
     {
       "id": "CVE-2026-80568",
       "published": "2026-08-26T15:17:12.303",
@@ -840,24 +858,6 @@
       "score": 8.6,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12587"
-    },
-    {
-      "id": "CVE-2026-63041",
-      "published": "2026-08-26T12:16:21.353",
-      "lastModified": "2026-08-27T19:35:02.667",
-      "description": "Reliance on Untrusted Inputs in a Security Decision vulnerability in Apache APISIX.\n\nThis vulnerability allows an attacker to escalate privilege or perform an authorization bypass by sending certain values that the attach-consumer-label plugin does not sanitise correctly.\n\n\nThis issue affects Apache APISIX: from 3.11.0 through 3.17.0.\n\n\n\nUsers are recommended to upgrade to version 3.18.0, which fixes the issue.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-63041"
-    },
-    {
-      "id": "CVE-2026-15985",
-      "published": "2026-08-26T12:16:20.940",
-      "lastModified": "2026-08-26T16:19:05.917",
-      "description": "The Classified Listing - Mobile Number Verification plugin for WordPress is vulnerable to Authentication Bypass in all versions up to, and including, 1.6.0. This is due to missing server-side Firebase OTP validation in the process_otp_login() function. This makes it possible for unauthenticated attackers to authenticate as any user with a phone number registered in the plugin's phone table by submitting an arbitrary OTP code and UID through the Firebase OTP login flow. Successful exploitation requires OTP login to be enabled with Firebase selected as the verification gateway, and requires the attacker to know or guess the target account's registered phone number. Administrator account takeover is possible if an administrator account has a phone number registered in the plugin.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15985"
     }
   ]
 }
