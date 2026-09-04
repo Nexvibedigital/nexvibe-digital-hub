@@ -1,6 +1,270 @@
 {
-  "syncedAt": "2026-09-04T01:44:52.009Z",
+  "syncedAt": "2026-09-04T02:18:45.962Z",
   "items": [
+    {
+      "id": "CVE-2026-80656",
+      "published": "2026-08-28T08:16:50.700",
+      "lastModified": "2026-08-29T07:16:48.437",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nhfsplus: Add a sanity check for btree node size\n\nSyzbot reported an uninit-value bug in [1] with a corrupted HFS+ image,\nduring the file system mounting process, specifically while loading the\ncatalog, a corrupted node_size value of 1 caused the rec_off argument\npassed to hfs_bnode_read_u16() (within hfs_bnode_find()) to be excessively\nlarge. Consequently, the function failed to return a valid value to\ninitialize the off variable, triggering the bug [1].\n\nEvery node starts from BTree node descriptor: struct hfs_bnode_desc.\nSo, the size of node cannot be lesser than that. However, technical\nspecification declares that: \"The node size (which is expressed in bytes)\nmust be power of two, from 512 through 32,768, inclusive.\" Add a check\nfor btree node size base on technical specification.\n\n[1]\nBUG: KMSAN: uninit-value in hfsplus_bnode_find+0x141c/0x1600 fs/hfsplus/bnode.c:584\n hfsplus_bnode_find+0x141c/0x1600 fs/hfsplus/bnode.c:584\n hfsplus_btree_open+0x169a/0x1e40 fs/hfsplus/btree.c:382\n hfsplus_fill_super+0x111f/0x2770 fs/hfsplus/super.c:553\n get_tree_bdev_flags+0x6e6/0x920 fs/super.c:1694\n get_tree_bdev+0x38/0x50 fs/super.c:1717\n hfsplus_get_tree+0x35/0x40 fs/hfsplus/super.c:709\n vfs_get_tree+0xb3/0x5d0 fs/super.c:1754\n fc_mount fs/namespace.c:1193 [inline]",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80656"
+    },
+    {
+      "id": "CVE-2026-80655",
+      "published": "2026-08-28T08:16:50.573",
+      "lastModified": "2026-08-28T08:16:50.573",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsoc: xilinx: Fix race condition in event registration\n\nThe zynqmp_power driver registers handlers for suspend and subsystem\nrestart events using register_event(). However, the work structures\n(zynqmp_pm_init_suspend_work and zynqmp_pm_init_restart_work) used by\nthese handlers were allocated and initialized after the registration\ncall.\n\nThis created a race window where, if the firmware triggered an event\nimmediately after registration but before allocation, the callback\n(suspend_event_callback or subsystem_restart_event_callback) would\ndereference a NULL pointer in work_pending(), leading to a crash.\n\nFix this by allocating and initializing the work structures before\nregistering the events.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80655"
+    },
+    {
+      "id": "CVE-2026-80654",
+      "published": "2026-08-28T08:16:50.467",
+      "lastModified": "2026-08-28T08:16:50.467",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsoc: xilinx: Shutdown and free rx mailbox channel\n\nA mbox rx channel is requested using mbox_request_channel_byname() in\nprobe. In remove callback, the rx mailbox channel is cleaned up when the\nrx_chan is NULL due to incorrect condition check. The mailbox channel is\nnot shutdown and it can receive messages even after the device removal.\nThis leads to use after free. Also the channel resources are not freed.\nFix this by checking the rx_chan correctly.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80654"
+    },
+    {
+      "id": "CVE-2026-80653",
+      "published": "2026-08-28T08:16:50.350",
+      "lastModified": "2026-08-29T07:16:48.317",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: hisi_sas: Add slave_destroy interface for v3 hw\n\nWARNING is triggered when executing link reset of remote PHY and rmmod\nSAS driver simultaneously. Following is the WARNING log:\n\nWARNING: CPU: 61 PID: 21818 at drivers/base/core.c:1347 __device_links_no_driver+0xb4/0xc0\n Call trace:\n  __device_links_no_driver+0xb4/0xc0\n  device_links_driver_cleanup+0xb0/0xfc\n  __device_release_driver+0x198/0x23c\n  device_release_driver+0x38/0x50\n  bus_remove_device+0x130/0x140\n  device_del+0x184/0x434\n  __scsi_remove_device+0x118/0x150\n  scsi_remove_target+0x1bc/0x240\n  sas_rphy_remove+0x90/0x94\n  sas_rphy_delete+0x24/0x3c\n  sas_destruct_devices+0x64/0xa0 [libsas]\n  sas_revalidate_domain+0xe4/0x150 [libsas]\n  process_one_work+0x1e0/0x46c\n  worker_thread+0x15c/0x464\n  kthread+0x160/0x170\n  ret_from_fork+0x10/0x20\n ---[ end trace 71e059eb58f85d4a ]---\n\nDuring SAS phy up, link->status is set to DL_STATE_AVAILABLE in\ndevice_links_driver_bound, then this setting influences\n__device_links_no_driver() before driver rmmod and caused WARNING.\n\nAdd the slave_destroy interface to make sure link is removed after flush\nworkque.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80653"
+    },
+    {
+      "id": "CVE-2026-80652",
+      "published": "2026-08-28T08:16:50.200",
+      "lastModified": "2026-08-28T08:16:50.200",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ncrypto: ccp - Treat zero-length cert chain as query for blob lengths\n\nWhen handling a PDH export, treat a zero-length userspace cert chain buffer\nas a request to query the length of the relevant blobs.  Failure to account\nfor the zero-length buffer trips a BUG_ON() when running with\nCONFIG_DEBUG_VIRTUAL=y due to trying to get the physical address of the\nZERO_SIZE_PTR (returned by kzalloc() on the bogus allocation).\n\n   kernel BUG at arch/x86/mm/physaddr.c:28 !\n  Oops: invalid opcode: 0000 [#1] SMP KASAN NOPTI\n  CPU: 30 UID: 0 PID: 28580 Comm: syz.2.18 Kdump: loaded\n  Tainted: G        W           6.18.16-smp-DEV #1 NONE\n  Tainted: [W]=WARN\n  Hardware name: Google, Inc. Arcadia_IT_80/Arcadia_IT_80, BIOS 12.62.0-0 11/19/2025\n   RIP: 0010:__phys_addr+0x16a/0x180 arch/x86/mm/physaddr.c:28\n  RSP: 0018:ffffc9008329fc80 EFLAGS: 00010293\n  RAX: ffffffff8179110a RBX: 0000778000000010 RCX: ffff8884e6992600\n  RDX: 0000000000000000 RSI: 0000000080000010 RDI: 0000778000000010\n  RBP: ffffc9008329fdf0 R08: 0000000000000dc0 R09: 00000000ffffffff\n  R10: dffffc0000000000 R11: fffffbfff126d297 R12: dffffc0000000000\n  R13: 1ffff92010653fc8 R14: 0000000080000010 R15: dffffc0000000000\n  FS:  0000555556bec9c0(0000) GS:ffff88aa4ce1c000(0000) knlGS:0000000000000000\n  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033\n  CR2: 00007fd3159e7000 CR3: 00000004fbc44000 CR4: 0000000000350ef0\n  Call Trace:\n   <TASK>\n    [<ffffffff853d3869>] sev_ioctl_do_pdh_export+0x559/0x7a0 drivers/crypto/ccp/sev-dev.c:2308\n    [<ffffffff853d1fdd>] sev_ioctl+0x2cd/0x480 drivers/crypto/ccp/sev-dev.c:2556\n    [<ffffffff82549ebc>] vfs_ioctl fs/ioctl.c:52 [inline]\n    [<ffffffff82549ebc>] __do_sys_ioctl fs/ioctl.c:598 [inline]\n    [<ffffffff82549ebc>] __se_sys_ioctl+0xfc/0x170 fs/ioctl.c:584\n    [<ffffffff8630115f>] do_syscall_x64 arch/x86/entry/syscall_64.c:64 [inline]\n    [<ffffffff8630115f>] do_syscall_64+0x9f/0xf40 arch/x86/entry/syscall_64.c:98\n   [<ffffffff81000136>] entry_SYSCALL_64_after_hwframe+0x76/0x7e\n  RIP: 0033:0x7fd3158eac39\n   </TASK>\n\nThankfully, the bug is benign outside of CONFIG_DEBUG_VIRTUAL=y as getting\nthe physical address is just arithmetic, and the PSP errors out before\ntrying to write to the garbage address (which it must, otherwise querying\nthe blob lengths would clobber memory at pfn=0).",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80652"
+    },
+    {
+      "id": "CVE-2026-80651",
+      "published": "2026-08-28T08:16:50.110",
+      "lastModified": "2026-08-28T08:16:50.110",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ncrypto: ccp/sev-dev-tsm - bail out early when pdev->bus is NULL\n\ndsm_create() initially checks pdev->bus when computing segment_id:\n\n\tu8 segment_id = pdev->bus ? pci_domain_nr(pdev->bus) : 0;\n\nBut the next two lines unconditionally dereference pdev->bus via\npcie_find_root_port() and especially pci_dev_id(pdev), which expands\nto PCI_DEVID(dev->bus->number, dev->devfn). If pdev->bus is in fact\nNULL, segment_id is initialised to 0 but the very next statement\ncrashes the kernel.\n\nsmatch flags this:\n\n  drivers/crypto/ccp/sev-dev-tsm.c:253 dsm_create() error: we\n    previously assumed 'pdev->bus' could be null (see line 251)\n\nMake the NULL handling consistent: if pdev->bus is NULL the device\nhas no PCI context to work with and SEV TIO setup cannot proceed,\nso return -ENODEV before any of the bus-dependent lookups. The\nremaining initialisation now runs only on the path where pdev->bus\nis known to be valid.\n\nNo change for callers where pdev->bus is non-NULL, which is the\nonly case where dsm_create() did meaningful work before this change.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80651"
+    },
+    {
+      "id": "CVE-2026-80650",
+      "published": "2026-08-28T08:16:50.010",
+      "lastModified": "2026-08-28T08:16:50.010",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: atomisp: gc2235: fix UAF and memory leak\n\ngc2235_probe() handles its error paths incorrectly.\n\nIf media_entity_pads_init() fails, gc2235_remove() is called, which\ntears down the subdev and frees dev, but then still falls through to\natomisp_register_i2c_module(). This results in use-after-free.\n\nIf atomisp_register_i2c_module() fails, the media entity and control\nhandler are left initialized and dev is leaked.\n\ngc2235_remove() unconditionally calls media_entity_cleanup() and\nv4l2_ctrl_handler_free(), but these are not initialized at every\nerror path in gc2235_probe().\n\nReplace gc2235_remove() calls in the probe error paths with explicit\nunwind labels that free only the resources initialized at each point\nof failure, in reverse order of initialization.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80650"
+    },
+    {
+      "id": "CVE-2026-80649",
+      "published": "2026-08-28T08:16:49.897",
+      "lastModified": "2026-08-29T07:16:48.180",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfirmware: arm_scmi: Fix OOB in scmi_power_name_get()\n\nscmi_power_name_get() does not validate the domain number passed by the\nexternal caller, which may lead to an out-of-bounds access.\n\nFix this by returning \"unknown\" for invalid domains, like\nscmi_reset_name_get() does.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80649"
+    },
+    {
+      "id": "CVE-2026-80648",
+      "published": "2026-08-28T08:16:49.800",
+      "lastModified": "2026-08-28T08:16:49.800",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\npinctrl: spacemit: fix NULL check in spacemit_pin_set_config\n\nspacemit_pin_set_config() looks up the per-pin descriptor with\nspacemit_get_pin() then checks the wrong variable for failure:\n\n\tconst struct spacemit_pin *spin = spacemit_get_pin(pctrl, pin);\n\t...\n\tif (!pin)\n\t\treturn -EINVAL;\n\n\treg = spacemit_pin_to_reg(pctrl, spin->pin);\n\npin is an unsigned int pin id, where 0 (GPIO_0 / gmac0_rxdv on K3) is a\nvalid pin, so rejecting it here drops the PAD config write for the first\npin of every group. On K3 Pico-ITX the GMAC RGMII group lists pin 0 as\nits first entry, so its drive-strength / bias configuration was silently\nignored.\n\nThe intended guard is against spacemit_get_pin() returning NULL when the\npin id isn't in the SoC's pin table. Check spin instead, which both\nrestores PAD setup for pin 0 and prevents a NULL deref on spin->pin.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80648"
+    },
+    {
+      "id": "CVE-2026-80647",
+      "published": "2026-08-28T08:16:49.677",
+      "lastModified": "2026-08-28T08:16:49.677",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/hns: Fix warning in poll cq direct mode\n\nCQs allocated by ib_alloc_cq() always have a comp_handler. Though\nin direct mode this handler is never expected to be called, it\nis still called when the driver is reset, triggering the following\nWARN_ONCE():\n\nCall trace:\nib_cq_completion_direct+0x38/0x60\nhns_roce_cq_completion+0x54/0x90 (hns_roce_hw_v2]\nhns_roce_handle_device_err+Ox1c8/0x340 [hns_roce_hw_v2]\nhns_roce_hw_v2_uninit_instance.constprop.0+0x34/0x70 [hns_roce_hw_v2]\nhns_roce_hw_v2_reset_notify+0xc4/0xe0 [hns_roce_hw_v2]\nhclge_notify_roce_client+0x60/0xbc [hclge]\nhclge_reset_rebuild+0x48/0x34c [hclge]\nhclge_reset_subtask+0xcc/0xec [hclge]\nhclge_reset_service_task+0x80/0x160 [hclge]\nhclge_service_task+0x50/0x80 (hclge]\nprocess_one_work+0x1cc/0x4d0\nworker_thread+0x154/0x414\nkthread+0x104/0x144\nret_from_fork+0x10/0x18",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80647"
+    },
+    {
+      "id": "CVE-2026-80646",
+      "published": "2026-08-28T08:16:49.550",
+      "lastModified": "2026-08-29T07:16:48.040",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nipv6: guard against possible NULL deref in __in6_dev_stats_get()\n\ndev_get_by_index_rcu() could return NULL if the original physical\ndevice is unregistered.\n\nFound by Sashiko.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80646"
+    },
+    {
+      "id": "CVE-2026-80645",
+      "published": "2026-08-28T08:16:49.423",
+      "lastModified": "2026-08-29T07:16:47.893",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nrapidio/tsi721: prevent a bad dereference in tsi721_db_dpc()\n\nWith a list_for_each() loop, if we don't find the item we are looking for\nin the list, then the loop exits with the iterator, which is \"dbell\" in\nthis loop, pointing to invalid memory.\n\nThis code uses the \"found\" variable to determine if we have found the\ndoorbell we are looking for or not.  However, the problem that the \"found\"\nvariable needs to be set to false at the start of each iteration,\notherwise after the first correct doorbell, then everything is marked as\nfound.\n\nReset the \"found\" to false at the start of the iteration and move the\nvariable inside the loop.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80645"
+    },
+    {
+      "id": "CVE-2026-80644",
+      "published": "2026-08-28T08:16:49.290",
+      "lastModified": "2026-08-28T08:16:49.290",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nocfs2: don't BUG_ON an invalid journal dinode\n\n[BUG]\nA fuzzed OCFS2 image can corrupt the current slot journal dinode while\nmount is still in progress. The mount path first reports the invalid\njournal block and then crashes in shutdown:\n\nkernel BUG at fs/ocfs2/journal.c:1034!\nOops: invalid opcode: 0000 [#1] SMP KASAN NOPTI\nRIP: 0010:ocfs2_journal_toggle_dirty+0x2d6/0x340 fs/ocfs2/journal.c:1034\nCall Trace:\n ocfs2_journal_shutdown+0x414/0xc30 fs/ocfs2/journal.c:1116\n ocfs2_mount_volume fs/ocfs2/super.c:1785 [inline]\n ocfs2_fill_super+0x30a9/0x3cd0 fs/ocfs2/super.c:1083\n get_tree_bdev_flags+0x38b/0x640 fs/super.c:1698\n get_tree_bdev+0x24/0x40 fs/super.c:1721\n ocfs2_get_tree+0x21/0x30 fs/ocfs2/super.c:1184\n vfs_get_tree+0x9a/0x370 fs/super.c:1758\n fc_mount fs/namespace.c:1199 [inline]\n do_new_mount_fc fs/namespace.c:3642 [inline]\n do_new_mount fs/namespace.c:3718 [inline]\n path_mount+0x5b8/0x1ea0 fs/namespace.c:4028\n do_mount fs/namespace.c:4041 [inline]\n __do_sys_mount fs/namespace.c:4229 [inline]\n __se_sys_mount fs/namespace.c:4206 [inline]\n __x64_sys_mount+0x282/0x320 fs/namespace.c:4206\n ...\n\n[CAUSE]\nocfs2_journal_toggle_dirty() used to return -EIO when journal->j_bh no\nlonger contained a valid dinode, because the startup and shutdown paths\nalready handled that failure. Commit 10995aa2451a\n(\"ocfs2: Morph the haphazard OCFS2_IS_VALID_DINODE() checks.\") changed\nthe check to a BUG_ON() under the assumption that the journal dinode had\nalready been validated. That turns an unexpected invalid journal dinode\nduring mount teardown into a kernel crash instead of a normal mount\nfailure.\n\n[FIX]\nReplace the BUG_ON() with WARN_ON() and return -EIO. This keeps the\ninvariant warning for debugging, but restores the original behavior of\nfailing startup or shutdown cleanly instead of panicking the kernel.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80644"
+    },
+    {
+      "id": "CVE-2026-80643",
+      "published": "2026-08-28T08:16:49.193",
+      "lastModified": "2026-08-28T08:16:49.193",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nEDAC/igen6: Fix call trace due to missing release()\n\nWhen unloading the igen6_edac driver, there is a call trace:\n\n  Device '(null)' does not have a release() function, it is broken and must be fixed.\n  See Documentation/core-api/kobject.rst.\n  WARNING: drivers/base/core.c:2567 at device_release+0x84/0x90, CPU#5: rmmod/127209\n  ...\n  RIP: 0010:device_release+0x84/0x90\n  Call Trace:\n   <TASK>\n   kobject_put+0x8c/0x220\n   put_device+0x17/0x30\n   igen6_unregister_mcis+0xa2/0xe0 [igen6_edac]\n   igen6_remove+0x82/0xb0 [igen6_edac]\n   ...\n\nFix the call trace by providing empty release() functions for the\nmemory controller devices.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80643"
+    },
+    {
+      "id": "CVE-2026-80642",
+      "published": "2026-08-28T08:16:49.097",
+      "lastModified": "2026-08-28T08:16:49.097",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nliveupdate: Reference count incoming FLB data\n\nIncrement the incoming FLB refcount in liveupdate_flb_get_incoming() so\nthat the FLB structure cannot be freed while the caller is actively using\nit. Add an additional liveupdate_flb_put_incoming() function so the\ncaller can explicitly indicate when it is done using the FLB data.\n\nDuring a Live Update, a subsystem might need to hold onto the incoming\nFile-Lifecycle-Bound (FLB) data for an extended period, such as during\ndevice enumeration. Incrementing the reference count guarantees that the\ndata remains valid and accessible until the subsystem releases it,\npreventing future use-after-free bugs.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80642"
+    },
+    {
+      "id": "CVE-2026-80641",
+      "published": "2026-08-28T08:16:49.003",
+      "lastModified": "2026-08-28T08:16:49.003",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: wlcore: enable the right set of ciphers\n\nThe firmware version number check for IGTK introduced in\ncommit c34dbc5900b0 (\"wifi: wlcore: Add support for IGTK key\")\n\nlets the amount of ciphers decrease on every boot of a too old firmware and\nthat is practically happening. It also does not take into account other\nchips than the wl18xx. On some wl128x, the following can be observed\nwhen connecting via nm to a common ap:\n\n[  484.113311] wlcore: WARNING could not set keys\n[  484.117828] wlcore: ERROR Could not add or replace key\n[  484.123016] wlan0: failed to set key (5, ff:ff:ff:ff:ff:ff) to hardware (-5)\n[  484.123046] wlcore: Hardware recovery in progress. FW ver: Rev 7.3.10.0.142\n[  484.139923] wlcore: pc: 0x0, hint_sts: 0x00000048 count: 1\n[  484.145721] wlcore: down\n[  484.148986] ieee80211 phy0: Hardware restart was requested\n[  484.610473] wlcore: firmware booted (Rev 7.3.10.0.142)\n[  484.633758] wlcore: Association completed.\n[  484.690490] wlcore: ERROR command execute failure 14\n[  484.690490] ------------[ cut here ]------------\n[  484.700195] WARNING: drivers/net/wireless/ti/wlcore/main.c:872 at wl12xx_queue_recovery_work+0x64/0x74 [wlcore], CPU#0: kworker/0:0/892\n\nThis repeats endlessly.\nAlways disable IGTK on wl12xx and fix the decrementing mess.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80641"
+    },
+    {
+      "id": "CVE-2026-80640",
+      "published": "2026-08-28T08:16:48.910",
+      "lastModified": "2026-08-28T08:16:48.910",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ncxl/fwctl: Fix __fortify_panic\n\nFix a runtime assertion in cxlctl_get_supported_features(). Fortify\ncomplains that it is potentially overflowing the entries array per\n__counted_by_le(num_entries). Quiet the false positive by initializing\n@num_entries earlier.\n\n memcpy: detected buffer overflow: 48 byte write of buffer size 0\n WARNING: lib/string_helpers.c:1036 at __fortify_report+0x4d/0xa0, CPU#7: fwctl/1398\n RIP: 0010:__fortify_report+0x50/0xa0\n Call Trace:\n  __fortify_panic+0xd/0xf\n  cxlctl_get_supported_features.cold+0x23/0x35 [cxl_core]",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80640"
+    },
+    {
+      "id": "CVE-2026-80639",
+      "published": "2026-08-28T08:16:48.813",
+      "lastModified": "2026-08-28T08:16:48.813",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ncxl/test: Fix __fortify_panic\n\nFix a runtime assertion in setup_xor_mapping(). Fortify complains that it\nis potentially overflowing the xormaps array per __counted_by(nr_maps).\nQuiet the false positive by initializing @nr_maps earlier.\n\n memcpy: detected buffer overflow: 32 byte write of buffer size 0\n WARNING: lib/string_helpers.c:1036 at __fortify_report+0x4d/0xa0, CPU#8: modprobe/2728\n Call Trace:\n  __fortify_panic+0xd/0xf\n  setup_xor_mapping+0x6c/0xa0 [cxl_translate]\n\n[ dj: Fixed up @nr_entries to @nr_maps in commit log. ]",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80639"
+    },
+    {
+      "id": "CVE-2026-80638",
+      "published": "2026-08-28T08:16:48.720",
+      "lastModified": "2026-08-29T07:16:47.790",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nocfs2: fix out-of-bounds write in ocfs2_remove_refcount_extent\n\n[BUG]\nUnlinking a refcounted file whose refcount tree has leaf blocks\ntriggers a fortify panic due to an out-of-bounds write.\n\n[CAUSE]\nWhen the last leaf block is removed from a refcount tree,\nocfs2_remove_refcount_extent() converts the root back to leaf mode\nwith a bulk memset on &rb->rf_records. rf_records sits in an anonymous\nunion with rf_list. rf_list.l_tree_depth aliases rf_records.rl_count,\nand is 0 for a single-level tree. With rl_count equal to 0, the memset\nwrites past the 16-byte declared size of rf_records, which the fortify\nchecker catches.\n\n[FIX]\nReplace the bulk memset on &rb->rf_records with a correctly-bounded\nmemset on rl_recs[] alone, after setting rl_count to the correct value.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80638"
+    },
+    {
+      "id": "CVE-2026-80637",
+      "published": "2026-08-28T08:16:48.620",
+      "lastModified": "2026-08-29T07:16:47.660",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: synproxy: fix unaligned memory access in timestamp adjustment\n\nUse get_unaligned_be32() and put_unaligned_be32() to safely read and\nwrite the timestamp fields. This prevents performance degradation due to\nunaligned memory access or even a crash on strict alignment\narchitectures.\n\nThis follows the implementation of timestamp parsing in the networking\nstack at tcp_parse_options() and synproxy_parse_options().",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80637"
+    },
+    {
+      "id": "CVE-2026-80636",
+      "published": "2026-08-28T08:16:48.513",
+      "lastModified": "2026-08-28T08:16:48.513",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: conntrack: revert ct extension genid infrastructure\n\nThis infrastructure is not used anymore after moving ct timeout and\nhelper to use datapath refcount to track object use.\n\nRevert commit c56716c69ce1 (\"netfilter: extensions: introduce extension\ngenid count\") this patch disables all ct extensions (leading to NULL)\nfor unconfirmed conntracks, when this is only targeted at ct helper and\nct timeout. There is also codebase that dereferences the ct extension\nwithout checking for NULL which could lead to crash.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80636"
+    },
+    {
+      "id": "CVE-2026-80635",
+      "published": "2026-08-28T08:16:48.400",
+      "lastModified": "2026-08-29T07:16:47.537",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: wcn36xx: fix OOB read from short trigger BA firmware response\n\nThe firmware response length is only checked against sizeof(*rsp) (20\nbytes), but when candidate_cnt >= 1, a 22-byte candidate struct is read\nat buf + 20 without verifying the response contains it. This causes an\nout-of-bounds read of stale heap data, corrupting the BA session state.\n\nAdd validation that the response includes the candidate data.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80635"
+    },
+    {
+      "id": "CVE-2026-80634",
+      "published": "2026-08-28T08:16:48.303",
+      "lastModified": "2026-08-29T07:16:47.430",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: flowtable: avoid num_encaps underflow on bridge VLAN untag\n\nThe DEV_PATH_BR_VLAN_UNTAG case post-decrements info->num_encaps\ninside WARN_ON_ONCE(). num_encaps is u8, so if it's already 0 the\ndecrement still happens and wraps it to 255. The break only leaves\nthe inner switch -- a later path entry can set info->indev back to\na real device, and we end up returning with num_encaps == 255.\n\nnft_dev_forward_path() then walks info.encap[] (size 2) up to\nnum_encaps, which means an OOB stack read and a bogus count copied\ninto the route descriptor.\n\nShould only happen on a malformed bridge path stack, hence the WARN,\nbut worth handling sanely. Move the decrement out of the WARN.\n\n[ While at this, remove the WARN_ON_ONCE since this can only happen\n  with a buggy bridge path stack --pablo ].",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80634"
+    },
+    {
+      "id": "CVE-2026-80633",
+      "published": "2026-08-28T08:16:48.200",
+      "lastModified": "2026-08-29T07:16:47.320",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\niommufd: Take dma_resv lock before dma_buf_unpin() in release path\n\ndma_buf_unpin() requires the caller to hold the exporter's dma_resv\nlock:\n\n  void dma_buf_unpin(struct dma_buf_attachment *attach)\n  {\n          ...\n          dma_resv_assert_held(dmabuf->resv);\n          ...\n  }\n\niopt_release_pages() calls dma_buf_unpin() without taking that lock,\nso every iommufd_ioas_destroy()/iommufd_ioas_unmap() that releases\nthe last reference on a DMABUF-backed iopt_pages triggers a WARN.\nThis was hit while running tools/testing/selftests/iommu/iommufd:\n\n  WARNING: drivers/dma-buf/dma-buf.c:1137 at dma_buf_unpin+0x62/0x70\n  RIP: 0010:dma_buf_unpin+0x62/0x70\n  Call Trace:\n   <TASK>\n   dma_buf_unpin+0x62/0x70\n   iopt_release_pages+0xe4/0x190\n   iopt_unmap_iova_range+0x1c7/0x290\n   iopt_unmap_all+0x1a/0x30\n   iommufd_ioas_destroy+0x1d/0x50\n   iommufd_fops_release+0x93/0x150\n   __fput+0xfc/0x2c0\n   __x64_sys_close+0x3d/0x80\n   do_syscall_64+0x65/0x180\n   </TASK>\n\nTake the dma_resv lock around dma_buf_unpin() in iopt_release_pages(),\nmatching the iopt_map_dmabuf() convention. dma_buf_detach() acquires the\nreservation lock internally, so it must remain outside the locked region.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80633"
+    },
+    {
+      "id": "CVE-2026-80632",
+      "published": "2026-08-28T08:16:48.107",
+      "lastModified": "2026-08-28T08:16:48.107",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: mt76: mt7996: Fix NULL pointer dereference in mt7996_init_tx_queues()\n\nWhen MT76_NPU and CONFIG_NET_MEDIATEK_SOC_WED are enabled and\nmt76 detects properly the Airoha NPU SoC, mt7996_init_tx_queues() will\ndereference a NULL WED pointer.\nFix the issue by always passing the WED pointer from mt7996_dma_init().",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80632"
+    },
+    {
+      "id": "CVE-2026-80631",
+      "published": "2026-08-28T08:16:48.010",
+      "lastModified": "2026-08-29T07:16:47.210",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nbtrfs: lzo: reject compressed segment that overflows the compressed input\n\nlzo_decompress_bio() validates each on-disk segment length seg_len only\nagainst the workspace cbuf size, not against the compressed input size\n(compressed_len, the total folio bytes of the bio).  A crafted extent can\ncarry a segment whose seg_len passes the cbuf check but runs past the end\nof the bio, so copy_compressed_segment() walks off the last folio:\nget_current_folio() then returns the NULL folio from bio_next_folio(), and\nwith CONFIG_BTRFS_ASSERT disabled (default) folio_size(NULL) faults.\n\n BUG: KASAN: null-ptr-deref in lzo_decompress_bio (fs/btrfs/lzo.c:383)\n Read of size 8 at addr 0000000000000000 by task kworker/u8:1/29\n Workqueue: btrfs-endio simple_end_io_work\n  kasan_report (mm/kasan/report.c:590)\n  lzo_decompress_bio (fs/btrfs/lzo.c:383)\n  end_bbio_compressed_read (fs/btrfs/compression.c:1065)\n  btrfs_bio_end_io (fs/btrfs/bio.c:135)\n  btrfs_check_read_bio (fs/btrfs/bio.c:180 fs/btrfs/bio.c:285)\n  simple_end_io_work\n  process_one_work\n  worker_thread\n\nReject any segment whose payload would extend beyond compressed_len before\ncopying it, treating it as corruption like the other on-disk validation\nfailures in this function.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80631"
+    },
+    {
+      "id": "CVE-2026-80630",
+      "published": "2026-08-28T08:16:47.850",
+      "lastModified": "2026-08-29T07:16:47.027",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/sched: sch_fq_codel: Do not call qdisc_tree_reduce_backlog during peek before restoring qlen\n\nWhenever fq_codel drops packets during peek, it calls\nqdisc_tree_reduce_backlog. An issue arises because it calls\nqdisc_tree_reduce_backlog before it reincrements the qlen. If qlen drops\nto zero, but peek returns an skb, the parent's qlen_notify callback will be\nexecuted even though fq_codel still has 1 packet on the queue and, thus,\nwill mistakenly deactivate the parent's class causing issues like a recent\nreport [1] and a wild memory access in qfq:\n\n[   29.371146][  T360] Oops: general protection fault, probably for non-canonical address 0xfbd59c0000000024: 0000 [#1] SMP KASAN NOPTI\n[   29.371666][  T360] KASAN: maybe wild-memory-access in range [0xdead000000000120-0xdead000000000127]\n[   29.371987][  T360] CPU: 6 UID: 0 PID: 360 Comm: tc Not tainted 7.1.0-rc5-00285-gc530e5b2dbc6-dirty #82 PREEMPT(full)\n[   29.372384][  T360] Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011\n[   29.372620][  T360] RIP: 0010:qfq_deactivate_agg (include/linux/list.h:1029 (discriminator 2) include/linux/list.h:1043 (discriminator 2) net/sched/sch_qfq.c:1369 (discriminator 2) net/sched/sch_qfq.c:1395 (discriminator 2)) sch_qfq\n[   29.373544][  T360] RSP: 0018:ffff888102417370 EFLAGS: 00010216\n[   29.373800][  T360] RAX: 0000000000000000 RBX: ffff88811224d568 RCX: dffffc0000000000\n[   29.374079][  T360] RDX: 1ffff11021fe1543 RSI: ffff88810ff0aa00 RDI: dffffc0000000000\n[   29.374368][  T360] RBP: ffff88811224c280 R08: dead000000000122 R09: 1bd5a00000000024\n[   29.374649][  T360] R10: fffffbfff7940329 R11: fffffbfff7940329 R12: 0000000000000000\n[   29.374926][  T360] R13: dead000000000100 R14: ffff88811224d580 R15: ffff88811224d578\n[   29.375207][  T360] FS:  00007f5b794e5780(0000) GS:ffff88815d1e9000(0000) knlGS:0000000000000000\n[   29.375545][  T360] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033\n[   29.375823][  T360] CR2: 000055ffb091f000 CR3: 000000010a305000 CR4: 0000000000750ef0\n[   29.376103][  T360] PKRU: 55555554\n[   29.376258][  T360] Call Trace:\n[   29.376401][  T360]  <TASK>\n...\n[   29.376885][  T360] qfq_reset_qdisc (net/sched/sch_qfq.c:357 net/sched/sch_qfq.c:1487) sch_qfq\n[   29.377074][  T360]  qdisc_reset (net/sched/sch_generic.c:1057)\n[   29.377414][  T360]  __qdisc_destroy (net/sched/sch_generic.c:1096)\n[   29.377600][  T360]  qdisc_graft (net/sched/sch_api.c:1062 net/sched/sch_api.c:1053 net/sched/sch_api.c:1159)\n[   29.378593][  T360]  tc_get_qdisc (net/sched/sch_api.c:1528 net/sched/sch_api.c:1556)\n\nFix this by only calling qdisc_tree_reduce_backlog in peek after the\nqlen is restored.\n\n[1] http://lore.kernel.org/netdev/CAN2cbVe79oj0O9==m4+4x3v+O+qzRagA=2=wkrp9i9=CqYvyZA@mail.gmail.com/",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80630"
+    },
+    {
+      "id": "CVE-2026-80629",
+      "published": "2026-08-28T08:16:47.743",
+      "lastModified": "2026-08-28T08:16:47.743",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nocteontx2-af: npc: Fix size of entry2cntr_map\n\nKASAN prints below splat. This is caused by allocating counter for\nreserved mcam entry for cpt 2nd pass entry. But mcam->entry2cntr_map\nis not allocated for reserved entries.\n\nBUG: KASAN: slab-out-of-bounds in npc_map_mcam_entry_and_cntr+0xb0/0x1a0\nWrite of size 2 at addr ffff0001033e7ffe by task kworker/0:1/14\n\nCPU: 0 PID: 14 Comm: kworker/0:1 Not tainted 6.1.67 #1\nHardware name: Marvell CN106XX board (DT)\nWorkqueue: events work_for_cpu_fn\nCall trace:\n dump_backtrace.part.0+0xe4/0xf0\n show_stack+0x18/0x30\n dump_stack_lvl+0x88/0xb4\n print_report+0x154/0x458\n kasan_report+0xb8/0x194\n __asan_store2+0x7c/0xa0\n npc_map_mcam_entry_and_cntr+0xb0/0x1a0\n rvu_mbox_handler_npc_mcam_write_entry+0x268/0x280\n npc_install_flow+0x840/0xfe0\n rvu_npc_install_cpt_pass2_entry+0x138/0x190\n rvu_nix_init+0x148c/0x2880\n rvu_probe+0x1800/0x30b0\n local_pci_probe+0x78/0xe0\n work_for_cpu_fn+0x30/0x50\n process_one_work+0x4cc/0x97c\n worker_thread+0x360/0x630\n kthread+0x1a0/0x1b0\n ret_from_fork+0x10/0x20",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80629"
+    },
+    {
+      "id": "CVE-2026-80628",
+      "published": "2026-08-28T08:16:47.007",
+      "lastModified": "2026-08-29T07:16:46.900",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nALSA: seq: oss: Serialize readq reset state with q->lock\n\nsnd_seq_oss_readq_clear() resets qlen, head, and tail without\nq->lock even though the normal reader and producer paths serialize the\nsame ring state under that spinlock. A reset can therefore race\nsnd_seq_oss_readq_free() or snd_seq_oss_readq_put_event() and leave\nstale records in the queue, drop freshly queued ones, or report the\nwrong readiness after wakeup. KCSAN reports a data race between\nsnd_seq_oss_readq_clear() and snd_seq_oss_readq_free().\n\nTake q->lock while clearing the ring and resetting input_time. Factor\nthe enqueue logic into a caller-locked helper so\nsnd_seq_oss_readq_put_timestamp() updates its suppression state under\nthe same lock instead of racing the reset path.\n\nThe buggy scenario involves two paths, with each column showing the\norder within that path:\n\nreset path:                      locked readq updater:\n1. snd_seq_oss_reset() or        1. A reader or callback producer\n   release reaches                  takes q->lock on the same queue.\n   snd_seq_oss_readq_clear().\n2. snd_seq_oss_readq_clear()     2. The updater tests or modifies\n   resets qlen, head, tail,         qlen, head, and tail.\n   and input_time.\n3. snd_seq_oss_readq_clear()     3. The updater completes its\n   wakes sleepers on                read-modify-write sequence.\n   q->midi_sleep.\n4. Without q->lock, the reset    4. The resulting ring state drives\n   can overlap the locked           later reads and readiness.\n   update.\n\nKCSAN reports:\n\nBUG: KCSAN: data-race in snd_seq_oss_readq_clear /\nsnd_seq_oss_readq_free\n\nwrite to 0xffff8881069fe608 of 4 bytes by task 120516 on cpu 0:\n  snd_seq_oss_readq_free+0x6c/0x80\n  snd_seq_oss_read+0xcb/0x250\n  odev_read+0x38/0x60\n  vfs_read+0xff/0x600\n  ksys_read+0xb4/0x140\n  __x64_sys_read+0x46/0x60\n  do_syscall_64+0xbb/0x2f0\n  entry_SYSCALL_64_after_hwframe+0x77/0x7f\n\nread to 0xffff8881069fe608 of 4 bytes by task 120517 on cpu 1:\n  snd_seq_oss_readq_clear+0x1f/0x90\n  snd_seq_oss_reset+0xa7/0xf0\n  snd_seq_oss_ioctl+0x6f6/0x7e0\n  odev_ioctl+0x56/0xc0\n  __x64_sys_ioctl+0xd1/0x120\n  do_syscall_64+0xbb/0x2f0\n  entry_SYSCALL_64_after_hwframe+0x77/0x7f\n\nvalue changed: 0x00000001 -> 0x00000000",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80628"
+    },
+    {
+      "id": "CVE-2026-80627",
+      "published": "2026-08-28T08:16:46.867",
+      "lastModified": "2026-08-28T08:16:46.867",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nMIPS: mm: Fix out-of-bounds write in maar_res_walk()\n\nmaar_res_walk() uses wi->num_cfg as the index into the fixed-size\nwi->cfg array, but checks whether the array is full only after it has\nfilled the selected entry. If walk_system_ram_range() reports more than\n16 memory ranges, the overflow call writes one struct maar_config past\nthe end of the array before WARN_ON() prevents num_cfg from advancing.\n\nMove the full-array check before taking the array slot and return non-zero\nwhen the scratch array is full, so walk_system_ram_range() terminates the\nwalk instead of invoking the callback for further ranges.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80627"
+    },
+    {
+      "id": "CVE-2026-80626",
+      "published": "2026-08-28T08:16:46.740",
+      "lastModified": "2026-08-28T08:16:46.740",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\npowerpc/perf: fix preempt count underflow in fsl_emb_pmu_del\n\nfsl_emb_pmu_del() unconditionally calls put_cpu_var(cpu_hw_events) at\nthe 'out:' label, but only calls the matching get_cpu_var() after the\n'i < 0' early-return check. When event->hw.idx is negative the\nfunction jumps to 'out:' without having taken get_cpu_var(), and the\ntrailing put_cpu_var() then issues an unmatched preempt_enable(),\nunderflowing preempt_count.\n\nOn a CONFIG_PREEMPT=y kernel preempt_count would underflow and\neventually present as a 'scheduling while atomic' BUG.\n\nMove put_cpu_var() to pair with get_cpu_var() so the percpu access is\ncorrectly bracketed and the 'out:' label only handles perf_pmu_enable.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80626"
+    },
+    {
+      "id": "CVE-2026-80625",
+      "published": "2026-08-28T08:16:46.647",
+      "lastModified": "2026-08-28T08:16:46.647",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/hns: Fix memory leak of bonding resources\n\nIn a corner case of concurrent driver removal and driver reset,\nbonding resource is first released in hns_roce_hw_v2_exit() during\ndriver removal, and then is allocated again in hns_roce_register_device()\nduring driver reset. This leads to memory leak because the release\ntiming has already passed. This may also lead to a kernel panic\nas below because of the leaked notifier callback:\n\nCall trace:\n  0xffffa20fccc04978 (P)\n  raw_notifier_call_chain+0x20/0x38\n  call_netdevice_notifiers_info+0x60/0xb8\n  netdev_lower_state_changed+0x4c/0xb8\n\nAs Sashiko suggested, the teardown order of bonding resources should\nbe inverted to make sure the resources are released when the driver\nis removed.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80625"
+    },
+    {
+      "id": "CVE-2026-80624",
+      "published": "2026-08-28T08:16:46.543",
+      "lastModified": "2026-08-28T08:16:46.543",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmfd: cs42l43: Sanity check firmware size\n\nCurrently the code checks if a firmware was received, however it does\nnot verify that the firmware size is larger than the firmware header. As\nthe firmware pointer is dereferenced as a pointer to the header\nstructure this could lead to an out of bounds memory access. Add the\nmissing check.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80624"
+    },
+    {
+      "id": "CVE-2026-80623",
+      "published": "2026-08-28T08:16:46.447",
+      "lastModified": "2026-08-28T08:16:46.447",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ncoresight: ete: Always save state on power down\n\nSystem register ETMs and ETE are unlikely to be preserved on CPU power\ndown. The ETE DT binding also never documented\n\"arm,coresight-loses-context-with-cpu\" so nobody would have legitimately\nbeen able to use that binding to fix it and ACPI has no such binding at\nall.\n\nFix it by hard coding the setting for sysreg ETMs (ETE is always sysreg)\nor ACPI boots. Use a local variable when setting up save_state so that\nit's immune to concurrent probing when devices have different\nconfigurations which is an issue with modifying the global.\n\nThis fixes the following error when using Coresight with ACPI on the FVP\nwhich supports CPU PM:\n\n  coresight ete0: External agent took claim tag\n  WARNING: drivers/hwtracing/coresight/coresight-core.c:248 at coresight_disclaim_device_unlocked+0xe0/0xe8, CPU#0: perf/117",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80623"
+    },
     {
       "id": "CVE-2026-80622",
       "published": "2026-08-28T08:16:46.320",
@@ -568,310 +832,6 @@
       "score": 6.4,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15798"
-    },
-    {
-      "id": "CVE-2026-78618",
-      "published": "2026-08-28T02:16:24.580",
-      "lastModified": "2026-08-28T20:19:59.257",
-      "description": "A business logic flaw in WatchGuard Dimension allows an authenticated administrator to trigger multiple backend operations within a single logical flow by sending a specially crafted request.",
-      "score": 6.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78618"
-    },
-    {
-      "id": "CVE-2026-78617",
-      "published": "2026-08-28T02:16:24.450",
-      "lastModified": "2026-08-28T20:19:59.150",
-      "description": "WatchGuard Dimension's web login endpoint does not enforce effective rate-limiting or account lockout by default allowing a remote attacker to perform automated password guessing against user accounts. If the account lockout setting is enabled, brute-force attempts are blocked after a defined number of failed attempts, but this setting is not enabled by default.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78617"
-    },
-    {
-      "id": "CVE-2026-78616",
-      "published": "2026-08-28T02:16:24.317",
-      "lastModified": "2026-08-28T20:19:59.033",
-      "description": "A Stored Cross-Site Scripting (XSS) vulnerability in WatchGuard Dimension's Trusted CA certificate configuration allows an authenticated administrator to execute arbitrary JavaScript in another authenticated administrator's web browser by saving a carefully crafted certificate.",
-      "score": 4.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78616"
-    },
-    {
-      "id": "CVE-2026-78615",
-      "published": "2026-08-28T02:16:24.190",
-      "lastModified": "2026-08-28T20:19:58.880",
-      "description": "A Reflected Cross-Site Scripting (XSS) vulnerability in WatchGuard Dimension's report detail page allows an attacker to execute arbitrary JavaScript in a authenticated user's browser with a specially crafted URL.",
-      "score": 4.6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78615"
-    },
-    {
-      "id": "CVE-2026-78614",
-      "published": "2026-08-28T02:16:24.070",
-      "lastModified": "2026-08-28T20:19:58.750",
-      "description": "WatchGuard Dimension contains an authenticated SQL injection vulnerability in the audit report feature which allows an authenticated user with report administration permissions gain arbitrary command execution as the Dimension WebUI process user by sending specially crafted requests.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78614"
-    },
-    {
-      "id": "CVE-2026-78613",
-      "published": "2026-08-28T02:16:23.943",
-      "lastModified": "2026-08-28T20:19:58.630",
-      "description": "WatchGuard Dimension contains an authenticated SQL injection vulnerability in the log viewer feature which allows an authenticated user with report administration permissions gain arbitrary command execution as the Dimension WebUI process user by sending specially crafted requests.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78613"
-    },
-    {
-      "id": "CVE-2026-78612",
-      "published": "2026-08-28T02:16:23.807",
-      "lastModified": "2026-08-28T20:19:58.513",
-      "description": "WatchGuard Dimension contains an authenticated SQL injection vulnerability in the scheduled report feature which allows an authenticated user with report administration permissions gain arbitrary command execution as the Dimension WebUI process user by sending specially crafted requests.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78612"
-    },
-    {
-      "id": "CVE-2026-78610",
-      "published": "2026-08-28T02:16:23.687",
-      "lastModified": "2026-08-28T20:19:58.390",
-      "description": "WatchGuard Dimension's Web UI exposes an administrator passphrase change action that lacks CSRF protection. An attacker who can induce an authenticated global administrator's browser to visit a crafted link or page can change that administrator's passphrase to an attacker-chosen value without the administrator's consent.",
-      "score": 8.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78610"
-    },
-    {
-      "id": "CVE-2026-78500",
-      "published": "2026-08-28T02:16:23.560",
-      "lastModified": "2026-08-28T20:19:58.283",
-      "description": "A blind server-side request forgery (SSRF) vulnerability WatchGuard Dimension Database Server Test configuration allows an authenticated privileged attacker to enumerate exposed network services on adjacent network systems.",
-      "score": 5.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78500"
-    },
-    {
-      "id": "CVE-2026-78499",
-      "published": "2026-08-28T02:16:23.443",
-      "lastModified": "2026-08-28T20:19:58.173",
-      "description": "A server-side request forgery (SSRF) vulnerability WatchGuard Dimension FTP Server Test configuration allows an authenticated privileged attacker to enumerate exposed network services on adjacent network systems.",
-      "score": 5.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78499"
-    },
-    {
-      "id": "CVE-2026-78498",
-      "published": "2026-08-28T02:16:23.317",
-      "lastModified": "2026-08-28T20:19:58.070",
-      "description": "A server-side request forgery (SSRF) vulnerability WatchGuard Dimension Email Server Test configuration allows an authenticated privileged attacker to enumerate exposed network services on adjacent network systems.",
-      "score": 5.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78498"
-    },
-    {
-      "id": "CVE-2026-78495",
-      "published": "2026-08-28T02:16:23.197",
-      "lastModified": "2026-08-28T20:19:57.963",
-      "description": "A server-side request forgery (SSRF) vulnerability WatchGuard Dimension Remote Backup Connection Test configuration allows an authenticated privileged attacker to enumerate exposed network services on adjacent network systems.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78495"
-    },
-    {
-      "id": "CVE-2026-78195",
-      "published": "2026-08-28T02:16:23.080",
-      "lastModified": "2026-09-03T05:13:07.860",
-      "description": "Rejected reason: Rejecting as a duplicate of CVE-2026-78047",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78195"
-    },
-    {
-      "id": "CVE-2026-78174",
-      "published": "2026-08-28T02:16:22.950",
-      "lastModified": "2026-08-28T20:19:57.310",
-      "description": "WatchGuard Dimension records unredacted session identifiers for logged-in users in its web UI diagnostic log. A low-privileged Dimension Administrator can retrieve this log and extract a Super Administrator's session token while that administrator is logged in, enabling account takeover.",
-      "score": 9.3,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78174"
-    },
-    {
-      "id": "CVE-2026-78103",
-      "published": "2026-08-28T02:16:22.830",
-      "lastModified": "2026-08-28T20:19:57.203",
-      "description": "WatchGuard Dimension provides a client-side lock/unlock UI control for management changes. The server-side configuration endpoint does not enforce this lock/unlock workflow state, allowing an authenticated administrator to submit configuration changes directly to the endpoint without first completing the UI unlock step. This allows an authenticated read-write administrator session to bypass the intended editing workflow and overwrite configuration changes being made by another concurrent administrator session.",
-      "score": 5.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78103"
-    },
-    {
-      "id": "CVE-2026-78047",
-      "published": "2026-08-28T02:16:22.697",
-      "lastModified": "2026-08-28T20:19:57.097",
-      "description": "A stored cross-site scripting (XSS) vulnerability in WatchGuard Dimension's task scheduling feature allows a low-privileged authenticated administrator to inject arbitrary HTML/JavaScript into these fields, which then executes in the browser session of any other user.",
-      "score": 5.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78047"
-    },
-    {
-      "id": "CVE-2026-78011",
-      "published": "2026-08-28T02:16:22.563",
-      "lastModified": "2026-09-03T21:17:22.293",
-      "description": "An integer underflow vulnerability in the WatchGuard Fireware OS iked process allows a remote unauthenticated attacker to create a Denial of Service (DoS) condition in VPN processing by sending specially crafted network traffic.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78011"
-    },
-    {
-      "id": "CVE-2026-78010",
-      "published": "2026-08-28T02:16:22.417",
-      "lastModified": "2026-09-03T21:17:22.180",
-      "description": "A stack-based buffer overflow vulnerability in the WatchGuard Fireware OS iked process iallows a remote unauthenticated attacker to create a Denial of Service (DoS) condition in VPN processing by sending specially crafted network traffic.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78010"
-    },
-    {
-      "id": "CVE-2026-78009",
-      "published": "2026-08-28T02:16:22.293",
-      "lastModified": "2026-09-03T21:17:22.067",
-      "description": "An out-of-bounds read vulnerability in the WatchGuard Fireware OS iked process allows a remote unauthenticated attacker to create a Denial of Service (DoS) condition in VPN processing by sending specially crafted network traffic.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78009"
-    },
-    {
-      "id": "CVE-2026-78008",
-      "published": "2026-08-28T02:16:22.167",
-      "lastModified": "2026-09-03T21:17:21.947",
-      "description": "A buffer overflow vulnerability in the WatchGuard Fireware OS Management Web UI allows an authenticated administrator with network access to cause a denial of service (DoS) condition or potentially execute arbitrary code by sending specially crafted network traffic.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78008"
-    },
-    {
-      "id": "CVE-2026-61802",
-      "published": "2026-08-28T02:16:21.907",
-      "lastModified": "2026-08-28T16:18:20.150",
-      "description": "Wazuh is an open-source security platform providing unified XDR and SIEM protection for endpoints and cloud workloads. In versions 4.14.0 through 4.14.6, a low-privilege API user can read the cleartext cluster key from a configuration endpoint that fails to redact it. The REST API provides a masking control, mask_sensitive_config, that redacts sensitive fields such as authd.pass and cluster.key from configuration responses for users who lack update-config permission, and every config-read endpoint carries this decorator except GET /cluster/local/config. That endpoint, backed by read_config_wrapper, is gated only by cluster:read and returns the local node's cluster configuration including the cleartext key, whereas its siblings return the same value masked. As a result, any account with the default readonly or cluster_readonly role, which is explicitly denied update-config precisely so it cannot view secrets, receives the real cluster key. Because the cluster key authenticates and encrypts traffic between cluster nodes, disclosing it to an unprivileged account provides the authentication precondition for the cluster-peer remote code execution chains established by prior advisories. This issue is fixed in version 4.14.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61802"
-    },
-    {
-      "id": "CVE-2026-61800",
-      "published": "2026-08-28T02:16:21.767",
-      "lastModified": "2026-08-28T20:19:08.670",
-      "description": "Wazuh is an open-source security platform providing unified XDR and SIEM protection for endpoints and cloud workloads. In versions 4.4.0 through 4.14.6, a party holding the cluster key can write, overwrite, or delete arbitrary files under /var/ossec on worker nodes, leading to remote code execution as root. During cluster file synchronization, the non-merged branch of update_master_files_in_worker() moves each staged file to a destination derived only from safe_join(), which confines the path to /var/ossec but never verifies that the file lands in the directory declared by its cluster_item_key. Because the destination check present on the primary node and on the worker's merged branch was not applied, a peer can place files at attacker-chosen locations under /var/ossec, including paths that are executed as root, and the delete branch has the same gap. This is an incomplete fix for CVE-2026-30893, which addressed traversal outside /var/ossec but left this path able to redirect files anywhere within it. This issue is fixed in version 4.14.7.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61800"
-    },
-    {
-      "id": "CVE-2026-38822",
-      "published": "2026-08-28T02:16:21.620",
-      "lastModified": "2026-08-28T16:17:47.317",
-      "description": "In openNDS before 11.0.0, the client_params.sh script, invoked by the openNDS daemon to serve the authenticated client status page, is vulnerable to OS command injection through crafted HTTP GET query parameter keys. An authenticated captive portal user can inject arbitrary shell commands by embedding semicolons in a URL query parameter name.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-38822"
-    },
-    {
-      "id": "CVE-2026-38821",
-      "published": "2026-08-28T02:16:21.490",
-      "lastModified": "2026-08-28T20:17:28.440",
-      "description": "A heap-based buffer overflow vulnerability exists in openNDS before 11.0.0 that allows an unauthenticated attacker on the captive portal network to crash the openNDS daemon (denial of service) and potentially achieve remote code execution. This is in http_microhttpd.c.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-38821"
-    },
-    {
-      "id": "CVE-2026-38820",
-      "published": "2026-08-28T02:16:21.350",
-      "lastModified": "2026-08-28T20:17:28.317",
-      "description": "openNDS before 11.0.0 is susceptible to unauthenticated OS command execution via shell command injection through the fas query parameter on the /opennds_preauth/ endpoint because of libopennds.sh.",
-      "score": 8.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-38820"
-    },
-    {
-      "id": "CVE-2026-38819",
-      "published": "2026-08-28T02:16:21.200",
-      "lastModified": "2026-08-28T20:17:28.193",
-      "description": "Multiple memory leaks in openNDS before 11.0.0 allow an unauthenticated attacker on the captive portal network to exhaust all available memory on the device within minutes.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-38819"
-    },
-    {
-      "id": "CVE-2026-19318",
-      "published": "2026-08-28T02:16:21.070",
-      "lastModified": "2026-09-03T21:17:21.280",
-      "description": "A stack-based buffer overflow vulnerability in the WatchGuard Fireware OS iked process allows a remote unauthenticated attacker to execute arbitrary code by sending specially crafted network traffic.",
-      "score": 9.3,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19318"
-    },
-    {
-      "id": "CVE-2026-19317",
-      "published": "2026-08-28T02:16:20.947",
-      "lastModified": "2026-09-03T21:17:21.160",
-      "description": "An out-of-bounds read vulnerability in the WatchGuard Fireware OS iked process allows a remote unauthenticated attacker to create a Denial of Service (DoS) condition in VPN processing by sending specially crafted network traffic.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19317"
-    },
-    {
-      "id": "CVE-2026-19316",
-      "published": "2026-08-28T02:16:20.827",
-      "lastModified": "2026-09-03T21:17:21.033",
-      "description": "A double-free vulnerability in the WatchGuard Fireware OS iked process allows a remote unauthenticated attacker to create a Denial of Service (DoS) condition in VPN processing by sending specially crafted network traffic.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19316"
-    },
-    {
-      "id": "CVE-2026-19315",
-      "published": "2026-08-28T02:16:20.703",
-      "lastModified": "2026-09-03T21:17:20.907",
-      "description": "A type confusion vulnerability in the iked process of WatchGuard Fireware OS allows a remote unauthenticated attacker to execute arbitrary code by sending specially crafted network traffic.",
-      "score": 9.3,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19315"
-    },
-    {
-      "id": "CVE-2026-19314",
-      "published": "2026-08-28T02:16:20.580",
-      "lastModified": "2026-09-03T21:17:20.780",
-      "description": "An integer underflow vulnerability in the WatchGuard Fireware OS iked process allows a remote unauthenticated attacker to create a Denial of Service (DoS) condition in VPN processing by sending specially crafted network traffic.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19314"
-    },
-    {
-      "id": "CVE-2026-19313",
-      "published": "2026-08-28T02:16:20.450",
-      "lastModified": "2026-09-03T21:17:20.650",
-      "description": "An heap overflow vulnerability in the WatchGuard Fireware OS iked process allows a remote unauthenticated attacker to execute arbitrary code by sending specially crafted network traffic.",
-      "score": 9.3,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19313"
-    },
-    {
-      "id": "CVE-2026-13108",
-      "published": "2026-08-28T02:16:20.323",
-      "lastModified": "2026-08-28T20:17:22.120",
-      "description": "WatchGuard Dimension is susceptible to a denial-of-service condition when an attacker sends a high volume of TCP SYN packets to the log listening service.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13108"
-    },
-    {
-      "id": "CVE-2026-13086",
-      "published": "2026-08-28T02:16:20.197",
-      "lastModified": "2026-09-03T21:17:20.243",
-      "description": "A stack-based buffer overflow in the epm (Endpoint Protection Manager) service used by the deprecated Mobile Security feature in WatchGuard Fireware OS allows an unauthenticated remote attacker to execute arbitrary code.",
-      "score": 9.3,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13086"
     }
   ]
 }
