@@ -1,6 +1,109 @@
 {
-  "syncedAt": "2026-09-04T04:44:59.783Z",
+  "syncedAt": "2026-09-04T05:18:16.501Z",
   "items": [
+    {
+      "id": "CVE-2026-80669",
+      "published": "2026-08-28T08:16:52.207",
+      "lastModified": "2026-08-28T08:16:52.207",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nbpf: Disable xfrm_decode_session hook attachment\n\nBPF LSM programs can currently attach to xfrm_decode_session(). That\nhook may return an error, but security_skb_classify_flow() calls it\nfrom a void path and triggers BUG_ON() if an error is returned.\n\nDisable BPF attachment to the hook to prevent a BPF LSM program from\nturning packet classification into a full panic.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80669"
+    },
+    {
+      "id": "CVE-2026-80668",
+      "published": "2026-08-28T08:16:52.080",
+      "lastModified": "2026-08-29T07:16:49.200",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: nf_conntrack_expect: use conntrack GC to reap expectations\n\nThis patch replaces the timer API by GC worker approach for\nexpectations, as it already happened in many other subsystems.\n\nUse the existing conntrack GC worker to iterate over the local list of\nexpectations in the master conntrack to reap expired expectations.\nCheck IPS_HELPER_BIT to run GC for expectations, set it on for nft_ct\nexpectation which nevers sets it. Hold the expectation spinlock while\niterating over the master conntrack expectation list to synchronize with\nnf_ct_remove_expectations(). This also performs runtime packet path\ngarbage collection through the expectation insertion and lookup\nfunctions while walking over one of the chains of the global expectation\nhashtables. Unconfirmed conntrack entries are skipped since ct->ext can\nbe reallocated and dying are skipped since those will be gone soon.\nSet on IPS_HELPER_BIT if the helper ct extension is added, then the new\nGC worker does not need to bump the ct refcount to check if the ct->ext\nhelper is available.\n\nThis removes the extra bump on the refcount for expectation timers, this\nallows to remove several nf_ct_expect_put() calls after the unlink,\nafter this update only refcount remains at 1 while on the expectation\nhashes.\n\nThis patch implicitly addresses a race with the existing timer API\nallowing an expectation to access a stale exp->master pointer which has\nbeen already released when expectation removal loses races with an\nexpiring timer, ie. timer_del() reporting false.\n\nAdd a new NF_CT_EXPECT_DEAD flag to reap this expectation via GC. This\nis needed by nf_conntrack_unexpect_related() which is called in error\npaths to invalidate newly created expectations that has been added into\nthe hashes. These expectactions cannot be inmediately released as GC or\nnf_ct_remove_expectations() could race to make it. On expectation\ninsert, the runtime GC reaps stale expectations before checking the\nexpectation limit set by policy.\n\nSet current timestamp in nf_ct_expect_alloc(), then add the expectation\npolicy timeout (or custom timeout specified added on top of this) to\nspecify the expectation lifetime.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80668"
+    },
+    {
+      "id": "CVE-2026-80667",
+      "published": "2026-08-28T08:16:51.973",
+      "lastModified": "2026-08-28T08:16:51.973",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/mlx5: LAG, MPESW, Fix missing complete() on devcom error\n\nmlx5_mpesw_work() returned without calling complete() when\nmlx5_lag_get_devcom_comp() returned NULL. A caller that queued the\nwork and waited on mpesww->comp would block indefinitely.\n\nFunnel the early-return path through a new \"complete\" label so the\nwaiter is always woken.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80667"
+    },
+    {
+      "id": "CVE-2026-80666",
+      "published": "2026-08-28T08:16:51.847",
+      "lastModified": "2026-08-28T08:16:51.847",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nBluetooth: sco: Fix a race condition in sco_sock_timeout()\n\nsco_sock_timeout() runs asynchronously and lock_sock(sk). If the socket\nis closing while the timer is running, it holds the same lock\n(lock_sock(sk)) twice, leading to a deadlock.\n\nCPU 0                      CPU 1\n====================       ======================\nsco_sock_close()\n                           sco_sock_timeout()\nlock_sock(sk) // <-- LOCK\n  __sco_sock_close()\n    sco_chan_del()\n      sco_conn_put()\n\t      sco_conn_free()\n\t        disable_delayed_work_sync()\n\t                           lock(sk) // <-- SAME LOCK\n\nFix this by moving disable_delayed_work_sync() outside of lock_sock(sk),\nensuring that no lock_sock(sk) is held before sco_sock_timeout().\n\nLockdep splat:\n\nWARNING: possible circular locking dependency detected\n6.13.0-rc4 #7 Not tainted\n\nsyz-executor292/9514 is trying to acquire lock:\nffff8881115d5070 ((work_completion)(&(&conn->timeout_work)->work)){+.+.}-{0:0}, at: rcu_lock_acquire sect/v6.13-rc4/./include/linux/rcupdate.h:337 [inline]\nffff8881115d5070 ((work_completion)(&(&conn->timeout_work)->work)){+.+.}-{0:0}, at: rcu_read_lock sect/v6.13-rc4/./include/linux/rcupdate.h:849 [inline]\nffff8881115d5070 ((work_completion)(&(&conn->timeout_work)->work)){+.+.}-{0:0}, at: start_flush_work sect/v6.13-rc4/kernel/workqueue.c:4137 [inline]\nffff8881115d5070 ((work_completion)(&(&conn->timeout_work)->work)){+.+.}-{0:0}, at: __flush_work+0xd1/0xc40 sect/v6.13-rc4/kernel/workqueue.c:4195\n\nbut task is already holding lock:\nffff88807db3a258 (sk_lock-AF_BLUETOOTH-BTPROTO_SCO){+.+.}-{0:0}, at: lock_sock sect/v6.13-rc4/./include/net/sock.h:1623 [inline]\nffff88807db3a258 (sk_lock-AF_BLUETOOTH-BTPROTO_SCO){+.+.}-{0:0}, at: sco_sock_close+0x25/0x100 sect/v6.13-rc4/net/bluetooth/sco.c:524\n\nwhich lock already depends on the new lock.\n\nthe existing dependency chain (in reverse order) is:\n\n-> #1 (sk_lock-AF_BLUETOOTH-BTPROTO_SCO){+.+.}-{0:0}:\n       lock_acquire+0x1c4/0x520 sect/v6.13-rc4/kernel/locking/lockdep.c:5849\n       lock_sock_nested+0x48/0x130 sect/v6.13-rc4/net/core/sock.c:3622\n       lock_sock sect/v6.13-rc4/./include/net/sock.h:1623 [inline]\n       sco_sock_timeout+0xbe/0x270 sect/v6.13-rc4/net/bluetooth/sco.c:158\n       process_one_work sect/v6.13-rc4/kernel/workqueue.c:3229 [inline]\n       process_scheduled_works+0xa99/0x18f0 sect/v6.13-rc4/kernel/workqueue.c:3310\n       worker_thread+0x8a9/0xd80 sect/v6.13-rc4/kernel/workqueue.c:3391\n       kthread+0x2c6/0x360 sect/v6.13-rc4/kernel/kthread.c:389\n       ret_from_fork+0x4e/0x80 sect/v6.13-rc4/arch/x86/kernel/process.c:147\n       ret_from_fork_asm+0x1a/0x30 sect/v6.13-rc4/arch/x86/entry/entry_64.S:244\n\n-> #0 ((work_completion)(&(&conn->timeout_work)->work)){+.+.}-{0:0}:\n       check_prev_add sect/v6.13-rc4/kernel/locking/lockdep.c:3161 [inline]\n       check_prevs_add sect/v6.13-rc4/kernel/locking/lockdep.c:3280 [inline]\n       validate_chain+0x1888/0x5760 sect/v6.13-rc4/kernel/locking/lockdep.c:3904\n       __lock_acquire+0x13b4/0x2120 sect/v6.13-rc4/kernel/locking/lockdep.c:5226\n       lock_acquire+0x1c4/0x520 sect/v6.13-rc4/kernel/locking/lockdep.c:5849\n       touch_work_lockdep_map sect/v6.13-rc4/kernel/workqueue.c:3909 [inline]\n       start_flush_work sect/v6.13-rc4/kernel/workqueue.c:4163 [inline]\n       __flush_work+0x70f/0xc40 sect/v6.13-rc4/kernel/workqueue.c:4195\n       __cancel_work_sync sect/v6.13-rc4/kernel/workqueue.c:4351 [inline]\n       disable_delayed_work_sync+0xbb/0xf0 sect/v6.13-rc4/kernel/workqueue.c:4514\n       sco_conn_free sect/v6.13-rc4/net/bluetooth/sco.c:95 [inline]\n       kref_put sect/v6.13-rc4/./include/linux/kref.h:65 [inline]\n       sco_conn_put+0x18f/0x270 sect/v6.13-rc4/net/bluetooth/sco.c:107\n       sco_chan_del+0xe2/0x210 sect/v6.13-rc4/net/bluetooth/sco.c:236\n       sco_sock_close+0x8f/0x100 sect/v6.13-rc4/net/bluetooth/sco.c:526\n       sco_sock_release+0x62/0x2d0 sect/v6.13-rc4/net/blueto\n---truncated---",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80666"
+    },
+    {
+      "id": "CVE-2026-80665",
+      "published": "2026-08-28T08:16:51.747",
+      "lastModified": "2026-08-29T07:16:49.080",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nKVM: arm64: nv: Inject SEA if kvm_translate_vncr() can't resolve PFN\n\nkvm_handle_vncr_abort() assumes that s1_walk_result conveys an abort\nwhen kvm_translate_vncr() returns -EFAULT. This is not always the case\nas it's possible to encounter 'late' failures on the output of S1\ntranslation, e.g. a GFN outside of the memslots.\n\nFix it by preparing an external abort before returning from\nkvm_translate_vncr(). Get rid of the BUG_ON() in the fault injection\npath while at it.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80665"
+    },
+    {
+      "id": "CVE-2026-80664",
+      "published": "2026-08-28T08:16:51.620",
+      "lastModified": "2026-08-29T07:16:48.930",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: xt_nat: reject unsupported target families\n\nxt_nat SNAT and DNAT target handlers assume IP-family conntrack state\nis present and can dereference a NULL pointer when instantiated from an\nunsupported family through nft_compat. A bridge-family compat rule can\ntherefore trigger a NULL-dereference in nf_nat_setup_info().\n\nReject non-IP families in xt_nat_checkentry() so unsupported targets\ncannot be installed. Keep NFPROTO_INET allowed for valid inet NAT\ncompat users and leave the runtime fast path unchanged.\n\n[ The crash was fixed via\n  9dbba7e694ec (\"netfilter: nft_compat: ebtables emulation must reject non-bridge targets\"),\n  so this patch is no longer critical.\n  Nevertheless, NAT is only relevant for ipv4/ipv6, so this extra\n  family check is a good idea in any case. ]",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80664"
+    },
+    {
+      "id": "CVE-2026-80663",
+      "published": "2026-08-28T08:16:51.503",
+      "lastModified": "2026-08-29T07:16:48.797",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ntools/power/x86/intel-speed-select: Harden daemon pidfile open\n\nAvoid symlink-based pidfile clobbering by opening the pidfile with\nO_NOFOLLOW and validating it with fstat() before locking/writing.\n\nThe daemon currently uses a fixed pidfile path under /tmp. A local\nunprivileged user can pre-create a symlink at that path and cause a\nroot-run daemon instance to write into an attacker-chosen file.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80663"
+    },
+    {
+      "id": "CVE-2026-80662",
+      "published": "2026-08-28T08:16:51.397",
+      "lastModified": "2026-08-29T07:16:48.667",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ncxl: Fix CXL_HEADERLOG_SIZE to match RAS Capability size\n\nThe CXL r4.0 8.2.4.17.7 RAS Capability Structure has total length 0x58\nbytes (CXL_RAS_CAPABILITY_LENGTH); the Header Log occupies the trailing\n64 bytes at offset 0x18.  CXL_HEADERLOG_SIZE was defined as SZ_512,\neight times the actual on-device size.\n\nheader_log_copy() reads CXL_HEADERLOG_SIZE_U32 (128) dwords from the\nRAS capability iomap, overrunning the 88-byte mapping by 448 bytes.\nThe cxl_aer_uncorrectable_error trace event memcpy()s CXL_HEADERLOG_SIZE\n(512) bytes from its source.  For the CPER caller the source is\nstruct cxl_ras_capability_regs::header_log[16] (64 bytes) embedded in a\nstack-local cxl_cper_prot_err_work_data, so the memcpy reads 448 bytes\nof kernel stack into the trace event ring buffer where userspace can\nread it via tracefs.\n\nSet CXL_HEADERLOG_SIZE to 64 and derive CXL_HEADERLOG_SIZE_U32 from it,\nbringing all iomap readers into agreement on 16 dwords.  Userspace tools\nsuch as rasdaemon have grown a dependency on the buggy 512-byte (128 u32)\nheader_log layout in the cxl_aer_uncorrectable_error trace event.  Add\nCXL_HEADERLOG_TRACE_SIZE_U32 = 128 and use it for the trace event\n__array and its memcpy to preserve that ABI.  Both callers now pass a\nzero-filled u32[CXL_HEADERLOG_TRACE_SIZE_U32] staging buffer with only\nthe first CXL_HEADERLOG_SIZE_U32 (16) entries populated from hardware;\nthe remaining 112 u32s are zero-padded, keeping the 512-byte trace ring\nbuffer layout intact.\n\n[ dj: Replaced 64 with SZ_64 per RichardC ]",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80662"
+    },
+    {
+      "id": "CVE-2026-80661",
+      "published": "2026-08-28T08:16:51.290",
+      "lastModified": "2026-08-29T07:16:48.547",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nufs: core: tracing: Do not dereference pointers in TP_printk()\n\nThe trace events in drivers/ufs/core/ufs_trace.h were converted to take a\npointer to the hba structure as an argument for the tracepoint and then in\nTP_printk() the printing of the dev_name from the ring buffer was\nconverted to using the dev dereferenced pointer from the hba saved\npointer.\n\nThis is not allowed as the TP_printk() is executed at the time the trace\nevent is read from /sys/kernel/tracing/trace file. That can happen\nliterally, seconds, minutes, hours, weeks, days, or even months later!\nThere is no guarantee that the hba pointer will still exist by the time it\nis dereferenced when the \"trace\" file is read.\n\nInstead, save the device name from the hba pointer at the time the\ntracepoint is called and place it into the ring buffer event. Then the\nTP_printk() can read the name directly from the ring buffer and remove the\npossibility that it will read a freed pointer and crash the kernel.\n\nThis was detected when testing the trace event code that looks for\nTP_printk() parameters doing illegal derferences[1]\n\n[1] https://lore.kernel.org/all/20260630184836.74d477b6@gandalf.local.home/",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80661"
+    },
+    {
+      "id": "CVE-2026-80660",
+      "published": "2026-08-28T08:16:51.160",
+      "lastModified": "2026-08-28T08:16:51.160",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nhwmon: (occ) unregister sysfs devices outside occ lock\n\nocc_active(false) and occ_shutdown() unregister sysfs-backed devices while\nocc->lock is held.  hwmon_device_unregister() and sysfs_remove_group() can\nwait for active sysfs callbacks to drain, and those callbacks can enter the\nOCC update path and try to take occ->lock again.  That gives the unregister\npaths the lock ordering occ->lock -> sysfs callback drain, while a callback\nhas the opposite edge sysfs callback -> occ->lock.\n\nThis issue was found by our static analysis tool and then manually\nreviewed against the current tree.\n\nThe grounded PoC kept the real unregister and callback carrier:\n\n  occ_shutdown()\n  hwmon_device_unregister()\n  occ_show_temp_1()\n  occ_update_response()\n\nLockdep reported the circular dependency with occ_shutdown() already\nholding the OCC mutex and hwmon_device_unregister() waiting on the sysfs\nside:\n\n  WARNING: possible circular locking dependency detected\n  ... (sysfs_lock) ... at: hwmon_device_unregister+0x12/0x30 [vuln_msv]\n  ... (&test_occ.lock) ... at: occ_shutdown.constprop.0+0xe/0x40 [vuln_msv]\n  occ_update_response.isra.0+0xb/0x20 [vuln_msv]\n  occ_show_temp_1.constprop.0.isra.0+0x23/0x40 [vuln_msv]\n  *** DEADLOCK ***\n\nSerialize hwmon registration and removal with a separate hwmon_lock.\nUnder that lock, detach occ->hwmon and update occ->active while occ->lock\nis held so concurrent OCC state changes still see a stable state, then\ndrop occ->lock before calling hwmon_device_unregister().  Remove the\ndriver sysfs group before taking occ->lock in occ_shutdown(), so draining\nthe driver attributes cannot wait while the OCC mutex is held.  Also make\nOCC update callbacks return -ENODEV after deactivation, so callbacks that\nalready passed sysfs active protection do not poll the hardware after\nteardown has detached the hwmon device.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80660"
+    },
+    {
+      "id": "CVE-2026-80659",
+      "published": "2026-08-28T08:16:51.020",
+      "lastModified": "2026-08-28T08:16:51.020",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmmc: vub300: defer reset until cmd_mutex is unlocked\n\nvub300_cmndwork_thread() holds cmd_mutex while it sends a command and\nwaits for the command response.  If the response wait times out,\n__vub300_command_response() kills the command URBs and then synchronously\nresets the USB device through usb_reset_device().\n\nThat reset path re-enters the driver through vub300_pre_reset(), which\nalso takes cmd_mutex.  The worker therefore tries to acquire the same\nmutex recursively while it is still holding it from the command path.\n\nThis issue was found by our static analysis tool and then manually\nreviewed against the current tree.\n\nThe grounded PoC kept the real worker and timeout/reset carrier:\n\n  vub300_cmndwork_thread()\n  __vub300_command_response()\n  usb_lock_device_for_reset()\n  usb_reset_device()\n  vub300_pre_reset()\n\nLockdep reported the same-task recursive acquisition on cmd_mutex:\n\n  WARNING: possible recursive locking detected\n  ... (&test_vub300.cmd_mutex) ... at: usb_reset_device... [vuln_msv]\n  ... (&test_vub300.cmd_mutex) ... at: vub300_cmndwork_thread+0x12/0x20 [vuln_msv]\n  Workqueue: vub300_cmd_wq vub300_cmndwork_thread [vuln_msv]\n  *** DEADLOCK ***\n\nReturn a flag from __vub300_command_response() when the timeout path needs\na device reset, then perform the reset after vub300_cmndwork_thread() has\ncleared the in-flight command state and dropped cmd_mutex.  The reset is\nstill attempted before mmc_request_done(), preserving the existing request\ncompletion ordering while avoiding the recursive lock.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80659"
+    },
+    {
+      "id": "CVE-2026-80658",
+      "published": "2026-08-28T08:16:50.917",
+      "lastModified": "2026-08-28T08:16:50.917",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/rockchip: dw_dp: Fix null-ptr-deref in dw_dp_remove()\n\nAttempting to access driver data in the platform driver ->remove()\ncallback may lead to a null pointer dereference since there is no\nguaranty that the component ->bind() callback invoking\nplatform_set_drvdata() was executed.\n\nA common scenario is when Rockchip DRM driver didn't manage to run\ncomponent_bind_all() because of an (unrelated) error causing early\nreturn from rockchip_drm_bind().\n\nDrop the unnecessary call to platform_get_drvdata() and, instead,\nreference the target device structure via platform_device.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80658"
+    },
+    {
+      "id": "CVE-2026-80657",
+      "published": "2026-08-28T08:16:50.817",
+      "lastModified": "2026-08-28T08:16:50.817",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\naccel/amdxdna: Guard management mailbox channel cleanup against NULL pointer\n\nThe management mailbox channel cleanup helpers can be called from\nerror handling paths when mgmt_chann has already been destroyed.\n\nAdd NULL checks to xdna_mailbox_free_channel() and\nxdna_mailbox_stop_channel() so the cleanup path safely returns instead\nof dereferencing a NULL mailbox channel pointer.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80657"
+    },
     {
       "id": "CVE-2026-80656",
       "published": "2026-08-28T08:16:50.700",
@@ -715,123 +818,6 @@
       "score": 6.8,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12513"
-    },
-    {
-      "id": "CVE-2026-82090",
-      "published": "2026-08-28T05:16:47.400",
-      "lastModified": "2026-08-28T20:20:14.833",
-      "description": "Pocket through 8.33.0.0 allows XSS because \"Save to Pocket\" injects external HTML into the DOM.  JavaScript code can alter the application state via native bridge methods.",
-      "score": 9.2,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82090"
-    },
-    {
-      "id": "CVE-2026-82089",
-      "published": "2026-08-28T05:16:47.230",
-      "lastModified": "2026-08-28T20:20:14.710",
-      "description": "The wallabag (aka fr.gaulupeau.apps.InThePoche) application through 2.6.0 for Android allows XSS because /api/entries data is loaded into a WebView.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82089"
-    },
-    {
-      "id": "CVE-2026-82082",
-      "published": "2026-08-28T05:16:47.083",
-      "lastModified": "2026-08-28T18:46:13.563",
-      "description": "NUMail developed by Green-Computing has an OS Command Injection vulnerability. Unauthenticated remote attackers can inject arbitrary OS commands and execute them on the server.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82082"
-    },
-    {
-      "id": "CVE-2026-82081",
-      "published": "2026-08-28T05:16:46.903",
-      "lastModified": "2026-08-28T16:18:31.363",
-      "description": "wallabag 2 through 2.6.14 allows SSRF because a crafted title or content field is mishandled during PDF export.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82081"
-    },
-    {
-      "id": "CVE-2026-77365",
-      "published": "2026-08-28T05:16:46.223",
-      "lastModified": "2026-08-28T16:18:26.437",
-      "description": "The Optimole – Optimize Images | Convert WebP & AVIF | CDN & Lazy Load | Image Optimization plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'a' (above_fold_images) parameter in all versions up to, and including, 4.2.10 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77365"
-    },
-    {
-      "id": "CVE-2026-76053",
-      "published": "2026-08-28T05:16:46.087",
-      "lastModified": "2026-08-28T20:19:54.480",
-      "description": "The TranslatePress – Translate Multilingual sites with AI Translation plugin for WordPress is vulnerable to Stored Cross-Site Scripting via Comment Noise-Key Injection into HTML Parser in all versions up to, and including, 3.3.3 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. Exploitation is possible because WordPress's comment KSES allowlist permits the payload structure — an anchor tag with href and title attributes alongside a code tag — causing the malicious comment to be stored verbatim in the database, where it is later processed by the vulnerable parser during page translation.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76053"
-    },
-    {
-      "id": "CVE-2026-3129",
-      "published": "2026-08-28T05:16:42.200",
-      "lastModified": "2026-08-29T00:16:37.263",
-      "description": "The LiteSpeed Cache plugin for WordPress is vulnerable to Stored Cross-Site Scripting via crafted `<img>` tag attributes in all versions up to, and including, 7.7. This is due to a flawed regular expression that is used to strip `width` and `height` attributes from images when the \"Lazy Load Images\" and \"Add Missing Sizes\" features are enabled. This makes it possible for authenticated attackers, with Author-level access and above, to inject arbitrary web scripts in pages that execute whenever a user accesses an injected page.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-3129"
-    },
-    {
-      "id": "CVE-2026-18983",
-      "published": "2026-08-28T05:16:42.060",
-      "lastModified": "2026-08-28T20:17:23.810",
-      "description": "The One User Avatar | User Profile Picture plugin for WordPress is vulnerable to Stored Cross-Site Scripting in all versions up to, and including, 2.5.4 via the wpua_action_process_option_update function. This is due to insufficient file type validation in wp_handle_upload() called without a MIME allow-list, with post-write validation relying on the attacker-controlled client-supplied Content-Type header rather than a server-derived type, and no cleanup of files that fail the check. This makes it possible for authenticated attackers, with subscriber-level access and above, to upload files that may be executable, which makes remote code execution possible. in order to exploit this vulnerability an admin has to give subscribers permission to upload avatars. While PHP files and svg files are rejected, dxfp files are accepted.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18983"
-    },
-    {
-      "id": "CVE-2026-18978",
-      "published": "2026-08-28T05:16:41.927",
-      "lastModified": "2026-08-28T20:17:23.680",
-      "description": "The LiteSpeed Cache plugin for WordPress is vulnerable to Stored Cross-Site Scripting via Comment Content in all versions up to, and including, 7.8.1 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. A comment payload crafted exclusively from decimal numeric character references (e.g. &#34;, &#60;, &#62;) placed inside an allowed element such as &lt;code&gt; bypasses WordPress's wp_kses sanitization, as kses does not treat a data-settings=\"...\" substring within text content as an HTML attribute, allowing the malicious payload to reach the vulnerable function. For this to be exploitable, the site must allow users with previously approved comments to write new comments, and the require_name_email setting must be disabled.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18978"
-    },
-    {
-      "id": "CVE-2026-18324",
-      "published": "2026-08-28T05:16:41.797",
-      "lastModified": "2026-08-28T16:17:07.870",
-      "description": "The Forminator Forms – Contact Form, Payment Form & Custom Form Builder plugin for WordPress is vulnerable to Stored Cross-Site Scripting via Rich-Text Textarea Field in all versions up to, and including, 1.57.0.1 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. Exploitation requires that the targeted Textarea field has the Rich-Text editor option enabled.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18324"
-    },
-    {
-      "id": "CVE-2026-16759",
-      "published": "2026-08-28T05:16:41.660",
-      "lastModified": "2026-08-28T16:17:07.720",
-      "description": "The Tutor LMS – eLearning and online course solution plugin for WordPress is vulnerable to Remote Code Execution limited to zero-argument function invocation in all versions up to, and including, 4.0.5 via the tutor_course_filter_ajax AJAX action. This is due to missing authorization on the handler combined with unsanitized array keys being passed to extract() inside tutor_load_template(), allowing attacker-controlled POST data to overwrite the local $template variable and, in the resulting templates/single-content-loader.php template, the $method_map and $context variables invoked at $method_map[$context](). This makes it possible for unauthenticated attackers to call an arbitrary zero-argument PHP function server-side and, via WordPress core edit_user(), to create a persistent subscriber-level account from request parameters.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16759"
-    },
-    {
-      "id": "CVE-2026-16654",
-      "published": "2026-08-28T05:16:41.537",
-      "lastModified": "2026-08-28T20:17:22.610",
-      "description": "The Avada (Fusion) Builder plugin for WordPress is vulnerable to Stored Cross-Site Scripting via 'size' Shortcode Attribute in all versions up to, and including, 3.15.6 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. WordPress's wp_kses_post filter does not neutralize the payload because the injected content resides entirely within a shortcode attribute string containing no HTML angle brackets, causing kses to pass it through unchanged at save time.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16654"
-    },
-    {
-      "id": "CVE-2026-15798",
-      "published": "2026-08-28T05:16:41.367",
-      "lastModified": "2026-08-28T20:17:22.460",
-      "description": "The Smart Slider 3 plugin for WordPress is vulnerable to Stored Cross-Site Scripting via 'slider' Block Attribute in all versions up to, and including, 3.5.1.38 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. The injected scripts execute specifically when a user opens the affected post in the WordPress block editor, making Editors and Administrators the primary targets.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15798"
     }
   ]
 }
