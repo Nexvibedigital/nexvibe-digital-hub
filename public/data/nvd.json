@@ -1,6 +1,24 @@
 {
-  "syncedAt": "2026-09-06T05:43:19.017Z",
+  "syncedAt": "2026-09-06T06:22:46.807Z",
   "items": [
+    {
+      "id": "CVE-2026-82564",
+      "published": "2026-08-31T02:17:02.103",
+      "lastModified": "2026-09-01T21:15:00.147",
+      "description": "Authorization Bypass Through User-Controlled Key vulnerability in ash-project ash_ai allows a caller of an identity-configured tool to update or destroy records it never identified, including every row in the table.\n\nIn AshAi.Tool.Execution, identity_filter/3 built the update/destroy filter directly from the raw tool arguments as [{key, Map.get(arguments, to_string(key))}] and passed it to Ash.Query.do_filter/2. A map value is parsed as a predicate expression rather than a literal, so a caller can send {\"public_ref\": {\"not_eq\": \"<own-ref>\"}} and, combined with Ash.Query.limit(1) and Ash.bulk_update!/Ash.bulk_destroy!, retarget the write at a record it never identified; an omitted key yields an IS NULL filter that matches an arbitrary row. The fix casts each identity value to the field type, rejecting non-scalar inputs.\n\nThis issue affects ash_ai: from 0.6.0 before 1.0.0.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82564"
+    },
+    {
+      "id": "CVE-2026-75760",
+      "published": "2026-08-31T02:17:01.313",
+      "lastModified": "2026-09-01T21:15:00.147",
+      "description": "Generation of Error Message Containing Sensitive Information vulnerability in ash-project ash_ai discloses provider request state and credentials in a user-facing validation error.\n\nIn AshAi.Changes.Vectorize, when the embedding provider call fails the change added a changeset error whose message inspected the raw error term (An error occurred while generating embeddings: #{inspect(error)}). A plain-string add_error produces an Ash.Error.Changes.InvalidChanges in the :invalid class, which AshJsonApi and AshGraphql render back to the caller. The embedding client's error term is not sanitized, so it can carry the request URL, the provider response body, and, for HTTP clients that keep the request in the error struct, the outbound Authorization header with the provider API key. Failures are attacker-reachable via oversized or malformed vectorized content. The fix logs the raw error and returns a generic message.\n\nThis issue affects ash_ai: from 0.1.0 before 1.0.0.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75760"
+    },
     {
       "id": "CVE-2026-82599",
       "published": "2026-08-31T01:16:50.630",
@@ -864,24 +882,6 @@
       "score": 7.1,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14307"
-    },
-    {
-      "id": "CVE-2026-82480",
-      "published": "2026-08-30T06:16:56.730",
-      "lastModified": "2026-09-01T20:48:22.513",
-      "description": "A security flaw has been discovered in NASA cFS up to 7.0.1. The affected element is the function CFE_SB_GetUserDataLength of the file src/cFS/cfe/modules/sb/fsw/src/cfe_sb_util.c of the component cFE Software Bus. Performing a manipulation of the argument TotalMsgSize/HdrSize results in integer underflow. It is possible to initiate the attack remotely. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 7.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82480"
-    },
-    {
-      "id": "CVE-2026-82479",
-      "published": "2026-08-30T06:16:55.450",
-      "lastModified": "2026-09-01T20:48:22.513",
-      "description": "A vulnerability was identified in NASA cFS up to 7.0.1. Impacted is the function OS_read of the file modules/protocol/tcp/fsw/src/sbn_tcp_if.c of the component SBN TCP Module. Such manipulation of the argument MsgSz leads to buffer overflow. The attack must be carried out from within the local network. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82479"
     }
   ]
 }
