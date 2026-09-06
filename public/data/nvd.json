@@ -1,6 +1,87 @@
 {
-  "syncedAt": "2026-09-06T11:42:27.708Z",
+  "syncedAt": "2026-09-06T12:22:51.260Z",
   "items": [
+    {
+      "id": "CVE-2026-82725",
+      "published": "2026-08-31T04:17:29.167",
+      "lastModified": "2026-09-01T21:15:00.147",
+      "description": "Authorization Bypass Through User-Controlled Key vulnerability in ash-project ash_phoenix lets an attacker who controls filter form parameters filter across relationships the resource author marked non-public, turning the returned rows into a boolean oracle over private related data.\n\nAshPhoenix.FilterForm resolved every relationship hop in the user-supplied path with Ash.Resource.Info.related/2, which traverses private relationships, and only checked the terminal field for publicity. parse_path_and_field/2 also rewrote a field naming a relationship into an extra path segment, so field=some_private_rel was accepted too. Both path and field come straight from form params, and the resulting ref went to Ash.Query.do_filter/2 without the public-only enforcement of Ash.Filter.parse_input/2. The fix resolves each hop with Ash.Resource.Info.public_relationship/2, rejecting the first non-public hop, and requires the terminal field to be public.\n\nThis issue affects ash_phoenix: from 0.6.0-rc.1 before 2.3.25.",
+      "score": 2.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82725"
+    },
+    {
+      "id": "CVE-2026-82724",
+      "published": "2026-08-31T04:17:28.980",
+      "lastModified": "2026-09-01T21:15:00.147",
+      "description": "Incorrect Authorization vulnerability in ash-project ash_phoenix invokes the SubdomainHook authorization callback with a nil tenant, so tenant-scoped access checks never see the tenant they are meant to enforce.\n\nAshPhoenix.LiveView.SubdomainHook.on_mount/4 attached a handle_params hook to assign the tenant and then immediately called handle_subdomain in the same on_mount. The tenant assign is only written when LiveView later runs handle_params, strictly after on_mount returns, so handle_subdomain read an unset assign and ran as apply(m, f, [socket, nil | a]). A consumer gate that halts when the user does not belong to the tenant instead evaluated nil, either crashing or taking a permissive branch, and it was never re-run once the real subdomain was assigned or on later navigations. The fix runs handle_subdomain inside the handle_params hook with the real tenant on every navigation.\n\nThis issue affects ash_phoenix: from 2.1.26 before 2.3.25.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82724"
+    },
+    {
+      "id": "CVE-2026-82613",
+      "published": "2026-08-31T04:17:28.777",
+      "lastModified": "2026-08-31T20:56:08.800",
+      "description": "A vulnerability was detected in itsourcecode Online Medicine Delivery System 1.0. This affects the function loadResultList of the file /index.php?q=product of the component Product Search Interface. Performing a manipulation of the argument Search results in sql injection. The attack may be initiated remotely. The exploit is now public and may be used.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82613"
+    },
+    {
+      "id": "CVE-2026-82612",
+      "published": "2026-08-31T04:17:28.543",
+      "lastModified": "2026-08-31T20:56:08.800",
+      "description": "A security vulnerability has been detected in itsourcecode Online Medicine Delivery System 1.0. Affected by this issue is the function loadResultList of the file /index.php?q=single-item of the component Product Detail Page. Such manipulation of the argument ID leads to sql injection. The attack can be launched remotely. The exploit has been disclosed publicly and may be used.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82612"
+    },
+    {
+      "id": "CVE-2026-82611",
+      "published": "2026-08-31T04:17:28.317",
+      "lastModified": "2026-08-31T22:17:27.530",
+      "description": "A weakness has been identified in itsourcecode Online Medicine Delivery System 1.0. Affected by this vulnerability is the function Customer::cusAuthentication of the file /login.php of the component Customer Login Interface. This manipulation of the argument U_USERNAME causes sql injection. The attack can be initiated remotely. The exploit has been made available to the public and could be used for attacks.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82611"
+    },
+    {
+      "id": "CVE-2026-82610",
+      "published": "2026-08-31T04:17:26.273",
+      "lastModified": "2026-08-31T20:56:08.800",
+      "description": "A security flaw has been discovered in itsourcecode Online Medicine Delivery System 1.0. Affected is the function Employee::employeeAuthentication of the file /rider/login.php of the component Login Interface. The manipulation of the argument emp_email results in sql injection. It is possible to launch the attack remotely. The exploit has been released to the public and may be used for attacks.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82610"
+    },
+    {
+      "id": "CVE-2026-82609",
+      "published": "2026-08-31T04:17:16.390",
+      "lastModified": "2026-09-01T15:17:34.080",
+      "description": "A vulnerability was identified in itsourcecode Sales and Inventory System 1.0. This impacts an unknown function of the file /pages/inv_edit.php. The manipulation of the argument ID leads to sql injection. It is possible to initiate the attack remotely. The exploit is publicly available and might be used.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82609"
+    },
+    {
+      "id": "CVE-2026-82722",
+      "published": "2026-08-31T03:16:43.817",
+      "lastModified": "2026-09-01T21:15:00.147",
+      "description": "Allocation of Resources Without Limits or Throttling vulnerability in ash-project ash_admin lets any client that can reach the admin LiveView exhaust the BEAM atom table and crash the entire node.\n\nTwo LiveView event handlers interned atoms from unvalidated client input: AshAdmin.PageLive's set_actor built modules from the resource/domain payload with Module.concat/1, and AshAdmin.Components.Resource.Show's calculate converted every submitted form key with String.to_atom/1. Atoms are never garbage collected and the table is capped, so flooding either event with random names mints a new atom per request until the VM aborts, taking down every application on the node. The fix resolves the submitted resource/domain against the known shown resources and maps calculation keys to declared arguments, so no client-supplied string is interned.\n\nThis issue affects ash_admin: from 0.1.0 before 1.3.1.",
+      "score": 8.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82722"
+    },
+    {
+      "id": "CVE-2026-82681",
+      "published": "2026-08-31T03:16:43.643",
+      "lastModified": "2026-09-01T21:15:00.147",
+      "description": "Improper Encoding or Escaping of Output vulnerability in ash-project ash_admin lets an attacker who controls a record's string primary key rewrite the target of AshAdmin's row-action links.\n\nThe Table, DataTable, and Show components built row-action URLs by raw string interpolation, splicing the primary key (and table, domain, and resource names) into the query string without URL-encoding. Ash resources routinely use user-settable string primary keys (slugs, emails). Because Plug.Conn.Query resolves duplicate parameters last-wins and primary_key is interpolated last, a stored key such as foo&action_type=destroy injects parameters that override the link, so an admin clicking edit is sent to a destroy form or an arbitrary resource; a # truncates the query into a fragment. The fix builds every link with URI.encode_query/1, encoding all interpolated values.\n\nThis issue affects ash_admin: from 0.3.0-rc.0 before 1.3.1.",
+      "score": 2,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82681"
+    },
     {
       "id": "CVE-2026-82673",
       "published": "2026-08-31T03:16:43.473",
@@ -801,87 +882,6 @@
       "score": 10,
       "severity": "CRITICAL",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82542"
-    },
-    {
-      "id": "CVE-2026-82541",
-      "published": "2026-08-30T12:17:19.390",
-      "lastModified": "2026-08-31T20:56:08.800",
-      "description": "A security flaw has been discovered in itsourcecode Sales and Inventory System 1.0. Affected by this vulnerability is an unknown functionality of the file /pages/sup_edit.php. The manipulation of the argument ID results in sql injection. The attack can be executed remotely. The exploit has been released to the public and may be used for attacks.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82541"
-    },
-    {
-      "id": "CVE-2026-82540",
-      "published": "2026-08-30T12:17:19.190",
-      "lastModified": "2026-08-31T20:56:08.800",
-      "description": "A vulnerability was identified in itsourcecode Sales and Inventory System 1.0. Affected is an unknown function of the file /pages/cust_searchfrm.php. The manipulation of the argument ID leads to sql injection. Remote exploitation of the attack is possible. The exploit is publicly available and might be used.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82540"
-    },
-    {
-      "id": "CVE-2026-81318",
-      "published": "2026-08-30T12:17:19.030",
-      "lastModified": "2026-09-01T21:15:00.147",
-      "description": "Incorrect Authorization vulnerability in ash-project ash_sql allows a caller in a schema-based multitenant application to receive aggregate values computed from another tenant's rows.\n\nWhen an aggregate is computed over a distinct query, AshSql.AggregateQuery.add_single_aggs/5 rebuilds the outer query from query.from.source alone, which is only the {table, schema} tuple and does not carry query.prefix or query.from.prefix. For strategy(:context) multitenancy those hold the tenant schema, so the rebuilt outer query reads the repo's default schema while the inner correlated subquery still reads the tenant schema, and the two are joined only on primary key. The aggregate, and any relationship join added off the prefix-less binding, is then computed against the wrong tenant's rows. The neighbouring limit and exists branches instead wrap the query with subquery/1, which preserves the prefix.\n\nThis issue affects ash_sql: from 0.1.0 before 0.7.1.",
-      "score": 2.1,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81318"
-    },
-    {
-      "id": "CVE-2026-81316",
-      "published": "2026-08-30T12:17:18.870",
-      "lastModified": "2026-09-01T21:15:00.147",
-      "description": "Incorrect Authorization vulnerability in ash-project ash_sql allows a caller to receive an aggregate value computed over rows a more restrictive filter should have excluded, disclosing counts, sums, or lists across an authorization or tenancy boundary.\n\nAshSql.Aggregate.different_queries?/2 reports two aggregate queries as different only when their filter and their sort both differ. Aggregate queries rarely carry a sort, so two aggregates that share a name but carry entirely different filters compare as identical. The colliding aggregate keeps its name and is treated as already computed, and select_aggregates returns the first-registered variant's value. The same name reaches the builder twice with different filters when actor or tenant context is stamped into each aggregate's query, so a narrowly filtered aggregate can be served the value of a previously registered broad one.\n\nThis issue affects ash_sql: from 0.1.0 before 0.7.1.",
-      "score": 2.1,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81316"
-    },
-    {
-      "id": "CVE-2026-80227",
-      "published": "2026-08-30T12:17:18.710",
-      "lastModified": "2026-09-03T05:15:18.340",
-      "description": "Incorrect Comparison vulnerability in ash-project ash_sql allows a user to pad a string field with tab, newline, carriage-return, or form-feed characters and pass a trimmed uniqueness or equality check in the database that the same expression would fail in memory (or the reverse).\n\nstring_trim/1 compiles to REGEXP_REPLACE patterns built from an Elixir string in which \\s is the escape for a single space (codepoint 32), not a regex whitespace class. The generated SQL therefore removes only literal spaces and leaves tabs, newlines, carriage returns, and form feeds in place, whereas String.trim/1 in Elixir removes them all. Any Ash filter, validation, or identity that relies on string_trim/1 then behaves differently depending on whether Ash pushes the expression down to SQL or evaluates it in memory, so padded input can register a near-duplicate value or slip past a trimmed comparison.\n\nThis issue affects ash_sql: from 0.1.0 before 0.7.1.",
-      "score": 2.1,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80227"
-    },
-    {
-      "id": "CVE-2026-78691",
-      "published": "2026-08-30T12:17:18.550",
-      "lastModified": "2026-09-01T21:15:00.147",
-      "description": "Improper Neutralization of Special Elements in Data Query Logic vulnerability in ash-project ash_sql allows a user who supplies a search term to contains/2, string_starts_with/2, or string_ends_with/2 to inject live SQL LIKE wildcards, turning a literal substring search into an attacker-controlled pattern match.\n\nThe escape helpers in AshSql.Expr prefix % and _ with a backslash but never escape a backslash already present in the input. Because backslash is the default LIKE escape character, the escaping defeats itself: the input \\% becomes the pattern fragment \\\\%, where \\\\ is a literal backslash and the attacker's % remains a live wildcard. The search value stays parameterized, so this is confined to the LIKE pattern grammar rather than full SQL. An attacker can widen matches to probe values, slip past a negated contains(...) guard, or crash the query with a trailing lone backslash.\n\nThis issue affects ash_sql: from 0.1.1-rc.10 before 0.7.1.",
-      "score": 2.1,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78691"
-    },
-    {
-      "id": "CVE-2026-78228",
-      "published": "2026-08-30T12:17:18.380",
-      "lastModified": "2026-09-01T21:15:00.147",
-      "description": "Uncontrolled Recursion vulnerability in ash-project ash_oban allows a user who can drive a trigger's on_error action to fail on the final attempt to exhaust worker CPU and memory, denying service.\n\nThe generated worker's atomic handle_error/4 runs the trigger's on_error action on a job's final attempt inside a rescue that, when the action itself raises, calls handle_error/4 again with the same job. The job's attempt still equals max_attempts, so it re-enters the same clause and re-runs the failing action, with no exit. Any deterministic on_error failure (a data-layer outage, a misconfigured action, or a record the action rejects) loops forever; because the recursive call is not in tail position, each iteration retains a formatted stacktrace and the process heap grows without bound while the failing statement is re-issued against the data layer until the runtime kills the worker.\n\nThis issue affects ash_oban: from 0.8.0-rc.1 before 0.8.14.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78228"
-    },
-    {
-      "id": "CVE-2026-78038",
-      "published": "2026-08-30T12:17:18.157",
-      "lastModified": "2026-09-01T21:15:00.147",
-      "description": "Improperly Controlled Modification of Dynamically-Determined Object Attributes vulnerability in ash-project ash_oban allows a user whose input reaches the :args option of AshOban.build_trigger/3 to retarget an update or destroy trigger at another record, including across tenants.\n\nbuild_trigger/3 builds the trusted job arguments with atom keys (:primary_key, :tenant, :action_arguments) and merges the caller's :args underneath so the trusted values win on collision. Because Oban job arguments round-trip through JSON, the caller's keys arrive as strings, so Map.merge sees no collision and both keys survive. When the job is persisted the JSON object is de-duplicated keeping the last (string) key, and the worker reads the caller's value. The documentation describes :args as unable to affect the action, so an application that forwards user input into it for uniqueness scoping is exposed to authorization bypass and tenant isolation breaks.\n\nThis issue affects ash_oban: from 0.2.5 before 0.8.14.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78038"
-    },
-    {
-      "id": "CVE-2026-77454",
-      "published": "2026-08-30T12:17:17.273",
-      "lastModified": "2026-09-01T21:15:00.147",
-      "description": "Incorrect Authorization vulnerability in ash-project ash_sql allows a caller to bypass a scoping or authorization filter expressed as exists/2 over a relationship that declares both a limit (or from_many?) and a parent(...)-referencing filter or sort.\n\nAshSql.Join.related_query/3 skips the caller-supplied exists predicate for such relationships and delegates it to limit_from_many/5. When the relationship's own filter or sort references parent(...), limit_from_many/5 takes a branch that drops both the limit and the predicate, emitting a bare correlated EXISTS with no predicate. The check then matches any record that has any related row. Most severely, when the expression backs a policy (for example authorize_if expr(exists(memberships, user_id == ^actor(:id)))), the actor-scoping condition disappears and the policy passes for any actor with any related row.\n\nThis issue affects ash_sql: from 0.4.1 before 0.7.1.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77454"
     }
   ]
 }
