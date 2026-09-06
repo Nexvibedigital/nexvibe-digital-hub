@@ -1,6 +1,42 @@
 {
-  "syncedAt": "2026-09-06T01:16:37.334Z",
+  "syncedAt": "2026-09-06T01:44:54.282Z",
   "items": [
+    {
+      "id": "CVE-2026-77956",
+      "published": "2026-08-31T01:16:49.563",
+      "lastModified": "2026-09-01T21:15:00.147",
+      "description": "Improper Control of Generation of Code (Code Injection) vulnerability in ash-project ash_ai allows a remote, unauthenticated client to execute arbitrary Elixir code.\n\nAshAi.Actions.Prompt evaluates prompt content through EEx.eval_string/2. The documented prompt: fn input, context -> ... end form lets the prompt content be built from action arguments, so when a prompt action's text incorporates request data, that attacker-controlled text is compiled and run as an EEx template (Elixir source). Content such as <%= System.cmd(...) %> therefore executes on the server before any model request is made, requiring no authentication beyond reaching a prompt action. The fix stops evaluating function-supplied prompt content as EEx; only statically configured templates are evaluated.\n\nThis issue affects ash_ai: from 0.1.0 before 1.0.0.",
+      "score": 8.9,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77956"
+    },
+    {
+      "id": "CVE-2026-82596",
+      "published": "2026-08-31T00:16:42.150",
+      "lastModified": "2026-08-31T20:56:08.800",
+      "description": "A vulnerability was determined in LatencyUtils up to 2.0.3. Affected by this issue is the function LatencyStats.recordDetectedPause of the file src/main/java/org/LatencyUtils/LatencyStats.java of the component PauseDetector. Executing a manipulation can lead to memory corruption. The attack needs to be launched locally. The exploit has been publicly disclosed and may be utilized. The project was informed of the problem early through an issue report but has not responded yet.",
+      "score": 3.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82596"
+    },
+    {
+      "id": "CVE-2026-82595",
+      "published": "2026-08-31T00:16:41.980",
+      "lastModified": "2026-08-31T22:17:26.127",
+      "description": "A vulnerability was found in D-Link DIR-825M 1.1.8. Affected by this vulnerability is the function sub_456CF4 of the file /boafrm/formSysCmd of the component System Command Execution. Performing a manipulation of the argument sysCmd results in command injection. It is possible to initiate the attack remotely. The exploit has been made public and could be used.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82595"
+    },
+    {
+      "id": "CVE-2026-82594",
+      "published": "2026-08-31T00:16:41.800",
+      "lastModified": "2026-08-31T20:56:08.800",
+      "description": "A vulnerability has been found in LogNet grpc-spring-boot-starter up to 5.2.0. Affected is an unknown function of the component Annotation Processing. Such manipulation leads to improper authorization. The attack may be performed from remote. A high complexity level is associated with this attack. The exploitability is told to be difficult. The exploit has been disclosed to the public and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
+      "score": 5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82594"
+    },
     {
       "id": "CVE-2026-82593",
       "published": "2026-08-31T00:16:41.630",
@@ -846,42 +882,6 @@
       "score": 7.6,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75759"
-    },
-    {
-      "id": "CVE-2026-82562",
-      "published": "2026-08-30T01:20:32.820",
-      "lastModified": "2026-09-03T18:00:36.970",
-      "description": "### Summary\n\n\n\nWhen `qs.parse` is called with `comma: true` and `throwOnLimitExceeded: true`, a comma-separated value under a bracket-push key (`a[]=1,2,3,4`) is split into an array without being compared against `arrayLimit`, while the same value under a flat key (`a=1,2,3,4`), an indexed key (`a[0]=`), a nested key (`a[b]=`), or a dotted key (`a.b=` with `allowDots`) throws the documented `RangeError`. A single parameter such as `a[]=1,2,2,...` therefore produces an inner array of arbitrary length even though the caller opted into the hard limit. This is the `[]=` key form that the fix for CVE-2026-2391 (qs 6.14.2) did not cover.\n\n\n\n### Details\n\n\n\nIn `lib/parse.js`, a comma-separated value under a `[]=` key is split and then wrapped as a single nested element (`val = [val]`, so that each `a[]=x,y` group counts as one element of the outer array). The `arrayLimit` check that 6.14.2 added for comma values runs after that wrap, so for `[]=` parts it only ever saw the wrapper of length 1. 6.15.3 added a pre-split comma count so that an oversized value throws before it is allocated, but gated it on an `isFlatArrayValue` flag that `parseValues` set to `false` for any part containing `[]=`, and did not pass it for object-valued input, so the gap remained.\n\n\n\n#### PoC\n\n\n\n```js\n\n\n\nvar qs = require('qs');\n\n\n\nvar options = { comma: true, arrayLimit: 3, throwOnLimitExceeded: true };\n\n\n\nqs.parse('a=1,2,3,4', options);   // RangeError: Array limit exceeded. Only 3 elements allowed in an array.\n\n\n\nqs.parse('a[]=1,2,3,4', options); // { a: [ [ '1', '2', '3', '4' ] ] }  (no throw)\n\n\n\nqs.parse('a[]=' + '1,'.repeat(1000000) + '1', { comma: true, arrayLimit: 20, throwOnLimitExceeded: true });\n\n\n\n// no throw; a 1,000,001-element inner array is allocated\n\n\n\n```\n\n\n\n#### Fix\n\n\n\n`lib/parse.js`, applied in 8859c37 on `main` and released as v6.16.0: the `isFlatArrayValue` gate is removed, so every comma-split value is counted against `arrayLimit` before splitting regardless of key form. An in-limit group under `a[]=` still counts as one element of the outer array, and the default (`throwOnLimitExceeded: false`) path is unchanged.\n\n\n\n### Affected versions\n\n\n\n`>=6.14.2 <6.16.0`, fixed in v6.16.0.\n\n\n\nv6.14.2 introduced `arrayLimit` enforcement for comma values (the fix for CVE-2026-2391) but only for values not under a `[]=` key, and every release from v6.14.2 through v6.15.3 has the same gap. v6.14.0 and v6.14.1, where `throwOnLimitExceeded` exists but does not apply to any comma form, are covered by CVE-2026-2391 rather than this record. Earlier lines (6.7.x through 6.13.x) have `comma` but no `throwOnLimitExceeded`, so there is no hard cap on any comma path to bypass; releases before 6.7.0 have no `comma` option.\n\n\n\n### Impact\n\n\n\nAn unauthenticated attacker who can reach an application that parses untrusted query strings or urlencoded bodies with both `comma: true` and `throwOnLimitExceeded: true` (both non-default) can bypass the configured limit with a single `a[]=` parameter and force the parser to allocate an array proportional to the request size. The cost is strictly linear in the attacker-supplied bytes (about 0.1 microseconds and 6 to 7 retained bytes per input byte; the same out-of-memory threshold as the documented default `throwOnLimitExceeded: false` path), so a transport-layer request or body size limit bounds it completely (and node's default maximum HTTP header size of 16 KB already bounds the request line, so multi-megabyte payloads need a body parser). The impact is that an opt-in hard limit fails open on one key spelling, not unbounded allocation from a small input.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82562"
-    },
-    {
-      "id": "CVE-2026-77970",
-      "published": "2026-08-30T01:20:29.773",
-      "lastModified": "2026-09-01T21:15:00.147",
-      "description": "Cleartext Storage of Sensitive Information vulnerability in ash-project ash_paper_trail allows an attacker with read access to the generated version resource to recover sensitive values nested inside embedded resources, unions, or lists.\n\nsensitive_attributes :redact and :ignore only act on the tracked resource's top-level attributes. maybe_redact_changes/3 and the stored-action-input path in AshPaperTrail.Resource.Changes.CreateNewVersion derive the sensitive set from the resource's own attributes and never descend into embedded, union, or list values, so a non-sensitive attribute or action argument that holds an embed with a sensitive? field (for example an accepted credentials embed carrying a token) is written to the version table in cleartext.\n\nThis issue affects ash_paper_trail: from 0.3.0 before 0.7.0.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77970"
-    },
-    {
-      "id": "CVE-2026-77831",
-      "published": "2026-08-30T01:20:29.597",
-      "lastModified": "2026-09-01T21:15:00.147",
-      "description": "Inefficient Algorithmic Complexity vulnerability in ash-project ash_paper_trail allows a user who can submit a large array attribute to a paper-trailed create or update action to cause a denial of service through excessive CPU and memory use.\n\nWith full-diff change tracking, AshPaperTrail.ChangeBuilders.FullDiff.ListChange pairs each prior array element against the new list by rebuilding the remaining-elements accumulator with acc ++ [tuple] on every step, copying the growing list each time, so the pairing scales cubically in the array length. Nothing bounds the length and the value comes straight from action input, so one request carrying a large accepted {:array, _} attribute forces tens of seconds of CPU and multi-gigabyte allocations.\n\nThis issue affects ash_paper_trail: from 0.1.1 before 0.7.0.",
-      "score": 2.1,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77831"
-    },
-    {
-      "id": "CVE-2026-75847",
-      "published": "2026-08-30T01:20:24.617",
-      "lastModified": "2026-09-01T21:15:00.147",
-      "description": "Cleartext Storage of Sensitive Information vulnerability in ash-project ash_paper_trail allows an attacker with read access to the generated version resource to recover the plaintext of sensitive? attributes.\n\nAshPaperTrail stores the values of tracked sensitive? attributes in the generated version resource's changes map, which is declared public? true and sensitive? false, so the values are returned by the version resource's default read action and printed in logs, inspect output, and error messages instead of being redacted. AshPaperTrail.Resource.Transformers.CreateVersionResource derives the changes map's sensitivity from the ignore_attributes list (the attributes excluded from changes) rather than from the tracked attributes actually stored in it, and ignore_attributes defaults to empty, so the flag is effectively always false.\n\nThis issue affects ash_paper_trail: from 0.1.1 before 0.7.0.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75847"
     }
   ]
 }
