@@ -1,6 +1,276 @@
 {
-  "syncedAt": "2026-09-07T13:47:00.678Z",
+  "syncedAt": "2026-09-07T14:20:30.198Z",
   "items": [
+    {
+      "id": "CVE-2026-82818",
+      "published": "2026-08-31T19:17:22.940",
+      "lastModified": "2026-08-31T20:56:08.800",
+      "description": "A vulnerability was determined in dibo-software diboot 3.8.0. This affects an unknown part of the file /api/iam/tenant/resource of the component Tenant Resource Assignment Handler. Executing a manipulation of the argument tenantId can lead to improper access controls. The attack may be launched remotely. The exploit has been publicly disclosed and may be utilized. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82818"
+    },
+    {
+      "id": "CVE-2026-72001",
+      "published": "2026-08-31T19:17:10.793",
+      "lastModified": "2026-08-31T19:17:10.793",
+      "description": "Pangolin before 1.22.0 contains an authentication bypass vulnerability that allows unauthenticated attackers to access any protected resource by supplying an attacker-controlled URL parameter to the share-link authentication endpoint that omits the expected resource identifier from the token verification call. Attackers holding a single valid share link for any resource can authenticate against arbitrary resources across different organizations, bypassing all configured authentication methods including SSO, resource passwords, PIN codes, email allowlists, and header authentication.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-72001"
+    },
+    {
+      "id": "CVE-2026-53553",
+      "published": "2026-08-31T19:16:51.030",
+      "lastModified": "2026-08-31T20:17:05.567",
+      "description": "Goploy is an open-source automation deployment system. Prior to version 1.18.0, a severe path traversal vulnerability exists in its backend API endpoints, specifically /deploy/fileDiff (File Compare), when handling file paths provided by the client. This issue has been patched in version 1.18.0.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53553"
+    },
+    {
+      "id": "CVE-2026-53552",
+      "published": "2026-08-31T19:16:50.880",
+      "lastModified": "2026-09-01T15:17:20.370",
+      "description": "Goploy is an open-source automation deployment system. In versions 1.17.5 and prior, Project.AddFile, Project.EditFile, Project.RemoveFile, and Project.Edit in cmd/server/api/project/handler.go accept a project or project-file row id from the JSON body and act on it without checking that the project belongs to the caller's namespace. The corresponding model.ProjectFile.GetData and model.Project.GetData queries filter only by row id. A user holding the manager role (or any role that includes the FileSync / EditProject permission) in their own namespace can read, write, or delete files in any project across the install, and can rewrite any project's git remote URL by submitting the foreign id in the body. The git-URL primitive escalates to RCE on the next deploy because Edit runs git remote set-url on the project's working tree. At time of publication, there are no known publicly available patches.",
+      "score": 9.6,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53552"
+    },
+    {
+      "id": "CVE-2026-53508",
+      "published": "2026-08-31T19:16:50.030",
+      "lastModified": "2026-08-31T19:16:50.030",
+      "description": "oasdiff is a command-line and Go package that compares and detects breaking changes in OpenAPI specs. From version 1.13.2 through version 1.18.0, oasdiff did not enforce --allow-external-refs=false (library: openapi3.Loader.IsExternalRefsAllowed = false) when loading a spec from a git revision (the rev:path form, e.g. main:openapi.yaml). External $refs were resolved on that load path even when external refs were explicitly disabled, so the mitigation silently did not apply there. This issue has been patched in version 1.18.1.",
+      "score": 6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53508"
+    },
+    {
+      "id": "CVE-2026-53507",
+      "published": "2026-08-31T19:16:49.867",
+      "lastModified": "2026-09-01T15:17:20.223",
+      "description": "oasdiff-action is a GitHub Action that detects breaking changes in OpenAPI specs and post a review on every pull request. Before version 0.0.51, the oasdiff actions resolved external $refs in the OpenAPI spec by default (allow-external-refs: true). When an action runs on a pull request whose spec is attacker-controlled — most importantly fork pull requests on public repositories — a $ref in that spec is fetched/read on the runner with no interaction required, enabling SSRF and disclosure of structured files on the runner. This issue has been patched in version 0.0.51.",
+      "score": 8.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53507"
+    },
+    {
+      "id": "CVE-2026-14696",
+      "published": "2026-08-31T19:16:46.140",
+      "lastModified": "2026-09-01T15:17:11.750",
+      "description": "When Ethernet bridging is enabled (CONFIG_NET_ETHERNET_BRIDGE), eth_bridge_input_process() in subsys/net/l2/ethernet/bridge/bridge_input.c decides how each frame received on a bridge member interface is handled. For frames that must also be delivered to the local stack, the code called eth_bridge_handle_locally() and returned NET_OK. That helper does not consume the packet — it only calls bridge_iface_recv() (via virtual_recv()), which returns NET_CONTINUE without taking ownership of pkt.\n\nThe NET_OK verdict then propagates through ethernet_recv() up to processing_data() in subsys/net/ip/net_core.c, where NET_OK is interpreted as \"the packet was consumed, do not free it.\" Because no consumer actually took ownership, the RX net_pkt is never returned to the pool and is leaked. The concretely reproducible leak occurs for frames whose EtherType has no registered L3 handler when CONFIG_NET_ETHERNET_FORWARD_UNRECOGNISED_ETHERTYPE is set (default y when CONFIG_NET_SOCKETS_PACKET is enabled): the fall-through L3 dispatch does not overwrite the NET_OK verdict, so ethernet_recv() returns NET_OK and the buffer is never released.\n\nAny device on a bridged L2 segment can emit broadcast/multicast frames carrying an arbitrary EtherType with no authentication. Each such frame permanently consumes one buffer from the finite RX pool (CONFIG_NET_PKT_RX_COUNT), so a brief broadcast flood exhausts the pool and the device can no longer receive traffic until it is rebooted — a persistent denial of service. There is no confidentiality or integrity impact.\n\nThe fix makes eth_bridge_handle_locally() propagate the real net_verdict and return NET_CONTINUE for locally-kept frames, writing the bridge interface back through a new dst_iface out-parameter so the packet follows the normal receive path and is unreferenced exactly once.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14696"
+    },
+    {
+      "id": "CVE-2026-14368",
+      "published": "2026-08-31T19:16:45.887",
+      "lastModified": "2026-09-01T15:17:11.603",
+      "description": "The LwM2M JSON content formatter's get_string() in subsys/net/lib/lwm2m/lwm2m_rw_json.c copies a parsed JSON string into a caller-supplied buffer and NUL-terminates it. The length guard used if (string_length > buflen), which accepts a string whose length is exactly buflen. After memcpy() fills the whole buffer, buf[string_length] = '\\0' then writes one byte past the end of the buffer (CWE-787).\n\nThe string value and its length are taken directly from the incoming CoAP payload during a LwM2M WRITE: do_write_op_json() parses the payload obtained from coap_packet_get_payload(), and get_string() is invoked from lwm2m_write_handler() (engine_get_string() in subsys/net/lib/lwm2m/lwm2m_message_handling.c) for a LWM2M_RES_TYPE_STRING resource. The destination buf/buflen is either the resource instance's fixed data buffer (res_inst->data_ptr/max_data_len) or the engine validation buffer (msg->ctx->validate_buf). A LwM2M server (the client's DTLS peer) can therefore write a string resource with a value whose length equals the target buffer size and force a one-byte overflow.\n\nThe overflow is a single out-of-bounds write of the constant byte 0x00 immediately past the resource or validation buffer, corrupting the adjacent byte in memory. It is not an information leak and the written value is fixed, so it is not a direct code-execution primitive, but it can corrupt adjacent state (an adjacent resource value, a length/flag field, or a struct field) and cause data corruption or a crash. Triggering the write is deterministic; the resulting impact depends on memory layout.\n\nThe fix changes the guard to string_length >= buflen, rejecting the exact-length case and aligning the JSON formatter with the other content formatters (lwm2m_rw_plain_text.c, lwm2m_rw_oma_tlv.c, lwm2m_rw_senml_json.c, lwm2m_rw_cbor.c, lwm2m_rw_senml_cbor.c), which already used the correct boundary check.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14368"
+    },
+    {
+      "id": "CVE-2026-14367",
+      "published": "2026-08-31T19:16:45.750",
+      "lastModified": "2026-09-01T15:17:11.467",
+      "description": "The I3C IBI subsystem in drivers/i3c/i3c_ibi_workq.c hands out statically-allocated work nodes through a free-list i3c_ibi_work_nodes_free implemented as a plain sys_slist_t, which provides no synchronization. The allocation helpers (i3c_ibi_work_enqueue, i3c_ibi_work_enqueue_target_irq, i3c_ibi_work_enqueue_hotjoin, i3c_ibi_work_enqueue_controller_request, i3c_ibi_work_enqueue_cb) called sys_slist_get() directly from ISR context, while the workqueue handler i3c_ibi_work_handler() returned nodes with sys_slist_append() from the workqueue thread, with no lock on either side.\n\nBecause sys_slist_get() and sys_slist_append() are neither atomic nor interrupt-safe, an IBI interrupt that fires while the workqueue thread is mid-append (or a truly parallel access under CONFIG_SMP) races on the shared list. This corrupts the list linkage: a node may be handed to two consumers, a node may be lost, or the head/tail pointers may be left inconsistent so sys_slist_get() returns a stale or garbage pointer. In the double-hand-out case the subsequent memcpy(ibi_node, ibi_work, sizeof(*ibi_node)) overwrites a node still in flight; a garbage pointer turns the same memcpy into an out-of-bounds write.\n\nThe race is driven by I3C bus traffic — IBIs, hot-joins, and controller-role requests originate from target devices on the bus, and I3C supports hot-joining devices. An attacker controlling an I3C peripheral on the board's chip-to-chip bus can generate high-frequency interrupts timed to collide with the free operation. Exploitation requires physical access to the bus and winning a narrow timing window; the most realistic impact is a crash or hang (denial of service), with memory corruption possible but hard to control.\n\nThe fix wraps all free-list sys_slist_get()/sys_slist_append() operations in the new ibi_work_alloc()/ibi_work_free() helpers, each guarded by a k_spinlock (ibi_work_lock), closing the race across ISR and thread contexts.",
+      "score": 3.1,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14367"
+    },
+    {
+      "id": "CVE-2023-31308",
+      "published": "2026-08-31T19:16:44.890",
+      "lastModified": "2026-09-03T16:37:52.170",
+      "description": "A malicious virtual function can invoke the certain command handlers in the SMU, causing a denial of service due to out-of-bounds memory read.",
+      "score": 3.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2023-31308"
+    },
+    {
+      "id": "CVE-2023-20511",
+      "published": "2026-08-31T19:16:44.380",
+      "lastModified": "2026-09-03T16:37:52.170",
+      "description": "Release of an invalid pointer in the AMD kernel mode driver (KMD) could allow a privileged attacker to create a double free condition potentially leading to arbitrary code execution.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2023-20511"
+    },
+    {
+      "id": "CVE-2026-82817",
+      "published": "2026-08-31T18:17:24.650",
+      "lastModified": "2026-09-02T15:17:43.447",
+      "description": "A vulnerability was found in dibo-software diboot 3.8.0. Affected by this issue is some unknown functionality of the file /admin/ of the component Tenant Administrator Management API. Performing a manipulation of the argument tenantId results in improper access controls. The attack may be initiated remotely. The exploit has been made public and could be used. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82817"
+    },
+    {
+      "id": "CVE-2026-82816",
+      "published": "2026-08-31T18:17:24.467",
+      "lastModified": "2026-08-31T20:56:08.800",
+      "description": "A vulnerability has been found in dibo-software diboot 3.8.0. Affected by this vulnerability is an unknown functionality of the file /api/ai-session/ of the component AI Session Endpoint. Such manipulation leads to authorization bypass. The attack can be launched remotely. The exploit has been disclosed to the public and may be used. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82816"
+    },
+    {
+      "id": "CVE-2026-82815",
+      "published": "2026-08-31T18:17:24.280",
+      "lastModified": "2026-09-01T20:48:22.513",
+      "description": "A flaw has been found in MegaEase EaseProbe up to 2.3.0. Affected is the function realIP of the file web/server.go of the component Middleware. This manipulation of the argument X-Forwarded-For/X-Real-IP/True-Client-IP causes improper access controls. The attack can be initiated remotely. The exploit has been published and may be used. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82815"
+    },
+    {
+      "id": "CVE-2026-82813",
+      "published": "2026-08-31T18:17:24.110",
+      "lastModified": "2026-09-01T20:48:22.513",
+      "description": "A vulnerability was detected in BEN Group TubeBuddy for YouTube Extension up to 5.8.4 on Chrome. This impacts the function TBGlobal.GetToken of the file tubebuddymaster1.js. The manipulation of the argument t/c/r results in insufficient verification of data authenticity. It is possible to launch the attack remotely. The exploit is now public and may be used. The vendor was contacted early about this disclosure.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82813"
+    },
+    {
+      "id": "CVE-2026-82811",
+      "published": "2026-08-31T18:17:23.937",
+      "lastModified": "2026-08-31T20:56:08.800",
+      "description": "A security vulnerability has been detected in Toggl OÜ Toggl Track Extension 4.11.16. This affects an unknown function of the component postMessage Handler. The manipulation leads to origin validation error. It is possible to initiate the attack remotely. The exploit has been disclosed publicly and may be used. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82811"
+    },
+    {
+      "id": "CVE-2026-79750",
+      "published": "2026-08-31T18:17:20.627",
+      "lastModified": "2026-09-02T15:17:42.163",
+      "description": "MCPHub is a unified hub for centrally managing and dynamically orchestrating multiple MCP servers/APIs into separate endpoints with flexible routing strategies. Prior to version 1.0.30, MCPHub scopes non-admin users to servers they own (list views and config edits enforce ownership), but the tool-execution API does not. Any authenticated non-admin user can invoke tools on MCP servers owned by other users — servers they cannot even see in GET /api/servers. Because connected MCP servers carry real capability (filesystem, HTTP fetch, cloud APIs with the owner's keys), this is cross-tenant compromise: demonstrated arbitrary host file read (/etc/passwd, another user's secrets) and SSRF. This issue has been patched in version 1.0.30.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79750"
+    },
+    {
+      "id": "CVE-2026-79749",
+      "published": "2026-08-31T18:17:20.483",
+      "lastModified": "2026-08-31T19:17:13.773",
+      "description": "MCPHub is a unified hub for centrally managing and dynamically orchestrating multiple MCP servers/APIs into separate endpoints with flexible routing strategies. Prior to version 1.0.32, MCPHub's SSRF guard in src/utils/ssrf.ts uses a custom isBlockedIpv6 function that only checks for loopback, link-local, unique-local, IPv4-mapped, and IPv4-compatible IPv6 addresses. IPv6 transition address families -- NAT64 (64:ff9b::/96), 6to4 (2002::/16), and Teredo (2001::/32) -- are not checked. An attacker who can specify a URL for an MCP server connection can encode a private IPv4 address inside one of these IPv6 forms to bypass the SSRF guard and reach internal infrastructure. This issue has been patched in version 1.0.32.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79749"
+    },
+    {
+      "id": "CVE-2026-79748",
+      "published": "2026-08-31T18:17:20.340",
+      "lastModified": "2026-08-31T19:17:13.667",
+      "description": "MCPHub is a unified hub for centrally managing and dynamically orchestrating multiple MCP servers/APIs into separate endpoints with flexible routing strategies. Prior to version 0.12.15, the POST /api/servers and PUT /api/servers/:name endpoints in MCPHub create/update MCP server configurations and then immediately spawn the configured stdio process via child_process.spawn. Authentication is required, but there is no authorization check restricting these endpoints to admins, and there is no allowlist/sanitization on the command and args fields. As a result, any authenticated non-admin user can submit a server configuration with command:\"/bin/sh\" (or any other binary) and arbitrary args, causing MCPHub to execute the attacker-controlled process as the MCPHub server's OS user (commonly root in the published Docker image and in npx/systemd deployments). This issue has been patched in version 0.12.15.",
+      "score": 9.9,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79748"
+    },
+    {
+      "id": "CVE-2026-79747",
+      "published": "2026-08-31T18:17:20.200",
+      "lastModified": "2026-08-31T20:17:11.550",
+      "description": "MCPHub is a unified hub for centrally managing and dynamically orchestrating multiple MCP servers/APIs into separate endpoints with flexible routing strategies. Prior to version 1.0.32, an authenticated non-admin user can register a server pointing at an arbitrary URL and make the hub issue server-side requests to it, with no egress filtering (no block of loopback / RFC1918 / link-local 169.254.0.0/16). Via the OpenAPI proxy path the response body is returned to the caller (full, reflected SSRF); via the SSE/streamable-http transport the request is sent blind. This issue has been patched in version 1.0.32.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79747"
+    },
+    {
+      "id": "CVE-2026-79746",
+      "published": "2026-08-31T18:17:20.057",
+      "lastModified": "2026-09-01T15:17:29.747",
+      "description": "MCPHub is a unified hub for centrally managing and dynamically orchestrating multiple MCP servers/APIs into separate endpoints with flexible routing strategies. Prior to version 1.0.31, when a bearer key with accessType: 'servers' (or 'custom') is used against a group route, isBearerKeyAllowedForRequest grants access to the entire group as long as any single server in that group appears in the key's allowedServers list — not only when every server the key is scoped to matches, and critically, without ever re-checking allowedServers again once the group-level connection is authorized. A key explicitly scoped to one specific server therefore also grants full access to every other server that happens to share a group with it, including servers the key was never authorized for. This issue has been patched in version 1.0.31.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79746"
+    },
+    {
+      "id": "CVE-2026-79745",
+      "published": "2026-08-31T18:17:19.910",
+      "lastModified": "2026-09-02T15:17:41.970",
+      "description": "MCPHub is a unified hub for centrally managing and dynamically orchestrating multiple MCP servers/APIs into separate endpoints with flexible routing strategies. Prior to version 1.0.32, the built-in prompt and resource controllers perform no role checking. The mutating POST/PUT /api/prompts* and POST/PUT /api/resources* routes are attached to the authenticated router with no admin gate, and the handlers never read req.user. The DAO singletons they write are consulted first — ahead of any connected MCP server — for every session in handleGetPromptRequest / handleReadResourceRequest. A non-admin can therefore create, overwrite, and shadow global prompt templates and resources that all other users are served. The scored impact is the unauthorized integrity violation (creation/tampering/shadowing of globally-served records); stored prompt injection into other users' LLM sessions is a downstream consequence of that tampering. This issue has been patched in version 1.0.32.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79745"
+    },
+    {
+      "id": "CVE-2026-79744",
+      "published": "2026-08-31T18:17:19.763",
+      "lastModified": "2026-08-31T19:17:13.557",
+      "description": "MCPHub is a unified hub for centrally managing and dynamically orchestrating multiple MCP servers/APIs into separate endpoints with flexible routing strategies. Prior to version 1.0.29, MCPHub's PUT /api/system-config endpoint (handler updateSystemConfig) performs no authorization check. It is protected only by the app-wide authentication middleware and a rate limiter — it never inspects req.user.isAdmin. This issue has been patched in version 1.0.29.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79744"
+    },
+    {
+      "id": "CVE-2026-79743",
+      "published": "2026-08-31T18:17:19.610",
+      "lastModified": "2026-08-31T19:17:13.447",
+      "description": "MCPHub is a unified hub for centrally managing and dynamically orchestrating multiple MCP servers/APIs into separate endpoints with flexible routing strategies. Prior to version 0.12.13, MCPB File Upload Handler extracts a ZIP file and reads manifest.json from it. The name field in the manifest is directly concatenated into a file path (line 107) without any sanitization or path traversal character validation. An attacker can craft a malicious MCPB file where manifest.name is set to something like ../../../etc/malicious, causing the file to be extracted to an arbitrary location on the file system. The cleanupOldMcpbServer function (line 110) also uses the unsanitized name, potentially allowing deletion of arbitrary directories. This issue has been patched in version 0.12.13.",
+      "score": 6.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79743"
+    },
+    {
+      "id": "CVE-2026-51730",
+      "published": "2026-08-31T18:17:18.770",
+      "lastModified": "2026-08-31T20:59:32.817",
+      "description": "Incorrect access control in the delWiFiAclRules function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to remove Wi-Fi ACL rules via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51730"
+    },
+    {
+      "id": "CVE-2026-51729",
+      "published": "2026-08-31T18:17:18.653",
+      "lastModified": "2026-09-01T15:17:18.770",
+      "description": "Incorrect access control in the delDevice function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to request deletion of a managed slave device via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51729"
+    },
+    {
+      "id": "CVE-2026-51728",
+      "published": "2026-08-31T18:17:18.543",
+      "lastModified": "2026-09-02T16:17:17.003",
+      "description": "Incorrect access control in the UploadFirmwareFile function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to upload a crafted firmware image via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51728"
+    },
+    {
+      "id": "CVE-2026-51727",
+      "published": "2026-08-31T18:17:18.430",
+      "lastModified": "2026-09-01T16:17:02.677",
+      "description": "Incorrect access control in the SystemSettings function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to retrieve administrative import and export endpoint information via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51727"
+    },
+    {
+      "id": "CVE-2026-51726",
+      "published": "2026-08-31T18:17:18.320",
+      "lastModified": "2026-09-01T15:17:18.563",
+      "description": "Incorrect access control in the delParentalRules function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to remove parental-control rules via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51726"
+    },
+    {
+      "id": "CVE-2026-51725",
+      "published": "2026-08-31T18:17:18.197",
+      "lastModified": "2026-08-31T20:59:32.817",
+      "description": "Incorrect access control in the NTPSyncWithHost function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to change the device clock via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51725"
+    },
     {
       "id": "CVE-2026-19953",
       "published": "2026-08-31T18:17:14.320",
@@ -626,276 +896,6 @@
       "score": 4.3,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51683"
-    },
-    {
-      "id": "CVE-2026-82700",
-      "published": "2026-08-31T14:17:27.367",
-      "lastModified": "2026-08-31T20:56:08.800",
-      "description": "A vulnerability was found in code-projects Online Shopping System 1.0. Affected by this vulnerability is an unknown functionality of the file /offersmail.php of the component Newsletter Subscription. The manipulation of the argument email results in cross site scripting. The attack may be performed from remote. The exploit has been made public and could be used.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82700"
-    },
-    {
-      "id": "CVE-2026-82699",
-      "published": "2026-08-31T14:17:27.170",
-      "lastModified": "2026-08-31T20:56:08.800",
-      "description": "A flaw has been found in sambitraj Student Management System up to 56ba287f2e9031523ccb4244cb6e3fe530e4e5d5. This impacts an unknown function of the file aca.sql of the component Password Handler. Executing a manipulation of the argument Password can lead to cleartext storage of sensitive information. The attack can be executed remotely. The exploit has been published and may be used. This product implements a rolling release for ongoing delivery, which means version information for affected or updated releases is unavailable.",
-      "score": 2.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82699"
-    },
-    {
-      "id": "CVE-2026-82698",
-      "published": "2026-08-31T14:17:26.980",
-      "lastModified": "2026-08-31T22:17:30.343",
-      "description": "A vulnerability was detected in sambitraj Student-Management-System up to 56ba287f2e9031523ccb4244cb6e3fe530e4e5d5. This affects an unknown function of the file aca.sql. Performing a manipulation results in use of default password. Remote exploitation of the attack is possible. The exploit is now public and may be used. This product follows a rolling release approach for continuous delivery, so version details for affected or updated releases are not provided. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82698"
-    },
-    {
-      "id": "CVE-2026-82697",
-      "published": "2026-08-31T14:17:26.783",
-      "lastModified": "2026-08-31T20:56:08.800",
-      "description": "A security vulnerability has been detected in sambitraj Student-Management-System up to 56ba287f2e9031523ccb4244cb6e3fe530e4e5d5. The impacted element is the function session_start. Such manipulation leads to cookie without 'httponly' flag. The attack may be launched remotely. A high complexity level is associated with this attack. The exploitability is regarded as difficult. The exploit has been disclosed publicly and may be used. This product operates on a rolling release basis, ensuring continuous delivery. Consequently, there are no version details for either affected or updated releases. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82697"
-    },
-    {
-      "id": "CVE-2026-82217",
-      "published": "2026-08-31T14:17:26.610",
-      "lastModified": "2026-09-01T21:11:35.983",
-      "description": "In Eclipse Theia versions 1.73.0 up to but not including 1.75.0, the AI \"Agent Mode\" file-change tools (writeFileContent, suggestFileContent, and the replacement and state helpers) resolved a model-supplied file path without a workspace-containment check. A crafted relative path such as ../.bashrc, an absolute path, or a ~-expanded path could therefore write or delete files outside the workspace with the privileges of the Theia backend OS user. Because the path argument is influenced by model output, it can be steered through indirect prompt injection, and in Agent Mode writes are applied without a confirmation dialog. Writing to a host-executed file such as a shell startup file or ~/.ssh/authorized_keys can escalate to code execution on the backend.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82217"
-    },
-    {
-      "id": "CVE-2026-78079",
-      "published": "2026-08-31T14:17:24.397",
-      "lastModified": "2026-08-31T19:33:11.197",
-      "description": "Joomla Extension - joomshaper.com - Open Redirect via Base64 Return Parameter in Helix Ultimate < 2.2.10 - Return redirect parameters accepted arbitrary Base64 strings without verifying whether the resolved target was an internal site URL via Uri::isInternal.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78079"
-    },
-    {
-      "id": "CVE-2026-78078",
-      "published": "2026-08-31T14:17:24.257",
-      "lastModified": "2026-08-31T19:33:11.197",
-      "description": "Joomla Extension - joomshaper.com - Privileged File Upload Bypass via Content Spoofing in Helix Ultimate < 2.2.10 - Image uploads previously validated only file extension and basic size parameters. Non-image files disguised with raster extensions could be uploaded. Added strict MIME verification and GD binary raster decoding (imagecreatefromstring) to reject invalid/malformed images fail-closed.",
-      "score": 8.9,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78078"
-    },
-    {
-      "id": "CVE-2026-78077",
-      "published": "2026-08-31T14:17:24.113",
-      "lastModified": "2026-08-31T19:33:11.197",
-      "description": "Joomla Extension - joomshaper.com -  Stored Cross-Site Scripting (XSS) in MegaMenu Layout Container & Embed Inputs in Helix Ultimate < 2.2.10 - Unsanitized column and item configuration values stored within the MegaMenu layout JSON were rendered without complete contextual escaping, allowing injection of malicious HTML/JS. Stricter sanitization and tag allowlists via `InputFilter` and `htmlspecialchars` were implemented.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78077"
-    },
-    {
-      "id": "CVE-2026-78076",
-      "published": "2026-08-31T14:17:23.987",
-      "lastModified": "2026-08-31T19:33:11.197",
-      "description": "Joomla Extension - joomshaper.com - Broken Access Control & Missing Authorization in MegaMenu Settings in Helix Ultimate < 2.2.10 - The AJAX endpoint save-megamenu-settings failed to enforce item-level and menu-level edit permissions (core.edit on com_menus.item.{id} or core.admin). An authenticated user could submit modified layout parameters for arbitrary menu items without proper authorization.",
-      "score": 5.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78076"
-    },
-    {
-      "id": "CVE-2026-78075",
-      "published": "2026-08-31T14:17:23.840",
-      "lastModified": "2026-08-31T19:33:11.197",
-      "description": "Joomla Extension - joomshaper.com - Broken Object-Level Authorization in Blog Image Deletion in Helix Ultimate < 2.2.10 - `Blog::remove_image()` checked whether the user was authorized to edit the article ID passed in the request, but did not verify whether the specified image path (src) belonged to that article. On Joomla 3 builds where physical file deletion was triggered, an author could supply their own article ID alongside an arbitrary file path under the `/images/` directory to delete arbitrary files.",
-      "score": 5.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78075"
-    },
-    {
-      "id": "CVE-2026-78074",
-      "published": "2026-08-31T14:17:23.633",
-      "lastModified": "2026-08-31T19:33:11.197",
-      "description": "Joomla Extension - miniorgange.com - Unauthenticated arbitrary extension deinstallation via various miniOrange extensions - a missing authentication check allows unauthenticated actors to delete arbitrary installed extensions. Only the free versions of the miniOrange plugins are affected.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78074"
-    },
-    {
-      "id": "CVE-2026-76986",
-      "published": "2026-08-31T14:17:23.497",
-      "lastModified": "2026-09-01T18:07:19.757",
-      "description": "Improper neutralization of input during web page generation in Apache Wicket.\n\norg.apache.wicket.markup.html.form.AbstractSingleSelectChoice, the base class of DropDownChoice, writes the body of the default option — the entry shown when no choice is selected — into the markup as it is, while every other option body in the same select is escaped according to the escape-model-strings setting. The body comes from getNullValidDisplayValue() or getNullKeyDisplayValue(), both of which are protected, so what they return is not necessarily the plain text the default implementation reads from a resource bundle.\n\nAn application is affected where it overrides one of those methods and returns a value holding data an attacker can influence, or where its own nullValid or null bundle entry holds such a value. The bundles shipped with Wicket contain plain text. RadioChoice overrides getDefaultChoice to emit no default option and is not affected.\n\nAs a workaround, escape the value in the override.\n\nThis issue affects Apache Wicket: from 8.0.0 through 8.18.0, from 9.0.0 through 9.23.0, from 10.0.0 through 10.10.0. Older, unsupported releases from 1.5.0 onwards are also affected. Users are recommended to upgrade to version 8.19.0, 9.24.0 or 10.11.0, which fix the issue.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76986"
-    },
-    {
-      "id": "CVE-2026-76985",
-      "published": "2026-08-31T14:17:23.310",
-      "lastModified": "2026-09-01T18:07:38.500",
-      "description": "Improper neutralization of input during web page generation in Apache Wicket.\n\norg.apache.wicket.extensions.markup.html.form.palette.component.AbstractOptions, which renders the two option lists of a Palette, escapes the id and the display value of each option according to the escape-model-strings setting, and wrote the attribute names and values returned by getAdditionalAttributes into the <option> tag as they came.\n\nAn application is affected where it overrides Palette.getAdditionalAttributesForChoices, Palette.getAdditionalAttributesForSelection or AbstractOptions.getAdditionalAttributes and returns a value holding data an attacker can influence. These methods return null by default, so an application that does not override them is not affected.\n\nAs a workaround, escape the values in the override.\n\nThis issue affects Apache Wicket: from 8.0.0 through 8.18.0, from 9.0.0 through 9.23.0, from 10.0.0 through 10.10.0. Older, unsupported releases from 1.4.0 onwards are also affected. Users are recommended to upgrade to version 8.19.0, 9.24.0 or 10.11.0, which fix the issue.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76985"
-    },
-    {
-      "id": "CVE-2026-76763",
-      "published": "2026-08-31T14:17:23.050",
-      "lastModified": "2026-09-01T21:03:04.987",
-      "description": "A flaw was found in SmallRye GraphQL. The number scalar coercion for BigInteger does not properly validate the magnitude of float or string inputs. An unauthenticated remote attacker can exploit this by sending a GraphQL query containing a large exponent float literal. This can lead to the allocation of extremely large BigInteger objects, causing CPU exhaustion or an OutOfMemoryError, resulting in a denial of service.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76763"
-    },
-    {
-      "id": "CVE-2026-51681",
-      "published": "2026-08-31T14:17:16.323",
-      "lastModified": "2026-08-31T20:59:32.817",
-      "description": "Incorrect access control in the setRemoteCfg function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to expose WAN-side administration via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51681"
-    },
-    {
-      "id": "CVE-2026-51680",
-      "published": "2026-08-31T14:17:16.180",
-      "lastModified": "2026-08-31T20:59:32.817",
-      "description": "Incorrect access control in the setLedCfg function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to modify LED behavior via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51680"
-    },
-    {
-      "id": "CVE-2026-51679",
-      "published": "2026-08-31T14:17:16.027",
-      "lastModified": "2026-08-31T20:59:32.817",
-      "description": "Incorrect access control in the setPasswordCfg function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to change the administrator account via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51679"
-    },
-    {
-      "id": "CVE-2026-51678",
-      "published": "2026-08-31T14:17:15.863",
-      "lastModified": "2026-09-01T16:17:02.107",
-      "description": "Incorrect access control in the setSyslogCfg function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to alter logging behavior via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51678"
-    },
-    {
-      "id": "CVE-2026-51677",
-      "published": "2026-08-31T14:17:15.697",
-      "lastModified": "2026-09-01T13:19:44.710",
-      "description": "Incorrect access control in the setUPnPCfg function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to change UPnP service state via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51677"
-    },
-    {
-      "id": "CVE-2026-51676",
-      "published": "2026-08-31T14:17:15.527",
-      "lastModified": "2026-09-01T13:19:44.540",
-      "description": "Incorrect access control in the setAccessDeviceCfg function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to alter access-device policies via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51676"
-    },
-    {
-      "id": "CVE-2026-51675",
-      "published": "2026-08-31T14:17:15.360",
-      "lastModified": "2026-09-01T13:19:44.370",
-      "description": "Incorrect access control in the setWanIeCfg function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to reconfigure uplink settings via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51675"
-    },
-    {
-      "id": "CVE-2026-51674",
-      "published": "2026-08-31T14:17:15.197",
-      "lastModified": "2026-09-01T13:19:44.200",
-      "description": "Incorrect access control in the setScheduleCfg function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to configure forced reboot tasks via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51674"
-    },
-    {
-      "id": "CVE-2026-51673",
-      "published": "2026-08-31T14:17:15.037",
-      "lastModified": "2026-09-01T13:19:44.030",
-      "description": "Incorrect access control in the setNtpCfg function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to alter time synchronization settings via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51673"
-    },
-    {
-      "id": "CVE-2026-51672",
-      "published": "2026-08-31T14:17:14.873",
-      "lastModified": "2026-09-01T13:19:43.857",
-      "description": "Incorrect access control in the getRoamingCfg function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to obtain the roaming enablement flag via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51672"
-    },
-    {
-      "id": "CVE-2026-51671",
-      "published": "2026-08-31T14:17:14.717",
-      "lastModified": "2026-09-01T13:19:43.683",
-      "description": "Incorrect access control in the getCloudDownloadStatus function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to obtain cloud firmware download state information via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51671"
-    },
-    {
-      "id": "CVE-2026-51670",
-      "published": "2026-08-31T14:17:14.533",
-      "lastModified": "2026-09-01T13:19:43.510",
-      "description": "Incorrect access control in the getSlaveUpdate function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to query slave upgrade status and affect upgrade bookkeeping via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51670"
-    },
-    {
-      "id": "CVE-2026-51669",
-      "published": "2026-08-31T14:17:14.353",
-      "lastModified": "2026-09-01T13:19:43.333",
-      "description": "Incorrect access control in the getPairCfg function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to obtain pairing and mesh-slave configuration via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51669"
-    },
-    {
-      "id": "CVE-2026-51668",
-      "published": "2026-08-31T14:17:14.200",
-      "lastModified": "2026-09-01T13:19:43.143",
-      "description": "Incorrect access control in the setLanguageCfg function of TOTOLINK T6 4.1.5cu.748_B20211015 allows unauthenticated attackers to modify language configuration via sending a crafted POST request to /cgi-bin/cstecgi.cgi.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-51668"
-    },
-    {
-      "id": "CVE-2026-19702",
-      "published": "2026-08-31T14:17:14.047",
-      "lastModified": "2026-09-01T15:02:28.700",
-      "description": "Improper neutralization of special elements used in an OS command ('OS command injection') vulnerability in TÜBİTAK BİLGEM Software Technologies Research Institute Pardus Boot Repair allows OS Command Injection.\n\nThis issue affects Pardus Boot Repair: from 1.0.7 before 1.0.8.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19702"
-    },
-    {
-      "id": "CVE-2026-19616",
-      "published": "2026-08-31T14:17:13.857",
-      "lastModified": "2026-09-01T15:02:28.700",
-      "description": "Missing Authorization vulnerability in TBC Technology Inc. KitLogistic allows Accessing Functionality Not Properly Constrained by ACLs.\n\nThis issue affects KitLogistic: before v2.2.2.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19616"
     }
   ]
 }
