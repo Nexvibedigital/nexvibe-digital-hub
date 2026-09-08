@@ -1,6 +1,184 @@
 {
-  "syncedAt": "2026-09-08T11:45:39.816Z",
+  "syncedAt": "2026-09-08T12:26:15.934Z",
   "items": [
+    {
+      "id": "CVE-2026-71380",
+      "published": "2026-09-01T15:17:24.637",
+      "lastModified": "2026-09-08T01:17:53.310",
+      "description": "Missing Release of Resource after Effective Lifetime vulnerability in Erlang/OTP inets httpd allows an unauthenticated remote attacker to cause denial of service by sending valid request headers with a large Content-Length and then stalling before the body is complete.\n\nhttpd_request_handler:handle_info/2 cancels the request timeout as soon as a parse step succeeds, which includes the headers, and the clause that handles a decoder asking for more data re-arms the socket with {active, once} without setting any further timer. httpd_request:whole_body/2 returns such a continuation whenever the bytes received are fewer than the announced Content-Length, so a well-formed request that stops mid-body leaves the worker waiting indefinitely. The periodic byte-rate check that would reclaim it is armed only when minimum_bytes_per_second is configured, which it is not by default. Repeating this across connections occupies every worker permitted by max_clients and denies service to legitimate clients at negligible bandwidth cost.\n\nThis issue affects OTP from OTP 17.0 before OTP 27.3.4.17, from OTP 28.0 before OTP 28.5.0.6, and from OTP 29.0 before OTP 29.0.6, corresponding to inets from 5.10 before 9.3.2.7, from 9.4 before 9.6.2.3, and from 9.7 before 9.7.2. Whether OTP before OTP 17.0, corresponding to inets before 5.10, is affected is unknown.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71380"
+    },
+    {
+      "id": "CVE-2026-70409",
+      "published": "2026-09-01T15:17:24.427",
+      "lastModified": "2026-09-08T01:17:53.137",
+      "description": "Improper Validation of Specified Quantity in Input vulnerability in Erlang/OTP eldap allows a malicious or compromised LDAP server to degrade availability by returning a referral URL whose port component is a very long run of digits.\n\neldap:parse_port/2 passes the port substring straight to list_to_integer/1 with no length bound. The surrounding try ... catch only rejects a value that fails to parse, so a syntactically valid port of up to roughly 1.26 million digits converts successfully and costs the caller hundreds of milliseconds of arbitrary-precision arithmetic per referral. The conversion function itself is documented to accept integers of any size, so bounding the input is the caller's responsibility. Reaching the flaw requires the application to pass a server-supplied referral to eldap:parse_ldap_url/1, which eldap never calls itself: referral strings are returned to the caller unparsed.\n\nThis issue affects OTP from OTP 17.0 before OTP 27.3.4.17, from OTP 28.0 before OTP 28.5.0.6, and from OTP 29.0 before OTP 29.0.6, corresponding to eldap from 1.0.3 before 1.2.14.2, from 1.2.15 before 1.2.16.1, and from 1.3 before 1.3.1.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-70409"
+    },
+    {
+      "id": "CVE-2026-70405",
+      "published": "2026-09-01T15:17:24.193",
+      "lastModified": "2026-09-08T01:17:52.940",
+      "description": "Improper Validation of Specified Quantity in Input vulnerability in Erlang/OTP snmp allows a remote attacker to degrade availability by sending an SNMP message containing a BER INTEGER whose length field is arbitrarily large.\n\nsnmp_pdus:dec_integer_notag/1 defaults its size limit to infinity, and do_dec_integer_notag/2 then accumulates the value across every declared byte with a recursive shift and bitwise or. Work grows superlinearly in the declared length because each operation acts on a progressively larger bignum. The size-limited variant dec_integer_notag/2 exists but is reached from only one call site, dec_snmp_version/1, which bounds the version field to ten bytes; the request identifier, error status and index, generic and specific trap fields, engine boots and time, and every varbind value decoded by dec_value/1 all use the unbounded form. The decode runs before the PDU is processed, so no valid request is required beyond what the deployment demands to accept the message at all.\n\nThis issue affects OTP from OTP 17.0 before OTP 27.3.4.17, from OTP 28.0 before OTP 28.5.0.6, and from OTP 29.0 before OTP 29.0.6, corresponding to snmp from 4.25.1 before 5.18.2.1, from 5.19 before 5.20.2.2, and from 5.20.3 before 5.20.5. Whether OTP before OTP 17.0, corresponding to snmp before 4.25.1, is affected is unknown.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-70405"
+    },
+    {
+      "id": "CVE-2026-70399",
+      "published": "2026-09-01T15:17:23.947",
+      "lastModified": "2026-09-08T01:17:52.707",
+      "description": "Allocation of Resources Without Limits or Throttling vulnerability in Erlang/OTP inets httpd allows an unauthenticated remote attacker to cause denial of service by opening and holding open a large number of connections. The max_clients option is documented to default to 150, and the inets hardening guide presents that limit as the first layer of denial-of-service defence, but a server that does not set it explicitly accepts an unlimited number of simultaneous connections. Establishing the connections is sufficient; no valid request and no authentication are required.\n\nThe accept gate in httpd_manager:handle_new_connection/4 reads the option with httpd_util:lookup/2, which returns undefined when the key is absent, rather than the three-argument form carrying the 150 default that the neighbouring get_ustate/2 uses. Erlang term ordering places every integer before every atom, so the Count =< Max guard holds for any connection count and the server never returns {reject, busy}. Each accepted connection occupies a worker process and a socket for as long as it is held, driving the node towards process, memory and file descriptor exhaustion. Servers that set max_clients explicitly are unaffected, because a configured value is applied as intended.\n\nThis issue affects OTP from OTP 17.0 before OTP 27.3.4.17, from OTP 28.0 before OTP 28.5.0.6, and from OTP 29.0 before OTP 29.0.6, corresponding to inets from 5.10 before 9.3.2.7, from 9.4 before 9.6.2.3, and from 9.7 before 9.7.2.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-70399"
+    },
+    {
+      "id": "CVE-2026-69664",
+      "published": "2026-09-01T15:17:23.677",
+      "lastModified": "2026-09-08T01:17:52.473",
+      "description": "Missing Release of Resource after Effective Lifetime vulnerability in Erlang/OTP inets httpd allows an unauthenticated remote attacker to cause denial of service by sending a request with a chunked body whose chunk-size line is not a hexadecimal number. The worker serving the connection is never released and no timeout reclaims it, so repeating the request across connections occupies every available worker and denies service to legitimate clients. No authentication is required and the default configuration is affected.\n\nThe chunk-size line must arrive in a write separate from the headers. When the body accompanies the headers, httpd_request_handler:handle_body/3 calls http_chunk:decode/3 inside a try ... catch throw:Error, so the {error, {chunk_size, _}} thrown by http_chunk:decode_size/4 is answered with 400 Bad Request. When the chunk size arrives later, the decoder is resumed through a bare catch in httpd_request_handler:handle_info/2, which converts the throw into a return value rather than raising it; the resulting error tuple is then treated as the next decoder continuation, the socket is re-armed, and the worker waits for data that never comes. The request timeout has already been cancelled at the point the headers were accepted, and the periodic byte-rate check is only armed when minimum_bytes_per_second is configured, which it is not by default.\n\nThis issue affects OTP from OTP 18.1.4 before OTP 27.3.4.17, from OTP 28.0 before OTP 28.5.0.6, and from OTP 29.0 before OTP 29.0.6, corresponding to inets from 6.0.3 before 9.3.2.7, from 9.4 before 9.6.2.3, and from 9.7 before 9.7.2.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-69664"
+    },
+    {
+      "id": "CVE-2026-66835",
+      "published": "2026-09-01T15:17:23.433",
+      "lastModified": "2026-09-08T01:17:52.243",
+      "description": "Path Equivalence vulnerability in Erlang/OTP inets httpd allows a remote unauthenticated attacker to read files inside a mod_auth protected directory by prefixing the request path with an extra slash.\n\nhttpd_request:validate_uri/1 normalises the request URI with uri_string:normalize/1, which performs RFC 3986 dot-segment removal but does not collapse empty path segments, so a doubled slash survives. mod_alias:real_name/3 concatenates the document root with that URI, and mod_auth:secret_path/3 then decides whether the result lies inside a protected directory block by running the configured directory path as an unanchored regular expression against it. The doubled slash breaks the contiguous substring the regex needs, so the request is treated as unprotected and no authentication challenge is issued, while mod_get opens the same path and the operating system collapses the doubled slash and returns the protected file. The same path mismatch also evades the per-path accounting in mod_security.\n\nThis issue affects OTP from OTP 17.0 before OTP 27.3.4.17, from OTP 28.0 before OTP 28.5.0.6, and from OTP 29.0 before OTP 29.0.6, corresponding to inets from 5.10 before 9.3.2.7, from 9.4 before 9.6.2.3, and from 9.7 before 9.7.2. Whether OTP before OTP 17.0, corresponding to inets before 5.10, is affected is unknown.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66835"
+    },
+    {
+      "id": "CVE-2026-66357",
+      "published": "2026-09-01T15:17:23.047",
+      "lastModified": "2026-09-08T01:17:51.840",
+      "description": "httpd has never implemented obs-fold (RFC 2616 §2.2 / RFC 7230 §3.2.4 header continuation lines). Every CRLF followed by a non-CRLF octet unconditionally starts a new header. This missing feature became a security concern as the understanding of HTTP request smuggling attacks evolved.\n\nThis issue affects OTP from OTP 17.0 before OTP 27.3.4.17, from OTP 28.0 before OTP 28.5.0.6, and from OTP 29.0 before OTP 29.0.6, corresponding to inets from 5.10 before 9.3.2.7, from 9.4 before 9.6.2.3, and from 9.7 before 9.7.2. Whether OTP before OTP 17.0, corresponding to inets before 5.10, is affected is unknown.",
+      "score": 8.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66357"
+    },
+    {
+      "id": "CVE-2026-5480",
+      "published": "2026-09-01T15:17:22.467",
+      "lastModified": "2026-09-01T15:17:22.467",
+      "description": "Rejected reason: ** REJECT ** DO NOT USE THIS CANDIDATE NUMBER. Reason: This candidate was issued in error. Notes: All references and descriptions in this candidate have been removed to prevent accidental usage.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-5480"
+    },
+    {
+      "id": "CVE-2026-59696",
+      "published": "2026-09-01T15:17:22.250",
+      "lastModified": "2026-09-08T01:17:51.663",
+      "description": "Improper Validation of Specified Quantity in Input vulnerability in Erlang/OTP stdlib allows a remote attacker to degrade availability by supplying a URI whose port component is a very long run of digits.\n\nuri_string:get_port/1 passes the port substring to binary_to_integer/1 with no length bound, catching only error:badarg, so a syntactically valid port of up to roughly 1.26 million digits converts successfully and costs the calling process hundreds of milliseconds of arbitrary-precision arithmetic. The conversion is reached from every authority-parsing path in uri_string:parse/1, including the host, registered-name, and IPv4 and IPv6 forms. parse/1 is the documented interface for parsing URIs, so any application that parses an attacker-supplied URI is exposed without further configuration. The conversion function is documented to accept integers of any size, so bounding the input is the caller's responsibility.\n\nThis issue affects OTP from OTP 21.0 before OTP 27.3.4.17, from OTP 28.0 before OTP 28.5.0.6, and from OTP 29.0 before OTP 29.0.6, corresponding to stdlib from 3.5 before 6.2.2.5, from 7.0 before 7.3.0.2, and from 8.0 before 8.0.4.",
+      "score": 6.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59696"
+    },
+    {
+      "id": "CVE-2026-58569",
+      "published": "2026-09-01T15:17:21.187",
+      "lastModified": "2026-09-04T20:17:24.137",
+      "description": "Dell PowerStore contains an Inclusion of Functionality from Untrusted Control Sphere vulnerability. An authenticated user with limited privileges could potentially exploit this vulnerability to execute arbitrary code with root privileges..",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-58569"
+    },
+    {
+      "id": "CVE-2026-55951",
+      "published": "2026-09-01T15:17:20.780",
+      "lastModified": "2026-09-08T01:17:50.477",
+      "description": "The Erlang/OTP httpc HTTP client does not enforce a limit on the total size of response headers received from a server. The max_header_size option defaults to nolimit, and httpc_response:parse_headers/6 accumulates every header into a list before the length check runs (which only fires after the terminating CRLF CRLF is received).\n\nA malicious or compromised HTTP server can send an arbitrarily large number of headers, or headers with very large values, causing the client process to allocate unbounded memory until the system runs out of memory or the BEAM VM crashes. A proof-of-concept server sending 100,000 headers of roughly 4000 bytes each caused the client VM to allocate over 13 GB of memory in under 30 seconds.\n\nAny application using httpc:request/4,5 to connect to untrusted servers is affected. No authentication is required: any server the client connects to (including via a redirect or man-in-the-middle) can trigger the exhaustion.\n\nThis issue affects OTP from OTP 17.0 before OTP 27.3.4.17, from OTP 28.0 before OTP 28.5.0.6, and from OTP 29.0 before OTP 29.0.6, corresponding to inets from 5.10 before 9.3.2.7, from 9.4 before 9.6.2.3, and from 9.7 before 9.7.2. Whether OTP before OTP 17.0, corresponding to inets before 5.10, is affected is unknown.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55951"
+    },
+    {
+      "id": "CVE-2026-18780",
+      "published": "2026-09-01T15:17:13.200",
+      "lastModified": "2026-09-01T21:10:38.413",
+      "description": "Cross-Site request forgery (CSRF) vulnerability in TMT Machine Industry and Trade Ltd. Co. Talassoft Industrial Management Software allows Cross Site Request Forgery.\n\nThis issue affects Talassoft Industrial Management Software: from V.4 before V.16.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18780"
+    },
+    {
+      "id": "CVE-2026-18771",
+      "published": "2026-09-01T15:17:13.060",
+      "lastModified": "2026-09-01T21:10:38.413",
+      "description": "Missing authentication for critical function vulnerability in TMT Machine Industry and Trade Ltd. Co. Talassoft Industrial Management Software allows Authentication Bypass.\n\nThis issue affects Talassoft Industrial Management Software: from V4 before V.16.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18771"
+    },
+    {
+      "id": "CVE-2026-18630",
+      "published": "2026-09-01T15:17:12.753",
+      "lastModified": "2026-09-01T21:10:38.413",
+      "description": "Improper neutralization of special elements used in an SQL command ('SQL injection') vulnerability in TMT Machine Industry and Trade Ltd. Co. Talassoft Industrial Management Software allows SQL Injection.\n\nThis issue affects Talassoft Industrial Management Software: from V.4 before V.16.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18630"
+    },
+    {
+      "id": "CVE-2026-9637",
+      "published": "2026-09-01T14:17:50.157",
+      "lastModified": "2026-09-01T20:50:01.960",
+      "description": "A denial-of-service security issue exists in the affected Logix platforms listed in the table above. The security issue stems from improper validation of input length during CIP message processing. This can result in a major nonrecoverable fault (MNRF), requiring a power cycle to recover",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-9637"
+    },
+    {
+      "id": "CVE-2026-9634",
+      "published": "2026-09-01T14:17:50.017",
+      "lastModified": "2026-09-01T20:50:01.960",
+      "description": "A security issue exists within the Redundancy Module Configuration Tool. The RMConfigTool.exe binary searches directories in the system path for a required DLL, and one or more of these directories may be writable by standard (non-administrator) users due to incorrect default permissions. If a local attacker places a malicious DLL in such a directory and an administrator subsequently runs the tool, the malicious DLL is loaded into the elevated process and executes with Administrator/SYSTEM privileges.",
+      "score": 7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-9634"
+    },
+    {
+      "id": "CVE-2026-9633",
+      "published": "2026-09-01T14:17:49.893",
+      "lastModified": "2026-09-01T20:50:01.960",
+      "description": "A security issue exists within the Redundancy Module Configuration Tool. The RM3ConfigTool.exe binary searches directories in the system path for a required DLL, and one or more of these directories may be writable by standard (non-administrator) users due to incorrect default permissions. If a local attacker places a malicious DLL in such a directory and an administrator subsequently runs the tool, the malicious DLL is loaded into the elevated process and executes with Administrator/SYSTEM privileges.",
+      "score": 7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-9633"
+    },
+    {
+      "id": "CVE-2026-9625",
+      "published": "2026-09-01T14:17:49.767",
+      "lastModified": "2026-09-01T20:50:01.960",
+      "description": "A denial-of-service security issue exists within RSLinx® Classic. A crafted CIP packet with an oversized embedded message request can cause the RSLinx® Classic service to crash, requiring a restart of the service to recover.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-9625"
+    },
+    {
+      "id": "CVE-2026-9624",
+      "published": "2026-09-01T14:17:49.633",
+      "lastModified": "2026-09-01T20:50:01.960",
+      "description": "A denial-of-service security issue exists within RSLinx® Classic. A crafted CIP packet can cause the RSLinx® Classic service to crash due to insufficient data length validation, requiring a  restart of the service to recover.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-9624"
+    },
+    {
+      "id": "CVE-2026-9622",
+      "published": "2026-09-01T14:17:49.510",
+      "lastModified": "2026-09-01T20:50:01.960",
+      "description": "A denial-of-service security issue exists within RSLinx® Classic. A crafted CIP packet targeting the Forward Close service can cause the RSLinx® Classic service to crash, requiring a restart of the service to recover.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-9622"
+    },
     {
       "id": "CVE-2026-9621",
       "published": "2026-09-01T14:17:49.377",
@@ -720,186 +898,6 @@
       "score": 9.8,
       "severity": "CRITICAL",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18765"
-    },
-    {
-      "id": "CVE-2026-84200",
-      "published": "2026-09-01T12:17:49.540",
-      "lastModified": "2026-09-02T18:21:28.853",
-      "description": "Kyverno versions v1.9.0 through v1.12.7 contain a policy exception handling flaw. When a policy in enforce mode is combined with two PolicyExceptions, the less restrictive exception takes precedence, allowing an attacker to bypass the policy by crafting a resource name that matches the second exception's name pattern (e.g., '*ingress*'). This can be used to circumvent policies such as one blocking hostPath volumes. Fixed in v1.13.0.",
-      "score": 9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84200"
-    },
-    {
-      "id": "CVE-2026-84199",
-      "published": "2026-09-01T12:17:49.407",
-      "lastModified": "2026-09-01T16:17:33.853",
-      "description": "Kyverno before 1.16.2 contains a server-side request forgery (SSRF) vulnerability in the APICall feature. The URL field in a Policy's ServiceCall configuration is not validated, so a user with namespace-level Policy creation permissions can direct Kyverno to make HTTP requests to arbitrary internal resources (e.g., cloud metadata endpoints such as 169.254.169.254 or other tenants' resources). Because Kyverno executes these requests using its cluster-wide high-privilege ServiceAccount (a Confused Deputy problem), the responses—potentially including other tenants' secrets and cloud IAM credentials—are returned in the PolicyReport and can be read by the attacker, breaking multi-tenant isolation.",
-      "score": 7.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84199"
-    },
-    {
-      "id": "CVE-2026-84196",
-      "published": "2026-09-01T12:17:49.270",
-      "lastModified": "2026-09-01T15:17:43.613",
-      "description": "Kyverno before 1.18.0 contains a server-side request forgery vulnerability in apiCall.service.url that allows authenticated users to send arbitrary HTTP requests by injecting user-controlled input through variable substitution. Attackers can target internal services, cloud metadata endpoints, and loopback addresses, with response data reflected in admission error messages enabling non-blind data exfiltration.",
-      "score": 7.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84196"
-    },
-    {
-      "id": "CVE-2026-84195",
-      "published": "2026-09-01T12:17:49.130",
-      "lastModified": "2026-09-01T13:20:09.440",
-      "description": "Kyverno before 1.16.4 automatically attaches the admission controller's ServiceAccount token to outbound HTTP requests in apiCall service mode without explicit authorization headers. Attackers can exfiltrate the token by directing apiCall requests to external or attacker-controlled endpoints, gaining full control over Kyverno policies and cluster resources.",
-      "score": 7.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84195"
-    },
-    {
-      "id": "CVE-2026-84194",
-      "published": "2026-09-01T12:17:49.000",
-      "lastModified": "2026-09-04T02:17:19.770",
-      "description": "LibreNMS versions >= 23.10.0 and < 26.2.0 (fixed in 26.4.0) contain an authenticated OS command injection vulnerability in libvirt discovery. When libvirt support is enabled (enable_libvirt=true), the device hostname ($this->getDevice()->hostname) is concatenated into shell commands (ssh, virsh list/dumpxml/domstate) in VminfoLibvirt.php and passed to exec() without escapeshellarg() or argument separation. An authenticated admin can set a crafted device hostname to inject arbitrary OS commands, leading to remote code execution in the discovery worker context.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84194"
-    },
-    {
-      "id": "CVE-2026-84193",
-      "published": "2026-09-01T12:17:48.867",
-      "lastModified": "2026-09-02T15:17:45.403",
-      "description": "LibreNMS through 26.2.0 contains a stored cross-site scripting vulnerability in legacy PHP template pages that render unescaped SNMP-sourced data fields including BGP peer descriptions, VRF names, process information, and SLA tags. Attackers with device management access or network access to enroll a rogue SNMP device can inject malicious JavaScript that executes when admins view affected routing and device pages, enabling credential theft and CSRF token exfiltration.",
-      "score": 5.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84193"
-    },
-    {
-      "id": "CVE-2026-84192",
-      "published": "2026-09-01T12:17:48.723",
-      "lastModified": "2026-09-01T16:17:33.330",
-      "description": "LibreNMS before 26.3.1 contains a stored cross-site scripting vulnerability in legacy PHP templates that output SNMP-sourced and syslog-sourced data without escaping. An attacker who controls a monitored network device can inject arbitrary JavaScript through SNMP interface descriptions or syslog program fields that executes when authenticated users view affected pages.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84192"
-    },
-    {
-      "id": "CVE-2026-84191",
-      "published": "2026-09-01T12:17:48.587",
-      "lastModified": "2026-09-01T15:17:43.487",
-      "description": "LibreNMS before 26.5.0 contains stored cross-site scripting vulnerabilities in VRF display pages where mplsVpnVrfDescription, vrf_name, and mplsVpnVrfRouteDistinguisher fields from SNMP polling are rendered without sanitization. Attackers controlling a monitored network device can inject arbitrary JavaScript through SNMP responses that executes in the browser of any user viewing VRF-related pages.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84191"
-    },
-    {
-      "id": "CVE-2026-84190",
-      "published": "2026-09-01T12:17:48.450",
-      "lastModified": "2026-09-01T13:20:09.307",
-      "description": "LibreNMS versions before 26.5.0 contain a remote code execution vulnerability in the AboutController where the snmpget configuration parameter is passed to shell_exec() without proper validation. An authenticated administrator can modify the snmpget configuration to point to a malicious executable file and trigger code execution by accessing the /about endpoint.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84190"
-    },
-    {
-      "id": "CVE-2026-84189",
-      "published": "2026-09-01T12:17:48.287",
-      "lastModified": "2026-09-04T03:17:42.680",
-      "description": "LibreNMS through 26.4.0 renders JSON fields (name, ip, model, author, commit message) returned by the admin-configurable Oxidized integration URL (oxidized.url) into the device showconfig page without applying htmlspecialchars(). An administrator who points the Oxidized URL at an attacker-controlled server (SSRF) can cause it to return malicious JSON, resulting in stored/persistent cross-site scripting affecting all users who view any device's showconfig tab. Fixed in 26.7.0.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84189"
-    },
-    {
-      "id": "CVE-2026-84188",
-      "published": "2026-09-01T12:17:48.143",
-      "lastModified": "2026-09-02T15:17:45.280",
-      "description": "LibreNMS versions <= 26.4.0 contain a stored cross-site scripting vulnerability in the graph_descr.<graphtype> configuration settings, which are echoed verbatim without HTML escaping in includes/html/pages/graphs.inc.php. An administrator can store a malicious HTML payload that executes in the browser of any authenticated user who views the affected graph type. The issue is fixed in version 26.7.0.",
-      "score": 4.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84188"
-    },
-    {
-      "id": "CVE-2026-84187",
-      "published": "2026-09-01T12:17:48.007",
-      "lastModified": "2026-09-01T16:17:32.887",
-      "description": "AVideo contains a missing authentication vulnerability in plugin/Live/on_publish.php that allows unauthenticated attackers to mark arbitrary scheduled broadcasts as failed by sending crafted POST requests with schedule identifiers. Attackers can exploit the unguarded RTMP callback endpoint to modify scheduled broadcast status fields by supplying fabricated stream keys matching the pattern -ps-<N>, silently canceling any scheduled live broadcast without credentials or authorization.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84187"
-    },
-    {
-      "id": "CVE-2026-83595",
-      "published": "2026-09-01T12:17:47.870",
-      "lastModified": "2026-09-01T15:17:38.183",
-      "description": "AVideo contains a cross-site request forgery vulnerability in plugin/API/set.json.php that allows attackers to perform state-changing actions by crafting GET requests that bypass CSRF protection. Attackers can navigate a victim's browser to a malicious URL with API parameters to delete videos, deactivate accounts, or modify playlists without user interaction.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-83595"
-    },
-    {
-      "id": "CVE-2026-77194",
-      "published": "2026-09-01T12:17:47.737",
-      "lastModified": "2026-09-01T20:47:54.130",
-      "description": "The Simple Membership plugin for WordPress is vulnerable to Authentication Bypass leading to Administrator Account Takeover in versions up to, and including, 4.8.0. This is due to improper identity verification during the public registration flow in WordPress Multisite environments, where the plugin binds new Simple Membership records to existing global WordPress users based solely on matching username and email, without requiring password verification or ownership proof, and fails to properly detect Administrator roles on child sites. This makes it possible for unauthenticated attackers to take over Administrator accounts on child sites in a Multisite network by registering a Simple Membership account with a victim's credentials on a site where public registration is enabled, then updating the victim's global WordPress password through the profile edit functionality. The vulnerability was partially patched in version 4.8.1.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77194"
-    },
-    {
-      "id": "CVE-2026-76111",
-      "published": "2026-09-01T12:17:47.113",
-      "lastModified": "2026-09-04T20:17:27.637",
-      "description": "Dell PowerStore contains an Incorrect Authorization vulnerability. An authenticated attacker with low privileges could potentially exploit this vulnerability to invoke administrator-only operations, leading to privilege escalation.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76111"
-    },
-    {
-      "id": "CVE-2026-18550",
-      "published": "2026-09-01T12:17:35.920",
-      "lastModified": "2026-09-02T18:19:16.213",
-      "description": "The Nokri - Job Board WordPress Theme for WordPress is vulnerable to Privilege Escalation via Account Takeover in all versions up to, and including, 1.6.6. This is due to insufficient reset token validation in the `nokri_reset_password()` function, which allows empty attacker-supplied reset tokens to match empty or unset `sb_password_forget_token` user meta values. This makes it possible for unauthenticated attackers to reset the password of any user, including administrators, and gain access to their account.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18550"
-    },
-    {
-      "id": "CVE-2026-11873",
-      "published": "2026-09-01T12:17:35.300",
-      "lastModified": "2026-09-01T21:03:04.987",
-      "description": "An Apache-proxied Dogtag CA REST endpoint exposed by IdM (POST /ca/rest/certrequests) returns HTTP 500 with internal Java stack traces for unauthenticated malformed requests. The same unauthenticated error path emits large multi-line stack traces into the CA debug log, creating a log-amplification resource exhaustion vector (disk growth and I/O contention) without requiring authentication.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-11873"
-    },
-    {
-      "id": "CVE-2026-10420",
-      "published": "2026-09-01T12:17:34.687",
-      "lastModified": "2026-09-01T20:50:58.753",
-      "description": "Untrusted pointer dereference vulnerability in Samsung Open Source mTower allows Pointer Manipulation.\n\nThis issue affects mTower: before 102d3dc75cf8e58e68e4bea54ae3c803992c91be.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-10420"
-    },
-    {
-      "id": "CVE-2025-15613",
-      "published": "2026-09-01T12:17:18.183",
-      "lastModified": "2026-09-01T13:17:44.963",
-      "description": "Kyverno before v1.13.4 is vulnerable to server-side request forgery (SSRF) via its Service Call functionality. An attacker with permission to create Kyverno (Cluster)Policies can specify an external URL in a policy's apiCall/service configuration; although Service Call is documented for in-cluster services, it also resolves external addresses, allowing requests to an attacker-controlled server. Because policy context data (including contents of Kubernetes resources such as secrets) is sent in these requests, an attacker can exfiltrate sensitive cluster data.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-15613"
-    },
-    {
-      "id": "CVE-2023-54356",
-      "published": "2026-09-01T12:17:11.220",
-      "lastModified": "2026-09-04T02:17:18.340",
-      "description": "Kyverno versions 1.9.4 and earlier support insecure 3DES cipher suites (TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA and TLS_RSA_WITH_3DES_EDE_CBC_SHA) on their TLS endpoints. These 64-bit block ciphers are vulnerable to the Sweet32 attack (CVE-2016-2183), which, over very long-lived TLS connections carrying large volumes of traffic, could allow an attacker to recover small amounts of plaintext. The issue is fixed in Kyverno 1.9.5 and 1.10.0.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2023-54356"
     }
   ]
 }
