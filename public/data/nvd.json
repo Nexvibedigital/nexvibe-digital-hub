@@ -1,6 +1,224 @@
 {
-  "syncedAt": "2026-09-09T16:47:16.895Z",
+  "syncedAt": "2026-09-09T17:18:51.217Z",
   "items": [
+    {
+      "id": "CVE-2026-80740",
+      "published": "2026-09-03T13:06:13.190",
+      "lastModified": "2026-09-03T13:06:13.190",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/log: Fix infinite loop when scale is too large for display\n\nWhen scale is large enough that scaled_font exceeds the display\ndimensions, rows or columns become 0. A columns value of 0 causes\nan infinite loop in drm_log_draw_kmsg_record() because the loop\nnever decrements len.\n\nCheck for zero rows/columns in drm_log_setup_modeset() and return\nan error, cleaning up the already allocated buffer to avoid a leak.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80740"
+    },
+    {
+      "id": "CVE-2026-80739",
+      "published": "2026-09-03T13:06:13.040",
+      "lastModified": "2026-09-03T13:06:13.040",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/mlx5e: TC, Check if flow is PEER before acquiring devcom lock\n\nIn case __mlx5e_add_fdb_flow() fails in lower levels, the flow is\ndeleted via mlx5e_tc_del_flow(), and mlx5e_tc_del_flow() is acquiring\nESW devcom lock without condition. In addition, in case of peer_flow,\n__mlx5e_add_fdb_flow() is called while holding ESW devcom comp lock.\nThis results in an AA deadlock.\n\nTo fix this, introduce a new PEER flag that is set on flows created as\npeer flows (the duplicate flows on peer devices), and check it in\nmlx5e_tc_del_flow() before acquiring ESW devcom lock.\n\nLockdep splat:\n============================================\nWARNING: possible recursive locking detected\n============================================\n Possible unsafe locking scenario:\n       CPU0\n       ----\n  lock(&comp->lock_key#2);\n  lock(&comp->lock_key#2);\n *** DEADLOCK ***\nCall Trace:\n <TASK>\n dump_stack_lvl+0x69/0xa0\n print_deadlock_bug.cold+0xbd/0xca\n __lock_acquire+0x1671/0x2ec0\n lock_acquire+0x10e/0x2e0\n down_read+0x95/0x430\n mlx5_devcom_for_each_peer_begin+0x4e/0xe0 [mlx5_core]\n mlx5e_tc_del_flow+0x11d/0xa70 [mlx5_core]\n mlx5e_flow_put+0x99/0x100 [mlx5_core]\n __mlx5e_add_fdb_flow+0x409/0xf00 [mlx5_core]\n mlx5e_configure_flower+0x2a86/0x4100 [mlx5_core]\n mlx5e_rep_setup_tc_cls_flower+0x12f/0x1b0 [mlx5_core]\n mlx5e_rep_setup_tc_cb+0x153/0x750 [mlx5_core]\n tc_setup_cb_add+0x1dc/0x470\n fl_change+0x2f4d/0x626d [cls_flower]\n tc_new_tfilter+0x79b/0x2310\n rtnetlink_rcv_msg+0x778/0xad0\n do_syscall_64+0x70/0x960\n entry_SYSCALL_64_after_hwframe+0x4b/0x53\n </TASK>",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80739"
+    },
+    {
+      "id": "CVE-2026-80738",
+      "published": "2026-09-03T13:06:12.910",
+      "lastModified": "2026-09-04T05:17:14.363",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nbpf: Check sk_state before sk_protocol in bpf_tcp_*_syncookie\n\nbpf_tcp_gen_syncookie and bpf_tcp_check_syncookie accept a socket pointer\n'sk' with argument type ARG_PTR_TO_BTF_ID_SOCK_COMMON. However, they access\nsk->sk_protocol without validating whether 'sk' represents a full socket.\n\nFix this issue by checking sk->sk_state != TCP_LISTEN before inspecting\nsk->sk_protocol in both bpf_tcp_gen_syncookie and bpf_tcp_check_syncookie.\nSince mini-sockets are never in the TCP_LISTEN state, the condition\nshort-circuits and prevents dereferencing fullsock-specific fields.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80738"
+    },
+    {
+      "id": "CVE-2026-80737",
+      "published": "2026-09-03T13:06:12.623",
+      "lastModified": "2026-09-04T05:17:14.247",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nserial: amba-pl011: synchronize DMA teardown\n\ndmaengine_terminate_all() does not wait for a running callback, so the TX\ncallback can still touch the TX buffer after it is freed. The RX poll\ntimer reads the RX buffers without the port lock.\n\nSwitch to dmaengine_terminate_sync() and delete the RX timer before\nfreeing the buffers.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80737"
+    },
+    {
+      "id": "CVE-2026-80736",
+      "published": "2026-09-03T13:06:12.480",
+      "lastModified": "2026-09-04T05:17:14.137",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nthunderbolt: Fix bandwidth group reservation indexing\n\nValid bandwidth group IDs range from 1 through MAX_GROUPS, while Group\nID 0 is reserved. tb_consumed_dp_bandwidth() uses the Group ID directly\nto index its local group_reserved[] array.\n\nThe array currently has MAX_GROUPS entries, so its valid indices are 0\nthrough MAX_GROUPS - 1. Group ID MAX_GROUPS therefore accesses one\nelement past the end, and the final group's reserved bandwidth is not\nincluded when the array is summed.\n\nGive group_reserved[] MAX_GROUPS + 1 entries so direct Group ID\nindexing covers the reserved ID 0 and valid IDs 1 through MAX_GROUPS.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80736"
+    },
+    {
+      "id": "CVE-2026-80735",
+      "published": "2026-09-03T13:06:12.343",
+      "lastModified": "2026-09-04T05:17:14.030",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\novpn: ensure socket is owned by ovpn before deref sk_user_data\n\nSome subsystems, like BPF SOCKMAP, set sk_user_data without\nactually setting the encap_type.\n\nFor this reason, we must make sure that the type is the\none ovpn expects before dereferencing sk_user_data.\n\nFailing to do so may lead to out-of-bounds reads.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80735"
+    },
+    {
+      "id": "CVE-2026-80734",
+      "published": "2026-09-03T13:06:12.200",
+      "lastModified": "2026-09-04T05:17:13.900",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nbtrfs: initialize inode mapping flags for cached inodes\n\n[BUG]\nWhen running generic/795 with 8K block size, 4K page size, the test\nalways fails, triggering some ASSERT()s related to folio size:\n\n  795 (241074): drop_caches: 3\n  assertion failed: IS_ALIGNED(start, blocksize) && IS_ALIGNED(end + 1, blocksize), in extent_io.c:1404 (blocksize=8192 root=262 ino=258 start=16826368 end=16830463 mapping min order=0)\n  ------------[ cut here ]------------\n  kernel BUG at extent_io.c:1404!\n  Oops: invalid opcode: 0000 [#1] SMP\n  CPU: 8 UID: 0 PID: 241105 Comm: fsstress Tainted: G           OE       7.2.0-rc5-custom+ #442 PREEMPT(full)  f4bfb352566f3949f29c233ce6f735050a03b245\n  Tainted: [O]=OOT_MODULE, [E]=UNSIGNED_MODULE\n  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS unknown 02/02/2022\n  RIP: 0010:assert_folio_range.cold+0x3d/0x3f [btrfs]\n  Call Trace:\n   <TASK>\n   btrfs_read_folio+0x9e/0x170 [btrfs 4cd1dd93b341b8ef766643f9512f4a86259567a3]\n   prepare_one_folio.constprop.0+0x104/0x2a0 [btrfs 4cd1dd93b341b8ef766643f9512f4a86259567a3]\n   btrfs_buffered_write+0x285/0xa50 [btrfs 4cd1dd93b341b8ef766643f9512f4a86259567a3]\n   btrfs_do_write_iter+0x1aa/0x210 [btrfs 4cd1dd93b341b8ef766643f9512f4a86259567a3]\n   iter_file_splice_write+0x31a/0x540\n   direct_splice_actor+0x53/0x170\n   splice_direct_to_actor+0xe9/0x240\n   do_splice_direct+0x76/0xb0\n   vfs_copy_file_range+0x1fd/0x630\n   __x64_sys_copy_file_range+0xf9/0x220\n   do_syscall_64+0xe1/0x790\n   entry_SYSCALL_64_after_hwframe+0x4b/0x53\n   </TASK>\n  ---[ end trace 0000000000000000 ]---\n\nThe ASSERT() itself is added by a later patch.\nThe crash is triggered with that new debug patch, and without this fix.\n\n[CAUSE]\nIn the above case, the start 16826368 is properly 8K aligned, but the\nend (16830463 + 1) is not 8K aligned.\nFurthermore the mapping's minimal folio order is 0, not the expected 1\nfor 8K block size with 4K page size.\n\nSo this means some inodes do not have btrfs_set_inode_mapping_order()\ncalled on it.\n\nThe missing btrfs_set_inode_mapping_order() call happens for cached\ninodes, through the following events:\n\n- btrfs_create_new_inode() called for inode X\n  Which properly sets minimal folio order for the VFS inode.\n\n- btrfs_update_inode() called for inode X\n  Which calls btrfs_delayed_update_inode() to create a delayed_node\n  into root->delayed_nodes xarray.\n\n- Drop cache/memory pressure, evicting in-memory inode X\n  Which evicted the inode X, but delayed_node is still in\n  root->delayed_nodes for future reuse.\n\n- btrfs_iget() for inode X called again\n\n  btrfs_iget()\n  |- btrfs_iget_locked()\n  |  |- iget5_locked_rcu()\n  |     Which creates a new vfs_inode for btrfs, whose mapping still\n  |     has the minimal order as 0.\n  |\n  |- btrfs_read_locked_inode()\n     |- btrfs_fill_inode()\n     |  |- btrfs_get_delayed_node()\n     |     Which found out the previous node, and use that delayed\n     |     node to initialize the new inode.\n     |\n     |- filled = true;\n     |- if (filled) goto cache_index;\n        Which skips the btrfs_update_inode_mapping_flags() and\n\tbtrfs_set_inode_mapping_order() calls.\n\tSo the inode still has minimal folio order set as 0, not\n\tthe required 1.\n\nThus later page cache read will get a folio whose size is smaller than\nblock size, as the mapping has its minimal folio order set as 0 not 1,\nthen trigger the ASSERT().\n\n[FIX]\nMove the btrfs_update_inode_mapping_flags() and\nbtrfs_set_inode_mapping_order() calls under cache_index label,\nso that the mapping flags and minimal folio order is always set\nno matter if we have a cached inode.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80734"
+    },
+    {
+      "id": "CVE-2026-80733",
+      "published": "2026-09-03T13:06:12.050",
+      "lastModified": "2026-09-03T13:06:12.050",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: remove WARN_ON_ONCE() from sk_mc_loop()\n\nsk_mc_loop() can be called for sockets that are neither AF_INET\nnor AF_INET6 (e.g. AF_PACKET sockets when sending packets via raw/packet\nsocket over virtual devices such as VRF or ipvlan).\n\nIn such cases, sk_family is not AF_INET/AF_INET6 and sk_mc_loop() falls\nthrough the switch statement and triggers WARN_ON_ONCE(1).\n\nNon-INET sockets do not support IP_MULTICAST_LOOP or IPV6_MULTICAST_LOOP\noptions, so loopback should default to true without generating a warning.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80733"
+    },
+    {
+      "id": "CVE-2026-80732",
+      "published": "2026-09-03T13:06:11.900",
+      "lastModified": "2026-09-04T05:17:13.770",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nata: pata_sl82c105: fix bridge revision use-after-free\n\npci_get_slot() returns a referenced PCI device. Commit 44c10138fd4b\n(\"PCI: Change all drivers to use pci_device->revision\") replaced a\nconfiguration-space read with direct access to the cached revision field,\nbut left that access after pci_dev_put(). The bridge may therefore be freed\nbefore its revision is read.\n\nRead the revision before dropping the reference.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80732"
+    },
+    {
+      "id": "CVE-2026-80731",
+      "published": "2026-09-03T13:06:11.707",
+      "lastModified": "2026-09-04T05:17:13.583",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: remove CAP_SYS_RAWIO zero-padding in dev_validate_header\n\ndev_validate_header() reads dev->hard_header_len directly when\nzero-padding short link layer headers for CAP_SYS_RAWIO holders:\n\n    if (capable(CAP_SYS_RAWIO)) {\n        memset(ll_header + len, 0, dev->hard_header_len - len);\n        return true;\n    }\n\nPacket send paths call dev_validate_header() on skbs whose headroom was\nallocated from an earlier hard_header_len read. If the device is\nreconfigured so that dev->hard_header_len increases before validation,\nthe memset writes past the reserved buffer, an out-of-bounds write.\n\nThis out-of-bounds write is masked in some SOCK_RAW paths today because\nthe same concurrent increase can first make skb_push() exceed the\nreserved headroom and trigger skb_under_panic(). Remove the zero-padding\nbranch before making those hard_header_len reads consistent, so the\nsnapshot fixes do not turn a loud panic into a silent overwrite.\n\nThis path is only reached for variable length L2 protocols, where\nlen < hard_header_len but len >= min_header_len. No remaining in-tree\nvariable length L2 protocol implements header_ops->validate, and the\nCAP_SYS_RAWIO bypass that zero-pads and accepts short headers has no\nreal value beyond allowing testing of intentionally malformed input.\n\nDrop the CAP_SYS_RAWIO branch. The remaining reads of\ndev->hard_header_len in dev_validate_header() are comparisons only and\nhave no memory safety impact.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80731"
+    },
+    {
+      "id": "CVE-2026-80730",
+      "published": "2026-09-03T13:06:11.550",
+      "lastModified": "2026-09-03T13:06:11.550",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nring-buffer: Fix crash passing ERR_PTR to kthread_stop()\n\nIn test_ringbuffer()'s out_free cleanup loop, the check\n`!rb_threads[cpu]` only catches NULL entries and misses entries that\nhold an ERR_PTR.\n\nrb_threads[] is static, so unassigned slots are NULL. But when\nkthread_run_on_cpu() fails for a cpu, it stores ERR_PTR(-ENOMEM) (or\n-EINTR) in rb_threads[cpu] before the creation loop jumps to out_free.\nThat entry is non-NULL, so the old `!ptr` check does not break, and the\ncleanup proceeds to call kthread_stop() on the ERR_PTR. kthread_stop()\nthen dereferences the bogus pointer, crashing the kernel during the\nlate_initcall self-test.\n\ncrash logs:\n  BUG: kernel NULL pointer dereference, address: 000000000000001c\n  Oops: 0002 [#1] SMP NOPTI\n  CPU: 1 PID: 1 Comm: swapper/0 Not tainted 7.2.0-rc6-dirty #7 PREEMPT(lazy)\n  RIP: 0010:kthread_stop+0x2e/0x220\n  RBX: fffffffffffffff4\n  CR2: 000000000000001c\n  Call Trace:\n   <TASK>\n   test_ringbuffer+0x1ec/0x650\n   do_one_initcall+0x6c/0x2c0\n   kernel_init_freeable+0x21d/0x420\n   kernel_init+0x15/0x1c0\n   ret_from_fork+0x21b/0x320\n   </TASK>\n  Kernel panic - not syncing: Fatal exception",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80730"
+    },
+    {
+      "id": "CVE-2026-80729",
+      "published": "2026-09-03T13:06:11.417",
+      "lastModified": "2026-09-03T13:06:11.417",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmm/huge_memory: initialise workingset state before folio split\n\nxas_try_split() adds __GFP_ACCOUNT for page-cache xa_nodes, but\n__folio_split() leaves the xa_state's xa_lru unset.  That lets a live,\nmemcg-charged xa_node exist without being linked into the mapping's\nshadow_nodes list_lru; when reclaim later walks the list_lru it trips\nVM_WARN_ON(!css_is_dying()).\n\nUse mapping_set_update() to install both the workingset update callback\nand the shadow_nodes list_lru on the xa_state.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80729"
+    },
+    {
+      "id": "CVE-2026-80728",
+      "published": "2026-09-03T13:06:11.297",
+      "lastModified": "2026-09-03T13:06:11.297",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRevert \"drm/amdgpu: fix aperture mapping leak\"\n\ndevres teardown is LIFO. The aperture devres node was registered after\nthe DRM device node, so devres_release_all() unmaps the aperture before\nthe DRM device release callback fires amdgpu_device_fini_sw(). IP\nsw_fini callbacks (e.g. vcn_v4_0_sw_fini) write to fw_shared through a\npointer derived from aper_base_kaddr, causing a kernel page fault on\nprobe failure / rollback:\n\n  BUG: unable to handle page fault ... PMD 0\n  RIP: vcn_v4_0_sw_fini+0x7b/0x170 [amdgpu]\n  Call Trace:\n    amdgpu_device_fini_sw\n    amdgpu_driver_release_kms\n    devm_drm_dev_init_release\n    devres_release_all\n\nThis reverts commit d871e99879cb5fd1fa798b006b4888887e63a17a.\n\n(cherry picked from commit 336e0cd576817ac64a4b394ca2b3680029f3e37f)",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80728"
+    },
+    {
+      "id": "CVE-2026-80727",
+      "published": "2026-09-03T13:06:11.173",
+      "lastModified": "2026-09-03T13:06:11.173",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nx86/mce: Set up the polling timer before CMCI discovery\n\nI hit the following on one of my machines:\n\n  mce: CPU0 BANK15 CMCI inherited storm\n  ------------[ cut here ]------------\n  ODEBUG: assert_init not available (active state 0) object: (____ptrval____) object type: timer_list hint: 0x0\n  WARNING: lib/debugobjects.c:632 at debug_object_assert_init+0x178/0x230, CPU#0: swapper/0/0\n  CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Not tainted 7.2.0-rc5 #3 PREEMPTLAZY\n  RIP: 0010:debug_object_assert_init+0x18f/0x230\n  Call Trace:\n   <TASK>\n   __mod_timer\n   mce_timer_kick\n   cmci_discover\n   intel_init_cmci\n   mce_intel_feature_init\n   mcheck_cpu_init\n   identify_cpu\n   identify_boot_cpu\n   arch_cpu_finalize_init\n   start_kernel\n\nA second splat follows right after, from timer_setup() finding that same\ntimer already queued:\n\n  ODEBUG: init active (active state 0) object: (____ptrval____) object type: timer_list hint: stub_timer+0x0/0x10\n\nThis is happening because CMCI storm detection is trying to modify the timer\nbefore latter was properly set up.\n\nSet up the timer first. __mcheck_cpu_setup_timer() only calls timer_setup(),\nand depends on neither the generic nor the vendor init.\n\n  [ bp: Massage commit message. ]",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80727"
+    },
+    {
+      "id": "CVE-2026-80726",
+      "published": "2026-09-03T13:06:11.020",
+      "lastModified": "2026-09-04T05:17:13.427",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nKVM: x86/mmu: WARN and clear role.invalid when creating a child shadow page\n\nExplicitly clear role.invalid when deriving a child shadow page's role from\nits parent to harden against bugs elsewhere in KVM, as violating KVM's\ninvariant that invalid pages are NOT on the list of active MMU pages leads\nto use-after-free due to __kvm_mmu_prepare_zap_page() using list_add()\ninstead of list_move() when processing an invalid shadow page, i.e. makes a\nbad situation far worse.\n\nYell loudly if the parent is invalid, as it means KVM has missed a validity\ncheck, i.e. KVM is attempting to map memory using an invalid/obsolete root,\nbut continue on as the child is otherwise still a valid shadow page.\n\n  ==================================================================\n  BUG: KASAN: slab-use-after-free in __kvm_mmu_get_shadow_page+0x1817/0x1860 [kvm]\n  Write of size 8 at addr ff11000153dd1368 by task repro/853\n\n  CPU: 1 UID: 1000 PID: 853 Comm: repro Not tainted 7.2.0-rc2-3aec122bdcaf-next-vm #5 PREEMPT\n  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015\n  Call Trace:\n   <TASK>\n   dump_stack_lvl+0x4b/0x70\n   print_report+0x153/0x49c\n   kasan_report+0xbc/0xf0\n   __kvm_mmu_get_shadow_page+0x1817/0x1860 [kvm]\n   mmu_alloc_root+0x141/0x320 [kvm]\n   kvm_mmu_load+0x612/0x20f0 [kvm]\n   kvm_arch_vcpu_ioctl_run+0x3dd5/0x6150 [kvm]\n   kvm_vcpu_ioctl+0x5e4/0x10d0 [kvm]\n   __x64_sys_ioctl+0x131/0x1b0\n   do_syscall_64+0x67/0x5f0\n   entry_SYSCALL_64_after_hwframe+0x4b/0x53\n   </TASK>\n\n  Allocated by task 853:\n   kasan_save_stack+0x20/0x40\n   kasan_save_track+0x14/0x30\n   __kasan_slab_alloc+0x5f/0x70\n   kmem_cache_alloc_noprof+0xfe/0x2e0\n   __kvm_mmu_topup_memory_cache+0x135/0x530 [kvm]\n   paging64_page_fault+0x318/0x1e30 [kvm]\n   kvm_mmu_do_page_fault+0x21d/0x630 [kvm]\n   kvm_mmu_page_fault+0x18c/0x17b0 [kvm]\n   kvm_arch_vcpu_ioctl_run+0x1f35/0x6150 [kvm]\n   kvm_vcpu_ioctl+0x5e4/0x10d0 [kvm]\n   __x64_sys_ioctl+0x131/0x1b0\n   do_syscall_64+0x67/0x5f0\n   entry_SYSCALL_64_after_hwframe+0x4b/0x53\n\n  Freed by task 853:\n   kasan_save_stack+0x20/0x40\n   kasan_save_track+0x14/0x30\n   kasan_save_free_info+0x3b/0x60\n   __kasan_slab_free+0x43/0x70\n   kmem_cache_free+0xe2/0x400\n   kvm_mmu_commit_zap_page.part.0+0x1e2/0x310 [kvm]\n   kvm_mmu_free_roots+0x283/0x560 [kvm]\n   kvm_arch_vcpu_ioctl_run+0x33c8/0x6150 [kvm]\n   kvm_vcpu_ioctl+0x5e4/0x10d0 [kvm]\n   __x64_sys_ioctl+0x131/0x1b0\n   do_syscall_64+0x67/0x5f0\n   entry_SYSCALL_64_after_hwframe+0x4b/0x53",
+      "score": 9.3,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80726"
+    },
+    {
+      "id": "CVE-2026-80465",
+      "published": "2026-09-03T13:06:10.877",
+      "lastModified": "2026-09-08T18:41:55.127",
+      "description": "A vulnerability has been identified in Mendix SAML (Mendix 10 compatible) (All versions < V4.2.3), Mendix SAML (Mendix 11 compatible) (All versions < V4.2.3), Mendix SAML (Mendix 9.24 compatible) (All versions < V3.6.27). Affected versions of the module do not properly validate the SAML response signature. This could allow unauthenticated remote attackers to hijack an account (session) in specific SSO configurations.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80465"
+    },
+    {
+      "id": "CVE-2026-80254",
+      "published": "2026-09-03T13:06:10.737",
+      "lastModified": "2026-09-03T17:30:37.197",
+      "description": "Authorization bypass through user-controlled key issue exists in ShizenBox2 (edge-app). If exploited, an attacker who can log in to the product may change the other user's password.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80254"
+    },
+    {
+      "id": "CVE-2026-80253",
+      "published": "2026-09-03T13:06:10.587",
+      "lastModified": "2026-09-03T17:30:37.197",
+      "description": "An improper physical access control issue exists in ShizenBox2 (dev-conf). If exploited, an attacker with physical access to the product may execute bootloader commands without authentication.",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80253"
+    },
+    {
+      "id": "CVE-2026-79679",
+      "published": "2026-09-03T13:06:10.430",
+      "lastModified": "2026-09-03T16:41:09.297",
+      "description": "Use of Weak Credentials vulnerability in B&R Industrial Automation GmbH mapp Audit used in mapp Services.\n\nThis issue affects mapp Audit used in mapp Services: before 6.8.0.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79679"
+    },
+    {
+      "id": "CVE-2026-78304",
+      "published": "2026-09-03T13:06:09.590",
+      "lastModified": "2026-09-03T13:06:09.590",
+      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78304"
+    },
+    {
+      "id": "CVE-2026-78080",
+      "published": "2026-09-03T13:06:09.463",
+      "lastModified": "2026-09-03T17:30:37.197",
+      "description": "Joomla Extension - feenders.de - Unauthenticated SQL injection in JooDatabase Lite < 5.1.0 - The cid parameter is used in queries without validation, allowing SQLi vectors.",
+      "score": 9.3,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78080"
+    },
+    {
+      "id": "CVE-2026-78069",
+      "published": "2026-09-03T13:06:09.327",
+      "lastModified": "2026-09-03T17:30:37.197",
+      "description": "Joomla Extension - j2commerce.com - Missing authorization on Apps controller delegation chain in J2Store 1.0.0-3.3.21, 4.0.0-4.0.21, 4.1.0-4.1.6 - `J2StoreControllerApps`'s `appTask` delegation path instantiates app-plugin controllers with no ACL check anywhere in the code. It currently returns 403 only as a side effect of `fof.xml`'s wildcard-deny resolving under the singularised ACL key `app`, which has no explicit allow rule — not because of any deliberate check. Behind that path, `applocalizationdata::getInstallerTool()` used a caller-influenced table name with no allow-list, both to select a `#__j2store_*` table for truncation and to build a path to SQL files it then executes — a path-traversal-capable file read/execute.",
+      "score": 9.5,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78069"
+    },
+    {
+      "id": "CVE-2026-78065",
+      "published": "2026-09-03T13:06:09.200",
+      "lastModified": "2026-09-03T17:30:37.197",
+      "description": "Joomla Extension - j2commerce.com - Guest checkout address disclosure to any authenticated user (IDOR) in J2Store 1.0.0-3.3.21, 4.0.0-4.0.21, 4.1.0-4.1.6 - `editAddress()` redirected non-owners away only when the loaded address row had a **non-empty** `user_id` belonging to someone else. Guest-checkout address rows have an empty `user_id`, so that check never triggered for them — any logged-in account guessing a small, sequential `address_id` got a guest customer's full name, street address, and phone number rendered prefilled into the edit form.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78065"
+    },
+    {
+      "id": "CVE-2026-78064",
+      "published": "2026-09-03T13:06:09.060",
+      "lastModified": "2026-09-03T17:30:37.197",
+      "description": "Joomla Extension - j2commerce.com - Anonymous cart-record tampering via inherited FOF `save` task in J2Store 1.0.0-3.3.21, 4.0.0-4.0.21, 4.1.0-4.1.6 - `fof.xml` grants the `carts` view's tasks a wildcard `true` ACL, and FOF only enforces CSRF tokens on back-end HTML requests, not on front-end `format=raw` requests. `J2StoreControllerCarts` already scoped `remove()` to the caller's own session, but never overrode the generic FOF `save` task, so it remained reachable to insert new cart rows with an attacker-chosen `user_id`/`session_id`, or overwrite an existing row by id.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78064"
+    },
+    {
+      "id": "CVE-2026-78000",
+      "published": "2026-09-03T13:06:08.917",
+      "lastModified": "2026-09-03T17:30:37.197",
+      "description": "Joomla Extension - j2commerce.com - Reflected XSS via `filter_tag`, `pricefrom` and `priceto` in J2Store 1.0.0-3.3.21, 4.0.0-4.0.21, 4.1.0-4.1.6 - Four task handlers accepted a base64-encoded URL from user input and redirected to it without validating the destination host, enabling phishing using the shop's trusted domain. No authentication required.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78000"
+    },
+    {
+      "id": "CVE-2026-77999",
+      "published": "2026-09-03T13:06:08.760",
+      "lastModified": "2026-09-03T17:30:37.197",
+      "description": "Joomla Extension - j2commerce.com - Unauthenticated PayPal callback forgery leading to order confirmation fraud in J2Store 1.0.0-3.3.21, 4.0.0-4.0.21, 4.1.0-4.1.6 - The PayPal IPN listener's signature check (`_validateIPN()`) accepted `UNVERIFIED` and any non-`INVALID` response as valid, made its verification request with `CURLOPT_SSL_VERIFYPEER` disabled, and stored its verdict in a field nothing downstream ever checked — so processing continued regardless of the outcome. Separately, the paid-amount comparison only ran when `mc_gross` was a positive number; omitting the field from the POST body (`floatval(null) == 0`) skipped the check entirely. Combined with a merchant-configured `receiver_email` and a sequential, enumerable order id read from the `custom` field, an anonymous POST was enough to move a pending order straight to `CONFIRMED` with no payment, or force another customer's pending order to `FAILED`. `paypalv2.php` performed no amount check under any circumstances.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77999"
+    },
     {
       "id": "CVE-2026-76642",
       "published": "2026-09-03T13:06:08.440",
@@ -583,7 +801,7 @@
     {
       "id": "CVE-2026-53706",
       "published": "2026-09-02T18:20:00.433",
-      "lastModified": "2026-09-03T15:17:30.490",
+      "lastModified": "2026-09-09T16:49:20.627",
       "description": "PREVAIL is a Polynomial-Runtime EBPF Verifier using an Abstract Interpretation Layer. Prior to version 0.2.4, the prevail eBPF verifier accepts ALU32 ADD and SUB instructions that operate on pointer-typed registers without checking the is64 flag. Because ALU32 arithmetic zero-extends the 32-bit result, the upper half of any pointer is silently destroyed at runtime, yet prevail marks the program as verified safe. Any caller that can submit an eBPF program for verification — including unprivileged users on kernels that permit BPF program loading — can produce a program that passes verification but faults or misbehaves at runtime. This issue has been patched in version 0.2.4.",
       "score": 8.8,
       "severity": "HIGH",
@@ -592,7 +810,7 @@
     {
       "id": "CVE-2026-53671",
       "published": "2026-09-02T18:20:00.293",
-      "lastModified": "2026-09-05T01:16:48.910",
+      "lastModified": "2026-09-09T16:49:20.627",
       "description": "PREVAIL is a Polynomial-Runtime EBPF Verifier using an Abstract Interpretation Layer. Prior to version 0.2.4, the abstract transformer in prevail treats writes through a T_CTX-typed base register as a silent no-op: do_mem_store in src/crab/ebpf_transformer.cpp only models T_STACK stores, and the checker's T_CTX bounds arm never tests AccessType::write. An attacker can craft an eBPF program that overwrites a context field (e.g., ctx->data), reload that field typed as T_PACKET, and dereference an attacker-controlled address — and prevail will report the program as safe. This issue has been patched in version 0.2.4.",
       "score": 9.3,
       "severity": "CRITICAL",
@@ -601,7 +819,7 @@
     {
       "id": "CVE-2026-53670",
       "published": "2026-09-02T18:20:00.140",
-      "lastModified": "2026-09-02T19:17:21.577",
+      "lastModified": "2026-09-09T16:49:20.627",
       "description": "PREVAIL is a Polynomial-Runtime EBPF Verifier using an Abstract Interpretation Layer. Prior to version 0.2.4, in the Prevail eBPF verifier, EbpfTransformer::add() silently skips offset-variable updates when the destination register carries a non-singleton typeset (two or more simultaneously possible pointer types). Subsequent bounds checks use the stale offset and accept out-of-bounds memory accesses, so a crafted BPF program passes verification even though it would corrupt memory at runtime. This issue has been patched in version 0.2.4.",
       "score": 9.3,
       "severity": "CRITICAL",
@@ -660,240 +878,6 @@
       "score": 7.1,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-49249"
-    },
-    {
-      "id": "CVE-2026-84811",
-      "published": "2026-09-02T17:18:05.447",
-      "lastModified": "2026-09-03T15:17:35.653",
-      "description": "agentverus-scanner fails to analyze compiled Python bytecode files in companion code directories, allowing attackers to bypass security scanning by shipping malicious __pycache__ entries alongside benign source files. Attackers can execute arbitrary Python bytecode on import while the scanner reports a CERTIFIED verdict with high trust scores in both static and semantic analysis modes.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84811"
-    },
-    {
-      "id": "CVE-2026-84810",
-      "published": "2026-09-02T17:18:05.297",
-      "lastModified": "2026-09-02T19:18:09.087",
-      "description": "claude-skill-antivirus fails to analyze executable files when scanning local skill directories, reading only SKILL.md while ignoring Python source, bytecode, and other artifacts in the scripts directory. Attackers can distribute skills with malicious code in non-manifest files that receive a SAFE verdict with 100/100 trust score despite containing unanalyzed executable payloads.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84810"
-    },
-    {
-      "id": "CVE-2026-84809",
-      "published": "2026-09-02T17:18:05.150",
-      "lastModified": "2026-09-04T03:17:45.620",
-      "description": "Tencent AI-Infra-Guard's skill-scan component excludes compiled Python bytecode files from analysis by hardcoding __pycache__ directories and .pyc/.pyo/.pyd extensions into skip lists across multiple scanning surfaces. Attackers can distribute skills with benign Python source files alongside malicious compiled bytecode that executes on import while the scanner reports a safe verdict, enabling code execution when operators install the skill.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84809"
-    },
-    {
-      "id": "CVE-2026-84376",
-      "published": "2026-09-02T17:18:00.497",
-      "lastModified": "2026-09-04T03:17:44.057",
-      "description": "Astro is a web framework for content-driven websites. Prior to 7.2.4, Astro stripped a configured non-root base path from request pathnames using a string-prefix check without verifying a path-segment boundary. With base \"/app\", a request to \"/appX/admin\" resolved internally to the protected \"/admin\" route while middleware observed \"/appX/admin\" in context.url.pathname. In applications that authorize base-prefixed routes by inspecting context.url.pathname, an unauthenticated remote attacker could bypass pathname-based middleware authorization and reach protected routes. This issue is fixed in version 7.2.4.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84376"
-    },
-    {
-      "id": "CVE-2026-82404",
-      "published": "2026-09-02T17:18:00.223",
-      "lastModified": "2026-09-02T19:18:06.453",
-      "description": "TOON is a compact, human-readable serialization of JSON data for LLM prompts. Prior to 2.3.1, decoding attacker-controlled TOON with a __proto__, constructor, or prototype key wrote through the object prototype chain instead of creating an own property, polluting Object.prototype for the runtime. In packages/toon/src/decode/expand.ts, the expandPaths: 'safe' path and insertPathSafe function made dotted keys such as a.__proto__.x the strongest vector, while plain nested objects, tabular rows, quoted keys, and streaming decode were also affected. The encoder also dropped own __proto__ properties and could invoke an inherited setter during normalization. Services that decode untrusted TOON could experience denial of service or, when a suitable downstream gadget is present, remote code execution. This issue is fixed in version 2.3.1.",
-      "score": 8.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82404"
-    },
-    {
-      "id": "CVE-2026-79756",
-      "published": "2026-09-02T17:18:00.087",
-      "lastModified": "2026-09-03T15:17:33.993",
-      "description": "Nuclio is a \"Serverless\" framework for Real-Time Events and Data Processing. Prior to version 1.17.4, the fix for unauthenticated OS command injection in the nuclio dashboard on the local/Docker platform is incomplete. The fix added validateFunctionName for function names and common.Quote() for the named-resource shell command path, but the list-all resource path (triggered when no specific resource name is provided) still interpolates the resourceNamespace parameter unquoted into a /bin/sh -c command string. An unauthenticated attacker can inject shell metacharacters via the X-Nuclio-Function-Namespace, X-Nuclio-Project-Namespace, or X-Nuclio-Function-Event-Namespace HTTP headers to achieve arbitrary command execution inside the dashboard container. This issue has been patched in version 1.17.4.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79756"
-    },
-    {
-      "id": "CVE-2026-79755",
-      "published": "2026-09-02T17:17:59.940",
-      "lastModified": "2026-09-04T03:17:42.220",
-      "description": "Nuclio is a \"Serverless\" framework for Real-Time Events and Data Processing. Prior to version 1.17.4, on the Nuclio local Docker platform, the function namespace is interpolated—unvalidated—into a double-quoted docker ps --filter \"label=nuclio.io/namespace=<value>\" command that is executed via the host shell (/bin/sh -c). Because the default auth kind is nop (unauthenticated), a remote attacker can inject arbitrary OS commands that run as root inside the dashboard container, which holds the Docker socket → host compromise. This issue has been patched in version 1.17.4.",
-      "score": 8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79755"
-    },
-    {
-      "id": "CVE-2026-79754",
-      "published": "2026-09-02T17:17:59.770",
-      "lastModified": "2026-09-02T19:18:05.087",
-      "description": "Nuclio is a \"Serverless\" framework for Real-Time Events and Data Processing. From version 1.6.19 to before version 1.17.2, Nuclio's Dashboard build pipeline does not sanitize the spec.build.tempDir field before using it to construct a shell command. When the Kaniko container builder is enabled, a user with function-create permission can inject shell metacharacters into this field and achieve arbitrary command execution inside the Dashboard container, which runs with a Kubernetes service account holding wildcard access to Secrets, Pods, Jobs, and Deployments in its namespace. This issue has been patched in version 1.17.2.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79754"
-    },
-    {
-      "id": "CVE-2026-55421",
-      "published": "2026-09-02T17:17:46.290",
-      "lastModified": "2026-09-04T03:17:41.637",
-      "description": "Open edX Platform enables the authoring and delivery of online learning at any scale. Prior to commit 00b7c3c, the endpoint accepts user-supplied files[].url, performs a server-side fetch using \"requests.get(url, allow_redirects=True)\". The fetched bytes are then returned inside a ZIP response. This enables SSRF with response exfiltration. Redirect-following is enabled, and there is no timeout in the vulnerable fetch path. This issue has been patched via commit 00b7c3c.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55421"
-    },
-    {
-      "id": "CVE-2026-53636",
-      "published": "2026-09-02T17:17:45.917",
-      "lastModified": "2026-09-02T19:17:21.457",
-      "description": "Open edX Platform enables the authoring and delivery of online learning at any scale. Prior to commit 3a5ac85, a security vulnerability has been identified in the Open edX LMS platform's LTI (Learning Tools Interoperability) Provider implementation. The validate_timestamp_and_nonce function in lms/djangoapps/lti_provider/signature_validator.py does not validate OAuth nonces or timestamps, allowing an attacker who captures a valid LTI launch request to replay it an unlimited number of times without detection. This issue has been patched via commit 3a5ac85.",
-      "score": 4.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53636"
-    },
-    {
-      "id": "CVE-2026-53635",
-      "published": "2026-09-02T17:17:45.770",
-      "lastModified": "2026-09-02T19:17:21.340",
-      "description": "Open edX Platform enables the authoring and delivery of online learning at any scale. Prior to commit 59bb6d6, the view function set_course_mode_price() at lms/djangoapps/instructor/views/instructor_dashboard.py:430 is decorated only with @login_required and performs no course-level permission check. Any authenticated user — including a learner account with zero course roles — can issue a single POST request to overwrite the honor mode price and currency of any course on the platform. The companion frontend modal was removed in a prior cleanup, but the URL route and view remain live, making this an unguarded orphan endpoint. This issue has been patched via commit 59bb6d6.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53635"
-    },
-    {
-      "id": "CVE-2026-52833",
-      "published": "2026-09-02T17:17:45.630",
-      "lastModified": "2026-09-02T19:17:21.110",
-      "description": "Nuclio is a \"Serverless\" framework for Real-Time Events and Data Processing. Prior to version 1.16.5, Nuclio's Java runtime generates a build.gradle file during function builds using Go's text/template package. The template renders runtimeAttributes.repositories[] values with the {{ . }} action, which performs no escaping. An attacker can embed a closing brace (}) to break out of the repositories {} block and append arbitrary Groovy statements that execute unconditionally during the Gradle configuration phase. This issue has been patched in version 1.16.5.",
-      "score": 8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-52833"
-    },
-    {
-      "id": "CVE-2026-52832",
-      "published": "2026-09-02T17:17:45.487",
-      "lastModified": "2026-09-02T19:17:20.997",
-      "description": "Nuclio is a \"Serverless\" framework for Real-Time Events and Data Processing. Prior to version 1.16.5, Nuclio Dashboard exposes POST /api/functions without authentication by default (NOP auth mode). The spec.handler field (e.g., mymodule:myfunction) is parsed by functionconfig.ParseHandler() which splits on : only — no path validation is applied to the module portion. This issue has been patched in version 1.16.5.",
-      "score": 4.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-52832"
-    },
-    {
-      "id": "CVE-2026-52831",
-      "published": "2026-09-02T17:17:45.347",
-      "lastModified": "2026-09-03T15:17:30.357",
-      "description": "Nuclio is a \"Serverless\" framework for Real-Time Events and Data Processing. Prior to version 1.16.4, the Nuclio controller builds a curl invocation string for each cron trigger and stores it as the args of a Kubernetes CronJob container (/bin/sh, -c, <command>). Two fields in the trigger specification flow into this string without adequate sanitization: event.headers keys and event.body. This issue has been patched in version 1.16.4.",
-      "score": 8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-52831"
-    },
-    {
-      "id": "CVE-2026-45730",
-      "published": "2026-09-02T17:17:40.847",
-      "lastModified": "2026-09-02T19:17:18.690",
-      "description": "Nuclio is a \"Serverless\" framework for Real-Time Events and Data Processing. Prior to version 1.16.0, there is a vulnerability in Nuclio Dashboard's project management API, allowing any authenticated user (without membership in the target project) to bypass OPA authorization checks on write paths (PUT /api/projects/{id}, DELETE /api/projects) and modify or delete any project along with all its associated resources (functions, API gateways, etc.). This issue has been patched in version 1.16.0.",
-      "score": 8.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-45730"
-    },
-    {
-      "id": "CVE-2026-20355",
-      "published": "2026-09-02T17:17:34.027",
-      "lastModified": "2026-09-02T19:23:13.660",
-      "description": "Multiple vulnerabilities in the Secure/Multipurpose Internet Mail Extensions (S/MIME) decryption functionality of Cisco Secure Email could allow an unauthenticated, remote attacker to recover plain text from encrypted email messages.\r\n\r\nThese vulnerabilities are due to insufficient validation of message integrity. An attacker could exploit these vulnerabilities by using a machine-in-the-middle technique to intercept and modify traffic between email gateways. A successful exploit could allow the attacker to obtain plaintext content from the encrypted communication.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-20355"
-    },
-    {
-      "id": "CVE-2026-20354",
-      "published": "2026-09-02T17:17:33.897",
-      "lastModified": "2026-09-02T19:23:13.660",
-      "description": "Multiple vulnerabilities in the Secure/Multipurpose Internet Mail Extensions (S/MIME) decryption functionality of Cisco Secure Email could allow an unauthenticated, remote attacker to recover plain text from encrypted email messages.\r\n\r\nThese vulnerabilities are due to insufficient validation of message integrity. An attacker could exploit these vulnerabilities by using a machine-in-the-middle technique to intercept and modify traffic between email gateways. A successful exploit could allow the attacker to obtain plaintext content from the encrypted communication.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-20354"
-    },
-    {
-      "id": "CVE-2026-20281",
-      "published": "2026-09-02T17:17:33.730",
-      "lastModified": "2026-09-02T19:23:13.660",
-      "description": "A vulnerability in Cisco Desk Phone 9800 Series, Cisco IP Phone 7800 and 8800 Series, and Cisco Video Phone 8875 that are running Cisco Session Initiation Protocol (SIP) Software could allow an unauthenticated, remote attacker to cause a denial of service (DoS) condition on an affected device.\r\n\r\nThis vulnerability is due to improper memory management when an affected device processes HTTP packets. An attacker could exploit this vulnerability by sending a continuous stream of crafted HTTP packets to the device. A successful exploit could allow the attacker to cause the affected device to continuously consume memory, resulting in a DoS condition.&nbsp;A manual reboot of the device is required to recover from this condition.\r\nNote: For this vulnerability to be exploitable, the phone must be registered to Cisco Unified Communications Manager (Unified CM) and have Web Access enabled. Web Access is disabled by default.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-20281"
-    },
-    {
-      "id": "CVE-2026-20280",
-      "published": "2026-09-02T17:17:33.580",
-      "lastModified": "2026-09-03T13:04:39.930",
-      "description": "As part of Cisco's ongoing commitment to proactive security and product quality, the&nbsp;Cisco IOS XR Software engineering team has conducted a comprehensive internal security review. This review resulted in a software hardening releases that address multiple internally discovered vulnerabilities.\r\n\r\nThe vulnerabilities tracked by CVE-2026-20280 are related to improper checking or handling of exceptional condition issues that are grouped under the Common Weakness Enumeration (CWE) CWE-703.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-20280"
-    },
-    {
-      "id": "CVE-2026-20279",
-      "published": "2026-09-02T17:17:33.420",
-      "lastModified": "2026-09-03T13:04:39.750",
-      "description": "As part of Cisco's ongoing commitment to proactive security and product quality, the Cisco IOS XR Software engineering team has conducted a comprehensive internal security review. This review resulted in a software hardening releases that address multiple internally discovered vulnerabilities.\r\n\r\nThe vulnerabilities tracked by CVE-2026-20279 are related to improper access control issues that are grouped under the Common Weakness Enumeration (CWE) CWE-284.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-20279"
-    },
-    {
-      "id": "CVE-2026-20278",
-      "published": "2026-09-02T17:17:33.267",
-      "lastModified": "2026-09-03T13:04:39.583",
-      "description": "As part of Cisco's ongoing commitment to proactive security and product quality, the Cisco IOS XR Software engineering team has conducted a comprehensive internal security review. This review resulted in a software hardening releases that address multiple internally discovered vulnerabilities.\r\n\r\nThe vulnerabilities tracked by CVE-2026-20278 are related to improper neutralization issues that are grouped under the Common Weakness Enumeration (CWE) CWE-707.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-20278"
-    },
-    {
-      "id": "CVE-2026-20277",
-      "published": "2026-09-02T17:17:33.110",
-      "lastModified": "2026-09-03T16:37:52.170",
-      "description": "As part of Cisco's ongoing commitment to proactive security and product quality, the Cisco IOS XR Software engineering team has conducted a comprehensive internal security review. This review resulted in a software hardening releases that address multiple internally discovered vulnerabilities.\r\n\r\nThe vulnerabilities tracked by CVE-2026-20277 are related to protection mechanism failure issues that are grouped under the Common Weakness Enumeration (CWE) CWE-693.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-20277"
-    },
-    {
-      "id": "CVE-2026-20276",
-      "published": "2026-09-02T17:17:32.957",
-      "lastModified": "2026-09-02T19:23:13.660",
-      "description": "As part of Cisco's ongoing commitment to proactive security and product quality, the Cisco IOS XR Software engineering team has conducted a comprehensive internal security review. This review resulted in a software hardening releases that address multiple internally discovered vulnerabilities.\r\n\r\nThe vulnerabilities tracked by CVE-2026-20276 are related to insufficient control flow management issues that are grouped under the Common Weakness Enumeration (CWE) CWE-691.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-20276"
-    },
-    {
-      "id": "CVE-2026-20275",
-      "published": "2026-09-02T17:17:32.790",
-      "lastModified": "2026-09-03T13:04:39.407",
-      "description": "As part of Cisco's ongoing commitment to proactive security and product quality, the Cisco IOS XR Software engineering team has conducted a comprehensive internal security review. This review resulted in a software hardening releases that address multiple internally discovered vulnerabilities.\r\n\r\nThe vulnerabilities tracked by CVE-2026-20275 are related to incorrect calculation issues that are grouped under the Common Weakness Enumeration (CWE) CWE-682.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-20275"
-    },
-    {
-      "id": "CVE-2026-20274",
-      "published": "2026-09-02T17:17:32.630",
-      "lastModified": "2026-09-04T14:17:18.423",
-      "description": "As part of Cisco's ongoing commitment to proactive security and product quality, the Cisco IOS XR Software engineering team has conducted a comprehensive internal security review. This review resulted in a software hardening releases that address multiple internally discovered vulnerabilities.\r\n\r\nThe vulnerabilities tracked by CVE-2026-20274 are related to improper resource control issues that are grouped under the Common Weakness Enumeration (CWE) CWE-664.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-20274"
-    },
-    {
-      "id": "CVE-2026-20212",
-      "published": "2026-09-02T17:17:31.547",
-      "lastModified": "2026-09-03T13:04:38.177",
-      "description": "A vulnerability in the Silicon One integration for Cisco Nexus 9000 Series Switches could allow an unauthenticated, remote attacker to execute code with&nbsp;root privileges.\r\n\r\nThis vulnerability exists because TCP ports 43210 and 43211 are accessible in the default Layer 3 (L3) virtual routing and forwarding (VRF). A successful exploit could allow the attacker to connect to an affected device and send crafted input that could be executed as code with&nbsp;root privileges. The exploitation of this vulnerability could also cause the S1HAL process to crash, which could cause the device to reload.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-20212"
     }
   ]
 }
