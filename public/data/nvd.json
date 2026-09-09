@@ -1,6 +1,42 @@
 {
-  "syncedAt": "2026-09-09T02:46:21.674Z",
+  "syncedAt": "2026-09-09T03:20:12.112Z",
   "items": [
+    {
+      "id": "CVE-2026-84799",
+      "published": "2026-09-02T12:17:16.637",
+      "lastModified": "2026-09-04T03:17:45.370",
+      "description": "Craft CMS before 5.11.0 fails to enforce user-group scope filters on native GraphQL user relations including author, authors, uploader, draftCreator, and revisionCreator fields. Attackers with a scoped GraphQL token can query these relations to read usernames, email addresses, and full names of any content author or uploader including administrators.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84799"
+    },
+    {
+      "id": "CVE-2026-84798",
+      "published": "2026-09-02T12:17:16.500",
+      "lastModified": "2026-09-02T16:17:33.177",
+      "description": "Craft CMS versions >= 5.0.0-RC1 and < 5.10.11 fail to perform an independent authorization check in ElementsController::actionDeleteForSite(). The method loads an element with checkForProvisionalDraft enabled and runs the deletion authorization check against the user's own provisional draft (which only verifies draft ownership), then propagates the deletion to the canonical element without re-checking permissions. As a result, an authenticated user who has viewEntries, viewPeerEntries, saveEntries, savePeerEntries, and editSite permissions but lacks the deleteEntriesForSite permission can hard-delete a canonical entry's site record (and, for single-site entries, the full element and content), which is irrecoverable via Craft's recycle bin.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84798"
+    },
+    {
+      "id": "CVE-2026-84797",
+      "published": "2026-09-02T12:17:16.363",
+      "lastModified": "2026-09-02T13:54:48.797",
+      "description": "Craft CMS versions before 5.10.11 contain an authorization bypass vulnerability in ElementsController::actionDuplicate() that allows authenticated users with createEntries permission to delete peer provisional drafts. Attackers can exploit the deleteProvisionalDraft parameter to delete another user's unsaved draft without proper authorization checks, gaining access to the victim's in-progress content.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84797"
+    },
+    {
+      "id": "CVE-2026-84796",
+      "published": "2026-09-02T12:17:16.227",
+      "lastModified": "2026-09-02T16:17:33.040",
+      "description": "Craft CMS versions before 5.10.11 contain a site scope bypass vulnerability in GraphQL entry mutation resolvers that fail to validate siteId through ArgumentManager::prepareArguments(). Attackers with tokens scoped to one site can read, modify, or delete entries across unauthorized sites by passing siteId directly in mutation arguments.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84796"
+    },
     {
       "id": "CVE-2026-84795",
       "published": "2026-09-02T12:17:16.093",
@@ -846,42 +882,6 @@
       "score": 8.6,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19754"
-    },
-    {
-      "id": "CVE-2026-84442",
-      "published": "2026-09-02T03:16:48.173",
-      "lastModified": "2026-09-02T13:55:27.963",
-      "description": "A vulnerability was identified in MapQuest Get Directions App 10.16.1 on Android. This vulnerability affects the function getDataColumn of the file ExpoShareIntentModule.kt of the component com.mapquest.android.ace. The manipulation leads to path traversal. An attack has to be approached locally. The exploit is publicly available and might be used. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 4.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84442"
-    },
-    {
-      "id": "CVE-2026-84441",
-      "published": "2026-09-02T03:16:47.980",
-      "lastModified": "2026-09-04T03:17:44.327",
-      "description": "A security vulnerability has been detected in Piwigo up to 16.3.0. Affected by this issue is some unknown functionality of the file i.php of the component Image Derivative Handler. The manipulation leads to path traversal. Remote exploitation of the attack is possible. The exploit has been disclosed publicly and may be used.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84441"
-    },
-    {
-      "id": "CVE-2026-14982",
-      "published": "2026-09-02T03:16:47.663",
-      "lastModified": "2026-09-04T03:17:40.097",
-      "description": "The WP File Download plugin for WordPress is vulnerable to arbitrary file deletion due to insufficient file path validation in the delete function in all versions. This makes it possible for authenticated attackers, with subscriber-level access and above, to delete arbitrary files on the server, which can easily lead to remote code execution when the right file is deleted (such as wp-config.php). The two-stage exploit requires a first request to the file.save task to persist the path-traversal string into file metadata, followed by a second request to the file.delete task to trigger the unlink call — both endpoints lack capability checks and nonce enforcement.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14982"
-    },
-    {
-      "id": "CVE-2026-14957",
-      "published": "2026-09-02T03:16:47.490",
-      "lastModified": "2026-09-02T13:17:07.100",
-      "description": "In FIPS mode, Libreswan's add_decoded_cert() function calls CERT_ExtractPublicKey() and asserts that the result is not NULL. However, CERT_ExtractPublicKey() returns NULL when public key extraction fails, for example if the RSA exponent is set to 0. A remote attacker can send a malformed X.509 certificate in a CERT payload to trigger the assertion, causing the pluto daemon to abort and restart. Continued exploitation causes a denial of service. No remote code execution is possible. Both IKEv1 and IKEv2 are affected. The vulnerability is only exploitable when both the OS and libreswan are running in FIPS mode and at least one CA certificate is loaded. The CERT payload is processed before peer authentication, so no credentials are needed to exploit this. Configurations using only PreSharedKey (PSK) authentication with no CA certificates loaded in the NSS database are not vulnerable.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14957"
     }
   ]
 }
