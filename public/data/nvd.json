@@ -1,6 +1,87 @@
 {
-  "syncedAt": "2026-09-11T02:46:09.031Z",
+  "syncedAt": "2026-09-11T03:19:50.121Z",
   "items": [
+    {
+      "id": "CVE-2026-85597",
+      "published": "2026-09-04T12:17:23.210",
+      "lastModified": "2026-09-08T20:10:30.270",
+      "description": "Traefik before v2.11.55 and v3.0.0 through v3.7.10 contain a TLS option conflict resolution vulnerability that allows unauthenticated attackers to bypass client-certificate authentication by creating conflicting TLS options on multi-host routers. Attackers can reach protected backends by exploiting shared TLS resolution across multiple hostnames in a single router rule, causing the strict mTLS requirement to fall back to default options for all hosts.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85597"
+    },
+    {
+      "id": "CVE-2026-85596",
+      "published": "2026-09-04T12:17:23.087",
+      "lastModified": "2026-09-10T16:17:59.527",
+      "description": "Traefik versions >= v3.7.0 and <= v3.7.10 contain an authentication bypass in the Kubernetes Ingress NGINX provider. The TLS option generated for an Ingress carrying the nginx.ingress.kubernetes.io/auth-tls-secret annotation was named after the Ingress namespace and name. As a result, two Ingress objects sharing the same host, the same client CA secret, and the same client-authentication mode produced two distinct TLS option names for that host. Traefik treats this as a TLS options conflict and falls back to the entry point's default TLS configuration, which does not request a client certificate, so a route configured with nginx.ingress.kubernetes.io/auth-tls-verify-client: \"on\" becomes reachable without a client certificate. Only the v3.7 line is affected; the issue is fixed in v3.7.11.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85596"
+    },
+    {
+      "id": "CVE-2026-85595",
+      "published": "2026-09-04T12:17:22.960",
+      "lastModified": "2026-09-08T20:10:30.270",
+      "description": "Traefik versions before v2.11.55 and versions v3.0.0 through v3.7.10 contain an authentication bypass vulnerability in the digestAuth middleware where unknown usernames receive an empty secret instead of rejection. Attackers can compute a valid digest response using the empty secret and arbitrary credentials to bypass authentication on any digestAuth-protected route without a valid username or password.",
+      "score": 9.3,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85595"
+    },
+    {
+      "id": "CVE-2026-85594",
+      "published": "2026-09-04T12:17:22.830",
+      "lastModified": "2026-09-08T20:10:30.270",
+      "description": "Traefik versions from v3.7.1 fail to enforce crossProviderNamespaces restrictions on the traefik.ingress.kubernetes.io/service.middlewares Service annotation in the Kubernetes Ingress provider. A namespace-limited tenant excluded from the allowlist can attach an operator-owned middleware to its Service, and if that middleware injects backend credentials, recover them at a controlled backend.",
+      "score": 7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85594"
+    },
+    {
+      "id": "CVE-2026-85593",
+      "published": "2026-09-04T12:17:22.697",
+      "lastModified": "2026-09-08T20:05:53.177",
+      "description": "phpMyFAQ versions before 4.1.8 contain a stored cross-site scripting vulnerability in FaqHelper::convertOldInternalLinks() that calls html_entity_decode() on sanitized FAQ content, reversing entity-encoding protection. Authenticated users with FAQ editing privileges can inject JavaScript payloads that execute in the browsers of all users viewing the affected FAQ pages.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85593"
+    },
+    {
+      "id": "CVE-2026-85592",
+      "published": "2026-09-04T12:17:22.557",
+      "lastModified": "2026-09-08T20:05:53.177",
+      "description": "phpMyFAQ before 4.1.8 contains an authorization bypass vulnerability in the question creation endpoint where the isAddingQuestionsAllowed() method grants access to all callers when main.enableAskQuestions is enabled, ignoring the records.allowQuestionsForGuests setting. Unauthenticated attackers can submit questions via the question/create API endpoint to bypass guest submission restrictions and inject spam into the admin moderation queue.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85592"
+    },
+    {
+      "id": "CVE-2026-85591",
+      "published": "2026-09-04T12:17:22.433",
+      "lastModified": "2026-09-10T16:17:59.390",
+      "description": "phpMyFAQ versions before 4.1.8 contain an authentication bypass vulnerability in the user control panel API endpoint that allows authenticated attackers to change account passwords without verifying the current password. Attackers with session access can submit a PUT request to the user data update endpoint with only a CSRF token to silently change any user's password, including administrators, causing irreversible account takeover and victim lockout.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85591"
+    },
+    {
+      "id": "CVE-2026-85590",
+      "published": "2026-09-04T12:17:21.327",
+      "lastModified": "2026-09-08T20:05:53.177",
+      "description": "phpMyFAQ before 4.1.8 contains an authentication bypass vulnerability in its two-factor authentication (TOTP) disable functionality. The removeTwofactorConfig() handler (reachable via POST /api/user/remove-twofactor) verifies only that the user is logged in and that a valid CSRF token is supplied, then disables TOTP without requiring password re-entry or a current TOTP code. The same downgrade is also reachable inline via PUT /api/user/data/update, which accepts a plain twofactor_enabled form field under the same session+CSRF-only guard. An attacker who has hijacked a user's session can silently strip two-factor protection from any account, including administrator accounts, after which password-only authentication succeeds.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85590"
+    },
+    {
+      "id": "CVE-2026-85589",
+      "published": "2026-09-04T12:17:21.160",
+      "lastModified": "2026-09-08T20:05:53.177",
+      "description": "phpMyFAQ before 4.2.0-alpha.2 contains a missing authorization vulnerability in the admin dashboard API endpoints searches and content-health that enforce only authentication without permission checks. Any authenticated user can access these endpoints to read site-wide search statistics and content-health counters regardless of their privilege level.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85589"
+    },
     {
       "id": "CVE-2026-85588",
       "published": "2026-09-04T12:17:21.013",
@@ -819,87 +900,6 @@
       "score": 7.3,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85403"
-    },
-    {
-      "id": "CVE-2026-85402",
-      "published": "2026-09-04T03:17:46.863",
-      "lastModified": "2026-09-04T13:22:24.073",
-      "description": "A vulnerability was detected in code-projects Doctor Appointment System 1.0. This vulnerability affects unknown code of the file /patient/booking.php. The manipulation of the argument doc_id results in sql injection. The attack may be launched remotely. The exploit is now public and may be used.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85402"
-    },
-    {
-      "id": "CVE-2026-85401",
-      "published": "2026-09-04T03:17:46.677",
-      "lastModified": "2026-09-04T19:17:31.863",
-      "description": "A weakness has been identified in Dolibarr up to 21.0.4/22.0.5/23.0.3. Affected by this issue is some unknown functionality of the file htdocs/core/filemanagerdol/connectors/php/config.inc.php of the component Legacy File Manager. Executing a manipulation can lead to improper access controls. The attack can be launched remotely. The exploit has been made available to the public and could be used for attacks. Upgrading to version 23.0.4 can resolve this issue. This patch is called ef6631e9bd5ec4b8cec0e88f1796d3d10dad02ec. It is suggested to upgrade the affected component.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85401"
-    },
-    {
-      "id": "CVE-2026-85399",
-      "published": "2026-09-04T03:17:46.500",
-      "lastModified": "2026-09-08T15:18:51.740",
-      "description": "A security flaw has been discovered in code-projects Hospital Information System 1.0. Affected by this vulnerability is the function getSinglePresp of the file includes/presp/PrespController.php. Performing a manipulation of the argument ID results in sql injection. The attack can be initiated remotely. The exploit has been released to the public and may be used for attacks.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85399"
-    },
-    {
-      "id": "CVE-2026-85398",
-      "published": "2026-09-04T03:17:46.327",
-      "lastModified": "2026-09-04T17:17:02.980",
-      "description": "A vulnerability was identified in code-projects Hospital Information System 1.0. Affected is the function viewReq of the file viewReq.php. Such manipulation of the argument ID leads to sql injection. It is possible to launch the attack remotely. The exploit is publicly available and might be used.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85398"
-    },
-    {
-      "id": "CVE-2026-85149",
-      "published": "2026-09-04T03:17:46.190",
-      "lastModified": "2026-09-08T19:09:21.310",
-      "description": "SmartIT Desktop Manager developed by Lightstar has a Use of Hard-coded Credentials vulnerability. Unauthenticated remote attackers can obtain the SFTP service credentials of the SmartIT Agent application from the source code, thereby browsing the file system of the user's host.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85149"
-    },
-    {
-      "id": "CVE-2026-85148",
-      "published": "2026-09-04T03:17:46.050",
-      "lastModified": "2026-09-08T19:09:21.310",
-      "description": "SmartIT Desktop Manager developed by Lightstar has a Use of Hard-coded Credentials vulnerability. Unauthenticated remote attackers can exploit a fixed password to remotely access user hosts.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85148"
-    },
-    {
-      "id": "CVE-2026-85147",
-      "published": "2026-09-04T03:17:45.920",
-      "lastModified": "2026-09-08T19:09:21.310",
-      "description": "SmartIT Desktop Manager developed by Lightstar has a Use of Hard-coded Credentials vulnerability. Unauthenticated remote attackers can obtain a specific password from the source code, which can be used to retrieve the AES encryption key used for communication.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85147"
-    },
-    {
-      "id": "CVE-2026-85146",
-      "published": "2026-09-04T03:17:45.770",
-      "lastModified": "2026-09-08T19:09:21.310",
-      "description": "SmartIT Desktop Manager developed by Lightstar has a Use of Hard-coded Credentials vulnerability. Unauthenticated remote attackers can obtain the SSH service account credentials and passwords for the SmartIT Agent directly from the application source code.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85146"
-    },
-    {
-      "id": "CVE-2026-75754",
-      "published": "2026-09-04T03:17:41.927",
-      "lastModified": "2026-09-08T14:03:48.663",
-      "description": "Missing Authentication for Critical Function, Server-Side Request Forgery (SSRF), and Use of Hard-coded Credentials in ASUS Control Center allow an unauthorized user to obtain the encryption key via an HTTP request, causing a local service to enable SSH on port 2222. The attacker can then log in with the hardcode credentials to obtain a root shell, enabling direct reading, writing, and deletion of data on ASUS Control Center, as well as remote control of all servers, PCs, and workstations within the company.\nRefer to the 'Security Update for ASUS Control Center' section on the ASUS Security Advisory for more information.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75754"
     }
   ]
 }
