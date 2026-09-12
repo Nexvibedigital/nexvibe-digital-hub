@@ -1,6 +1,96 @@
 {
-  "syncedAt": "2026-09-12T05:43:42.445Z",
+  "syncedAt": "2026-09-12T06:23:05.792Z",
   "items": [
+    {
+      "id": "CVE-2026-6244",
+      "published": "2026-09-05T19:16:55.950",
+      "lastModified": "2026-09-08T19:20:25.117",
+      "description": "libpcap BPF interpreter for the 'div #k' and 'mod #k' ALU instructions does not check whether the immediate value is zero.  In particular uncommon use cases a crafted filter program can cause a division by zero.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-6244"
+    },
+    {
+      "id": "CVE-2026-31912",
+      "published": "2026-09-05T19:16:55.823",
+      "lastModified": "2026-09-08T19:20:25.117",
+      "description": "libpcap BPF interpreter detects neither reaching the end of the filter program buffer due to lack of a return instruction nor executing a jump instruction with an offset that translates to a pointer outside of the buffer.  In particular uncommon use cases a crafted filter program can cause the interpreter to try reading the OS process memory in the 32GiB around the buffer on 64-bit architectures and in the entire address space on 32-bit architectures.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-31912"
+    },
+    {
+      "id": "CVE-2026-31911",
+      "published": "2026-09-05T19:16:55.707",
+      "lastModified": "2026-09-08T19:20:25.117",
+      "description": "libpcap BPF interpreter calls abort() if it encounters a BPF instruction that has an invalid opcode.  In particular uncommon use cases a crafted filter program can terminate the OS process.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-31911"
+    },
+    {
+      "id": "CVE-2026-18313",
+      "published": "2026-09-05T19:16:55.590",
+      "lastModified": "2026-09-08T19:20:25.117",
+      "description": "rpcapd can allocate up to 65536 bytes per each RPCAP_MSG_UPDATEFILTER_REQ or RPCAP_MSG_STARTCAP_REQ message received from the client, but it never frees the memory, so it leaks memory even under normal use.  A malicious client can cause the server to leak memory substantially faster.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18313"
+    },
+    {
+      "id": "CVE-2026-18238",
+      "published": "2026-09-05T19:16:55.477",
+      "lastModified": "2026-09-08T19:20:25.117",
+      "description": "The rpcap client code that processes a RPCAP_MSG_PACKET message received from the server incorrectly validates its headers.  A malicious server can send a crafted message and cause the client to treat up to 20 bytes of the client process memory beyond the end of the buffer as if it was a part of the captured packet.",
+      "score": 5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18238"
+    },
+    {
+      "id": "CVE-2026-0799",
+      "published": "2026-09-05T19:16:55.320",
+      "lastModified": "2026-09-08T19:20:25.117",
+      "description": "In BPF instructions that load/store a value from/to a scratch memory register the register index is an unsigned 32-bit integer and must not exceed 15, but libpcap BPF interpreter does not validate the value.  In particular uncommon use cases a crafted filter program can cause the interpreter to try reading and writing the OS process memory in the 16GiB starting at the current stack frame on 64-bit architectures and in the entire address space on 32-bit architectures.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-0799"
+    },
+    {
+      "id": "CVE-2026-82752",
+      "published": "2026-09-05T18:17:29.170",
+      "lastModified": "2026-09-08T19:20:01.577",
+      "description": "Improper Validation of Specified Quantity in Input vulnerability in ash-project ash allows an attacker to store a value of arbitrary size in an attribute whose length constraint should bound it.\n\nAsh measures string length with Elixir's String.length/1, which counts Unicode graphemes, in the max_length and min_length constraints of Ash.Type.String (apply_constraints/2 in lib/ash/type/string.ex), in Ash.Resource.Validation.StringLength, and in the string_length expression function. A grapheme carries an unbounded number of combining marks, so a base character followed by a million combining acute accents is one grapheme and megabytes of data, and satisfies max_length: 2. Where the data layer imposes no independent limit (ETS, Mnesia, or a Postgres text column) the whole value is persisted, so an attacker can write an entire request body into an attribute declared with a small maximum and grow storage without bound.\n\nThe counting unit also disagrees with the storage layer, which counts codepoints rather than graphemes, so a value accepted by the constraint can still be rejected or truncated by the column. A Postgres varchar(n) column bounds the value itself and is not exposed.\n\nThis issue affects ash: from 0.10.0 before 3.33.0.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82752"
+    },
+    {
+      "id": "CVE-2026-86197",
+      "published": "2026-09-05T13:18:15.110",
+      "lastModified": "2026-09-10T16:18:02.173",
+      "description": "Grav before 2.0.20 contains a cross-site scripting vulnerability in the Twig sandbox policy that allowlists addJs and addCss methods on Grav\\Common\\Assets without proper output escaping. Page editors can inject arbitrary script by registering malicious assets or injecting attributes, which are rendered unescaped into document head tags and executed for all visitors including administrators.",
+      "score": 5.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86197"
+    },
+    {
+      "id": "CVE-2026-86196",
+      "published": "2026-09-05T13:18:14.980",
+      "lastModified": "2026-09-08T20:05:53.177",
+      "description": "Grav API plugin versions before 1.0.20 build password reset links from the untrusted Host header in the forgot-password endpoint, allowing unauthenticated attackers to redirect reset tokens to attacker-controlled domains. Attackers can send password reset requests for any account with a malicious Host header, intercept the reset token from victim emails, and complete account takeover including super-admin accounts.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86196"
+    },
+    {
+      "id": "CVE-2026-86195",
+      "published": "2026-09-05T13:18:14.853",
+      "lastModified": "2026-09-08T20:05:53.177",
+      "description": "grav-plugin-api versions before 1.0.20 contain a privilege escalation vulnerability in the InvitationsController where the stripSuperFlags() method only removes nested super flags but fails to strip dot-keyed equivalents like api.super. A non-super user manager with api.access and api.users.write permissions can create an invitation with a dot-keyed super flag in the access payload that bypasses the guard and persists to the new account. Attackers can accept the invitation through the public endpoint without real invitee interaction to create a super-admin account and immediately receive a valid JWT for full site control.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86195"
+    },
     {
       "id": "CVE-2026-86194",
       "published": "2026-09-05T13:18:14.727",
@@ -810,96 +900,6 @@
       "score": 2.7,
       "severity": "LOW",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-15693"
-    },
-    {
-      "id": "CVE-2026-8625",
-      "published": "2026-09-05T06:17:10.690",
-      "lastModified": "2026-09-08T13:12:58.310",
-      "description": "The Dear Flipbook – PDF Flipbook, 3D Flipbook, PDF embed, PDF viewer plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'post_content (Custom HTML block inner HTML)' parameter in all versions up to, and including, 2.4.30 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. A Contributor-level attacker can insert a crafted .df-element div with data-df-lightbox='thumb' via a Custom HTML block, whose inner HTML is passed as the title argument to parseThumbs() at render time, enabling both innerHTML injection into a span element and attribute breakout via an onerror handler on a constructed img element.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-8625"
-    },
-    {
-      "id": "CVE-2026-8623",
-      "published": "2026-09-05T06:17:10.547",
-      "lastModified": "2026-09-08T13:12:58.310",
-      "description": "The Dear Flipbook – PDF Flipbook, 3D Flipbook, PDF embed, PDF viewer plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'post_content (class attribute of .dvcss element)' parameter in all versions up to, and including, 2.4.30 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. The payload is embedded as a Base64-encoded JSON object in a CSS class name on a Custom HTML block; the frontend parseCSSElements() function decodes it client-side with atob() and JSON.parse() and renders the logo property as raw HTML, meaning no server-side or client-side sanitization intercepts the malicious script before DOM insertion.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-8623"
-    },
-    {
-      "id": "CVE-2026-86145",
-      "published": "2026-09-05T06:17:10.370",
-      "lastModified": "2026-09-09T16:04:24.933",
-      "description": "PCRE2 before 10.48 allows a pcre2_dfa_match out-of-bounds write because reuse of a cached workspace block, in a recursive DFA matching workspace, lacks a size check (even though a newly allocated block, for the same purpose, does have a size check). This outcome requires an attacker-controlled regular expression, or a recursive pattern in conjunction with a small heap limit (this can be set through the API).",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86145"
-    },
-    {
-      "id": "CVE-2026-83628",
-      "published": "2026-09-05T06:17:10.230",
-      "lastModified": "2026-09-08T13:12:58.310",
-      "description": "The Theme My Login plugin for WordPress is vulnerable to Missing Authorization in versions up to, and including, 7.1.15 on Multisite installations. This is due to the `tml_ms_signup_handler()` function's `gimmeanotherblog` branch failing to enforce the network's `active_signup` registration policy, checking only `is_user_logged_in()` while sibling branches such as `validate-blog-signup` apply the full policy gate. This makes it possible for authenticated attackers, with Subscriber-level access and above, to directly POST `stage=gimmeanotherblog` to Theme My Login's signup route, bypassing the configured registration policy entirely — even when it is set to `none` or `user` — which causes `wpmu_create_blog()` to execute with the attacker's user ID, after which WordPress core assigns the Administrator role on the newly created subsite via `add_user_to_blog()`. The privilege gain is scoped to the newly created subsite only; the attacker's account retains Subscriber-level access on the main site and does not obtain Super Admin or network-level capabilities such as `manage_network` or `manage_sites`.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-83628"
-    },
-    {
-      "id": "CVE-2026-83627",
-      "published": "2026-09-05T06:17:10.080",
-      "lastModified": "2026-09-08T13:12:58.310",
-      "description": "The Hummingbird – Speed Optimization, Caching, Minify, Compress & CDN plugin for WordPress is vulnerable to Remote Code Execution in all versions up to, and including, 3.21.0 via the log_msg() function in core/modules/class-page-cache.php. The page-cache debug log is written to wp-content/wphb-logs/page-caching-log.php, a directly web-accessible PHP file that is supposed to be protected by a leading '<?php die(); ?>' header. That header is guarded by class_exists( 'Filesystem' ), which can never match because class_exists() resolves string arguments in the global namespace while the class is Hummingbird\\Core\\Filesystem; when the log is created during a front-end request the header is therefore omitted entirely. get_cookies() then writes the raw name of any cookie matching the wphb_cache_ prefix into that file without sanitization. This makes it possible for unauthenticated attackers to write arbitrary PHP into the log file with a single anonymous request and execute it by requesting the file directly, resulting in full remote code execution. Exploitation requires the site administrator to have enabled Page Caching with the Debug Log option (non-default), and the log file to be created during a front-end request — a state reached by the plugin's own 'Clear logs' action, any cache flush, or unattended via the plugin's daily log-rotation cron, which can strip the protective header from an existing log file.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-83627"
-    },
-    {
-      "id": "CVE-2026-77263",
-      "published": "2026-09-05T06:17:09.950",
-      "lastModified": "2026-09-08T14:17:28.073",
-      "description": "The iubenda | All-in-one Compliance for GDPR / CCPA Cookie Consent + more plugin for WordPress is vulnerable to Stored Cross-Site Scripting via Comment Content in all versions up to, and including, 3.13.4 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. The exploit works by embedding KSES-allowed markup such as abbr title attributes and HTML comments in a submitted comment so that the global strtr() substitution strips substrings from an inert tag, mutating it into an executable element such as an img onerror handler that runs in the WordPress origin for any visitor, including logged-in administrators.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77263"
-    },
-    {
-      "id": "CVE-2026-77233",
-      "published": "2026-09-05T06:17:09.780",
-      "lastModified": "2026-09-08T15:18:46.573",
-      "description": "The iubenda | All-in-one Compliance for GDPR / CCPA Cookie Consent + more plugin for WordPress is vulnerable to Stored Cross-Site Scripting via Comment Content via AdSense Regex Rewrite in all versions up to, and including, 3.13.4 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. This vulnerability only manifests when the 'Secondary' parser engine is active (parser_engine=default); it does not exist under the default 'new' DOM-based parser engine.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77233"
-    },
-    {
-      "id": "CVE-2026-18404",
-      "published": "2026-09-05T06:17:09.577",
-      "lastModified": "2026-09-08T13:12:58.310",
-      "description": "The Social Chat – Click To Chat App Button plugin for WordPress is vulnerable to Stored Cross-Site Scripting via 'consent_message' JSON Attribute in .qlwapp data-box in all versions up to, and including, 8.6.2 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. The exploit requires no user interaction beyond page load, as setting auto_open and consent_enabled to 'yes' in the injected data-box JSON causes the consent box — and the embedded script — to execute immediately on page load.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18404"
-    },
-    {
-      "id": "CVE-2026-13447",
-      "published": "2026-09-05T06:17:09.403",
-      "lastModified": "2026-09-08T13:12:58.310",
-      "description": "The Mstore Api plugin for WordPress is vulnerable to Authentication Bypass via JWT Forgery in versions up to, and including, 4.20.0 This is due to missing cryptographic signature verification in the FirebasePhoneAuthHelper::verify_id_token() function, which decodes and validates Firebase ID token claims (alg, kid, aud, iss) but never calls openssl_verify() or any equivalent to validate the JWT signature against Google's actual public key certificates. This makes it possible for unauthenticated attackers to forge a Firebase Phone Auth JWT signed with a self-generated RSA key pair and impersonate any phone number, resulting in unauthorized access to existing WordPress accounts or creation of new arbitrary accounts.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13447"
-    },
-    {
-      "id": "CVE-2025-14945",
-      "published": "2026-09-05T06:17:09.017",
-      "lastModified": "2026-09-08T13:12:58.310",
-      "description": "The Events Manager - Calendar, Bookings, Tickets, and more! plugin for WordPress is vulnerable to Stored Cross-Site Scripting via event attribute values in all versions up to, and including, 7.3.3. This is due to insufficient input sanitization when storing attribute values (using only `wp_unslash()` without sanitization) and lack of output escaping when rendering the '#_ATT{key}' placeholder. This makes it possible for authenticated attackers, with Author-level access and above, or unauthenticated attackers when anonymous event submissions are enabled, to inject arbitrary web scripts that execute when any user views the affected event page.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-14945"
     }
   ]
 }
