@@ -1,6 +1,78 @@
 {
-  "syncedAt": "2026-09-12T11:42:37.326Z",
+  "syncedAt": "2026-09-12T12:22:38.946Z",
   "items": [
+    {
+      "id": "CVE-2026-82750",
+      "published": "2026-09-06T17:17:55.867",
+      "lastModified": "2026-09-08T19:20:01.200",
+      "description": "Improper Validation of Specified Quantity in Input in ZenHive mpp allows an unauthenticated remote client to inflate the fee-payer's gas cost per sponsored payment by a large multiplier and to have the sponsor pay for EIP-7702 account delegations of the client's choosing.\n\nWhen the server sponsors Tempo payments, MPP.Methods.Tempo.FeePayerPolicy.measure/3 in lib/mpp/methods/tempo/fee_payer_policy.ex bounds the gas fields, the fee budget, the validity window and the access list of the client-signed 0x76 envelope, but never reads its aa_authorization_list field. Every signed delegation in that list is charged as intrinsic gas before the payment call runs, so a client attaching delegations from throwaway authority keys makes the sponsor pay for them within the default gas_limit ceiling. At the reporter's default of seven entries the sponsored cost rises from about 46,575 gas to about 1,884,087 gas. Because each entry is applied as a persistent set-code delegation, a client can also upgrade its own accounts to delegated code at the sponsor's expense.\n\nThis issue affects mpp: from 0.2.0 before 0.16.1.",
+      "score": 8.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82750"
+    },
+    {
+      "id": "CVE-2026-83534",
+      "published": "2026-09-06T16:16:50.753",
+      "lastModified": "2026-09-09T05:18:19.027",
+      "description": "PostgreSQL Anonymizer contains a vulnerability in the anon.anonymize_database_parallel() function that allows the owner of a table to run arbitrary code with superuser privilege. The issue is fixed in PostgreSQL Anonymizer 3.2.0 and later versions",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-83534"
+    },
+    {
+      "id": "CVE-2026-19634",
+      "published": "2026-09-06T16:16:50.603",
+      "lastModified": "2026-09-09T05:17:20.103",
+      "description": "PostgreSQL Anonymizer contains a SQL injection vulnerability in two import functions. A user can create a malicious JSON document containing specially crafted object names. If a superuser subsequently calls anon.import_database_rules() or anon.import_roles_rules(), the malicious code is executed with superuser privileges. The issue is fixed in PostgreSQL Anonymizer 3.1.4 and later",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19634"
+    },
+    {
+      "id": "CVE-2026-19633",
+      "published": "2026-09-06T16:16:49.583",
+      "lastModified": "2026-09-09T05:17:19.990",
+      "description": "PostgreSQL Anonymizer contains a vulnerability that allows unprivileged masked users to execute arbitrary code by abusing operators, domain casts, or view subqueries that carry untrusted expressions. When these objects are evaluated in the context of the extension’s masking mechanisms, the malicious code can run with elevated privileges. The issue is fixed in PostgreSQL Anonymizer 3.1.4 and later versions",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19633"
+    },
+    {
+      "id": "CVE-2026-86283",
+      "published": "2026-09-06T15:17:24.813",
+      "lastModified": "2026-09-08T19:20:12.520",
+      "description": "MISP's UiBeta theme collection view (app/View/Themed/UiBeta/Collections/view.ctp) performed a secondary query of member events by UUID without applying the caller's access control list (ACL). The CollectionsController::view() action correctly resolved collection element UUIDs through Event::fetchSimpleEvents($user, ...), which enforces per-user event ACL. However, the view template independently re-queried the same UUIDs using only an Event.uuid IN (...) condition, omitting the createEventConditions() authorization filter. Because collection element UUIDs are stored without server-side authorization against the referenced event (CollectionElementsController::add() accepts whatever UUID the collection owner posts), an authenticated user with view access to a collection could retrieve full details of events they are not permitted to read. The exposed data included event identifiers, info, dates, timestamps, creator organization, all event tags, and galaxy clusters (the latter attached via a cluster-scoped rather than event-scoped ACL check). This constitutes an authorization bypass at the presentation layer, allowing horizontal privilege escalation across event boundaries within the MISP instance.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86283"
+    },
+    {
+      "id": "CVE-2026-86217",
+      "published": "2026-09-06T15:17:24.120",
+      "lastModified": "2026-09-11T21:17:37.720",
+      "description": "A vulnerability was detected in code-projects Hotel and Tourism Reservation in PHP 1.0. Affected is an unknown function of the file /ht/hotel_db%20(1).sql of the component Database Backup Handler. The manipulation results in information disclosure. The attack may be launched remotely. The exploit is now public and may be used.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86217"
+    },
+    {
+      "id": "CVE-2026-86216",
+      "published": "2026-09-06T14:17:25.760",
+      "lastModified": "2026-09-08T14:17:32.327",
+      "description": "A security vulnerability has been detected in code-projects Hotel and Tourism Reservation in PHP 1.0. This impacts an unknown function of the file /ht/details.php. The manipulation of the argument room leads to cross site scripting. The attack may be initiated remotely. The exploit has been disclosed publicly and may be used.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86216"
+    },
+    {
+      "id": "CVE-2026-86215",
+      "published": "2026-09-06T14:17:24.773",
+      "lastModified": "2026-09-09T15:17:14.450",
+      "description": "A vulnerability was identified in Mstfakts College-Management-System. The affected element is an unknown function of the file Front-end/server.php of the component Logout Handler. Such manipulation of the argument log_out leads to session expiration. It is possible to launch the attack remotely. The exploit is publicly available and might be used. This product takes the approach of rolling releases to provide continious delivery. Therefore, version details for affected and updated releases are not available. The project was informed of the problem early through an issue report but has not responded yet.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86215"
+    },
     {
       "id": "CVE-2026-86259",
       "published": "2026-09-06T13:17:10.963",
@@ -824,78 +896,6 @@
       "score": 6.5,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86186"
-    },
-    {
-      "id": "CVE-2026-86185",
-      "published": "2026-09-05T12:16:49.240",
-      "lastModified": "2026-09-08T19:20:10.120",
-      "description": "Bilibili Desktop through 1.18.0 disables TLS certificate verification process-wide and executes unsigned remote JavaScript configuration without integrity checks. An attacker in an on-path network position can intercept configuration fetches, inject arbitrary JavaScript executed in the renderer with access to the privileged IPC bridge, and execute system commands or steal login credentials.",
-      "score": 8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86185"
-    },
-    {
-      "id": "CVE-2026-86184",
-      "published": "2026-09-05T12:16:49.090",
-      "lastModified": "2026-09-08T20:06:38.260",
-      "description": "Lara Dashboard before 1.3.0 contains an authentication bypass vulnerability in the screenshot-login route that allows unauthenticated attackers to authenticate as any user by email when APP_ENV is not production. Attackers can request the GET /screenshot-login/{email} endpoint with a registered email address to receive a fully authenticated session, enabling access to user administration, settings, database contents, and arbitrary code execution through the module installer.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86184"
-    },
-    {
-      "id": "CVE-2026-15550",
-      "published": "2026-09-05T12:16:47.050",
-      "lastModified": "2026-09-08T13:12:58.310",
-      "description": "The Ninja Forms - Save Progress plugin for WordPress is vulnerable to Missing Authorization in versions up to, and including, 3.0.30. This is due to the lack of capability checks and nonce verification in the 'bulk_actions' function. This makes it possible for authenticated attackers, with subscriber-level access and above, to delete arbitrary database records from the 'wp_nf3_objects' table, such as saved submissions.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15550"
-    },
-    {
-      "id": "CVE-2026-12843",
-      "published": "2026-09-05T12:16:46.923",
-      "lastModified": "2026-09-08T13:12:58.310",
-      "description": "The LearnDash LMS plugin for WordPress is vulnerable to authorization bypass in versions 4.25.0 - 5.1.6. This is due to the plugin not properly verifying that a user is authorized to perform an action. This makes it possible for unauthenticated attackers to enroll arbitrary users in paid courses without payment verification, bypassing the entire payment system and gaining unauthorized access to premium educational content.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12843"
-    },
-    {
-      "id": "CVE-2026-10196",
-      "published": "2026-09-05T12:16:46.790",
-      "lastModified": "2026-09-08T13:12:58.310",
-      "description": "The Mail Mint – Email Marketing, Newsletter, Email Automation & WooCommerce Emails plugin for WordPress is vulnerable to PHP Object Injection in all versions up to, and including, 1.31.0 via deserialization of untrusted input in the 'handle_form_submission' function. This makes it possible for unauthenticated attackers to inject a PHP Object. The additional presence of a POP chain allows attackers to execute code on the server. The vulnerability was partially patched in version 1.23.1.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-10196"
-    },
-    {
-      "id": "CVE-2025-9049",
-      "published": "2026-09-05T12:16:46.653",
-      "lastModified": "2026-09-08T13:12:58.310",
-      "description": "The Nokri – Job Board WordPress Theme theme for WordPress is vulnerable to unauthorized modification of data due to a missing capability check on the 'nokri_account_member_permissions' function in all versions up to, and including, 1.6.4. This makes it possible for authenticated attackers, with Subscriber-level access and above, to add new Subscriber users with employer account member permissions, who in turn can escalate privileges by updating the email address of any user, including Administrator users.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-9049"
-    },
-    {
-      "id": "CVE-2025-15647",
-      "published": "2026-09-05T12:16:46.490",
-      "lastModified": "2026-09-08T14:17:19.570",
-      "description": "CDT before 1.4.5 contains an out-of-bounds read vulnerability in the opposedVertexInd() function when constraint edge intersections are computed in floating point and round outside adjacent triangles. Attackers can supply nearly-degenerate constraint edges through geometry data to trigger an out-of-bounds array access that crashes the calling process.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-15647"
-    },
-    {
-      "id": "CVE-2025-15614",
-      "published": "2026-09-05T12:16:45.450",
-      "lastModified": "2026-09-10T16:17:06.940",
-      "description": "ugrep before 7.6.0 contains a heap buffer over-read vulnerability in the LZW decompressor when processing crafted .Z archive files. Attackers can supply malformed .Z files that cause the decompressor to read one byte past the allocated heap buffer, potentially crashing the process.",
-      "score": 3.3,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-15614"
     }
   ]
 }
