@@ -1,6 +1,24 @@
 {
-  "syncedAt": "2026-09-13T17:17:06.121Z",
+  "syncedAt": "2026-09-13T17:43:18.616Z",
   "items": [
+    {
+      "id": "CVE-2026-77698",
+      "published": "2026-09-07T10:16:53.673",
+      "lastModified": "2026-09-08T18:35:10.323",
+      "description": "Zohocorp ManageEngine Endpoint Central versions before 11.5.2605.01 are vulnerable to local privilege escalation due to Agent upgrade.",
+      "score": 5.7,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77698"
+    },
+    {
+      "id": "CVE-2026-86342",
+      "published": "2026-09-07T09:17:17.943",
+      "lastModified": "2026-09-09T15:22:56.660",
+      "description": "Affected versions of MISP contain improper authorization checks in the freetext feed preview functionality. The preview performed correlation lookups against attributes from events without applying the requesting user's ACL, allowing restricted event correlations and associated event information to be exposed to users who could not otherwise access those events. The vulnerable queries were scoped only by attribute values and deletion status rather than MISP's event, organization, sharing-group, attribute, and object-level access controls.\n\n\nThe same preview functionality also returned cross-feed correlation information without properly restricting the feed list to feeds visible to the caller. This exposed metadata for feeds that were not marked lookup_visible; one affected response additionally included the configured feed URL even though that value was not required by the feature.\n\nThe fixes apply the caller's ACL to attribute correlation searches, remove feed URLs from correlation results, restrict cross-feed results according to feed visibility, and correct host-organization ID comparison so the authorization rules are applied consistently.\n\n\n\n\nVersion affected: ≤2.5.45",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86342"
+    },
     {
       "id": "CVE-2026-86332",
       "published": "2026-09-07T09:17:17.807",
@@ -882,24 +900,6 @@
       "score": 7.4,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13608"
-    },
-    {
-      "id": "CVE-2026-82751",
-      "published": "2026-09-06T17:17:56.070",
-      "lastModified": "2026-09-08T19:20:01.390",
-      "description": "Improper Validation of Specified Quantity in Input in ZenHive mpp allows an unauthenticated remote client to inflate the fee-payer's gas cost per sponsored payment by a large multiplier and to have the sponsor pay for provisioning an access key on the client's own account.\n\nWhen the server sponsors Tempo payments, MPP.Methods.Tempo.FeePayerPolicy.measure/3 in lib/mpp/methods/tempo/fee_payer_policy.ex bounds the gas fields, the fee budget, the validity window and the access list of the client-signed 0x76 envelope, but does not check whether the envelope carries the optional key_authorization field. A client can attach a fully signed key authorization, provisioning a new access key with token spending limits on its own account, alongside the normal payment call. The key and each limit entry are persistent storage writes billed as intrinsic gas to the sponsor, bounded only by the gas_limit ceiling. At the reporter's default of one key with three token limits the sponsored cost rises from about 46,587 gas to about 1,808,700 gas, and the client keeps a valid access key it paid nothing for.\n\nThis issue affects mpp: from 0.2.0 before 0.16.1.",
-      "score": 8.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82751"
-    },
-    {
-      "id": "CVE-2026-82750",
-      "published": "2026-09-06T17:17:55.867",
-      "lastModified": "2026-09-08T19:20:01.200",
-      "description": "Improper Validation of Specified Quantity in Input in ZenHive mpp allows an unauthenticated remote client to inflate the fee-payer's gas cost per sponsored payment by a large multiplier and to have the sponsor pay for EIP-7702 account delegations of the client's choosing.\n\nWhen the server sponsors Tempo payments, MPP.Methods.Tempo.FeePayerPolicy.measure/3 in lib/mpp/methods/tempo/fee_payer_policy.ex bounds the gas fields, the fee budget, the validity window and the access list of the client-signed 0x76 envelope, but never reads its aa_authorization_list field. Every signed delegation in that list is charged as intrinsic gas before the payment call runs, so a client attaching delegations from throwaway authority keys makes the sponsor pay for them within the default gas_limit ceiling. At the reporter's default of seven entries the sponsored cost rises from about 46,575 gas to about 1,884,087 gas. Because each entry is applied as a persistent set-code delegation, a client can also upgrade its own accounts to delegated code at the sponsor's expense.\n\nThis issue affects mpp: from 0.2.0 before 0.16.1.",
-      "score": 8.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82750"
     }
   ]
 }
