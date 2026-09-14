@@ -1,6 +1,51 @@
 {
-  "syncedAt": "2026-09-14T06:51:39.053Z",
+  "syncedAt": "2026-09-14T07:21:20.930Z",
   "items": [
+    {
+      "id": "CVE-2026-86441",
+      "published": "2026-09-07T13:20:43.287",
+      "lastModified": "2026-09-09T15:24:22.190",
+      "description": "Affected versions of MISP contain inconsistent authorization checks across dashboard widgets that display organisation information.\n\n\nSeveral organisation-related widgets did not honor Security.hide_organisation_index_from_users. As a result, authenticated users without the perm_sharing_group permission could enumerate organisations even though the normal organisation index was intentionally hidden from them.\n\n\nThe affected widgets included paths that:\n\n\n\n  *  \nreturned organisation names and identifiers;\n\n\n  *  \ncould expose additional organisation database fields through JSON export because unrestricted find('all') queries fetched full rows;\n\n\n  *  \naccepted limit=0 or negative values in a way that could effectively remove the result limit and return the entire organisation table.\n\n\n\n\n\nA related organisation-contributor leaderboard also ignored the same visibility setting. Its handler counted Event.orgc_id across the entire event table and mapped those IDs to organisation names, revealing every organisation with events regardless of whether the caller could see any of those events. The fix withdraws this widget entirely for users who lack organisation-index visibility.\n\nVersion affected: ≤2.5.45",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86441"
+    },
+    {
+      "id": "CVE-2026-86440",
+      "published": "2026-09-07T13:20:43.153",
+      "lastModified": "2026-09-09T15:24:29.210",
+      "description": "Affected versions of MISP insufficiently validate URLs used by dashboard widgets, particularly the Button widget.\n\n\nThe widget's URL is stored configuration controlled by a user. The previous renderer considered a URL safe if it appeared relative or if its parsed hostname matched the configured MISP hostname. That logic failed to reject dangerous schemes and URL forms that browsers normalize differently from PHP's URL parsing.\n\n\nAs a result, values such as javascript: URLs or backslash-based authority forms could reach the generated anchor's href and execute script or navigate to an attacker-controlled origin when another user interacted with the widget. The upstream commit describes the issue as:\n\n\n“javascript: and backslash URLs reached the href (stored XSS)”.\n\n\nThe fix routes widget URLs through a shared DashboardURLValidator, rejects dangerous schemes, raw backslashes, control characters, and unauthorized absolute origins, and validates the URL both in the widget handler and renderer.\n\nVersion affected: ≤2.5.45",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86440"
+    },
+    {
+      "id": "CVE-2026-86435",
+      "published": "2026-09-07T13:20:43.013",
+      "lastModified": "2026-09-09T15:17:18.217",
+      "description": "commonmark versions from 1.5.0 before 2.8.4 contain a denial of service vulnerability in the Footnote extension that fails to deduplicate footnote definitions. Attackers can craft documents with duplicate footnote definitions and references to create quadratic output expansion, consuming excessive memory and CPU to exhaust server resources.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86435"
+    },
+    {
+      "id": "CVE-2026-86434",
+      "published": "2026-09-07T13:20:42.870",
+      "lastModified": "2026-09-08T19:57:49.663",
+      "description": "league/commonmark versions >= 2.0.0 and < 2.8.4 (patched in 2.9.0) contain a denial of service vulnerability in UniqueSlugNormalizer::normalize(), which restarts its numeric-suffix search from 1 on every slug collision, resulting in O(K^2) time complexity for K headings that collapse to the same base slug. The vulnerable path is reached when HeadingPermalinkExtension, FootnoteExtension, or TableOfContentsExtension is registered. An unauthenticated attacker can force many headings onto a single base slug (e.g., via empty ATX headings, identical heading text, or punctuation-only headings) in a small Markdown document, consuming excessive CPU and denying service.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86434"
+    },
+    {
+      "id": "CVE-2026-86433",
+      "published": "2026-09-07T13:20:42.733",
+      "lastModified": "2026-09-08T19:57:49.663",
+      "description": "commonmark versions from 1.5.0 before 2.8.4 contain a denial of service vulnerability in the Attributes extension where AttributesListener::findTargetAndDirection() performs quadratic-time sibling list scanning. Unauthenticated attackers can submit approximately 32 KB of repeated attribute blocks to cause parsing to take over 5 seconds, exhausting server resources.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86433"
+    },
     {
       "id": "CVE-2026-86432",
       "published": "2026-09-07T13:20:42.600",
@@ -130,8 +175,8 @@
     {
       "id": "CVE-2026-86418",
       "published": "2026-09-07T13:20:40.527",
-      "lastModified": "2026-09-09T15:26:00.813",
-      "description": "Affected versions of MISP expose organisation metadata through the dashboard organisation picker without applying the same visibility restrictions enforced by the normal organisation index and per-organisation view.\n\n\nThe affected endpoint returned fields including:\n\n\n\n  *  \norganisation ID;\n\n\n  *  \nUUID;\n\n\n  *  \nname.\n\n\n\n\n\nWhen Security.hide_organisation_index_from_users was enabled, normal organisation enumeration was restricted, but the dashboard picker still queried all organisations. This allowed authenticated users to discover organisations that should have remained hidden from them.\n\n\nThe fix calls Organisation::createConditions($this->Auth->user()) and appends the resulting ACL conditions to the picker query. Ordinary users are thereby limited to organisations associated with events or proposals they can already see, plus their own organisation, while users with the appropriate sharing-group privilege retain broader visibility.\n\n\n\n\nVersion affected: ≤2.5.45",
+      "lastModified": "2026-09-14T07:17:23.147",
+      "description": "Affected versions of MISP expose organisation metadata through the dashboard organisation picker without applying the same visibility restrictions enforced by the normal organisation index and per-organisation view.\n\nThe affected endpoint returned fields including:\n\n - organisation ID;\n\n - UUID;\n\n - name.\n\n\n\n\n\n\nWhen Security.hide_organisation_index_from_users was enabled, normal organisation enumeration was restricted, but the dashboard picker still queried all organisations. This allowed authenticated users to discover organisations that should have remained hidden from them.\n\n\nThe fix calls Organisation::createConditions($this->Auth->user()) and appends the resulting ACL conditions to the picker query. Ordinary users are thereby limited to organisations associated with events or proposals they can already see, plus their own organisation, while users with the appropriate sharing-group privilege retain broader visibility.\n\n\n\n\nVersion affected: ≤2.5.45",
       "score": 4.3,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86418"
@@ -855,51 +900,6 @@
       "score": 7.5,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14296"
-    },
-    {
-      "id": "CVE-2026-86279",
-      "published": "2026-09-07T07:16:47.973",
-      "lastModified": "2026-09-09T15:17:16.050",
-      "description": "A vulnerability was determined in SourceCodester Syllabus-Aligned Learning Management & Examination System 1.0. The impacted element is an unknown function of the file auth_process.php of the component Login. This manipulation causes session fixiation. It is possible to initiate the attack remotely. The exploit has been publicly disclosed and may be utilized.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86279"
-    },
-    {
-      "id": "CVE-2026-86278",
-      "published": "2026-09-07T07:16:47.793",
-      "lastModified": "2026-09-08T15:18:53.490",
-      "description": "A vulnerability was found in SourceCodester Syllabus-Aligned Learning Management & Examination System 1.0. The affected element is an unknown function of the file manage_subjects.php. The manipulation of the argument msg/title/content results in cross site scripting. The attack may be performed from remote. The exploit has been made public and could be used.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86278"
-    },
-    {
-      "id": "CVE-2026-86277",
-      "published": "2026-09-07T07:16:47.620",
-      "lastModified": "2026-09-08T16:18:25.750",
-      "description": "A vulnerability has been found in SourceCodester Syllabus-Aligned Learning Management & Examination System 1.0. Impacted is an unknown function of the file delete_exam.php. The manipulation of the argument ID leads to authorization bypass. The attack is possible to be carried out remotely. The exploit has been disclosed to the public and may be used.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86277"
-    },
-    {
-      "id": "CVE-2026-79698",
-      "published": "2026-09-07T07:16:47.420",
-      "lastModified": "2026-09-11T21:17:17.030",
-      "description": "A vulnerability was identified in Advantech WISE-6610-NB, WISE-6610-EB, WISE-6610-TB, WISE-6610-JB, WISE-6610-CB, WISE-6610-EL-NB, WISE-6610-EL-EB, WISE-6610-EL-TB, WISE-6610-EL-JB, WISE-6610-EL-CB, WISE-6610P-DEA, WISE-6610P-DNA and WISE-6610P-DTA 1.2.1_20251110. This vulnerability affects the function nodered_lib_apply of the component Node-RED Library. Such manipulation of the argument act leads to command injection. The attack can be launched remotely. The exploit is publicly available and might be used. Upgrading to version 1.2.4_20260821 is able to resolve this issue. It is advisable to upgrade the affected component. The vendor was contacted early, responded in a very professional manner and quickly released a fixed version of the affected product.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79698"
-    },
-    {
-      "id": "CVE-2026-79697",
-      "published": "2026-09-07T07:16:45.903",
-      "lastModified": "2026-09-08T14:17:29.160",
-      "description": "A vulnerability was determined in Advantech WISE-6610-NB, WISE-6610-EB, WISE-6610-TB, WISE-6610-JB, WISE-6610-CB, WISE-6610-EL-NB, WISE-6610-EL-EB, WISE-6610-EL-TB, WISE-6610-EL-JB, WISE-6610-EL-CB, WISE-6610P-DEA, WISE-6610P-DNA and WISE-6610P-DTA 1.2.1_20251110. This affects the function basicstation_apply of the component Basic Station Certificate-Deletion Handler. This manipulation of the argument act causes command injection. The attack can be initiated remotely. The exploit has been publicly disclosed and may be utilized. Upgrading to version 1.2.4_20260821 is able to mitigate this issue. Upgrading the affected component is advised. The vendor was contacted early, responded in a very professional manner and quickly released a fixed version of the affected product.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79697"
     }
   ]
 }
