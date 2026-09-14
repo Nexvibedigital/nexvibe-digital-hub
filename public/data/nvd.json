@@ -1,6 +1,69 @@
 {
-  "syncedAt": "2026-09-14T02:46:28.404Z",
+  "syncedAt": "2026-09-14T03:20:42.474Z",
   "items": [
+    {
+      "id": "CVE-2026-86420",
+      "published": "2026-09-07T13:20:40.827",
+      "lastModified": "2026-09-09T17:09:03.253",
+      "description": "ImageMagick before 7.1.2-30 and 6.9.13-55 fails to properly lower the memory budget when an operation inside OpenPixelCache fails. Repeated triggering of such failures can exhaust the process memory budget and result in a denial of service.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86420"
+    },
+    {
+      "id": "CVE-2026-86419",
+      "published": "2026-09-07T13:20:40.663",
+      "lastModified": "2026-09-09T15:25:49.733",
+      "description": "Affected versions of MISP contain insufficient validation of server-side outbound HTTP destinations in feed retrieval and TAXII discovery functionality.\n\n\nIn feed processing, redirects were followed without validating the redirect scheme or destination. The original request headers were reused across redirect hops, meaning authentication headers or API credentials configured for a feed could be forwarded to a different host. Redirects could also target internal network resources, resulting in SSRF. The fix adds redirect validation, blocks internal destinations for cross-host redirects, strips configured feed credentials before following redirects to another host, and pins validated DNS results to prevent re-resolution after validation.\n\n\nThe TAXII discovery endpoint had a related incomplete SSRF defense. It used gethostbyname() and compared the result against only a few literal addresses. This missed cases including IPv6 loopback (::1), numeric host encodings such as 0x7f000001, and potentially multiple DNS records. The fix moves TAXII discovery to the shared URL egress validator.\n\n\nTogether, these commits harden MISP's outbound URL handling against alternate-address representations, DNS-related bypasses, unsafe redirects, internal-host access, and cross-host credential forwarding.\n\n\n\n\n\n\nVersion affected: ≤2.5.45",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86419"
+    },
+    {
+      "id": "CVE-2026-86418",
+      "published": "2026-09-07T13:20:40.527",
+      "lastModified": "2026-09-09T15:26:00.813",
+      "description": "Affected versions of MISP expose organisation metadata through the dashboard organisation picker without applying the same visibility restrictions enforced by the normal organisation index and per-organisation view.\n\n\nThe affected endpoint returned fields including:\n\n\n\n  *  \norganisation ID;\n\n\n  *  \nUUID;\n\n\n  *  \nname.\n\n\n\n\n\nWhen Security.hide_organisation_index_from_users was enabled, normal organisation enumeration was restricted, but the dashboard picker still queried all organisations. This allowed authenticated users to discover organisations that should have remained hidden from them.\n\n\nThe fix calls Organisation::createConditions($this->Auth->user()) and appends the resulting ACL conditions to the picker query. Ordinary users are thereby limited to organisations associated with events or proposals they can already see, plus their own organisation, while users with the appropriate sharing-group privilege retain broader visibility.\n\n\n\n\nVersion affected: ≤2.5.45",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86418"
+    },
+    {
+      "id": "CVE-2026-86417",
+      "published": "2026-09-07T13:20:40.393",
+      "lastModified": "2026-09-09T15:26:08.863",
+      "description": "Affected versions of MISP inconsistently enforced email-address visibility in DashboardsController::listTemplates().\n\n\nThe query always fetched User.email, while redaction happened only inside the non-REST rendering branch. As a result, the same authenticated user who saw redacted data in the normal HTML interface could request the REST/JSON representation and receive template owners’ email addresses without the intended privilege check.\n\n\nThe fix moves the decision to a centralized User::canSeeEmails() authorization helper. Email addresses are now fetched only when the requester is a site administrator or the instance explicitly enables Security.disclose_user_emails. The same helper is also reused by other dashboard widgets to keep email-disclosure policy consistent.\n\nVersion affected: ≤2.5.45",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86417"
+    },
+    {
+      "id": "CVE-2026-86416",
+      "published": "2026-09-07T13:20:40.233",
+      "lastModified": "2026-09-08T20:05:53.177",
+      "description": "ILIAS versions before 9.23, 10.11, and 11.4 contain an authorization bypass vulnerability in ilObjGroupGUI where saveMapSettingsObject() and updateGroupTypeObject() perform state-changing operations without write permission checks. Authenticated users with only read access to a group can craft POST requests to modify group map settings and didactic template assignments, changing group modes and permissions for all members.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86416"
+    },
+    {
+      "id": "CVE-2026-86408",
+      "published": "2026-09-07T13:20:40.100",
+      "lastModified": "2026-09-09T15:26:17.753",
+      "description": "Affected versions of MISP do not enforce parent-event visibility when serving cryptographic keys through CryptographicKeysController::view().\n\n\nThe vulnerable handler queried CryptographicKey directly using the supplied key ID and selected sensitive fields such as:\n\n\n\n  *  \ntype\n\n\n  *  \nkey_data\n\n\n  *  \nfingerprint\n\n\n\n\n\nbut did not fetch or authorize the associated parent event first.\n\n\nThe upstream commit explicitly states that cryptographicKeys/view could return a protected event’s signing key to any authenticated user.\n\n\nThe fix adds parent_id and parent_type to the lookup and then enforces authorization through the associated event using fetchSimpleEvent($user, parent_id). If the parent is not an Event, access is limited to site administrators.\n\nVersion affected: ≤2.5.45",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86408"
+    },
+    {
+      "id": "CVE-2026-86306",
+      "published": "2026-09-07T13:20:39.927",
+      "lastModified": "2026-09-08T16:18:28.110",
+      "description": "A weakness has been identified in light0011 cms c774dce31c6df0055568a8d5c53d964d99be199d/f72cf46f601efb2a0618c3814cc2f61380b38930. This affects an unknown part of the file App/Home/Model/UserModel.class.php of the component Cookie Helper. Executing a manipulation of the argument Username can lead to improper authentication. The attack may be performed from remote. The exploit has been made available to the public and could be used for attacks. This product utilizes a rolling release system for continuous delivery, and as such, version information for affected or updated releases is not disclosed. The project was informed of the problem early through an issue report but has not responded yet.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86306"
+    },
     {
       "id": "CVE-2026-86305",
       "published": "2026-09-07T13:20:39.753",
@@ -837,69 +900,6 @@
       "score": 6.3,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86265"
-    },
-    {
-      "id": "CVE-2026-86314",
-      "published": "2026-09-07T03:17:19.530",
-      "lastModified": "2026-09-08T19:09:50.263",
-      "description": "Integer overflow in the source-bounds check in Memory::init() (src/runtime/Memory.cpp) in Samsung walrus on all platforms allows a remote attacker to cause an out-of-bounds heap read and denial of service via a crafted WebAssembly module in which a 32-bit unsigned addition wraps around and bypasses the bounds check.\n\n\n\nThis issue affects Walrus: ff3bf5ff5c4878f8e5572c9593d303f6bc997443.",
-      "score": 6.2,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86314"
-    },
-    {
-      "id": "CVE-2026-86313",
-      "published": "2026-09-07T03:17:19.407",
-      "lastModified": "2026-09-08T19:09:50.263",
-      "description": "Out-of-bounds write vulnerability in Samsung Opensource Walrus allows Overflow Buffers.\n\nThis issue affects Walrus: af80e665ea49d9003695a66502f841ed1d8397e7.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86313"
-    },
-    {
-      "id": "CVE-2026-86264",
-      "published": "2026-09-07T03:17:19.243",
-      "lastModified": "2026-09-08T15:18:53.080",
-      "description": "A flaw has been found in sfturing ssm_pro up to 627f426331da8086ce8fff2017d65b1ddef384f8. Affected is an unknown function of the file ssm_pro/src/main/java/cn/sfturing/web/OrderController.java of the component Order Endpoint. This manipulation of the argument hospitalName/officesName/doctorName causes cross site scripting. It is possible to initiate the attack remotely. The exploit has been published and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86264"
-    },
-    {
-      "id": "CVE-2026-86263",
-      "published": "2026-09-07T03:17:19.070",
-      "lastModified": "2026-09-08T19:20:11.820",
-      "description": "A vulnerability was detected in sfturing hosp_order up to 627f426331da8086ce8fff2017d65b1ddef384f8. This impacts the function orderRecordsService.cancelOrder of the file ssm_pro/src/main/java/cn/sfturing/web/OrderController.java of the component Order Cancellation. The manipulation of the argument ID results in authorization bypass. The attack may be performed from remote. The exploit is now public and may be used. This product utilizes a rolling release system for continuous delivery, and as such, version information for affected or updated releases is not disclosed. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86263"
-    },
-    {
-      "id": "CVE-2026-86262",
-      "published": "2026-09-07T03:17:18.893",
-      "lastModified": "2026-09-11T21:17:40.513",
-      "description": "A security vulnerability has been detected in sfturing hosp_order up to 627f426331da8086ce8fff2017d65b1ddef384f8. This affects the function updateOrderSta1/updateOrderdiseaseInfo of the file ssm_pro/src/main/java/cn/sfturing/web/OrderController.java of the component Order Handler. The manipulation of the argument userID/id leads to authorization bypass. The attack is possible to be carried out remotely. The exploit has been disclosed publicly and may be used. This product adopts a rolling release strategy to maintain continuous delivery. Therefore, version details for affected or updated releases cannot be specified. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86262"
-    },
-    {
-      "id": "CVE-2026-86261",
-      "published": "2026-09-07T03:17:18.723",
-      "lastModified": "2026-09-08T14:17:33.303",
-      "description": "A weakness has been identified in sfturing hosp_order up to 627f426331da8086ce8fff2017d65b1ddef384f8. The impacted element is an unknown function of the file ssm_pro/src/main/java/cn/sfturing/web/OrderController.java of the component Order Controller. Executing a manipulation of the argument userIdenf can lead to authorization bypass. The attack can be executed remotely. The exploit has been made available to the public and could be used for attacks. This product implements a rolling release for ongoing delivery, which means version information for affected or updated releases is unavailable. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86261"
-    },
-    {
-      "id": "CVE-2026-86260",
-      "published": "2026-09-07T03:17:17.647",
-      "lastModified": "2026-09-09T15:17:15.340",
-      "description": "A security flaw has been discovered in sfturing hosp_order up to 627f426331da8086ce8fff2017d65b1ddef384f8. The affected element is the function modifyPassWord of the file ssm_pro/src/main/java/cn/sfturing/web/CommonUserController.java of the component Password Recovery. Performing a manipulation results in unverified password change. Remote exploitation of the attack is possible. The exploit has been released to the public and may be used for attacks. This product follows a rolling release approach for continuous delivery, so version details for affected or updated releases are not provided. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86260"
     }
   ]
 }
