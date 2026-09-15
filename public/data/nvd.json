@@ -1,6 +1,141 @@
 {
-  "syncedAt": "2026-09-15T11:45:03.548Z",
+  "syncedAt": "2026-09-15T12:24:28.612Z",
   "items": [
+    {
+      "id": "CVE-2026-86732",
+      "published": "2026-09-08T16:18:35.333",
+      "lastModified": "2026-09-10T14:17:09.963",
+      "description": "Craft CMS versions before 5.10.12 contain a remote code execution vulnerability in the element-index endpoint that allows authenticated content editors to instantiate arbitrary classes through the criteria parameter. Attackers can inject a malicious class via criteria[withTransforms][0][class] that reaches ImageTransforms::normalizeTransform(), then use a PHP gadget chain with yii\\rbac\\PhpManager to execute code by pointing itemFile to a request log containing PHP payload in the User-Agent header.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86732"
+    },
+    {
+      "id": "CVE-2026-86731",
+      "published": "2026-09-08T16:18:35.187",
+      "lastModified": "2026-09-08T19:53:13.400",
+      "description": "Craft CMS versions 5.0.0-RC1 through 5.10.11 are missing an admin-target guard in UsersController::actionActivateUser (the users/activate-user action). While the action requires the administrateUsers permission, it does not call requireAdmin() when the targeted user is an administrator, unlike the mirror action actionDeactivateUser. As a result, an authenticated control panel user who is not an administrator but holds the administrateUsers permission can activate a pending or deliberately deactivated administrator account, which can lead to permission escalation when combined with resetting that account's password. The issue is fixed in Craft CMS 5.10.12.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86731"
+    },
+    {
+      "id": "CVE-2026-86730",
+      "published": "2026-09-08T16:18:34.667",
+      "lastModified": "2026-09-08T19:53:13.400",
+      "description": "Craft CMS versions before 5.10.12 fail to properly cleanse string-typed field-layout elements, allowing authenticated control-panel users to inject Yii2 behavior attachments and event handlers. Attackers can post field-layout tab elements as JSON strings to bypass cleanse validation, then trigger arbitrary object instantiation and code execution through Craft::createObject().",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86730"
+    },
+    {
+      "id": "CVE-2026-86729",
+      "published": "2026-09-08T16:18:34.523",
+      "lastModified": "2026-09-10T16:18:03.893",
+      "description": "WWBN AVideo through commit e01e41ecc (no patched version available) exposes get_api_preauthorize in plugin/API/API.php as a second, undocumented login path. Unlike get_api_signIn, which enforces a rate limit of 10 attempts per 5 minutes via checkRateLimit(), get_api_preauthorize performs the same credential check with no throttling for any client, allowing unlimited remote password guessing against arbitrary accounts, including admin. The endpoint also acts as a credential oracle: it returns the message \"Invalid credentials\" for both correct and incorrect passwords, while the users_id field in the response body discloses the authenticated identity (users_id:1 on success, users_id:0 on failure), and a correct password establishes a session cookie that remains usable for authenticated API requests. Together these issues permit unauthenticated brute-force account takeover.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86729"
+    },
+    {
+      "id": "CVE-2026-86728",
+      "published": "2026-09-08T16:18:33.983",
+      "lastModified": "2026-09-08T19:53:13.400",
+      "description": "AVideo through 29.0 contains an authentication bypass vulnerability in plugin/PlayLists/epg.json.php that exposes live-stream keys and private EPG schedules to unauthenticated users. Attackers can request the endpoint with sequential user or playlist IDs to retrieve sensitive credentials, server identifiers, and complete programme schedules without authentication.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86728"
+    },
+    {
+      "id": "CVE-2026-86727",
+      "published": "2026-09-08T16:18:33.823",
+      "lastModified": "2026-09-10T14:17:09.833",
+      "description": "AVideo through 29.0 contains an information disclosure vulnerability in plugin/Live/stats.json.php that allows unauthenticated attackers to retrieve stream keys and m3u8 URLs by accessing the endpoint without authentication. Attackers can enumerate private, unlisted, and group-restricted live streams by parsing the hidden_applications array in the JSON response to obtain sensitive streaming credentials.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86727"
+    },
+    {
+      "id": "CVE-2026-86726",
+      "published": "2026-09-08T16:18:33.690",
+      "lastModified": "2026-09-08T19:53:13.400",
+      "description": "AVideo through 29.0 contains an information disclosure vulnerability in restreamsActive.json.php that allows authenticated streamers to enumerate source stream keys and identities of all other streamers' active restreams. The endpoint fails to filter results by user ownership, exposing sensitive transmission credentials and streamer identity across all accounts to any user with streaming capability.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86726"
+    },
+    {
+      "id": "CVE-2026-86725",
+      "published": "2026-09-08T16:18:33.207",
+      "lastModified": "2026-09-08T19:53:13.400",
+      "description": "AVideo through c3edcc274c389816d434acadac07ee78eaf330c1 contains a missing authorization vulnerability in the SocialMediaPublisher plugin's add.json.php endpoint that allows authenticated users to modify other users' OAuth token records. Attackers can supply arbitrary row IDs to overwrite another user's stored access_token and refresh_token, then delete the compromised record to destroy the victim's provider linkage.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86725"
+    },
+    {
+      "id": "CVE-2026-86724",
+      "published": "2026-09-08T16:18:33.070",
+      "lastModified": "2026-09-10T16:18:03.763",
+      "description": "AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains a cross-site request forgery vulnerability in plugin/YPTWallet/view/saveBalance.php that allows attackers to set arbitrary wallet balances by relying only on session cookies without token validation. Attackers can craft a malicious webpage that, when loaded by an administrator, submits a POST request to modify any user's wallet balance to any value.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86724"
+    },
+    {
+      "id": "CVE-2026-86723",
+      "published": "2026-09-08T16:18:32.583",
+      "lastModified": "2026-09-08T19:53:13.400",
+      "description": "AVideo through c3edcc274c389816d434acadac07ee78eaf330c1 contains an authentication bypass vulnerability in LoginControl::verifyChallenge() that uses loose comparison (==) instead of strict comparison (===) against unset session values. Attackers with only a password can submit an empty request to verifyChallenge.json.php to bypass PGP two-factor authentication and gain full authenticated access.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86723"
+    },
+    {
+      "id": "CVE-2026-86722",
+      "published": "2026-09-08T16:18:32.447",
+      "lastModified": "2026-09-10T14:17:09.707",
+      "description": "AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains an authentication bypass vulnerability where sqlDAL caches empty result sets that writeSql never invalidates. Attackers with a valid password can bypass email two-factor authentication on new devices because the confirmation code hash fails to generate from the stale cached empty result.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86722"
+    },
+    {
+      "id": "CVE-2026-86721",
+      "published": "2026-09-08T16:18:32.307",
+      "lastModified": "2026-09-08T19:53:13.400",
+      "description": "AVideo through commit c3edcc274c contains an authorization bypass vulnerability where a session cookie named 'key' with value 'value' overrides the $_REQUEST['key'] parameter in saveLive.php and related endpoints. Attackers can publish to any user's RTMP stream without authentication by using the known constant stream key value to hijack live broadcasts.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86721"
+    },
+    {
+      "id": "CVE-2026-86720",
+      "published": "2026-09-08T16:18:31.833",
+      "lastModified": "2026-09-08T19:53:13.400",
+      "description": "WWBN AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 fails to validate ownership of live_restreams_id in resendRestreamer.json.php, allowing authenticated users with canStream to access other users' restream destinations. Attackers can broadcast their live stream to victim-configured restream destinations by supplying arbitrary live_restreams_id values, hijacking YouTube, Facebook, or Twitch streams using victim stream keys.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86720"
+    },
+    {
+      "id": "CVE-2026-86719",
+      "published": "2026-09-08T16:18:31.690",
+      "lastModified": "2026-09-10T16:18:03.623",
+      "description": "WWBN AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 (master) contains a cross-site request forgery vulnerability in the CustomizeUser plugin endpoint plugin/CustomizeUser/swapUser.json.php. The endpoint takes users_id from $_REQUEST and invokes User::swapUser() without calling forbidIfNotPost() or forbidIfInvalidToken(), and the global autoCSRFGuard() check only runs for POST requests to *.json.php, so the action is reachable via GET. An attacker who causes an authenticated administrator's browser to issue a cross-origin GET (for example via an <img> tag or link) can replace that administrator's session with a non-admin user account, causing the administrator to lose administrative access until the swap is cancelled; swapping to another administrator account is rejected, so this is not privilege escalation. The JSON response also discloses the session_id. The CustomizeUser plugin is enabled by default, and no patch was available at the time of publication.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86719"
+    },
+    {
+      "id": "CVE-2026-86718",
+      "published": "2026-09-08T16:18:31.203",
+      "lastModified": "2026-09-08T19:53:13.400",
+      "description": "WWBN AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains a cross-site request forgery vulnerability in deleteHistory.json.php and finishAll.json.php that allows unauthenticated attackers to mutate live history by making GET requests without CSRF token validation. Attackers can craft malicious pages that trigger administrator browsers to delete all live transmission history or mark streams as finished when an admin visits the attacker-controlled site.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86718"
+    },
     {
       "id": "CVE-2026-86666",
       "published": "2026-09-08T16:18:31.020",
@@ -761,141 +896,6 @@
       "score": 7.1,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-11573"
-    },
-    {
-      "id": "CVE-2026-86714",
-      "published": "2026-09-08T12:17:00.300",
-      "lastModified": "2026-09-14T20:17:01.403",
-      "description": "PX4 Autopilot through 1.17.0 contains a stack buffer over-read vulnerability in the netman system command that fails to validate interface name length. Attackers can supply interface names of 74 bytes or more via the -i option to read beyond buffer boundaries, leaking stack memory to console output or writing it into persistent network configuration files.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86714"
-    },
-    {
-      "id": "CVE-2026-86713",
-      "published": "2026-09-08T12:17:00.150",
-      "lastModified": "2026-09-08T19:54:50.793",
-      "description": "PX4 Autopilot through 1.17.0 contains a use-after-free vulnerability in the load_mon module's stop path where exit_and_cleanup() deletes the LoadMon object and frees the performance counter before perf_end() attempts to access it. Attackers can trigger this vulnerability by issuing the load_mon stop command from any PXH or MAVLink shell, causing reads and writes through freed memory that corrupt heap objects and destabilize the flight stack.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86713"
-    },
-    {
-      "id": "CVE-2026-86712",
-      "published": "2026-09-08T12:16:59.990",
-      "lastModified": "2026-09-10T16:18:03.470",
-      "description": "SiYuan before 3.8.2 trusts the attacker-writable text/siyuan clipboard MIME type and skips sanitization in the paste handler, allowing code execution in the Node-enabled desktop renderer. Attackers can craft malicious web pages that write to the clipboard, and when pasted into SiYuan, injected scripts execute with full Node.js access through the Electron main process.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86712"
-    },
-    {
-      "id": "CVE-2026-86711",
-      "published": "2026-09-08T12:16:59.840",
-      "lastModified": "2026-09-08T19:56:50.950",
-      "description": "electerm before 5.3.15 exposes 40+ main-process functions through an unvalidated Electron IPC handler with no function-name allowlist or sender validation. Renderer-side script execution can invoke openFileWithEditor and other functions with arbitrary arguments to execute system commands in the main process.",
-      "score": 7.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86711"
-    },
-    {
-      "id": "CVE-2026-80219",
-      "published": "2026-09-08T12:16:59.700",
-      "lastModified": "2026-09-11T13:18:18.173",
-      "description": "A flaw was found in hawtio-operator. When deploying Hawtio in cluster mode, the operator creates a cluster-scoped OAuthClient with automatic grant approval (GrantMethod: auto) and no client secret (public client). The redirect URIs are derived from the operator-created Route, whose hostname is tenant-controlled via the Hawtio CR spec.routeHostName field. A malicious tenant can register an arbitrary hostname as a valid OAuth redirect target and, because grants are auto-approved, obtain OpenShift access tokens of any cluster user who visits the crafted authorization URL without any consent prompt.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80219"
-    },
-    {
-      "id": "CVE-2026-78234",
-      "published": "2026-09-08T12:16:59.560",
-      "lastModified": "2026-09-08T19:08:15.590",
-      "description": "A flaw was found in hawtio-operator. The operator reads the OpenShift Service CA private signing key from the openshift-service-ca namespace and uses it to mint client certificates with a Subject Common Name (CN) supplied by the author of a namespaced Hawtio custom resource. Because the operator ships a ClusterRole that aggregates Hawtio CR permissions into the edit and admin roles, any user with edit access in any namespace can obtain a Service-CA-signed certificate with an arbitrary subject. This certificate can be used to impersonate any in-cluster service identity to peers that trust the Service CA for client authentication, including Jolokia agents and other Service-CA-trusting components.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78234"
-    },
-    {
-      "id": "CVE-2026-77968",
-      "published": "2026-09-08T12:16:59.427",
-      "lastModified": "2026-09-08T19:08:15.590",
-      "description": "A flaw was found in hawtio-operator. The operator's ClusterRole grants secrets: [create, get, list, update, watch] across all namespaces. While the operator uses a controller-runtime label-selector cache as a memory optimization, the ServiceAccount token authorizes read access to every Secret in the cluster. The operator also bypasses the cache via direct API calls. Compromise of the operator pod would yield read access to every Secret in the cluster, including bootstrap tokens, cloud credentials, and other operators' secrets.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77968"
-    },
-    {
-      "id": "CVE-2026-76931",
-      "published": "2026-09-08T12:16:59.290",
-      "lastModified": "2026-09-08T15:18:46.467",
-      "description": "The Zephyr Project Manager plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the ‘message’ parameter in all versions up to, and including, 3.3.205 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with Custom-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. The vulnerability can only be exploited when the 'Directly link to project' plugin setting is disabled.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76931"
-    },
-    {
-      "id": "CVE-2026-74860",
-      "published": "2026-09-08T12:16:58.083",
-      "lastModified": "2026-09-10T20:17:28.660",
-      "description": "A flaw was found in libxml2 with Python bindings enabled. A remote attacker could exploit this vulnerability by providing a specially crafted XML document containing a Document Type Definition (DTD) with enumerated attribute values. This triggers a double-free error in the SAX attributeDecl callback handler, where a string is freed twice. This flaw can lead to a denial of service (DoS) due to a reproducible crash in Python applications using the libxml2 SAX bindings.",
-      "score": 8.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74860"
-    },
-    {
-      "id": "CVE-2026-3174",
-      "published": "2026-09-08T12:16:54.620",
-      "lastModified": "2026-09-09T16:17:02.893",
-      "description": "The Event Tickets and Registration plugin for WordPress is vulnerable to unauthorized modification of data due to a missing capability check on the Stripe OAuth return endpoint in all versions up to, and including, 5.27.4. This makes it possible for unauthenticated attackers to overwrite the site's Stripe merchant credentials (access tokens, publishable keys, and account ID), diverting all subsequent payment processing to the attacker's Stripe account.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-3174"
-    },
-    {
-      "id": "CVE-2026-2520",
-      "published": "2026-09-08T12:16:54.067",
-      "lastModified": "2026-09-08T13:17:18.997",
-      "description": "The Online Scheduling and Appointment Booking System – Bookly plugin for WordPress is vulnerable to unauthorized modification of data due to a missing capability check on the 'updateAddon' function in all versions up to, and including, 27.2. This makes it possible for authenticated attackers, with Subscriber-level access and above, to update any plugin with a main file of 'main.php' to its latest version.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-2520"
-    },
-    {
-      "id": "CVE-2026-18021",
-      "published": "2026-09-08T12:16:53.400",
-      "lastModified": "2026-09-08T17:17:33.450",
-      "description": "The The Beaver Builder Page Builder – Drag and Drop Website Builder plugin for WordPress is vulnerable to arbitrary shortcode execution in all versions up to, and including, 2.10.3.1. This is due to the software allowing users to execute an action that does not properly validate a value before running do_shortcode. This makes it possible for unauthenticated attackers to execute arbitrary shortcodes.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18021"
-    },
-    {
-      "id": "CVE-2026-17509",
-      "published": "2026-09-08T12:16:53.157",
-      "lastModified": "2026-09-08T13:17:18.270",
-      "description": "The WPML Multilingual CMS plugin for WordPress is vulnerable to time-based SQL Injection via the ‘elementIds’ parameter in all versions up to, and including, 4.9.5 due to insufficient escaping on the user supplied parameter and lack of sufficient preparation on the existing SQL query.  This makes it possible for authenticated attackers, with Subscriber-level access and above, to append additional SQL queries into already existing queries that can be used to extract sensitive information from the database. This vulnerability is exploitable due to an authorization bypass where the registered authorization callback fails to execute, allowing any authenticated user regardless of role to access administrative translation functionalities.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-17509"
-    },
-    {
-      "id": "CVE-2026-16502",
-      "published": "2026-09-08T12:16:52.443",
-      "lastModified": "2026-09-08T17:17:33.050",
-      "description": "The Live Composer – Free WordPress Website Builder plugin for WordPress is vulnerable to PHP Object Injection in all versions up to, and including, 2.1.18 via deserialization of untrusted input . This makes it possible for authenticated attackers, with contributor-level access and above, to inject a PHP Object. No known POP chain is present in the vulnerable software, which means this vulnerability has no impact unless another plugin or theme containing a POP chain is installed on the site. If a POP chain is present via an additional plugin or theme installed on the target system, it may allow the attacker to perform actions like delete arbitrary files, retrieve sensitive data, or execute code depending on the POP chain present.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16502"
-    },
-    {
-      "id": "CVE-2026-12230",
-      "published": "2026-09-08T12:16:50.620",
-      "lastModified": "2026-09-09T17:17:15.610",
-      "description": "The LearnPress – WordPress LMS Plugin for Create and Sell Online Courses plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'layout_custom_css' parameter in all versions up to, and including, 4.3.9.1 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12230"
     }
   ]
 }
