@@ -1,6 +1,60 @@
 {
-  "syncedAt": "2026-09-16T10:20:58.799Z",
+  "syncedAt": "2026-09-16T10:46:20.801Z",
   "items": [
+    {
+      "id": "CVE-2026-86747",
+      "published": "2026-09-09T14:17:23.553",
+      "lastModified": "2026-09-14T20:33:55.553",
+      "description": "Snipe-IT is an open source IT asset management system. In versions up to and including 8.6.3, the report acceptance endpoints POST /reports/unaccepted_assets/sent_reminder (ReportsController::sentAssetAcceptanceReminder) and DELETE /reports/unaccepted_assets/{acceptanceId}/delete (ReportsController::deleteAssetAcceptance) are not correctly scoped when Full Multiple Company Support (FMCS) is enabled. In 8.6.3 the guard ReportsController::currentUserCanAccessAcceptance() early-exits with 'return true' when '! $user->company_id' is truthy, which is the case for every pivot-only user (a user associated with companies through the company_user pivot table whose scalar users.company_id column is NULL); versions prior to 8.6.3 lacked the guard altogether. As a result, an authenticated user holding the reports.view permission can send acceptance-reminder emails for, and permanently delete, any pending acceptance record in the install regardless of which company owns the underlying checkoutable. Deletion is destructive and forfeits the acceptance audit trail for the affected item, and the reminder email exposes limited cross-company acceptance context (item name and assignment metadata) to the recipient. Acceptance IDs are sequential integers and can be enumerated. This issue is fixed in version 8.7.0.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86747"
+    },
+    {
+      "id": "CVE-2026-86746",
+      "published": "2026-09-09T14:17:23.420",
+      "lastModified": "2026-09-14T20:35:02.067",
+      "description": "Snipe-IT before 8.7.0 contains an authorization bypass vulnerability in Livewire components that enforce authorization only at the route level, not within component lifecycle methods. Attackers with a valid authenticated session can replay signed component snapshots via POST /livewire/update to invoke protected methods and escalate privileges, including creating OAuth clients, minting personal access tokens, and accessing sensitive admin data.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86746"
+    },
+    {
+      "id": "CVE-2026-86745",
+      "published": "2026-09-09T14:17:23.277",
+      "lastModified": "2026-09-14T20:38:00.663",
+      "description": "Snipe-IT is an IT asset management application. In Snipe-IT master-branch builds after 8.6.3 (the code was never included in a tagged release), SettingsController::downloadLocationScopingReport streams the FMCS location-scoping mismatch report (GET /admin/settings/location-scoping-report.csv) through a bare fputcsv() call without applying League\\Csv\\EscapeFormula, unlike the other CSV exports which honor config('app.escape_formulas'). An authenticated user with ordinary create/edit rights can place a spreadsheet formula in free-text fields that appear in the report (item name, asset tag, serial, item or location company name, location name) and arrange for the record to be FMCS-mismatched so it is included in the export. When a superuser downloads the report and opens it in Excel, LibreOffice Calc, or Google Sheets with formula evaluation enabled and external-content warnings dismissed or disabled, cells beginning with =, +, -, @, tab, or CR are executed in the victim's spreadsheet context, enabling data exfiltration (e.g., HYPERLINK/WEBSERVICE) or, on Windows Excel, legacy DDE command execution. This issue is fixed in version 8.7.0.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86745"
+    },
+    {
+      "id": "CVE-2026-86744",
+      "published": "2026-09-09T14:17:23.130",
+      "lastModified": "2026-09-14T20:39:08.550",
+      "description": "Snipe-IT 8.6.3 and earlier (and develop pre-release commits prior to the fix) contain a race condition in the asset checkout paths. Api\\AssetsController::checkout() and Assets\\AssetCheckoutController::store() call Asset::availableForCheckout() outside the mutation path and then invoke Asset::checkOut() without taking a row lock or re-checking availability, so two concurrent checkout requests for the same available asset can both observe it as available and both commit. This produces duplicate checkout-history rows, a doubled checkout_counter, and two CheckoutableCheckedOut events for a single-assignment asset, corrupting the audit trail and utilization/reconciliation reporting; the asset's final assigned_to remains singular, so the visible assignment stays intact. Exploitation requires an authenticated session holding the assets.checkout permission (or superuser) and precise concurrent timing. Fixed in 8.7.0.",
+      "score": 2.2,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86744"
+    },
+    {
+      "id": "CVE-2026-86743",
+      "published": "2026-09-09T14:17:22.987",
+      "lastModified": "2026-09-14T20:46:16.150",
+      "description": "Snipe-IT versions before 8.7.0 fail to properly scope asset acceptance report queries by company, allowing authenticated reports.view users to read pending acceptances across all companies. Attackers can access the unaccepted_assets report page or CSV export to disclose cross-company inventory details and assignee names without per-row access validation.",
+      "score": 5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86743"
+    },
+    {
+      "id": "CVE-2026-86742",
+      "published": "2026-09-09T14:17:22.820",
+      "lastModified": "2026-09-14T20:47:24.720",
+      "description": "Snipe-IT through 8.6.3 does not neutralize formula elements in the \"unaccepted assets\" acceptance report CSV export. ReportsController::postAssetAcceptanceReport builds the CSV by hand (stripping commas and joining rows manually) and, unlike the six sibling exports in the same controller, never applies League\\Csv\\EscapeFormula or honors the config('app.escape_formulas') setting. An authenticated low-privilege user with ordinary create/edit rights on any record whose free-text fields appear in the report (asset name/tag, company name, category, model, or assignee display name) can set such a field to a value beginning with =, +, -, @, tab, or CR. When a user with reports.view privileges requests the export (POST /reports/unaccepted_assets) for a pending checkout acceptance referencing the poisoned record and opens the resulting CSV in Excel, LibreOffice Calc, or Google Sheets, the injected content is evaluated as a formula in the downloader's spreadsheet context, enabling data exfiltration (e.g., HYPERLINK/WEBSERVICE) or, on legacy Windows Excel configurations, DDE command execution. Fixed in 8.7.0.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86742"
+    },
     {
       "id": "CVE-2026-86741",
       "published": "2026-09-09T14:17:22.680",
@@ -846,60 +900,6 @@
       "score": 9.1,
       "severity": "CRITICAL",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-41869"
-    },
-    {
-      "id": "CVE-2026-87795",
-      "published": "2026-09-09T10:22:34.557",
-      "lastModified": "2026-09-14T13:19:00.180",
-      "description": "zstd-jni versions before 1.5.7-14 fail to validate offset and length parameters in the ZstdDictCompress constructor, allowing out-of-bounds memory reads. Attackers can supply untrusted offset or length values to read native heap memory into the compression dictionary, typically causing JVM crashes.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87795"
-    },
-    {
-      "id": "CVE-2026-87794",
-      "published": "2026-09-09T10:22:34.397",
-      "lastModified": "2026-09-10T19:58:20.507",
-      "description": "bestzip versions 2.2.6 and 3.0.2 contain an argument injection vulnerability in the nativeZip function that allows attackers to inject arbitrary arguments to the Info-ZIP backend. Attackers can supply a malicious destination path combined with crafted source entries to execute arbitrary commands with Node.js process privileges. Fixed in 2.2.7 and 3.0.3.",
-      "score": 8.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87794"
-    },
-    {
-      "id": "CVE-2026-86777",
-      "published": "2026-09-09T10:22:34.117",
-      "lastModified": "2026-09-10T15:53:23.707",
-      "description": "AlchemyCMS versions before 7.4.16 and 8.x before 8.3.6 fail to authorize access to the GET /api/nodes endpoint, allowing unauthenticated attackers to retrieve all navigation nodes. Attackers can access the endpoint without authentication to disclose restricted page names, URL paths, and internal URLs from all sites and languages.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86777"
-    },
-    {
-      "id": "CVE-2026-86776",
-      "published": "2026-09-09T10:22:33.970",
-      "lastModified": "2026-09-10T19:58:20.507",
-      "description": "KeePass versions 2.35 through 2.61.1 fail to validate KDBX header field sizes before memory allocation in the ReadHeaderField function. Attackers can craft a malicious KDBX file declaring excessive header field lengths to trigger allocation of gigabytes of memory, causing the application to consume resources and terminate.",
-      "score": 3.3,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86776"
-    },
-    {
-      "id": "CVE-2026-86547",
-      "published": "2026-09-09T10:22:33.803",
-      "lastModified": "2026-09-10T19:58:20.507",
-      "description": "mrubyc through 4.0.0 contains a null pointer dereference vulnerability in the op_enter() handler in src/vm.c when processing untrusted bytecode. Attackers can craft malicious .mrb bytecode files with OP_ENTER instructions at the top level to crash the embedding application and cause denial of service.",
-      "score": 6.2,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86547"
-    },
-    {
-      "id": "CVE-2026-78377",
-      "published": "2026-09-09T10:21:34.813",
-      "lastModified": "2026-09-09T15:37:49.157",
-      "description": "URL redirection to untrusted site ('open redirect') vulnerability in Yordam Informatics Technology Consulting, Training, and Electronic Systems Industry and Trade Inc. Library Information and Document Automation Program allows Phishing.\n\nThis issue affects Library Information and Document Automation Program: from v22.1 before v22.2.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78377"
     }
   ]
 }
