@@ -1,6 +1,42 @@
 {
-  "syncedAt": "2026-09-15T23:42:52.488Z",
+  "syncedAt": "2026-09-16T00:25:36.309Z",
   "items": [
+    {
+      "id": "CVE-2026-87528",
+      "published": "2026-09-09T01:17:10.110",
+      "lastModified": "2026-09-10T04:18:24.127",
+      "description": "Type confusion in Rust in Google Chrome on on Windows prior to 153.0.8010.36 allowed a remote attacker to potentially execute arbitrary code outside the sandbox via a crafted HTML page. (Chromium security severity: Medium)",
+      "score": 9.6,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87528"
+    },
+    {
+      "id": "CVE-2026-87527",
+      "published": "2026-09-09T01:17:09.980",
+      "lastModified": "2026-09-10T04:18:23.953",
+      "description": "Buffer overflow in WebGL in Google Chrome prior to 153.0.8010.36 allowed a remote attacker to execute arbitrary code outside the sandbox via a crafted HTML page. (Chromium security severity: Critical)",
+      "score": 9.6,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87527"
+    },
+    {
+      "id": "CVE-2026-87526",
+      "published": "2026-09-09T01:17:09.853",
+      "lastModified": "2026-09-10T04:18:23.773",
+      "description": "Use after free in Passwords in Google Chrome prior to 153.0.8010.36 allowed a remote attacker leveraging social engineering to potentially execute arbitrary code outside the sandbox via UI Interaction. (Chromium security severity: Medium)",
+      "score": 9.6,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87526"
+    },
+    {
+      "id": "CVE-2026-87525",
+      "published": "2026-09-09T01:17:09.733",
+      "lastModified": "2026-09-10T19:23:32.703",
+      "description": "Out of bounds read in Chromoting in Google Chrome on on Windows prior to 153.0.8010.36 allowed a local attacker to read memory outside the sandbox via a local program. (Chromium security severity: High)",
+      "score": 2.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87525"
+    },
     {
       "id": "CVE-2026-87524",
       "published": "2026-09-09T01:17:09.607",
@@ -864,42 +900,6 @@
       "score": 6.5,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87429"
-    },
-    {
-      "id": "CVE-2026-53939",
-      "published": "2026-09-09T00:17:31.700",
-      "lastModified": "2026-09-10T19:57:48.533",
-      "description": "OpenIDC/cjose is a C library implementing the Javascript Object Signing and Encryption (JOSE). In versions 0.6.1 through 0.6.2.5, when cjose encrypts a JWE using an AES-CBC-HMAC content-encryption algorithm (`A128CBC-HS256`, `A192CBC-HS384`, or `A256CBC-HS512`) together with any key-management algorithm that generates a fresh content-encryption key (CEK), the CEK is all zero bytes instead of being randomly generated. The resulting JWE is therefore encrypted and authenticated under a fixed, publicly known key, so anyone who obtains the JWE can recover the plaintext and forge or modify the content. This is fixed in version 0.6.2.6 by `_cjose_jwe_set_cek_aes_cbc()` generating the CEK from `RAND_bytes`. A regression test asserts that the `encrypted_key` differs across two encryptions for each AES-CBC-HMAC variant. Until upgrading, for data encrypted with cjose, three options are available. Use an AES-GCM `enc` (`A128GCM` / `A192GCM` / `A256GCM`) instead of an AES-CBC-HMAC `enc`,  use `alg=dir` with a caller-supplied CEK, or avoid using cjose for JWE encryption with the affected algorithm pair. These are mitigations for new ciphertexts only; data already encrypted under the zero key remains compromised and should be re-encrypted (and any secrets it contained rotated).",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53939"
-    },
-    {
-      "id": "CVE-2026-53938",
-      "published": "2026-09-09T00:17:31.557",
-      "lastModified": "2026-09-10T19:57:48.533",
-      "description": "OpenIDC/cjose is a C library implementing the Javascript Object Signing and Encryption (JOSE). Prior to version 0.6.2.5, cjose's JWE decryption path for the AES Key Wrap key-management algorithms (`alg` = `A128KW`, `A192KW`, `A256KW`) does not validate the length of the attacker-supplied `encrypted_key` (JWE Encrypted Key) before unwrapping it into a fixed-size, heap-allocated Content Encryption Key (CEK) buffer. A remote, unauthenticated attacker who can submit a crafted JWE to an application that decrypts it with an AES-KW symmetric key can trigger an out-of-bounds heap write, corrupting the heap. This leads at minimum to a crash (denial of service) and, depending on the heap layout and allocator, may be leverageable for further memory-corruption impact. `cjose_jwe_import()` / `cjose_jwe_decrypt()` are pre-authentication entry points: they parse and process fully attacker-controlled input. Upgrade to cjose 0.6.2.5 to receive a patch. If upgrading is not immediately possible, reject the AES Key Wrap algorithms (`A128KW`/`A192KW`/`A256KW`) for untrusted JWEs at the application layer.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53938"
-    },
-    {
-      "id": "CVE-2026-53937",
-      "published": "2026-09-09T00:17:31.407",
-      "lastModified": "2026-09-14T13:18:40.033",
-      "description": "MCP Kotlin SDK is the Kotlin Multiplatform software development kit for the Model Context Protocol. In versions 0.7.0 through 0.12.0, `ReadBuffer.append` in `kotlin-sdk-core/src/commonMain/kotlin/io/modelcontextprotocol/kotlin/sdk/shared/ReadBuffer.kt` writes every chunk of bytes received from the stdio transport into a `kotlinx.io.Buffer` with no size cap. Frames are extracted from that buffer only when a `\\n` (0x0a) byte is observed. A peer that streams bytes without ever sending a newline causes the internal buffer to grow indefinitely until the JVM (or the surrounding host process) is OOM-killed. The leak is amplified by `StdioServerTransport` and `StdioClientTransport`, which both queue raw chunks through a `kotlinx.coroutines.channels.Channel<ByteArray>(Channel.UNLIMITED)` and then call `readBuffer.append(chunk)` without backpressure or size guard. This is a remote-pre-auth denial of service whenever an SDK stdio server's stdin is fed by an untrusted or attacker-controlled producer (for example: a host program that exec's the MCP server as a subprocess and pipes through bytes received from a network peer, or a sidecar wrapper that proxies bytes from an HTTP endpoint to the stdio transport). Version 0.13.0 fixes the issue.",
-      "score": 6.2,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53937"
-    },
-    {
-      "id": "CVE-2026-19201",
-      "published": "2026-09-09T00:17:30.993",
-      "lastModified": "2026-09-10T15:17:25.310",
-      "description": "An uncontrolled recursion vulnerability in the Windows SIPA event log parser of Google go-attestation versions up to and including 0.6.1 allows an attacker to cause a denial of service (DoS). The (*WinEvents).readELAMAggregation function recurses for every nested elamAggregation sub-event without enforcing a maximum recursion depth limit, while the size guard is bypassed on recursive execution paths. By submitting a crafted Windows event log containing deeply nested elamAggregation headers, an attacker can exhaust the goroutine call stack, triggering an unrecoverable fatal runtime error (stack overflow) that immediately crashes the verifier application.",
-      "score": 6.6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19201"
     }
   ]
 }
