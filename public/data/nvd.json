@@ -1,6 +1,33 @@
 {
-  "syncedAt": "2026-09-16T09:46:42.403Z",
+  "syncedAt": "2026-09-16T10:20:58.799Z",
   "items": [
+    {
+      "id": "CVE-2026-86741",
+      "published": "2026-09-09T14:17:22.680",
+      "lastModified": "2026-09-14T20:48:28.010",
+      "description": "Snipe-IT versions before 8.7.0 fail to sanitize the category EULA text field before rendering it in checkout confirmation emails. Attackers with low-privilege permissions can inject markdown image syntax or raw HTML img tags pointing to local files or remote URLs, which the mail auto-embed library resolves server-side and returns as email attachments, exfiltrating sensitive files like .env credentials and enabling SSRF attacks.",
+      "score": 8.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86741"
+    },
+    {
+      "id": "CVE-2026-86740",
+      "published": "2026-09-09T14:17:22.537",
+      "lastModified": "2026-09-14T20:49:15.543",
+      "description": "Snipe-IT before 8.7.0 fails to check the return value of Storage::delete() in UploadedFilesController::destroy() and Api\\\\UploadedFilesController::destroy(), allowing deletion requests to report success while files remain on disk. Administrators performing attachment deletions receive success responses and see files hidden from listings, but the physical files persist on disk and remain accessible to anyone with filesystem or backup access.",
+      "score": 3.8,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86740"
+    },
+    {
+      "id": "CVE-2026-86739",
+      "published": "2026-09-09T14:17:22.387",
+      "lastModified": "2026-09-14T20:58:54.090",
+      "description": "Snipe-IT 8.6.3 and earlier do not check the return value of Storage::put() when writing the signature PNG and the generated acceptance PDF in Account\\AcceptanceController::store(). On filesystem drivers that return false instead of throwing on a write failure (for example the local disk with restrictive permissions, S3 with expired credentials, or a storage backend that is out of quota), execution continues into $acceptance->accept(), which sets accepted_at and the signature_filename/eula_filename fields, creates the 'accepted' action-log entry, and dispatches completion notifications even though the evidence files were never stored. The result is an acceptance record marked complete whose supporting evidence files do not exist, yielding a materially incomplete compliance artifact for EULA acknowledgement or equipment-receipt workflows. The condition is triggered when an authenticated user completes an acceptance while the storage backend is silently failing writes; an attacker cannot directly force the storage backend into that state. Fixed in Snipe-IT 8.7.0.",
+      "score": 3.1,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86739"
+    },
     {
       "id": "CVE-2026-86204",
       "published": "2026-09-09T14:17:21.690",
@@ -873,33 +900,6 @@
       "score": 6.1,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78377"
-    },
-    {
-      "id": "CVE-2026-19733",
-      "published": "2026-09-09T10:17:04.990",
-      "lastModified": "2026-09-09T15:37:49.157",
-      "description": "Server-Side request forgery (SSRF) vulnerability in Yordam Informatics Technology Consulting, Training, and Electronic Systems Industry and Trade Inc. Library Information and Document Automation Program allows Server Side Request Forgery.\n\nThis issue affects Library Information and Document Automation Program: before v22.2.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19733"
-    },
-    {
-      "id": "CVE-2026-11838",
-      "published": "2026-09-09T10:17:03.910",
-      "lastModified": "2026-09-09T15:37:49.157",
-      "description": "Missing authentication for critical function vulnerability in Yordam Informatics Technology Consulting, Training, and Electronic Systems Industry and Trade Inc. Library Reservation System allows Input Data Manipulation.\n\nThis issue affects Library Reservation System: before v22.2.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-11838"
-    },
-    {
-      "id": "CVE-2025-3271",
-      "published": "2026-09-09T10:17:02.617",
-      "lastModified": "2026-09-09T16:04:24.933",
-      "description": "Documentum Webtop versions prior to 16.7.1 software is vulnerable to an XSS",
-      "score": 4.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-3271"
     }
   ]
 }
