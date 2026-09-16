@@ -1,6 +1,186 @@
 {
-  "syncedAt": "2026-09-16T15:46:09.201Z",
+  "syncedAt": "2026-09-16T16:19:56.141Z",
   "items": [
+    {
+      "id": "CVE-2026-88069",
+      "published": "2026-09-09T22:18:49.240",
+      "lastModified": "2026-09-10T15:43:03.760",
+      "description": "Pandora contains a path traversal vulnerability in its archive extraction worker. When processing a specially crafted archive or disk image, attacker-controlled file paths could be used without ensuring that the resulting destination remained within the intended extraction directory.\n\nAn attacker able to submit a malicious file for analysis could use path traversal sequences or crafted paths to cause extracted content to be written outside the designated extraction directory, potentially overwriting files accessible to the Pandora worker process. Successful exploitation could result in unauthorized modification of application or system files, denial of service, and potentially further compromise depending on the permissions of the Pandora process and the files that can be overwritten.\n\nThe vulnerability is addressed by resolving each extraction destination path before writing and verifying that it remains below the expected extraction directory. Extraction attempts resolving outside this directory are rejected and reported as path traversal attempts.",
+      "score": 9.3,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88069"
+    },
+    {
+      "id": "CVE-2026-88002",
+      "published": "2026-09-09T22:18:49.080",
+      "lastModified": "2026-09-14T19:56:27.077",
+      "description": "Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform. From 0.5.0 until 0.11.1, the message-chain reconstruction helper in backend/open_webui/utils/misc.py advanced through a chat history by map key but tracked visited entries using each message body's optional id field. An authenticated user could store id-less messages in a parent cycle and trigger a non-terminating walk that blocked the async event loop, grew memory until termination, and remained persistent across process restarts. This issue is fixed in version 0.11.1.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88002"
+    },
+    {
+      "id": "CVE-2026-88001",
+      "published": "2026-09-09T22:18:48.930",
+      "lastModified": "2026-09-14T19:56:01.227",
+      "description": "Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform. From 0.9.5 until 0.11.1, server-side web fetches did not reapply WEB_FETCH_FILTER_LIST or private-address controls to HTTP redirect destinations when AIOHTTP_CLIENT_ALLOW_REDIRECTS was enabled. An authenticated user could redirect the aiohttp and requests fetch paths to excluded hosts, loopback, private networks, or cloud metadata services and route resulting content into web search, URL ingestion, page-fetch tools, or chat image processing. This issue is fixed in version 0.11.1.",
+      "score": 5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88001"
+    },
+    {
+      "id": "CVE-2026-88000",
+      "published": "2026-09-09T22:18:48.777",
+      "lastModified": "2026-09-14T17:48:49.137",
+      "description": "Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform. From 0.10.0 until 0.11.1, DELETE /api/v1/chats/{id}/messages/{message_id} used the chat-history deletion helper in backend/open_webui/models/chats.py to follow childrenIds without recording visited message identifiers. An authenticated user could store a cyclic chat tree and delete a message, causing a synchronous infinite loop on the server request loop that blocked every user's requests until the process was killed. This issue is fixed in version 0.11.1.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88000"
+    },
+    {
+      "id": "CVE-2026-87999",
+      "published": "2026-09-09T22:18:48.617",
+      "lastModified": "2026-09-16T15:13:49.077",
+      "description": "Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform. Prior to 0.11.1, POST /api/v1/retrieval/process/web and POST /api/v1/retrieval/process/web/search in backend/open_webui/retrieval/web/utils.py treated Python's globally routable address classification as proof that a destination was external. An authenticated user could make an Azure-hosted instance fetch and return content from 168.63.129.16, the Azure platform channel, as well as other reserved ranges that the standard classification did not reject. This issue is fixed in version 0.11.1.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87999"
+    },
+    {
+      "id": "CVE-2026-87998",
+      "published": "2026-09-09T22:18:48.460",
+      "lastModified": "2026-09-16T15:14:19.507",
+      "description": "Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform. From 0.10.0 until 0.11.1, DELETE /api/v1/knowledge/{id}/delete in backend/open_webui/routers/knowledge.py authorized deletion against the knowledge base but then removed its administrator-owned external connection without a separate administrator check or a check for other dependent knowledge bases. A non-administrator with write access to one external knowledge base could delete shared instance configuration and make every other knowledge base using that connection unavailable. This issue is fixed in version 0.11.1.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87998"
+    },
+    {
+      "id": "CVE-2026-87997",
+      "published": "2026-09-09T22:18:48.267",
+      "lastModified": "2026-09-16T15:14:39.770",
+      "description": "Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform. From 0.10.0 until 0.11.1, POST /api/chat/completions and POST /api/v1/chat/completions in backend/open_webui/main.py copied a client-supplied folder_id into a new chat without applying the folder write-access check used by the dedicated chat routes. An authenticated user who knew a shared folder identifier could inject an attacker-controlled chat into a folder where the user had read-only or no write access, causing the entry to appear to authorized folder readers. This issue is fixed in version 0.11.1.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87997"
+    },
+    {
+      "id": "CVE-2026-87996",
+      "published": "2026-09-09T22:18:47.857",
+      "lastModified": "2026-09-16T15:14:48.890",
+      "description": "Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform. From 0.9.6 until 0.11.1, SafePlaywrightURLLoader in backend/open_webui/retrieval/web/utils.py validated a user-controlled hostname in Python and then let the Playwright browser resolve it again in the sync and async request interceptors. An authenticated user controlling authoritative DNS could return a public address to validation and an internal address to the browser, exposing responses from internal services or cloud metadata through web search or URL ingestion. This issue is fixed in version 0.11.1.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87996"
+    },
+    {
+      "id": "CVE-2026-87995",
+      "published": "2026-09-09T22:18:47.710",
+      "lastModified": "2026-09-16T15:14:57.400",
+      "description": "Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform. From 0.8.11 until 0.11.1, src/lib/components/chat/FileNav/PortPreview.svelte rendered terminal port content in an iframe sandbox containing both allow-scripts and allow-same-origin. Because the terminal proxy serves that content from the Open WebUI origin, an authenticated user with access to a shared terminal server could host script on a previewed port and take over a victim's account when the victim opened the preview. This issue is fixed in version 0.11.1.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87995"
+    },
+    {
+      "id": "CVE-2026-87994",
+      "published": "2026-09-09T22:18:47.563",
+      "lastModified": "2026-09-16T15:15:32.030",
+      "description": "Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform. From 0.9.5 until 0.11.1, the channel branch of chat_completion in backend/open_webui/main.py checked channel write access and channel membership for a supplied message_id but did not verify that the calling user authored the targeted message. A channel member could use the chat completions endpoint to replace another member's message while preserving the victim as the stored author, altering the conversation record without gaining access to other channels. This issue is fixed in version 0.11.1.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87994"
+    },
+    {
+      "id": "CVE-2026-87922",
+      "published": "2026-09-09T22:18:47.390",
+      "lastModified": "2026-09-10T15:17:54.387",
+      "description": "A security flaw has been discovered in Rizwan17 inventory-management-system up to bfe78a330d01bb26b9daec5dc9ecd5c77900e03f. Affected by this vulnerability is the function DBOperation.addCategory of the file includes/process.php of the component AJAX Backend. The manipulation of the argument userid results in missing authentication. The attack may be performed from remote. The exploit has been released to the public and may be used for attacks. This product utilizes a rolling release system for continuous delivery, and as such, version information for affected or updated releases is not disclosed. The project was informed of the problem early through an issue report but has not responded yet.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87922"
+    },
+    {
+      "id": "CVE-2026-87921",
+      "published": "2026-09-09T22:18:47.193",
+      "lastModified": "2026-09-14T18:20:20.357",
+      "description": "A vulnerability was identified in Rizwan17 inventory-management-system up to bfe78a330d01bb26b9daec5dc9ecd5c77900e03f. Affected is the function update_record of the file includes/manage.php. The manipulation of the argument update_category/cid/update_brand/update_product leads to sql injection. The attack is possible to be carried out remotely. The exploit is publicly available and might be used. This product adopts a rolling release strategy to maintain continuous delivery. Therefore, version details for affected or updated releases cannot be specified. The project was informed of the problem early through an issue report but has not responded yet.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87921"
+    },
+    {
+      "id": "CVE-2026-87017",
+      "published": "2026-09-09T22:18:47.023",
+      "lastModified": "2026-09-16T15:23:05.203",
+      "description": "Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform. From 0.7.0 until 0.11.1, the built-in knowledge search tool passed the caller's readable knowledge identifiers through a metadata filter, but the search methods in eleven shipped vector backends ignored that filter. An authenticated user on an affected backend could enumerate the identifiers, names, and descriptions of inaccessible knowledge bases from the shared collection, although the associated document text remained in separate collections. This issue is fixed in version 0.11.1.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87017"
+    },
+    {
+      "id": "CVE-2026-87016",
+      "published": "2026-09-09T22:18:46.720",
+      "lastModified": "2026-09-15T15:29:13.380",
+      "description": "Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform. From 0.6.41 until 0.11.1, get_user_by_oauth_sub and get_user_by_scim_external_id in backend/open_webui/models/users.py used JSON contains matching that compiled to SQL LIKE substring matching on SQLite. An OAuth subject containing percent or underscore wildcard characters could resolve to a different stored identity, potentially selecting an administrator account and issuing the attacker that account's session; PostgreSQL deployments were not affected. This issue is fixed in version 0.11.1.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87016"
+    },
+    {
+      "id": "CVE-2026-75308",
+      "published": "2026-09-09T22:18:28.857",
+      "lastModified": "2026-09-14T13:18:46.127",
+      "description": "yshopmall <=3.3 is vulnerable to Cross Site Scripting (XSS). The file upload endpoint /api/upload of the system lacks file type validation. Attackers can upload files of any type, including HTML, JSP, and other executable files.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75308"
+    },
+    {
+      "id": "CVE-2026-75307",
+      "published": "2026-09-09T22:18:28.733",
+      "lastModified": "2026-09-10T19:17:34.543",
+      "description": "zhitan-ems 1.0.0 is vulnerable to Cross Site Scripting (XSS) via SVG file upload through the /equipmentFile/upload endpoint.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75307"
+    },
+    {
+      "id": "CVE-2026-71807",
+      "published": "2026-09-09T22:18:19.173",
+      "lastModified": "2026-09-14T17:17:50.237",
+      "description": "In RuoYi-Cloud-Plus <= 2.6.2 in the ruoyi-workflow module, multiple core task APIs in FlwTaskController lack permission annotations, and the Service layer does not verify whether the current user is the task handler/related user. Authenticated low-privileged remote attackers can read sensitive workflow task details (/task/getTask/{taskId}) and trigger unauthorized workflow executions (/task/startWorkFlow).",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71807"
+    },
+    {
+      "id": "CVE-2026-71805",
+      "published": "2026-09-09T22:18:19.043",
+      "lastModified": "2026-09-10T16:17:53.127",
+      "description": "An arbitrary file upload and path traversal vulnerability exists in LZ-litchi 1.0.0. Unauthenticated remote attackers can upload arbitrary files and write them outside the intended storage directory via the directory parameter in POST /app-api/infra/file/upload.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71805"
+    },
+    {
+      "id": "CVE-2026-15913",
+      "published": "2026-09-09T22:17:11.367",
+      "lastModified": "2026-09-10T15:53:23.707",
+      "description": "In versions prior to 7.10.2 a path traversal vulnerability in the /attachRemoteFiles endpoint of Fortra's GoAnywhere MFT allows Web Users with both Secure Folders and Secure Mail permissions to escape their sandboxed home directory, achieving arbitrary file read.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15913"
+    },
+    {
+      "id": "CVE-2026-87015",
+      "published": "2026-09-09T21:17:06.463",
+      "lastModified": "2026-09-15T15:54:14.750",
+      "description": "Open WebUI is an extensible, feature-rich, and user-friendly self-hosted AI platform. From 0.6.27 until 0.11.1, backend/open_webui/utils/tools.py captured a cookie jar from the enclosing connection loop instead of binding it to each external tool callable. When multiple tool servers were attached and a session or system OAuth connection was processed last, a request to a different server configured for bearer authentication could include the calling user's Open WebUI session cookies, allowing that server's operator to reuse the session and take over the account. This issue is fixed in version 0.11.1.",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87015"
+    },
     {
       "id": "CVE-2026-87014",
       "published": "2026-09-09T21:17:06.327",
@@ -686,186 +866,6 @@
       "score": 8.1,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18147"
-    },
-    {
-      "id": "CVE-2026-82563",
-      "published": "2026-09-09T16:17:11.567",
-      "lastModified": "2026-09-10T15:53:23.707",
-      "description": "An attacker could impersonate the camera and place themselves in a man-in-the-middle or device-emulation position. This permits manipulation of device status responses, observation of application requests, and potential triggering of firmware-update behavior.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82563"
-    },
-    {
-      "id": "CVE-2026-81640",
-      "published": "2026-09-09T16:17:10.567",
-      "lastModified": "2026-09-10T15:53:23.707",
-      "description": "An attacker could derive the camera's Wi-Fi password and connect to its wireless network. This weakens or eliminates the security value of the access-point password and may expose the live video stream, device services, status interfaces, and firmware-update functionality.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81640"
-    },
-    {
-      "id": "CVE-2026-81330",
-      "published": "2026-09-09T16:17:10.397",
-      "lastModified": "2026-09-10T15:53:23.707",
-      "description": "The C6 ear camera transmits live video to the EarVision Android application over unencrypted UDP streams. The application manifest permits cleartext traffic, and captured network traffic contains reconstructable JPEG or WEBP video frames transmitted over UDP. An attacker within local wireless range may capture and reconstruct the live video stream without transport encryption.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81330"
-    },
-    {
-      "id": "CVE-2026-79947",
-      "published": "2026-09-09T16:17:08.903",
-      "lastModified": "2026-09-09T19:52:56.620",
-      "description": "Dell SCG 5.0 Appliance versions prior to 5.36.00.16 and Dell SCG 5.0 Application versions prior to 5.36.00.00, contains an Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability. A low privileged attacker with local access could potentially exploit this vulnerability, leading to script injection.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79947"
-    },
-    {
-      "id": "CVE-2026-79946",
-      "published": "2026-09-09T16:17:08.640",
-      "lastModified": "2026-09-14T14:17:11.640",
-      "description": "Dell SCG 5.0 Appliance versions prior to 5.36.00.16 and Dell SCG 5.0 Application versions prior to 5.36.00.00, contains an Improper Neutralization of Alternate XSS Syntax vulnerability. An unauthenticated attacker with remote access could potentially exploit this vulnerability, leading to script injection.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79946"
-    },
-    {
-      "id": "CVE-2026-79945",
-      "published": "2026-09-09T16:17:08.527",
-      "lastModified": "2026-09-11T13:18:17.940",
-      "description": "Dell SCG 5.0 Appliance versions prior to 5.36.00.16 and Dell SCG 5.0 Application versions prior to 5.36.00.00, contains an Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability. A low privileged attacker with local access could potentially exploit this vulnerability, leading to command execution.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79945"
-    },
-    {
-      "id": "CVE-2026-79944",
-      "published": "2026-09-09T16:17:08.403",
-      "lastModified": "2026-09-09T19:55:14.207",
-      "description": "Dell SCG 5.0 Appliance versions prior to 5.36.00.16 and Dell SCG 5.0 Application versions prior to 5.36.00.00, contains a Least Privilege Violation vulnerability. A high privileged attacker with local access could potentially exploit this vulnerability, leading to unauthorized access.",
-      "score": 3.4,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79944"
-    },
-    {
-      "id": "CVE-2026-79942",
-      "published": "2026-09-09T16:17:08.270",
-      "lastModified": "2026-09-09T19:55:46.567",
-      "description": "Dell SCG 5.0 Appliance versions prior to 5.36.00.16 and Dell SCG 5.0 Application versions prior to 5.36.00.00, contains an Execution with Unnecessary Privileges vulnerability. A high privileged attacker with local access could potentially exploit this vulnerability, leading to unauthorized access.",
-      "score": 3.4,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79942"
-    },
-    {
-      "id": "CVE-2026-79741",
-      "published": "2026-09-09T16:17:08.147",
-      "lastModified": "2026-09-11T13:18:17.700",
-      "description": "Dell SCG 5.0 Appliance versions prior to 5.36.00.16 and Dell SCG 5.0 Application versions prior to 5.36.00.00, contains an Improper Neutralization of Special Elements used in a Command ('Command Injection') vulnerability. An unauthenticated attacker with remote access could potentially exploit this vulnerability, leading to script injection.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79741"
-    },
-    {
-      "id": "CVE-2026-79735",
-      "published": "2026-09-09T16:17:07.600",
-      "lastModified": "2026-09-09T19:56:33.723",
-      "description": "Dell SCG 5.0 Appliance versions prior to 5.36.00.16 and Dell SCG 5.0 Application versions prior to 5.36.00.00, contains an Use of Hard-coded Cryptographic Key vulnerability. An unauthenticated attacker with remote access could potentially exploit this vulnerability, leading to information disclosure.",
-      "score": 4.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79735"
-    },
-    {
-      "id": "CVE-2026-79693",
-      "published": "2026-09-09T16:17:07.467",
-      "lastModified": "2026-09-11T21:17:16.900",
-      "description": "Dell SCG 5.0 Appliance versions prior to 5.36.00.16 and Dell SCG 5.0 Application versions prior to 5.36.00.00, contains a Least Privilege Violation vulnerability. A high privileged attacker with local access could potentially exploit this vulnerability, leading to unauthorized access.",
-      "score": 3.4,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79693"
-    },
-    {
-      "id": "CVE-2026-79689",
-      "published": "2026-09-09T16:17:07.197",
-      "lastModified": "2026-09-11T13:18:17.583",
-      "description": "Dell SCG 5.0 Appliance versions prior to 5.36.00.16 and Dell SCG 5.0 Application versions prior to 5.36.00.00, contains an Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability. An unauthenticated attacker with remote access could potentially exploit this vulnerability, leading to script injection.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79689"
-    },
-    {
-      "id": "CVE-2026-78493",
-      "published": "2026-09-09T16:17:06.640",
-      "lastModified": "2026-09-11T13:18:17.477",
-      "description": "Dell SCG 5.0 Appliance versions prior to 5.36.00.16 and Dell SCG 5.0 Application versions prior to 5.36.00.00, contains an Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability. A low privileged attacker with local access could potentially exploit this vulnerability, leading to command execution.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78493"
-    },
-    {
-      "id": "CVE-2026-78484",
-      "published": "2026-09-09T16:17:06.517",
-      "lastModified": "2026-09-11T13:18:17.240",
-      "description": "Dell SCG 5.0 Appliance versions prior to 5.36.00.16 and Dell SCG 5.0 Application versions prior to 5.36.00.00, contains an Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability. A low privileged attacker with local access could potentially exploit this vulnerability, leading to command execution.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78484"
-    },
-    {
-      "id": "CVE-2026-77974",
-      "published": "2026-09-09T16:17:06.053",
-      "lastModified": "2026-09-10T15:53:23.707",
-      "description": "After spoofing the device and obtaining one user confirmation, an attacker may be able to cause the application to transmit firmware through an unauthenticated and unsigned update channel.",
-      "score": 8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77974"
-    },
-    {
-      "id": "CVE-2026-68484",
-      "published": "2026-09-09T16:17:04.157",
-      "lastModified": "2026-09-09T20:20:21.673",
-      "description": "Cash Collect contains an improper authorization vulnerability in the Sage AR Automation API. Administrative functions do not properly verify user privileges, allowing authenticated low-privileged users to create administrator accounts and obtain elevated privileges.",
-      "score": 9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-68484"
-    },
-    {
-      "id": "CVE-2026-67403",
-      "published": "2026-09-09T16:17:04.030",
-      "lastModified": "2026-09-09T20:20:21.673",
-      "description": "Cash Collect contains an improper authorization vulnerability in the Sage AR Automation API. Insufficient tenant-level authorization checks allow authenticated users to access administrative resources belonging to other tenants by specifying a valid non predictable tenant identifier.",
-      "score": 9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-67403"
-    },
-    {
-      "id": "CVE-2026-67401",
-      "published": "2026-09-09T16:17:03.883",
-      "lastModified": "2026-09-10T04:18:04.630",
-      "description": "A vulnerability in cPanel allows a mail-enabled account to achieve remote code execution as root through SQLi in EmailTrack component",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-67401"
-    },
-    {
-      "id": "CVE-2026-22591",
-      "published": "2026-09-09T16:17:02.563",
-      "lastModified": "2026-09-14T14:17:07.377",
-      "description": "eprosima Fast DDS is a C++ implementation of the DDS (Data Distribution Service) standard of the OMG (Object Management Group). Prior to versions 2.6.12, 2.14.6, 3.2.4, and 3.4.3, Fast DDS’s implementation of SQL‑based content filtering (DDSSQLFilter) allows any participant in a DDS domain to remotely crash other Fast DDS participants by sending a single crafted SEDP `DATA` submessage whose `PID_CONTENT_FILTER_PROPERTY.filterExpression` contains a deeply nested filter expression. Versions 2.6.12, 2.14.6, 3.2.4, and 3.4.3 fix the issue.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-22591"
-    },
-    {
-      "id": "CVE-2026-22590",
-      "published": "2026-09-09T16:17:02.387",
-      "lastModified": "2026-09-09T20:16:54.383",
-      "description": "eprosima Fast DDS is a C++ implementation of the DDS (Data Distribution Service) standard of the OMG (Object Management Group). Versions prior to 2.6.12, 2.14.6, 3.2.4, 3.3.1, and 3.4.2 have a remotely triggerable Out-of-Bounds Read while processing RTPS `DATA_FRAG` submessages. An attacker can craft a `DATA_FRAG` with a large `sampleSize` but a small actual payload, and set `fragmentsInSubmessage` such that the receiver treats the packet as the LAST fragment**. In this LAST-fragment path, Fast-DDS computes `incoming_length` based on `sampleSize` and calls `memcpy()` without validating `incoming_data.length >= incoming_length`. As a result, `CacheChange_t::add_fragments()` reads past the received UDP datagram buffer and into adjacent heap memory, copying those bytes into the reassembly buffer. In a Discovery Server deployment, the resulting `CacheChange_t` can be relayed to other participants, meaning that a newly joining participant may receive leaked heap memory (e.g., pointer values that could aid ASLR bypass). Versions 2.6.12, 2.14.6, 3.2.4, 3.3.1, and 3.4.2 fix the issue.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-22590"
     }
   ]
 }
