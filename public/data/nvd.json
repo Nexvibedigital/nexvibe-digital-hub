@@ -1,6 +1,141 @@
 {
-  "syncedAt": "2026-09-16T10:46:20.801Z",
+  "syncedAt": "2026-09-16T11:19:48.739Z",
   "items": [
+    {
+      "id": "CVE-2026-86762",
+      "published": "2026-09-09T14:17:26.220",
+      "lastModified": "2026-09-10T15:17:51.540",
+      "description": "Snipe-IT before 8.7.0 does not apply the CheckUserIsActivated middleware to the `api` middleware group in app/Http/Kernel.php, and deactivating a user does not revoke that user's Passport personal access tokens. As a result, although a deactivated account is correctly refused at web login, its existing API token continues to authenticate and to grant read and write access to the REST API (assets, users, licenses, etc.) at the account's prior permission level until the token expires. A deactivated account that retains user-management permissions can re-activate itself through the API, permanently defeating the deactivation control.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86762"
+    },
+    {
+      "id": "CVE-2026-86761",
+      "published": "2026-09-09T14:17:25.990",
+      "lastModified": "2026-09-09T20:16:54.383",
+      "description": "snipe-it versions before 8.7.0 contain an authorization bypass vulnerability in location print endpoints that fails to enforce per-model authorization checks. Authenticated attackers with location view permission can access printassigned and printallassigned endpoints to retrieve related users, assets, accessories, consumables, and components regardless of their individual model permissions.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86761"
+    },
+    {
+      "id": "CVE-2026-86760",
+      "published": "2026-09-09T14:17:25.800",
+      "lastModified": "2026-09-14T14:17:16.503",
+      "description": "Snipe-IT versions 8.2.0 through 8.6.x (fixed in 8.7.0) contain an incorrect authorization flaw in app/Http/Controllers/Users/UsersController::update(). The single-user edit route assigned the activated field from the request payload before evaluating the canEditAuthFields authorization gate, so an authenticated non-admin user holding the users.edit permission in the target's company scope can submit a full valid PUT request to /users/{id} and toggle the activated flag on any user, including admin and superuser accounts. Deactivating an admin locks that account out of the application until another admin or superuser re-enables it. Only the activated field is affected; username, email, password and permissions remain protected by the gate, no data is disclosed, and the API (Api\\UsersController::update) and bulk-edit paths are not affected.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86760"
+    },
+    {
+      "id": "CVE-2026-86759",
+      "published": "2026-09-09T14:17:25.593",
+      "lastModified": "2026-09-09T20:16:54.383",
+      "description": "Snipe-IT versions before 8.7.0 fail to authorize the POST /hardware/history endpoint, allowing any authenticated user to reassign arbitrary assets and modify audit logs. Attackers can submit a CSV file to reassign assets across companies and inject fraudulent audit trail entries, compromising inventory integrity and accountability.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86759"
+    },
+    {
+      "id": "CVE-2026-86758",
+      "published": "2026-09-09T14:17:25.430",
+      "lastModified": "2026-09-09T20:16:54.383",
+      "description": "Snipe-IT before 8.7.0 fails to properly enforce the viewKeys authorization gate in CSV export and API index endpoints, allowing authenticated users with only licenses.view permission to access product keys. Attackers can download all license keys in bulk via CSV export or validate candidate keys through API response discrepancies without needing the viewKeys permission.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86758"
+    },
+    {
+      "id": "CVE-2026-86757",
+      "published": "2026-09-09T14:17:25.170",
+      "lastModified": "2026-09-10T15:17:51.383",
+      "description": "Snipe-IT before 8.7.0 fails to properly gate access to encrypted custom-field values in asset form templates for listbox, textarea, markdown-textarea, and date/datetime picker elements. Authenticated users with assets.edit, assets.checkin, assets.checkout, or assets.audit permissions can read plaintext encrypted custom field values by opening asset forms, bypassing the assets.view.encrypted_custom_fields permission check.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86757"
+    },
+    {
+      "id": "CVE-2026-86756",
+      "published": "2026-09-09T14:17:24.883",
+      "lastModified": "2026-09-09T20:16:54.383",
+      "description": "Snipe-IT 8.5.0 through 8.6.3 contains an open redirect vulnerability in its SAML assertion-consumer endpoint (SamlController::acs, POST /saml/acs). The endpoint wrote the RelayState POST parameter directly into Laravel's url.intended session key with only CR/LF characters stripped, and LoginController later issued redirect()->intended(), which passes an absolute URL through to the Location header unchanged. An unauthenticated attacker who induces a user of a SAML-SSO-enabled instance to visit a crafted IdP-initiated SSO link can therefore cause the victim's browser to be redirected to an arbitrary absolute external URL immediately after a successful authentication, which the advisory notes facilitates credential-harvesting phishing. No account on the target instance and no compromise of the identity provider are required. Only deployments with SAML SSO enabled are affected. Fixed in 8.7.0 (commit d30b73d, PR #19386), which validates RelayState via a new Helper::sameOriginUrl check before storing it.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86756"
+    },
+    {
+      "id": "CVE-2026-86755",
+      "published": "2026-09-09T14:17:24.737",
+      "lastModified": "2026-09-14T14:17:16.327",
+      "description": "Snipe-IT versions 4.2.0 through 8.6.3 expose Laravel Passport's auto-registered personal-access-token routes (GET, POST, DELETE /oauth/personal-access-tokens*) with only 'web' and 'auth:web' middleware, without the self.api permission gate that Snipe-IT enforces on its own token endpoints (/account/api and /api/v1/account/personal-access-tokens). Any user with a valid web session and the corresponding CSRF token can POST to /oauth/personal-access-tokens and mint a long-lived bearer token for their own account, even when an administrator has denied the self.api permission. The issued token is still subject to existing per-endpoint authorization policies, so this is not a privilege escalation; it defeats the administrative control intended to block API/scripted access at the user's own permission level. Fixed in 8.7.0 (commit 3f74b8c), which registers overriding routes wrapped in the can:self.api middleware.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86755"
+    },
+    {
+      "id": "CVE-2026-86754",
+      "published": "2026-09-09T14:17:24.590",
+      "lastModified": "2026-09-09T20:16:54.383",
+      "description": "Snipe-IT before 8.7.0 fails to properly gate Laravel Passport's OAuth client management routes, allowing any authenticated user to register OAuth clients with attacker-controlled redirect URIs. Attackers can trick administrators into approving consent screens, then exchange authorization codes for bearer tokens inheriting full admin API permissions lasting up to 40 years.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86754"
+    },
+    {
+      "id": "CVE-2026-86753",
+      "published": "2026-09-09T14:17:24.447",
+      "lastModified": "2026-09-14T20:20:32.003",
+      "description": "snipe-it versions before 8.7.0 fail to validate the requestable flag for asset models in the POST /account/request/asset_model/{modelId} endpoint. Authenticated users can bypass administrative restrictions and create checkout requests for non-requestable asset models by submitting requests directly to the endpoint.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86753"
+    },
+    {
+      "id": "CVE-2026-86752",
+      "published": "2026-09-09T14:17:24.307",
+      "lastModified": "2026-09-14T20:27:46.977",
+      "description": "snipe-it versions before 8.7.0 fail to enforce per-instance FMCS scoping in asset audit endpoints, relying solely on query-layer filtering instead of policy-layer authorization checks. Attackers with valid sessions and assets.audit permissions could write audit log entries against cross-company assets if the query-layer scope were bypassed or refactored.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86752"
+    },
+    {
+      "id": "CVE-2026-86751",
+      "published": "2026-09-09T14:17:24.170",
+      "lastModified": "2026-09-14T20:29:41.480",
+      "description": "Snipe-IT before 8.7.0 fails to properly sanitize markdown image syntax in note fields, allowing authenticated users to read arbitrary server files and issue server-side HTTP requests. Attackers can submit markdown image syntax in checkout acceptance notes that survive HTML escaping, are expanded by CommonMark parser, and resolved by laravel-mail-auto-embed via file_get_contents or curl, exfiltrating sensitive files like .env containing APP_KEY.",
+      "score": 8.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86751"
+    },
+    {
+      "id": "CVE-2026-86750",
+      "published": "2026-09-09T14:17:24.030",
+      "lastModified": "2026-09-14T20:30:57.460",
+      "description": "Snipe-IT versions <= 8.6.3 (fixed in 8.7.0) do not validate company assignment authorization before persisting user records via the REST API. In Api\\UsersController::store() and ::update(), the user record is filled from the request and saved before the requested company_id / company_ids[] values are filtered against the actor's permitted companies (Company::getIdsForCurrentUser()). On installs using Full Multiple Companies Support (FMCS), a non-superuser holding users.create (or users.edit on a target user) can submit company identifiers for companies outside their scope — including a mix of permitted and foreign ids — causing the account row to be committed to the database before authorization is checked. Where null_company_is_floater=1 is set, the post-hoc filter leaves an empty company pivot and the account is persisted as a \"floater\" with cross-company visibility, allowing creation or relocation of user accounts across tenant boundaries.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86750"
+    },
+    {
+      "id": "CVE-2026-86749",
+      "published": "2026-09-09T14:17:23.880",
+      "lastModified": "2026-09-14T20:32:09.710",
+      "description": "Snipe-IT versions <= 8.6.3 (fixed in 8.7.0) do not check the return value of storage write operations in ImageUploadRequest::handleImages(). Because Laravel's default disk mode does not throw on failure, a silently failed Storage::disk('public')->put(...) call still caused the application to delete the previous image via deleteExistingImage() and to reassign and persist the model's image reference to the new filename, destroying the existing image and leaving the database row pointing at a file that was never written. A mirror problem existed in deleteExistingImage(), where a failed Storage::delete() still nulled the model's image field, orphaning the file on disk. The condition is not directly attacker-controlled: it is triggered when any legitimate authenticated user submits an image upload while the storage backend transiently fails (for example an S3 network error, a local filesystem permission problem, or quota exhaustion). The result is unrecoverable loss of the prior image and a durable inconsistency between the database and disk that requires manual reconciliation. All models whose controllers route through ImageUploadRequest::handleImages (assets, asset models, users, companies, manufacturers, locations, categories, suppliers, departments, and other image-carrying models) are affected.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86749"
+    },
+    {
+      "id": "CVE-2026-86748",
+      "published": "2026-09-09T14:17:23.710",
+      "lastModified": "2026-09-14T20:33:09.103",
+      "description": "Snipe-IT versions before 8.7.0 wipe the database before validating the uploaded backup archive in the restore endpoint. Superusers uploading corrupted or invalid zip files trigger permanent data loss with no recovery path or rollback mechanism.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86748"
+    },
     {
       "id": "CVE-2026-86747",
       "published": "2026-09-09T14:17:23.553",
@@ -765,141 +900,6 @@
       "score": 7.5,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74761"
-    },
-    {
-      "id": "CVE-2026-87827",
-      "published": "2026-09-09T11:17:16.423",
-      "lastModified": "2026-09-09T15:37:49.157",
-      "description": "Certain KGUARD DVR devices running vulnerable firmware expose a system command execution service on all network interfaces without requiring authentication. A remote unauthenticated attacker with network access to the affected service can execute arbitrary system commands on the device, potentially resulting in complete compromise of the DVR.\n\nThe vulnerability is known to have been exploited in the wild by the Mirai_ptea (Rimasuta) and Mirai_aurora botnets for malware propagation and subsequent DDoS activity. The vulnerability was reported to affect firmware dating from 2016, while firmware released after 2017 appears to mitigate the issue by restricting the affected service to the localhost interface (127.0.0.1) instead of exposing it on all interfaces (0.0.0.0).\n\nThe affected-device list reported by Netlab includes many D1004NR, D1008NR, D1016NR, D1104, D1104NR, D1108NR, D1116NR, D1132NR, D2116NR, D97xx, D98xx, and D99xx variants and several associated hardware revisions\n\n\nThe exploit is included in some version of rapperbot and exploited in 2026. This assignment has been made to document the active exploitation and lack of documentation from the vendor.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87827"
-    },
-    {
-      "id": "CVE-2026-85978",
-      "published": "2026-09-09T11:17:16.073",
-      "lastModified": "2026-09-09T16:04:24.933",
-      "description": "An unauthenticated remote code execution vulnerability exists in the Policy Manager console of Akana API Platform. A path normalization discrepancy between the authentication filter and the servlet dispatcher allows a crafted request to bypass authentication and reach an endpoint that evaluates attacker-supplied script code without sandboxing, resulting in arbitrary code execution. Exploitation requires no authentication or user interaction.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85978"
-    },
-    {
-      "id": "CVE-2026-80239",
-      "published": "2026-09-09T11:17:15.940",
-      "lastModified": "2026-09-09T19:49:37.540",
-      "description": "Dell SCG 5.0 Appliance versions prior to 5.36.00.16 and Dell SCG 5.0 Application versions prior to 5.36.00.00, contains an Exposure of Sensitive System Information Due to Uncleared Debug Information vulnerability. An unauthenticated attacker with physical access could potentially exploit this vulnerability, leading to information exposure.",
-      "score": 2.4,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80239"
-    },
-    {
-      "id": "CVE-2026-80174",
-      "published": "2026-09-09T11:17:15.797",
-      "lastModified": "2026-09-14T13:18:47.920",
-      "description": "Dell SCG 5.0 Appliance versions prior to 5.36.00.16 and Dell SCG 5.0 Application versions prior to 5.36.00.00, contains an Insufficient Session Expiration vulnerability. A low privileged attacker with remote access could potentially exploit this vulnerability, leading to session theft.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80174"
-    },
-    {
-      "id": "CVE-2026-79727",
-      "published": "2026-09-09T11:17:15.640",
-      "lastModified": "2026-09-09T19:48:15.923",
-      "description": "Dell SCG 5.0 Appliance versions prior to 5.36.00.16 and Dell SCG 5.0 Application versions prior to 5.36.00.00, contains an Exposure of Sensitive System Information Due to Uncleared Debug Information vulnerability. A low privileged attacker with local access could potentially exploit this vulnerability, leading to information exposure.",
-      "score": 3.3,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79727"
-    },
-    {
-      "id": "CVE-2026-79641",
-      "published": "2026-09-09T11:17:15.500",
-      "lastModified": "2026-09-11T04:17:52.993",
-      "description": "Dell SCG 5.0 Appliance versions prior to 5.36.00.16 and Dell SCG 5.0 Application versions prior to 5.36.00.00, contains an Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability. A low privileged attacker with remote access could potentially exploit this vulnerability, leading to elevation of privileges.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79641"
-    },
-    {
-      "id": "CVE-2026-79635",
-      "published": "2026-09-09T11:17:15.353",
-      "lastModified": "2026-09-14T13:18:47.673",
-      "description": "Dell SCG 5.0 Appliance versions prior to 5.36.00.16 and Dell SCG 5.0 Application versions prior to 5.36.00.00, contains a Server-Side Request Forgery (SSRF) vulnerability. An unauthenticated attacker with remote access could potentially exploit this vulnerability, leading to unauthorized access.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79635"
-    },
-    {
-      "id": "CVE-2026-73334",
-      "published": "2026-09-09T11:17:15.220",
-      "lastModified": "2026-09-10T20:36:22.303",
-      "description": "Potential problem for users of the org.apache.parquet.crypto.keytools package in Apache Parquet, versions 1.12 to 1.18. \nThis package enables users to encrypt Parquet files via an envelope encryption mechanism that wraps (encrypts) data keys via a Key Management Service (KMS). \nOn the reader side, the KMS URL can be application-controlled or file-controlled.\nIf the user does not leverage application control for this parameter, a file-controlled KMS URL is forwarded to a pluggable KmsClient implementation. \nIf the pluggable implementation does not perform host validation, a KMS token can be sent to a malicious host set by an attacker in the file.\n\nBefore the problem is fixed, users are recommended to leverage application control for KMS URL parameter in readers (versions 1.12-1.18).\nAfter the problem is fixed (presumably in version 1.19), the upgrade will disable file-controlled KMS URL by default. Users of the KMS URL parameter \nwill have two options then: leverage application control for KMS URL parameter in readers, or enable file-controlled KMS URL (via a new app parameter).\nThe latter option will explicitly require (in the new parameter documentation) to validate the KMS URL and use authentication in the custom implementation of the KMS client plug in.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73334"
-    },
-    {
-      "id": "CVE-2026-65181",
-      "published": "2026-09-09T11:17:15.087",
-      "lastModified": "2026-09-10T20:36:32.860",
-      "description": "Insufficient authorization of Data Source tables in Impala 2.7-4.5 allows a client with privileges to upload a file to remote storage and create a table to execute arbitrary Java code.\nUsers are recommended to upgrade to version 4.5.2, which fixes this issue.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-65181"
-    },
-    {
-      "id": "CVE-2026-57866",
-      "published": "2026-09-09T11:17:14.953",
-      "lastModified": "2026-09-10T20:36:43.880",
-      "description": "Server side request forgery in Apache Impala versions 4.4.x and 4.5.x.  Authenticated Impala users with permissions to execute the ai_generate_text() function can exfiltrate secrets provided by the credential providers configured in the `hadoop.security.credential.provider.path` property of `core-site.xml`. The secret's key must be known to the user.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57866"
-    },
-    {
-      "id": "CVE-2026-56207",
-      "published": "2026-09-09T11:17:14.827",
-      "lastModified": "2026-09-10T20:38:05.413",
-      "description": "Signature of Bearer token is not verified in last step of SAML2 authentication for Impala's hs2-http interface, allowing altering user name and acting as another user.\n\n\n\nThis issue affects Apache Impala: >=4.0.0.\n\n\n\nUsers are recommended to upgrade to version 4.5.2, which fixes this issue.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-56207"
-    },
-    {
-      "id": "CVE-2026-54048",
-      "published": "2026-09-09T11:17:14.700",
-      "lastModified": "2026-09-10T20:38:42.430",
-      "description": "Specifying tblproperties('avro.schema.url'=' http://...' ) or with a 'file:///' URI on a table in Impala 2.0.0 to 4.5.1 on all platforms allows an attacker to trigger a GET request to internal endpoints they may not have access to but that Impala does and the response my be exposed via parsing error messages.\nUsers are recommended to upgrade to version 4.5.2, which fixes this issue.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54048"
-    },
-    {
-      "id": "CVE-2026-41871",
-      "published": "2026-09-09T11:17:14.570",
-      "lastModified": "2026-09-10T20:38:51.250",
-      "description": "Missing Authorization, Use of Externally-Controlled Input to Select Classes or Code ('Unsafe Reflection') vulnerability in Apache Nutch Server  (Nutch REST API).\n\n\n\nThis issue affects Apache Nutch: from 1.10 through 1.22.\n\n\n\nUsers are recommended to upgrade to version 1.23, which removes the Nutch Server.\nIf an upgrade is not possible, user must restrict access to instances running the Nutch Service to trusted users only.\nPlease, also visit the  Apache Nutch security advisories https://nutch.apache.org/documentation/security/ .",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-41871"
-    },
-    {
-      "id": "CVE-2026-41870",
-      "published": "2026-09-09T11:17:14.433",
-      "lastModified": "2026-09-11T13:06:07.280",
-      "description": "Missing Authorization, Improper Control of Generation of Code ('Code Injection'), Improper Control of Dynamically-Managed Code Resources, Use of Externally-Controlled Input to Select Classes or Code ('Unsafe Reflection') vulnerability in Apache Nutch Server  (Nutch REST API).\n\n\n\nThis issue affects Apache Nutch: from 1.11 through 1.22.\n\n\n\nUsers are recommended to upgrade to version 1.23, which removes the Nutch Server.\nIf an upgrade is not possible, user must restrict access to instances running the Nutch Service to trusted users only.\nPlease, also visit the  Apache Nutch security advisories https://nutch.apache.org/documentation/security/ .",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-41870"
-    },
-    {
-      "id": "CVE-2026-41869",
-      "published": "2026-09-09T11:17:14.290",
-      "lastModified": "2026-09-10T20:39:59.543",
-      "description": "Missing Authorization, Improper Resource Shutdown and Job Interruption vulnerability in Apache Nutch Server  (Nutch REST API).\n\n\n\nThis issue affects Apache Nutch: from 1.10 through 1.22.\n\n\n\nUsers are recommended to upgrade to version 1.23, which removes the Nutch Server.\nIf an upgrade is not possible, user must restrict access to instances running the Nutch Service to trusted users only.\nPlease, also visit the  Apache Nutch security advisories https://nutch.apache.org/documentation/security/ .",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-41869"
     }
   ]
 }
