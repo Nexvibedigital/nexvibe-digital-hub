@@ -1,6 +1,132 @@
 {
-  "syncedAt": "2026-09-17T06:50:58.955Z",
+  "syncedAt": "2026-09-17T07:21:39.627Z",
   "items": [
+    {
+      "id": "CVE-2026-88885",
+      "published": "2026-09-10T14:17:17.350",
+      "lastModified": "2026-09-10T14:50:07.813",
+      "description": "Renovate before 44.14.7 contains a command injection vulnerability in the gomod manager when processing unescaped depName parameters in import-path update commands with binarySource=docker mode. Attackers can inject shell metacharacters through malicious dependency names to execute arbitrary commands as the Renovate user during Go module major version updates with postUpdateOptions gomodUpdateImportPaths enabled.",
+      "score": 7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88885"
+    },
+    {
+      "id": "CVE-2026-88884",
+      "published": "2026-09-10T14:17:17.173",
+      "lastModified": "2026-09-10T16:18:11.510",
+      "description": "Renovate is a dependency update automation tool. In versions before 44.3.1 (and Mend Renovate CE/EE images before 15.4.0, mend-renovate-ce Helm chart before 15.4.0, mend-renovate-enterprise-edition Helm chart before 10.4.0), digest updates are not subject to the internal `minimumReleaseAge` (stability age) checks. When a repository configures `minimumReleaseAge` and has dependencies with `updateType=digest` — for example GitHub Actions pinned to a commit SHA with a floating tag, Docker images, Go modules or NuGet packages — Renovate will still open a pull request for a newly published digest, marked only with a pending `renovate/stability-days` status check. A newly published, potentially malicious dependency version can therefore cause a PR to be raised and CI workflows to potentially run before the configured minimum release age has elapsed, which is precisely what the Minimum Release Age control is intended to prevent. The issue is fixed in Renovate 44.3.1; as a workaround, digest updates can be disabled or gated behind `dependencyDashboardApproval`.",
+      "score": 5.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88884"
+    },
+    {
+      "id": "CVE-2026-88883",
+      "published": "2026-09-10T14:17:16.997",
+      "lastModified": "2026-09-10T15:17:58.213",
+      "description": "Renovate is an automated dependency update tool. In versions before 44.14.4 (and Mend Renovate CE/EE images before 15.4.0 and the mend-renovate-enterprise-edition Helm chart before 10.4.0), log sanitisation for TLS private keys used for Mutual TLS was incomplete. While the value of hostRules[].httpsPrivateKey was redacted in the field itself, the same private key value was not redacted if it also appeared elsewhere — for example in another configuration option or in a log message under a key other than httpsPrivateKey — causing the full private key to be written to Renovate's logs in cleartext. This affects deployments that configure Mutual TLS through hostRules[].httpsPrivateKey without passing the value through the documented `secrets` configuration. Anyone able to read the resulting logs can recover the private key. The issue is fixed in Renovate 44.14.4, which redacts any value supplied as hostRules[].httpsPrivateKey wherever it appears in the logs; as a workaround, supply the key via the `secrets` configuration.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88883"
+    },
+    {
+      "id": "CVE-2026-88882",
+      "published": "2026-09-10T14:17:16.823",
+      "lastModified": "2026-09-10T15:17:58.050",
+      "description": "Renovate is a dependency update automation tool. In versions before 44.11.2 (and Mend Renovate CE/EE images and charts before 15.4.0, and mend-renovate-enterprise-edition helm chart before 10.4.0), when listing new package versions from a NuGet registry Renovate follows pagination URLs supplied by the registry in the HTTP `Link` header without verifying that the target has the same origin as the configured registry. Registry credentials are attached to the request for the 'next' page, so a malicious or compromised NuGet registry can return a `Link` header pointing at an attacker-controlled server and cause Renovate to send the registry credentials to that server. Exploitation requires the remote registry to be malicious or compromised; such a registry would normally already have received the credentials on the initial request, so the issue primarily allows the credentials to be delivered to an additional, attacker-chosen host. The fix restricts pagination to the same origin; the previous behaviour can be re-enabled with the RENOVATE_X_NUGET_PAGINATION_ALLOW_CROSS_ORIGIN option.",
+      "score": 8.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88882"
+    },
+    {
+      "id": "CVE-2026-88881",
+      "published": "2026-09-10T14:17:16.650",
+      "lastModified": "2026-09-15T15:17:25.813",
+      "description": "Renovate, a dependency update tool, follows pagination links supplied by the GitHub server in the HTTP `Link` header when interacting with GitHub.com, GitHub Enterprise Cloud, or GitHub Enterprise Server, and sends the credentials configured for that host to the URL given as the 'next' page. Because the pagination URL is not validated against the host originally contacted, a malicious or compromised GitHub server can return a `Link` header pointing to an attacker-controlled host and cause Renovate to disclose those credentials to it. Exploitation requires that the GitHub server Renovate talks to (as the repository host or as a datasource such as github-releases, github-tags, or git-refs) is already malicious or compromised. The issue is fixed in renovate 44.11.3 (npm and renovate/renovate container images), Mend Renovate CE/EE images and the mend-renovate-ce helm chart 15.4.0, and the mend-renovate-enterprise-edition helm chart 10.4.0. There is no workaround; the pre-existing RENOVATE_X_REBASE_PAGINATION_LINKS option disables the new host check and should only be used with servers that intentionally use different pagination hosts.",
+      "score": 8.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88881"
+    },
+    {
+      "id": "CVE-2026-88880",
+      "published": "2026-09-10T14:17:16.480",
+      "lastModified": "2026-09-10T14:50:07.813",
+      "description": "Renovate before 44.11.3 fails to validate Link header destinations when following GitLab server pagination, allowing malicious servers to redirect credential-bearing requests. Attackers controlling a compromised GitLab server can specify a Link header pointing to attacker-controlled infrastructure to exfiltrate authentication credentials.",
+      "score": 8.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88880"
+    },
+    {
+      "id": "CVE-2026-88879",
+      "published": "2026-09-10T14:17:16.337",
+      "lastModified": "2026-09-14T19:58:33.037",
+      "description": "Traefik is an HTTP reverse proxy and load balancer. In Traefik v1.x, v2.x through v2.11.55, and v3.0.0 through v3.7.11, header names are canonicalized only on dashes, so X-Auth-User, X_Auth_User and X.Auth.User are treated as three distinct headers by Traefik, while backends that derive variable names from header names (CGI, WSGI, PHP, NGINX and others) collapse them into a single variable. A client can therefore smuggle a dot-form alias of a header that Traefik manages past the middleware managing it — for example supplying X.Authenticated.User alongside the canonical X-Authenticated-User written by the ForwardAuth middleware — causing such a backend to read the client-supplied value instead of the identity Traefik asserted. In the tested configuration (PHP 8.2 built-in SAPI over an HTTP/1 backend path), Go's lexical header ordering makes the attacker-supplied value win deterministically, so a client that ForwardAuth admits as a low-privilege identity can be treated by the backend as a different user or role. Any header Traefik sets is affected, not only ForwardAuth's. This is an incomplete fix for GHSA-x677-9fxg-v5c5, which blocked only the underscore form. Fixed in v2.11.56 and v3.7.12, which add the aliasHeadersStrategy entry-point option; because it defaults to 'keep' for backwards compatibility, it must be explicitly set to 'delete' or 'reject' for the fix to take effect. Unmaintained release lines will not receive a patch.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88879"
+    },
+    {
+      "id": "CVE-2026-88878",
+      "published": "2026-09-10T14:17:16.173",
+      "lastModified": "2026-09-14T19:58:08.727",
+      "description": "Traefik is an HTTP reverse proxy and load balancer. In versions >= v2.8.2 through <= v2.11.55 and >= v3.0.0 through <= v3.7.11, the entryPoints.<name>.transport.respondingTimeouts settings — notably readTimeout, which is enabled by default at 60s — are not applied to the HTTP/3 request path. readTimeout is enforced as a deadline on the underlying TCP connection, which cannot be applied to a QUIC stream, and Traefik's HTTP/3 server is constructed without any timeout. As a result, on entry points with HTTP/3 enabled, an unauthenticated remote client that trickles request body bytes can hold a request open indefinitely and, with it, one upstream connection per request, exhausting bounded backend connection pools and causing denial of service. The issue was introduced in v2.8.2 when a quic-go API change removed the embedded http.Server that carried these timeouts. Fixed in v2.11.56 and v3.7.12.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88878"
+    },
+    {
+      "id": "CVE-2026-88877",
+      "published": "2026-09-10T14:17:16.023",
+      "lastModified": "2026-09-14T19:57:56.327",
+      "description": "Traefik is a HTTP reverse proxy and load balancer. In versions >= v3.7.0 and <= v3.7.11, the Kubernetes ingress-nginx provider mishandles Ingresses that carry both an authentication annotation and the nginx.ingress.kubernetes.io/from-to-www-redirect annotation. For such Ingresses the provider creates an additional 'sibling' router that matches on the host alone, carries only the RedirectRegex middleware, and still points at the parent router's protected backend service. Because RedirectRegex is not a terminal handler, a request its pattern does not match is forwarded to the backend, and because the redirect pattern only accepts a numeric port while Traefik's host matcher canonicalizes the authority via net.SplitHostPort, a request with a non-numeric or empty port (for example 'Host: www.example.com:x') selects the sibling router, misses the redirect, and is proxied to the protected backend with none of the Ingress's annotation-derived middlewares applied. This discards not only authentication (e.g. BasicAuth) but every annotation-derived middleware, including source-IP allowlisting. Traefik v2 and v3 releases before v3.7.0 are not affected. The issue is fixed in v3.7.12.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88877"
+    },
+    {
+      "id": "CVE-2026-88876",
+      "published": "2026-09-10T14:17:15.877",
+      "lastModified": "2026-09-15T15:17:25.680",
+      "description": "AVideo through revision c3edcc274c389816d434acadac07ee78eaf330c1 contains a missing authorization vulnerability in plugin/PlayerSkins/seo.php that allows unauthenticated attackers to access password-protected video sources by calling getSources() without password validation. Attackers can request the seo.php endpoint with a video ID to obtain the direct MP4 URL and read protected media bytes without supplying the configured password.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88876"
+    },
+    {
+      "id": "CVE-2026-88875",
+      "published": "2026-09-10T14:17:15.733",
+      "lastModified": "2026-09-10T15:13:07.090",
+      "description": "AVideo through revision c3edcc274c389816d434acadac07ee78eaf330c1 (master, 2026-08-23) incompletely sanitizes sensitive user fields in the APIName=video response. Video rows include columns joined from the video owner's user record, and API::get_api_video() calls removeSensitiveUserFields() only when the caller is neither authenticated nor using a valid API secret; it never compares User::getId() with the row's users_id. As a result, any low-privilege authenticated account can request another user's video and receive the owner's email address, account name (user), and isAdmin, canUpload and canStream flags, which are removed for guests and should be returned only to the owner or to callers with a valid API secret. No patched version was available at the time of the advisory.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88875"
+    },
+    {
+      "id": "CVE-2026-88874",
+      "published": "2026-09-10T14:17:15.593",
+      "lastModified": "2026-09-10T16:18:11.233",
+      "description": "AVideo through revision c3edcc274c389816d434acadac07ee78eaf330c1 (master, 2026-08-23) does not enforce the Live stream password check on the stats endpoint or on the HLS origin. Live::_getStats() (plugin/Live/Live.php) returns a password-protected transmission's RTMP stream key, its isPasswordProtected flag, and its HLS (m3u8) URL to unauthenticated callers, in both the public applications list and the hidden_applications branch used when canSeeLiveFromLiveKey() fails. Separately, the shipped NGINX configuration (deploy/nginx/nginx.conf) serves the .m3u8 playlist, the AES-128 key, and the transport-stream segments from the /live location without any auth_request (the auth_key_check directive in the .key location is commented out). A remote, unauthenticated attacker can therefore retrieve the stream key and decryption key and watch a password-protected live transmission without supplying the configured password. No patched version was available at the time of the advisory.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88874"
+    },
+    {
+      "id": "CVE-2026-88873",
+      "published": "2026-09-10T14:17:15.430",
+      "lastModified": "2026-09-10T15:17:57.660",
+      "description": "WWBN AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains a cross-site request forgery vulnerability in view/logArchive.json.php that allows unauthenticated attackers to archive application logs by making GET requests without CSRF token validation. Attackers can craft malicious pages that trigger administrators' browsers to request the endpoint, copying sensitive application logs to a publicly accessible zip file and truncating the live log to remove forensic evidence.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88873"
+    },
+    {
+      "id": "CVE-2026-88872",
+      "published": "2026-09-10T14:17:15.243",
+      "lastModified": "2026-09-10T15:17:57.537",
+      "description": "AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains a cross-site request forgery vulnerability in the setPassword.json.php endpoint that allows unauthenticated attackers to modify any user's channel password by sending a GET request. Attackers can craft a malicious webpage that, when visited by an authenticated administrator, sets or clears any user's channel password without CSRF token validation.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88872"
+    },
     {
       "id": "CVE-2026-88871",
       "published": "2026-09-10T14:17:15.070",
@@ -774,130 +900,6 @@
       "score": 9.8,
       "severity": "CRITICAL",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7188"
-    },
-    {
-      "id": "CVE-2026-87804",
-      "published": "2026-09-10T07:17:03.720",
-      "lastModified": "2026-09-10T07:17:03.720",
-      "description": "Rejected reason: no security impact",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87804"
-    },
-    {
-      "id": "CVE-2026-82925",
-      "published": "2026-09-10T07:17:03.620",
-      "lastModified": "2026-09-10T15:13:07.090",
-      "description": "The Site Reviews WordPress plugin before 8.3.0 does not prevent request data from being deserialized, and derives the key protecting that data by padding out the site's WordPress nonce key, which makes the key publicly computable on installs where that key is absent, left at its sample value, or too short to be secret. This allows unauthenticated users to inject arbitrary PHP objects on such installs. The Site Reviews WordPress plugin before 8.3.0's own code contains no chain onward from the injected object, so how far it reaches depends on the other code present on the site.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82925"
-    },
-    {
-      "id": "CVE-2026-82582",
-      "published": "2026-09-10T07:17:03.493",
-      "lastModified": "2026-09-10T15:13:07.090",
-      "description": "An authorization bypass vulnerability exists in SHIRASAGI through a user-controlled key, which may allow an unauthorized attacker to retrieve files from the groupware's shared file feature.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82582"
-    },
-    {
-      "id": "CVE-2026-81635",
-      "published": "2026-09-10T07:17:03.347",
-      "lastModified": "2026-09-10T15:13:07.090",
-      "description": "A cross-site scripting vulnerability exists in SHIRASAGI, which may allow an attacker to execute an arbitrary script in the web browser of a user who accesses a website using the affected product.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81635"
-    },
-    {
-      "id": "CVE-2026-81431",
-      "published": "2026-09-10T07:17:03.243",
-      "lastModified": "2026-09-10T15:13:07.090",
-      "description": "The Registration Form for WooCommerce WordPress plugin before 1.1.3 does not validate that the form referenced during registration is a legitimate registration form, reading the permitted-role allow-list from an arbitrary attacker-controlled post instead. A user able to create a post (Contributor and above) can therefore register a new account with an arbitrary role, including Administrator, leading to full site takeover. This is an incomplete fix of CVE-2026-54807.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81431"
-    },
-    {
-      "id": "CVE-2026-78361",
-      "published": "2026-09-10T07:17:03.143",
-      "lastModified": "2026-09-10T15:13:07.090",
-      "description": "The zipMoney(Zip Co) Payments Plugin for WooCommerce WordPress plugin before 2.4.0 does not perform any authorisation checks on one of its front-end request handlers, and does not restrict which option name a caller may supply, allowing unauthenticated users to delete arbitrary WordPress options. This can be used to destroy site and access control configuration, deactivate every installed zipMoney(Zip Co) Payments Plugin for WooCommerce WordPress plugin before 2.4.0, and take the site offline.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78361"
-    },
-    {
-      "id": "CVE-2026-77771",
-      "published": "2026-09-10T07:17:03.047",
-      "lastModified": "2026-09-10T15:13:07.090",
-      "description": "The miniOrange 2FA  WordPress plugin before 6.3.1, miniOrange 2FA  WordPress plugin before 19.3 does not scope its second-factor attempt limit to the account being attacked, keying it instead to an identifier the client supplies and can change at will, allowing an attacker who already knows a victim's password to make unlimited one-time-passcode guesses and defeat the second factor. A second validation endpoint applies no attempt limit at all.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77771"
-    },
-    {
-      "id": "CVE-2026-77770",
-      "published": "2026-09-10T07:17:02.943",
-      "lastModified": "2026-09-10T15:13:07.090",
-      "description": "The miniOrange 2FA  WordPress plugin before 6.3.1, miniOrange 2FA  WordPress plugin before 19.3 does not require a validated transaction before deleting site options whose names come from unauthenticated request input, allowing any visitor to delete arbitrary options, which can lock every administrator out of the dashboard or deactivate every miniOrange 2FA  WordPress plugin before 6.3.1, miniOrange 2FA  WordPress plugin before 19.3 on the site.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77770"
-    },
-    {
-      "id": "CVE-2026-19840",
-      "published": "2026-09-10T07:17:02.823",
-      "lastModified": "2026-09-10T15:13:07.090",
-      "description": "The Notiqoo  WordPress plugin before 1.4.14 does not have capability checks on several of its AJAX actions and builds the name of the option to write from user input, allowing users with a role as low as contributor to modify arbitrary WordPress options, which can be used to deactivate Notiqoo  WordPress plugin before 1.4.14 and to lock every administrator out of the site.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19840"
-    },
-    {
-      "id": "CVE-2026-19439",
-      "published": "2026-09-10T07:17:02.730",
-      "lastModified": "2026-09-10T15:13:07.090",
-      "description": "The Ultimate Gift Cards for WooCommerce WordPress plugin before 3.2.10 does not have any authorisation check when displaying gift card details, allowing unauthenticated users to retrieve the gift cards attached to arbitrary orders and disclose customer personal data, balances, dates and, in 3.2.9, the live redemption code, which anyone holding it can spend.\n\nVersions from 3.0.3 to 3.2.8 disclose the same data without the redemption code.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19439"
-    },
-    {
-      "id": "CVE-2026-19436",
-      "published": "2026-09-10T07:17:02.620",
-      "lastModified": "2026-09-10T15:13:07.090",
-      "description": "The Ultimate Gift Cards for WooCommerce WordPress plugin before 3.2.10 does not reconcile the value of the gift card coupon it issues against the amount actually collected at checkout, allowing unauthenticated users to obtain store credit worth more than they paid.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19436"
-    },
-    {
-      "id": "CVE-2026-0304",
-      "published": "2026-09-10T07:17:02.470",
-      "lastModified": "2026-09-11T04:17:06.707",
-      "description": "A privilege escalation vulnerability in Palo Alto Networks Cortex XDR Broker VM enables an authenticated low privileged user with man-in-the-middle (MitM) access to execute code with root privileges on the Broker VM.",
-      "score": 4.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-0304"
-    },
-    {
-      "id": "CVE-2026-0303",
-      "published": "2026-09-10T07:17:02.140",
-      "lastModified": "2026-09-10T14:50:07.813",
-      "description": "A code execution vulnerability in Palo Alto Networks Checkov by Prisma® Cloud can allow arbitrary code execution when Checkov scans a directory that contains an attacker-controlled configuration file.",
-      "score": 2.4,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-0303"
-    },
-    {
-      "id": "CVE-2026-0302",
-      "published": "2026-09-10T07:17:00.843",
-      "lastModified": "2026-09-10T14:50:07.813",
-      "description": "An OS command injection vulnerability in Palo Alto Networks Checkov by Prisma® Cloud enables a local user to execute arbitrary commands in the processes running Checkov.",
-      "score": 1.1,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-0302"
     }
   ]
 }
