@@ -1,6 +1,87 @@
 {
-  "syncedAt": "2026-09-17T05:45:58.830Z",
+  "syncedAt": "2026-09-17T06:25:45.552Z",
   "items": [
+    {
+      "id": "CVE-2026-88871",
+      "published": "2026-09-10T14:17:15.070",
+      "lastModified": "2026-09-15T15:17:25.543",
+      "description": "WWBN AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 (master, 2026-08-23) contains a cross-site request forgery vulnerability in the CustomizeUser plugin's plugin/CustomizeUser/setSubscribers.json.php endpoint. The script reads users_id and ExtraSubscribers from $_REQUEST and calls User::setExtraSubscribers() without requiring a POST request or a valid CSRF token; autoCSRFGuard() is applied only to POST requests to *.json.php, and the mutation does not pass through ObjectYPT::save()/isUntrustedRequest(), so a cross-origin GET succeeds. An unauthenticated remote attacker who induces a logged-in administrator to load a crafted page (for example an <img> tag pointing at the endpoint) can forge the ExtraSubscribers count displayed on any user's channel. The CustomizeUser plugin is enabled by default, and no patched version was available at the time of reporting.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88871"
+    },
+    {
+      "id": "CVE-2026-88870",
+      "published": "2026-09-10T14:17:14.893",
+      "lastModified": "2026-09-10T15:13:07.090",
+      "description": "WWBN AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains a cross-site request forgery vulnerability in the LoginControl plugin PGP key endpoints that lack CSRF token validation. Attackers can craft malicious pages with image tags pointing to savePublicKey.json.php to replace a logged-in victim's PGP 2FA public key, causing lockout or enabling account takeover if the attacker knows the password.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88870"
+    },
+    {
+      "id": "CVE-2026-88869",
+      "published": "2026-09-10T14:17:14.637",
+      "lastModified": "2026-09-10T16:18:10.990",
+      "description": "AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains a stored cross-site scripting vulnerability in the AD_Server plugin's log.php endpoint that fails to escape the label parameter before storage. An unauthenticated attacker can inject malicious HTML through the label parameter, which is later rendered unsanitized in the admin Ad Types report using jQuery .html(), allowing execution of arbitrary JavaScript in an administrator's browser session.",
+      "score": 9.3,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88869"
+    },
+    {
+      "id": "CVE-2026-88868",
+      "published": "2026-09-10T14:17:13.490",
+      "lastModified": "2026-09-10T15:17:57.413",
+      "description": "AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains a stored cross-site scripting vulnerability in the LiveLinks plugin where title and description fields are stored without sanitization. A user with canStream permission can inject malicious scripts that execute in the browser of every visitor viewing the live-link page, including administrators, within the site origin.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88868"
+    },
+    {
+      "id": "CVE-2026-88867",
+      "published": "2026-09-10T14:17:12.920",
+      "lastModified": "2026-09-10T15:17:57.280",
+      "description": "WWBN AVideo, in versions up to and including commit c3edcc274c389816d434acadac07ee78eaf330c1, contains a stored cross-site scripting vulnerability. objects/categoryAddNew.json.php passes the POST parameters `name` and `iconClass` to Category::setName() and Category::setIconClass(), which store the values without sanitization (setName only truncates to 45 characters). The category name is later echoed as HTML text and iconClass is echoed into a class attribute in view/modeYoutubeBottom.php and in Gallery cards (plugin/Gallery/functions.php). When the CustomizeUser option usersCanCreateNewCategories is enabled, any authenticated user with canUpload permission (granted by default via self-registration) can create a category containing a JavaScript payload; the payload then executes in the browser of any visitor, including administrators, who views a watch page or gallery entry for a video assigned to that category, allowing actions such as authenticated requests with the victim's session. The issue was unpatched at the time of reporting.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88867"
+    },
+    {
+      "id": "CVE-2026-88866",
+      "published": "2026-09-10T14:17:12.773",
+      "lastModified": "2026-09-15T15:17:25.413",
+      "description": "WWBN AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains a stored cross-site scripting vulnerability in the LoginControl plugin that fails to encode the User-Agent header before storing it in login history. Attackers with any valid login account can inject malicious scripts in the User-Agent header that execute in administrator browsers when viewing the Login History page, allowing script execution within the administrator session.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88866"
+    },
+    {
+      "id": "CVE-2026-88865",
+      "published": "2026-09-10T14:17:12.630",
+      "lastModified": "2026-09-10T15:13:07.090",
+      "description": "AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 fails to validate restream ownership in getRestream.json.php, allowing authenticated users with canStream permission to mint tokens for arbitrary restreams. Attackers can exchange the token to retrieve other users' stream keys from getLiveKey.json.php and publish to their YouTube, Twitch, or RTMP destinations.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88865"
+    },
+    {
+      "id": "CVE-2026-88864",
+      "published": "2026-09-10T14:17:12.187",
+      "lastModified": "2026-09-10T15:17:57.103",
+      "description": "Capgo (capgo.app) fails to restrict direct write access to the public.sso_providers table exposed through Supabase PostgREST. A holder of an ordinary Capgo full API key can insert a row with status='active' and enforce_sso=true, bypassing the intended backend SSO provisioning route (supabase/functions/_backend/private/sso/providers.ts) and its controls: the Enterprise plan requirement, SSO provider creation via the Supabase Management API, DNS TXT domain-ownership verification, the pending_verification → verified → active status transition, and issuance of a trusted provider ID by Supabase Auth. The forged row is trusted by SSO discovery and enforcement logic, including the unauthenticated login preflight endpoint /private/sso/check-domain, which then reports {\"has_sso\": true, \"enforce_sso\": true} for domains that were never verified, allowing attacker-controlled SSO enforcement to be asserted for arbitrary domains and disrupting normal login. All versions are affected; at the time of the advisory no patch was available.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88864"
+    },
+    {
+      "id": "CVE-2026-88863",
+      "published": "2026-09-10T14:17:11.970",
+      "lastModified": "2026-09-10T15:17:56.793",
+      "description": "capgo.app (npm package `capgo`) through version 12.207.1 does not compare the caller's role rank against the requested role in the validateInvite() function of supabase/functions/_backend/private/invite_new_user_to_org.ts. The POST /private/invite_new_user_to_org endpoint only requires the org.update_user_roles permission for org_super_admin invitations, so an authenticated user holding only the org.invite_user permission (e.g., an org_member) can invite an external user as org_admin or org_billing_admin. When the invited account accepts the invitation via POST /private/accept_invitation, ensureOrgMembership creates the role binding using the Supabase service-role key, which bypasses the prevent_role_binding_priority_escalation and check_org_user_privileges database triggers. This allows privilege escalation resulting in full administrative control over the organization's apps, channels, members, and billing. The issue is addressed by pull request #3096, which compares the inviter's rank before permitting elevated invitations.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88863"
+    },
     {
       "id": "CVE-2026-88862",
       "published": "2026-09-10T14:17:11.820",
@@ -817,87 +898,6 @@
       "score": 1.1,
       "severity": "LOW",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-0302"
-    },
-    {
-      "id": "CVE-2026-85645",
-      "published": "2026-09-10T06:17:06.607",
-      "lastModified": "2026-09-11T21:17:32.420",
-      "description": "The Form Maker by 10Web – Mobile-Friendly Drag & Drop Contact Form Builder plugin for WordPress is vulnerable to Reflected Cross-Site Scripting via the bulk_action parameter in all versions up to, and including, 1.15.46 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that execute if they can successfully trick a user into performing an action such as clicking on a link.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85645"
-    },
-    {
-      "id": "CVE-2026-84939",
-      "published": "2026-09-10T06:17:06.460",
-      "lastModified": "2026-09-11T13:06:56.423",
-      "description": "Path traversal vulnerability in Apache FreeMarker template loading mechanism, if the attacker can specify an arbitrary malformed locale identifier to FreeMarker, and the localized lookup configuration setting is enabled (it's by default enabled).\n\nThis issue affects Apache FreeMarker from 2.2.0 through 2.3.34.\n\nUsers are recommended to upgrade to version 2.3.35. Disabling localized lookup in previous versions also mitigates this.\n\nNote that even in versions affected by this vulnerability, the files that can be loaded remain restricted by the TemplateLoader that FreeMarker is configured to use. In particular, FileTemplateLoader prevents attempts to traverse outside the baseDir specified in its constructor. Other TemplateLoader implementations may allow access outside their designated base directory, but they are still constrained by the underlying storage mechanism—for example, a loader wrapping a Java class loader can only access resources that the class loader can load, while one wrapping a web application context can only access resources available through that context.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84939"
-    },
-    {
-      "id": "CVE-2026-82079",
-      "published": "2026-09-10T06:17:06.330",
-      "lastModified": "2026-09-11T04:17:59.633",
-      "description": "A stack-based buffer overflow vulnerability in the Nintendo Switch local wireless networking functionality may allow an attacker within wireless range to execute arbitrary code using return-oriented programming (ROP) through crafted network traffic.\nThis issue affects Nintendo Switch: before 23.0.0.",
-      "score": 8.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82079"
-    },
-    {
-      "id": "CVE-2026-0310",
-      "published": "2026-09-10T06:17:04.450",
-      "lastModified": "2026-09-11T04:17:13.060",
-      "description": "A buffer overflow vulnerability in the XML processing functionality of Palo Alto Networks PAN-OS® software enables an unauthenticated attacker with network access to the management web or dataplane interface to cause a denial of service (DoS) condition on VM-Series firewalls or execute arbitrary code with root privileges on the PA-Series firewalls.\n\nThe security risk posed by this issue is minimized when the management interface is restricted to only trusted internal IP addresses according to our recommended  best practice deployment guidelines https://live.paloaltonetworks.com/t5/community-blogs/tips-amp-tricks-how-to-secure-the-management-access-of-your-palo/ba-p/464431 . \n\nPanorama is impacted by this vulnerability.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-0310"
-    },
-    {
-      "id": "CVE-2026-0309",
-      "published": "2026-09-10T06:17:03.813",
-      "lastModified": "2026-09-11T04:17:10.937",
-      "description": "A command injection vulnerability in Palo Alto Networks PAN-OS® software enables an authenticated administrator to bypass system restrictions and run arbitrary commands as a root user. To be able to exploit this issue, the user must have access to the PAN-OS CLI and the device must be configured with a Luna Hardware Security Module (HSM). \n\nThe security risk posed by this issue is significantly minimized when CLI access is restricted to a limited group of administrators.\n\nPanorama, Cloud NGFW, and Prisma® Access are not impacted by this vulnerability.",
-      "score": 4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-0309"
-    },
-    {
-      "id": "CVE-2026-0308",
-      "published": "2026-09-10T06:17:03.513",
-      "lastModified": "2026-09-10T14:50:07.813",
-      "description": "A stored cross-site scripting (XSS) vulnerability in Palo Alto Networks PAN-OS® software enables a malicious authenticated administrator to store or execute a JavaScript payload using the web interface. \n\nThis issue is applicable to PAN-OS software on PA-Series and VM-Series firewalls and on Panorama (virtual and M-Series). \n\nCloud NGFW and Prisma® Access are not affected by this vulnerability.",
-      "score": 1.1,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-0308"
-    },
-    {
-      "id": "CVE-2026-0307",
-      "published": "2026-09-10T06:17:03.170",
-      "lastModified": "2026-09-11T04:17:10.160",
-      "description": "Multiple local privilege escalation vulnerabilities in the Palo Alto Networks GlobalProtect™ app allows a local user to escalate their privileges to NT AUTHORITY\\SYSTEM on Windows and root on macOS and Linux. This enables a non-administrative user to execute arbitrary commands with administrative privileges.\n\n\n\nThis GlobalProtect app on iOS, Android and ChromeOS is not impacted.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-0307"
-    },
-    {
-      "id": "CVE-2026-0306",
-      "published": "2026-09-10T06:17:03.007",
-      "lastModified": "2026-09-10T14:50:07.813",
-      "description": "A vulnerability in the EndPoint Data Loss Prevention (DLP) enforcement of Palo Alto Networks Prisma® Access Agent enables a local user to bypass configured DLP policy enforcement controls and exfiltrate sensitive data. \n\n\n\nThis Prisma Access Agent on macOS, Linux,  iOS, Android and Chrome OS is not affected.",
-      "score": 5.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-0306"
-    },
-    {
-      "id": "CVE-2026-0305",
-      "published": "2026-09-10T06:17:02.733",
-      "lastModified": "2026-09-10T14:50:07.813",
-      "description": "An information disclosure vulnerability in the Palo Alto Networks Prisma® Access Agent on Linux enables a local user to access sensitive configuration data and credentials.\n\n\n\nThe Prisma Access Agent on macOS, Windows, iOS, Android and Chrome OS is not affected.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-0305"
     }
   ]
 }
