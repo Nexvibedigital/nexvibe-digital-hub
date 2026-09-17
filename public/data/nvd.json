@@ -1,6 +1,69 @@
 {
-  "syncedAt": "2026-09-17T04:46:33.893Z",
+  "syncedAt": "2026-09-17T05:19:19.003Z",
   "items": [
+    {
+      "id": "CVE-2026-88862",
+      "published": "2026-09-10T14:17:11.820",
+      "lastModified": "2026-09-10T15:17:56.617",
+      "description": "Capgo (capgo.app) backend through 12.242.4 does not validate parent-child delegation when processing the x-limited-key-id header. checkKeyByIdPg() in supabase/functions/_backend/utils/hono_middleware.ts resolves the attacker-supplied numeric API key ID using only the key ID, its expiration state, and the authenticating key's user_id, while hasLimitedRbacSubkeyScope() accepts any key with a non-organization (e.g., app-scoped) RBAC binding and validateSubkeyUser() only compares owning user IDs. Because Capgo treats API keys as independent RBAC principals with separate role bindings, an authenticated apikey_manager API key with no application access can supply the numeric ID of a more privileged same-owner key and have the middleware replace the authenticated principal and effective API-key secret with that key (setSubkeyAuthContext), exercising an app_admin sibling's permissions without knowing or submitting its secret. The issue was reproduced on release 12.242.4 (commit b3d02cdbc23ac59990785acacd1f113c07458568) after the fix for GHSA-8h52-44r7-w343; at the time of the advisory no patched version was available.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88862"
+    },
+    {
+      "id": "CVE-2026-88861",
+      "published": "2026-09-10T14:17:11.673",
+      "lastModified": "2026-09-15T15:17:25.277",
+      "description": "Capgo (Cap-go/capgo.app) contains an authentication bypass affecting all versions (no patched version available at time of publication). The Edge authorization path allows a password-only Supabase aal1 session to exercise privileged RBAC permissions even when the account has a verified MFA factor that has not been used for the session: the Edge JWT middleware (foundJWT() in supabase/functions/_backend/utils/hono_middleware.ts) accepts the JWT without validating its assurance level, and the direct RBAC path (checkPermission()/checkPermissionPg() in supabase/functions/_backend/utils/rbac.ts calling public.rbac_check_permission_direct()) authorizes by user ID without passing or checking the session aal, unlike the public.verify_mfa() control which correctly requires aal2. An attacker who knows only the victim's password can therefore authenticate, mint a persistent app-scoped app_admin API key that remains valid after the aal1 session is logged out, and perform privileged operations such as modifying production OTA channel configurations (validated by changing a public production channel from bundle 1.0.0 to 1.0.1), defeating the protection provided by MFA.",
+      "score": 8.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88861"
+    },
+    {
+      "id": "CVE-2026-88860",
+      "published": "2026-09-10T14:17:11.527",
+      "lastModified": "2026-09-10T15:13:07.090",
+      "description": "Capgo fails to clean up channel permission overrides when a user's last organization role binding is deleted, leaving stale overrides active. Attackers can retain channel-specific permissions after their base RBAC access has been revoked to perform unauthorized actions like changing production OTA versions.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88860"
+    },
+    {
+      "id": "CVE-2026-88790",
+      "published": "2026-09-10T14:17:11.307",
+      "lastModified": "2026-09-10T18:18:15.513",
+      "description": "A security vulnerability has been detected in proma-ai Proma up to 0.19.37. Affected is the function resolveTargetPath of the file apps/electron/src/main/lib/file-preview-service.ts of the component File Preview Service. Such manipulation of the argument file_path leads to path traversal. Local access is required to approach this attack. The exploit has been disclosed publicly and may be used. Upgrading to version 0.19.52 is able to address this issue. The name of the patch is b7bf78ab74b1552c92fc98c7db9a8a8d92c631df. It is suggested to upgrade the affected component. The PoC's candidateBasePaths parameter name does not match the current IPC API (0.19.52 uses FileAccessOptions with internal getPreviewCandidateBasePaths()). The reporter likely targeted 0.16.3 where the IPC handler accepted raw string[] base paths. The core vulnerability - basename-collision fallback - is independent of the parameter name and is confirmed in source.",
+      "score": 4.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88790"
+    },
+    {
+      "id": "CVE-2026-85217",
+      "published": "2026-09-10T14:17:09.380",
+      "lastModified": "2026-09-11T04:18:02.610",
+      "description": "A maliciously crafted add-in, when installed and executed in Autodesk Fusion Desktop, can modify persistent network proxy settings without user notification or consent. A successful exploit may allow an attacker to redirect authenticated Fusion network traffic through an attacker-controlled proxy, potentially exposing sensitive information with the current user.",
+      "score": 8.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85217"
+    },
+    {
+      "id": "CVE-2026-75584",
+      "published": "2026-09-10T14:17:07.467",
+      "lastModified": "2026-09-10T15:53:23.707",
+      "description": "ION-DTN before 4.2.1-a.1 contains a denial of service vulnerability that allows unauthenticated remote attackers to crash the ION process by sending a BPv7 bundle with a zero-length payload. The canonicalizePayloadBlock() function in bpsec_util.c passes bundle->payload.length to zco_clone() without validating it against zero, causing a failed CHKZERO assertion that triggers sm_Abort() and terminates the process with SIGABRT before any HMAC verification occurs, requiring no valid key or credential to exploit.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75584"
+    },
+    {
+      "id": "CVE-2026-6285",
+      "published": "2026-09-10T14:17:05.850",
+      "lastModified": "2026-09-10T17:17:05.560",
+      "description": "Weak Password Recovery Mechanism for Forgotten Password vulnerability in Ankaref Innovation and Technology Inc. LIBRID/LIBREF allows Password Recovery Exploitation.\n\nThis issue affects LIBRID/LIBREF: from 2.01.0.2183 through 10092026. NOTE: The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-6285"
+    },
     {
       "id": "CVE-2026-64838",
       "published": "2026-09-10T14:17:03.823",
@@ -835,69 +898,6 @@
       "score": 4.3,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-0305"
-    },
-    {
-      "id": "CVE-2026-75880",
-      "published": "2026-09-10T05:17:01.673",
-      "lastModified": "2026-09-16T01:10:04.300",
-      "description": "An authenticated client could attach a consumer with a selector containing crafted wildcard usage that results in excessive evaluation during message delivery attempts, occupying a shared broker thread and leading to denial of service.\n\nThis issue affects Apache Artemis: from 2.50.0 through 2.56.0; Apache ActiveMQ Artemis: from 1.0.0 through 2.44.0.\n\n\nUsers are recommended to upgrade to version 2.57.0, which fixes this issue.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75880"
-    },
-    {
-      "id": "CVE-2026-67593",
-      "published": "2026-09-10T05:17:01.560",
-      "lastModified": "2026-09-16T01:10:17.700",
-      "description": "A remote attacker can craft an Openwire RemoveSubscriptionInfo command to cause the deletion of a queue on the Artemis broker before the connection authentication and authorization stage or at any time thereafter. \n\n\n\nThis issue affects Apache Artemis: from 2.50.0 through 2.56.0; Apache ActiveMQ Artemis: from 1.0.0 through 2.44.0.\n\n\n\nUsers are recommended to upgrade to version 2.57.0, which fixes the issue.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-67593"
-    },
-    {
-      "id": "CVE-2026-57967",
-      "published": "2026-09-10T05:17:01.443",
-      "lastModified": "2026-09-16T01:10:22.333",
-      "description": "An unauthenticated remote attacker can craft a CORE protocol SESSION_REATTACH packet to steal an existing session and assume ongoing execution of the previously authenticated session.\n\n\n\nThis issue affects Apache Artemis: from 2.50.0 through 2.56.0; Apache ActiveMQ Artemis: from 1.0.0 through 2.44.0.\n\n\n\nUsers are recommended to upgrade to version 2.57.0, which fixes the issue.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57967"
-    },
-    {
-      "id": "CVE-2026-57822",
-      "published": "2026-09-10T05:17:01.343",
-      "lastModified": "2026-09-16T01:10:26.913",
-      "description": "When the broker is processing message-based management requests, sent by an authenticated messaging client that is authorized with MANAGE permission to perform management-via-messaging, the parameter processing can trigger Java deserialization of certain method parameters that the broker will not utilise. The permitted types allow to craft a payload causing excessive computation and pinning the processing thread, leading to denial of service.\n\n\n\n\nThis issue affects Apache Artemis: from 2.50.0 through 2.56.0; Apache ActiveMQ Artemis: from 1.3.0 through 2.44.0.\n\n\n\nUsers are recommended to upgrade to version 2.57.0, which fixes the issue.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57822"
-    },
-    {
-      "id": "CVE-2026-49364",
-      "published": "2026-09-10T05:17:01.230",
-      "lastModified": "2026-09-16T01:10:31.487",
-      "description": "An unauthenticated network-adjacent attacker can leverage discovery to capture cluster administrative credentials during the initial cluster connection handshake.\n\nThis issue affects Apache Artemis: from 2.50.0 through 2.56.0; Apache ActiveMQ Artemis: from 1.0.0 through 2.44.0.\n\n\n\nUsers are recommended to upgrade to version 2.57.0, which fixes the issue.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-49364"
-    },
-    {
-      "id": "CVE-2026-49363",
-      "published": "2026-09-10T05:17:01.123",
-      "lastModified": "2026-09-16T01:10:36.583",
-      "description": "An unauthenticated remote attacker connecting with the CORE protocol can discover cluster node details by sending a SUBSCRIBE_TOPOLOGY request prior to authentication.\n\n\n\nThis issue affects Apache Artemis: from 2.50.0 through 2.56.0; Apache ActiveMQ Artemis: from 1.0.0 through 2.44.0.\n\n\n\nUsers are recommended to upgrade to version 2.57.0, which fixes the issue.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-49363"
-    },
-    {
-      "id": "CVE-2026-49362",
-      "published": "2026-09-10T05:16:59.747",
-      "lastModified": "2026-09-16T01:10:42.343",
-      "description": "An unauthenticated remote attacker can create arbitrary durable queues via the CORE protocol, leading to unauthorized broker state manipulation and potential denial of service.\n\nThis issue affects Apache Artemis: from 2.50.0 through 2.56.0; Apache ActiveMQ Artemis: from 1.0.0 through 2.44.0.\n\n\n\nUsers are recommended to upgrade to version 2.57.0, which fixes the issue.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-49362"
     }
   ]
 }
