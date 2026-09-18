@@ -1,6 +1,42 @@
 {
-  "syncedAt": "2026-09-18T08:46:03.270Z",
+  "syncedAt": "2026-09-18T09:19:33.113Z",
   "items": [
+    {
+      "id": "CVE-2026-87910",
+      "published": "2026-09-11T18:16:59.800",
+      "lastModified": "2026-09-16T19:42:12.090",
+      "description": "When tarfile extracts a link on a system that doesn't support links, it falls back to extracting a member from the archive. In this case, the filter function is run twice: once for the extracted member, and once with name set to the location of the link. For one of the calls, the return value was ignored. Instead, the member should be skipped if either call returns None.",
+      "score": 5.7,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87910"
+    },
+    {
+      "id": "CVE-2026-82617",
+      "published": "2026-09-11T18:16:59.443",
+      "lastModified": "2026-09-16T14:05:52.550",
+      "description": "The two built-in name-finder patterns exposed by\nopennlp.tools.namefind.RegexNameFinderFactory - DEFAULT_REGEX_NAME_FINDER.EMAIL\nand DEFAULT_REGEX_NAME_FINDER.URL - contain ambiguous nested quantifiers. An\napplication that obtains these finders through\nRegexNameFinderFactory.getDefaultRegexNameFinders(...) and then applies them to\nuntrusted text through RegexNameFinder.find(String[]) or RegexNameFinder.find(String)\ncan be driven into super-linear backtracking or into unbounded matcher recursion by a\nsmall crafted input.\n\n\n\n\n\nFor the EMAIL pattern, a long run of local-part characters that is never followed by an\n@ forces the matcher to re-scan to end-of-input from every starting offset. Cost grows\nquadratically with input length: an input of approximately 32 KB consumes several seconds\nof CPU in a single find() call and returns no match, and each doubling of the input\nmultiplies the cost roughly four-fold.\n\n\n\n\n\nFor the URL pattern, the query-string sub-expression nests a capturing repetition inside\nan outer repetition. The JDK matcher recurses once per query token, so an input of\napproximately 4 KB containing many &-separated tokens exhausts the thread stack and\ncauses java.lang.StackOverflowError to propagate out of find(), terminating the\ncalling thread. On a thread created with a smaller stack (for example -Xss512k, typical\nof server worker pools) approximately 1 KB is sufficient.\n\n\n\n\n\nIn both cases an attacker who can supply text for analysis can convert a single request\ninto seconds to minutes of pinned CPU, or into an abrupt thread death, denying service to\nthe embedding application. No authentication, special configuration, or model file is\nrequired beyond the application having selected one of the two built-in finders.\n\n\n\n\n\nThis issue affects Apache OpenNLP: from 2.0.0 through 2.5.11; from 3.0.0-M1 through\n3.0.0-M5.\n\n\n\n\n\n\n\n\n\nUsers are recommended to upgrade to version 2.5.12, or to 3.0.0-M6 for users tracking the\n3.0.0 milestone line, which fix the issue.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82617"
+    },
+    {
+      "id": "CVE-2026-82535",
+      "published": "2026-09-11T18:16:59.290",
+      "lastModified": "2026-09-11T20:19:15.857",
+      "description": "Chamilo LMS before 1.11.42 and 3.0.0 contains a stored cross-site scripting vulnerability that allows unauthenticated attackers to inject malicious script payloads into survey answers by computing deterministic invitation codes and bypassing authorization checks in the survey submission endpoint. Attackers can submit crafted answers containing unescaped HTML rendered in reporting views to execute arbitrary scripts in the browser sessions of teachers or administrators, enabling persistent backdoor account creation by exploiting the victim's authenticated session.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82535"
+    },
+    {
+      "id": "CVE-2026-81909",
+      "published": "2026-09-11T18:16:58.930",
+      "lastModified": "2026-09-11T18:22:06.330",
+      "description": "Concrete CMS 9 through 9.5.2 is vulnerable to Missing Authorization in the block alias route (Process::alias() in concrete/controllers/backend/block/process.php).It does not verify that the referenced block is genuinely orphaned on the target page, nor that the caller holds any permission over the source block. A user granted only an area-scoped add_block_to_area delegation on their own page can therefore pass any block ID on the site: the source block's content is duplicated into an area the rogue editor controls, disclosing that content, and the original block is then force-deleted in the same request, destroying arbitrary site content. The Concrete CMS security team gave this vulnerability a CVSS v4.0 score of 5.9 with vector CVSS:4.0/AV:N/AC:L/AT:P/PR:H/UI:N/VC:N/VI:H/VA:H/SC:N/SI:N/SA:N. Thanks Yonatan Drori from Tenzai for reporting.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81909"
+    },
     {
       "id": "CVE-2026-81908",
       "published": "2026-09-11T18:16:58.810",
@@ -862,42 +898,6 @@
       "score": 7.2,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-17037"
-    },
-    {
-      "id": "CVE-2026-87727",
-      "published": "2026-09-11T09:17:22.237",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "a-blog cms Ver. 3.2.33 and earlier contains a path traversal vulnerability, which allows an unauthenticated attacker to read or delete arbitrary files on the affected product.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87727"
-    },
-    {
-      "id": "CVE-2026-80469",
-      "published": "2026-09-11T09:17:20.833",
-      "lastModified": "2026-09-11T15:17:04.913",
-      "description": "An attacker may achieve arbitrary code execution on a target system by uploading a malicious device driver package, bypassing driver verification mechanisms, and triggering the execution of\nattacker-controlled code. User interaction is required.",
-      "score": 8.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80469"
-    },
-    {
-      "id": "CVE-2026-19486",
-      "published": "2026-09-11T09:17:20.327",
-      "lastModified": "2026-09-11T15:17:00.623",
-      "description": "A Server-Side Request Forgery (SSRF) vulnerability in Google Cloud Gemini Enterprise Agent Platform App Builder versions prior to 2026-06-01 on Google Cloud Platform allows an unauthenticated attacker to leak the Compute Engine default service account access token.\n\n\n\nThis vulnerability was patched on 01 June 2026. Users will need to redeploy their previously deployed apps.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19486"
-    },
-    {
-      "id": "CVE-2025-15679",
-      "published": "2026-09-11T09:17:20.067",
-      "lastModified": "2026-09-11T16:17:04.560",
-      "description": "Under certain circumstances such as reset to factory default operation, the BMC root account is made active without a password on BullSequana XH3406 and XH3515.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-15679"
     }
   ]
 }
