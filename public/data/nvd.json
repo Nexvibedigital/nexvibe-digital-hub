@@ -1,6 +1,43 @@
 {
-  "syncedAt": "2026-09-18T17:16:47.675Z",
+  "syncedAt": "2026-09-18T17:42:27.470Z",
   "items": [
+    {
+      "id": "CVE-2026-80968",
+      "published": "2026-09-11T20:19:02.843",
+      "lastModified": "2026-09-14T13:18:51.513",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nALSA: mts64: Check card index validity at probe\n\nAlthough mts64 driver has a check of the given devptr->id value, it\ndoesn't check for a negative id, which is often given as \"none\" or\nsuch value when bound via sysfs.  This may lead to OOB access for\nindex[] and other parameters.\n\nAdd a sanity check for the card index and warn/correct it if it's a\nvalue out of the range.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80968"
+    },
+    {
+      "id": "CVE-2026-80967",
+      "published": "2026-09-11T20:19:02.720",
+      "lastModified": "2026-09-14T13:18:51.370",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nALSA: pcxhr: initialize mutexes before requesting threaded IRQ\n\npcxhr_probe() requests pcxhr_threaded_irq() before initializing\nmgr->lock, even though the threaded handler takes that mutex.\n\nInitialize the manager locks before request_threaded_irq() so an\nearly interrupt cannot run against uninitialized mutex state during\nprobe.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80967"
+    },
+    {
+      "id": "CVE-2026-80966",
+      "published": "2026-09-11T20:19:02.600",
+      "lastModified": "2026-09-14T13:18:51.247",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nALSA: portman2x4: Check card index validity at probe\n\nAlthough portman2x4 driver has a check of the given devptr->id value,\nit doesn't check for a negative id, which is often given as \"none\" or\nsuch value when bound via sysfs.  This may lead to OOB access for\nindex[] and other parameters.\n\nAdd a sanity check for the card index and warn/correct it if it's a\nvalue out of the range.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80966"
+    },
+    {
+      "id": "CVE-2026-80965",
+      "published": "2026-09-11T20:19:02.477",
+      "lastModified": "2026-09-14T13:18:51.123",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nALSA: serial-u16550: Check card index validity at probe\n\nserial-u16550 driver blindly trusts that the given devptr->id value is\nwithin the proper card index range at probe.  It's OK for the devices\nthe driver itself creates at the module probe time, but if the device\nis bound manually via sysfs interface, this could be -1 as \"none\", and\nthis leads to OOB access for index[] and other parameters.\n\nAdd a sanity check for the card index and warn/correct it if it's a\nvalue out of the range.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80965"
+    },
+    {
+      "id": "CVE-2026-80964",
+      "published": "2026-09-11T20:19:02.347",
+      "lastModified": "2026-09-14T13:18:51.003",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nALSA: virmidi: Check card index validity at probe\n\nvirmidi driver blindly trusts that the given devptr->id value is\nwithin the proper card index range at probe.  It's OK for the devices\nthe driver itself creates at the module probe time, but if the device\nis bound manually via sysfs interface, this could be -1 as \"none\", and\nthis leads to OOB access for index[] and other parameters.\n\nAdd a sanity check for the card index and warn/correct it if it's a\nvalue out of the range.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80964"
+    },
     {
       "id": "CVE-2026-80963",
       "published": "2026-09-11T20:19:02.220",
@@ -819,51 +856,6 @@
       "score": 6,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18122"
-    },
-    {
-      "id": "CVE-2026-72710",
-      "published": "2026-09-11T17:18:58.907",
-      "lastModified": "2026-09-15T03:17:05.947",
-      "description": "SPIP before 4.4.18 contains a mass assignment vulnerability in the editer_objet action that allows unauthenticated attackers to write arbitrary rows to any SQL table lacking a champs_editables allowlist by supplying an attacker-controlled arg parameter resolving to internal database tables. Attackers can insert a malicious row into the spip_jobs queue with a controlled PHP function and arguments, which is then dynamically executed when the cron processes the queue, resulting in remote code execution.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-72710"
-    },
-    {
-      "id": "CVE-2026-72709",
-      "published": "2026-09-11T17:18:58.760",
-      "lastModified": "2026-09-15T03:17:05.813",
-      "description": "SPIP before version 4.4.18 contains a missing authorization vulnerability in sensitive actions under ecrire/action/ that allows unauthenticated attackers to invoke privileged actions by supplying only a valid CSRF nonce without any server-side permission check. Attackers can bypass template-level authorization guards through direct HTTP requests to invoke actions such as editer_auteur, enabling arbitrary account password rewrites including administrator accounts and resulting in full account takeover.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-72709"
-    },
-    {
-      "id": "CVE-2026-72708",
-      "published": "2026-09-11T17:18:57.197",
-      "lastModified": "2026-09-15T17:17:24.373",
-      "description": "SPIP before 4.4.18 contains an unauthenticated blind SQL injection vulnerability in the SQL escaping layer that allows unauthenticated attackers to inject arbitrary SQL by supplying a crafted annee parameter value matching a word character followed by an open parenthesis, which bypasses escaping for date-type columns across MySQL, SQLite, and PostgreSQL backends. Attackers can exploit the always-present sitemap.xml.html template's annee criterion to embed unescaped time-based or boolean payloads into database queries, enabling extraction of arbitrary database content including the alea_ephemere secret used to sign SPIP action nonces.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-72708"
-    },
-    {
-      "id": "CVE-2026-54047",
-      "published": "2026-09-11T17:17:10.477",
-      "lastModified": "2026-09-11T20:17:14.213",
-      "description": "Laci Synchroni is a decentralized mod and appearance sync server and plugin for Dalamud. Versions of the backend prior to 1.2.3 have an improper authentication vulnerability in the application's OAuth2 login flow. The application relies on client-side state by trusting the `UID` field inside the `Authentications` object of a user's local `config.json` file. By manually editing this local file on their PC prior to logging in, a user can supply an arbitrary UID. Because the server fails to validate that the authenticated OAuth2 identity matches the requested UID, an attacker can fully impersonate any target user and perform actions on their behalf. This issue has been resolved in version 1.2.3. The patch modifies `AuthorizeOauthAsync` inside the `SecretKeyAuthenticatorService` to strictly bind the lookup of the requested User ID (`requestedUid`) to the record of the successfully authenticated identity (`primaryUid`). The server will no longer load or return session tokens for a requested UID unless it matches the verified, authenticated database record. No known workarounds are available.",
-      "score": 9.2,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54047"
-    },
-    {
-      "id": "CVE-2026-18061",
-      "published": "2026-09-11T17:17:08.927",
-      "lastModified": "2026-09-16T14:03:36.323",
-      "description": "Improper restriction of XML external entity references in the RemoteQueryCachePlugin in AWS Advanced JDBC Wrapper 3.3.0 through 4.2.0 might allow an actor with write access to the shared cache infrastructure to disclose sensitive files from application hosts that read cached query results, including stored database and IAM role credentials, via crafted XML data in a cached column value.\n\n\n\nTo remediate this issue, users should upgrade to version 4.3.0 or later.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18061"
     }
   ]
 }
