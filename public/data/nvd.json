@@ -1,6 +1,96 @@
 {
-  "syncedAt": "2026-09-18T07:45:08.238Z",
+  "syncedAt": "2026-09-18T08:20:40.054Z",
   "items": [
+    {
+      "id": "CVE-2026-81908",
+      "published": "2026-09-11T18:16:58.810",
+      "lastModified": "2026-09-11T20:19:13.417",
+      "description": "Concrete CMS 9.2.0 to 9.5.2 contain a missing authorization vulnerability in the REST API Groups list endpoint. The listGroups() method in concrete/src/Api/Controller/Groups.php registers a permissions checker callback that unconditionally returns true, so no per-object (tree node) authorization is enforced when the group collection is returned. An authenticated user whose API token carries the groups:read scope can call GET /ccm/api/1.0/groups and receive every group on the site regardless of the view permissions on those groups, disclosing the organization's group structure, roles, and access hierarchy. The Concrete CMS security team gave this vulnerability a CVSS v4.0 score of 6.0 with vector CVSS:4.0/AV:N/AC:L/AT:P/PR:L/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N. Thanks Winston Crooker for reporting.",
+      "score": 6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81908"
+    },
+    {
+      "id": "CVE-2026-7298",
+      "published": "2026-09-11T18:16:58.340",
+      "lastModified": "2026-09-11T20:18:54.207",
+      "description": "Improper neutralization of input during web page generation ('cross-site scripting') vulnerability in IdeaSoft Software Industry and Trade Inc. Smart E-Commerce allows Reflected XSS.\n\nThis issue affects Smart E-Commerce: through 11092026. NOTE: The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7298"
+    },
+    {
+      "id": "CVE-2026-78807",
+      "published": "2026-09-11T18:16:58.120",
+      "lastModified": "2026-09-11T21:17:16.723",
+      "description": "An issue in wpa_supplicant all versions before v.2.12 allows a local attacker to bypass proper network context and AKMP matching for PMKSA caching via missing validation in the driver based PMKSA selection path in wpa.c",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78807"
+    },
+    {
+      "id": "CVE-2026-68528",
+      "published": "2026-09-11T18:16:57.643",
+      "lastModified": "2026-09-11T20:17:22.430",
+      "description": "Concrete CMS RSS Displayer block below version 9.5.3  rendered remote feed item titles without HTML escaping, resulting in stored cross-site scripting. An attacker able to control a title in a syndicated feed could execute script in the site origin for any visitor to the affected page, including administrators, without holding an account on that site. The Concrete CMS security team gave this vulnerability a CVSS v4.0 score of 6.0 with vector CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:P/VC:H/VI:L/VA:N/SC:N/SI:N/SA:N. Thanks riodrwn for reporting.",
+      "score": 6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-68528"
+    },
+    {
+      "id": "CVE-2026-67211",
+      "published": "2026-09-11T18:16:57.470",
+      "lastModified": "2026-09-16T14:04:32.393",
+      "description": "OOM Denial of Service via Unbounded Map Pre-Sizing in Apache OpenNLP SymSpellModelSerializer\n\nVersions Affected: \n\n- 3.0.0-M4\n- 3.0.0-M5\n\n(The opennlp-spellcheck extension was introduced in 3.0.0-M4. Releases 1.x and 2.x do not contain the affected code.)\n\nDescription:\n\nThe SymSpellModelSerializer.create() method reads two 32-bit signed integer count fields (unigramCount and bigramCount) from a binary SymSpell model stream and passes each value directly to LinkedHashMap.newLinkedHashMap() after validating only that it is non-negative. No upper bound is applied, so the count is fully attacker-controlled when the model file originates from an untrusted source.\n\nA crafted .bin model file in which either count field is set to Integer.MAX_VALUE (or any value large enough to exhaust the available heap) causes the map to be pre-sized to a capacity of 2^30 entries. The oversized backing array is allocated on the first put() into that map, requesting 4–8 GB depending on whether compressed oops are in effect, and the load fails with an OutOfMemoryError. Because the count fields sit immediately after a fixed-size header (magic, format version, three UTF strings, the configuration fields, and the edit-distance identifier) the attacker pays no meaningful size cost to weaponize a payload: a file of well under 100 bytes plus a single real entry is sufficient to crash a JVM that loads it.\n\nAny code path that deserializes a SymSpell model is affected, including SymSpellModels.deserialize(InputStream), SymSpellModels.fromBytes(byte[]), classpath model loading via SymSpellModelResolver.resolveByLanguage(String), the CorrectTextTool command-line tool, and model-archive loading through the registered ArtifactSerializer. The opennlp-spellcheck extension ships in the official OpenNLP binary distribution.\n\nThe practical impact is denial of service against processes that load SymSpell model files from untrusted or semi-trusted origins.\n\nMitigation:\n\n- 3.x users should upgrade to 3.0.0-M6.\n\nNote: The fix applies an upper bound to both count fields, checked before the map is pre-sized; counts that are negative or exceed the bound cause an IOException to be thrown and the read to fail fast with no large allocation. The bound is the existing AbstractModelReader.MAX_ENTRIES limit introduced earlie, which the current change promotes to public visibility so that serializers implementing their own binary format can share it. The default bound is 10,000,000, which is well above the entry counts of legitimate SymSpell dictionaries but far below any value that would threaten heap exhaustion. Deployments that legitimately need to load larger dictionaries can raise the limit at JVM startup by setting the OPENNLP_MAX_ENTRIES system property to the desired positive integer (e.g. -DOPENNLP_MAX_ENTRIES=50000000); invalid or non-positive values fall back to the default. Note that this property is shared with the model-reader limit and raising it relaxes both.\n\nUsers who cannot upgrade immediately should treat all SymSpell .bin model files as untrusted input unless their provenance is verified, and should avoid loading models supplied by end users or fetched from third-party repositories without integrity checks.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-67211"
+    },
+    {
+      "id": "CVE-2026-18495",
+      "published": "2026-09-11T18:16:56.690",
+      "lastModified": "2026-09-16T19:42:43.623",
+      "description": "A flaw was found in libtiff. A heap-buffer overflow vulnerability exists in the `tiff2pdf` utility due to an integer truncation error when processing crafted BigTIFF files. An attacker can provide a specially crafted BigTIFF file, causing a 64-bit `StripByteCounts` value to be truncated to a 32-bit integer. This leads to an undersized memory allocation and a subsequent out-of-bounds memory copy, resulting in a crash and severe memory corruption.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18495"
+    },
+    {
+      "id": "CVE-2026-18122",
+      "published": "2026-09-11T18:16:56.567",
+      "lastModified": "2026-09-11T20:17:12.873",
+      "description": "Concrete CMS 9.2.0 to 9.5.2 Express REST API list endpoint exposes restricted Express entries via Missing Authorization; the Concrete CMS REST API's Express entry collection endpoint disabled the per-entry view permission check. An OAuth token with read scope for an Express entity could enumerate entries that its user context lacked permission to view, disclosing each entry's public identifier, URL, label, dates, and any attribute or associated-entry data requested via the includes parameter. The Concrete CMS security team gave this vulnerability a CVSS v4.0 score of 6.0 with vector CVSS:4.0/AV:N/AC:L/AT:P/PR:L/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N. Thanks riodrwn for reporting.",
+      "score": 6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18122"
+    },
+    {
+      "id": "CVE-2026-72710",
+      "published": "2026-09-11T17:18:58.907",
+      "lastModified": "2026-09-15T03:17:05.947",
+      "description": "SPIP before 4.4.18 contains a mass assignment vulnerability in the editer_objet action that allows unauthenticated attackers to write arbitrary rows to any SQL table lacking a champs_editables allowlist by supplying an attacker-controlled arg parameter resolving to internal database tables. Attackers can insert a malicious row into the spip_jobs queue with a controlled PHP function and arguments, which is then dynamically executed when the cron processes the queue, resulting in remote code execution.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-72710"
+    },
+    {
+      "id": "CVE-2026-72709",
+      "published": "2026-09-11T17:18:58.760",
+      "lastModified": "2026-09-15T03:17:05.813",
+      "description": "SPIP before version 4.4.18 contains a missing authorization vulnerability in sensitive actions under ecrire/action/ that allows unauthenticated attackers to invoke privileged actions by supplying only a valid CSRF nonce without any server-side permission check. Attackers can bypass template-level authorization guards through direct HTTP requests to invoke actions such as editer_auteur, enabling arbitrary account password rewrites including administrator accounts and resulting in full account takeover.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-72709"
+    },
+    {
+      "id": "CVE-2026-72708",
+      "published": "2026-09-11T17:18:57.197",
+      "lastModified": "2026-09-15T17:17:24.373",
+      "description": "SPIP before 4.4.18 contains an unauthenticated blind SQL injection vulnerability in the SQL escaping layer that allows unauthenticated attackers to inject arbitrary SQL by supplying a crafted annee parameter value matching a word character followed by an open parenthesis, which bypasses escaping for date-type columns across MySQL, SQLite, and PostgreSQL backends. Attackers can exploit the always-present sitemap.xml.html template's annee criterion to embed unescaped time-based or boolean payloads into database queries, enabling extraction of arbitrary database content including the alea_ephemere secret used to sign SPIP action nonces.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-72708"
+    },
     {
       "id": "CVE-2026-54047",
       "published": "2026-09-11T17:17:10.477",
@@ -808,96 +898,6 @@
       "score": 7.3,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-15679"
-    },
-    {
-      "id": "CVE-2026-89179",
-      "published": "2026-09-11T08:16:49.080",
-      "lastModified": "2026-09-11T16:17:50.437",
-      "description": "WeenyGenius, a computer lab management system by Howyar Technologies, has a Missing Support for Integrity Check vulnerability. Unauthenticated attackers on the same network can intercept a student's connection packet and replay it, thereby forging the appearance that the student remains connected.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89179"
-    },
-    {
-      "id": "CVE-2026-89178",
-      "published": "2026-09-11T08:16:48.947",
-      "lastModified": "2026-09-11T16:17:50.317",
-      "description": "WeenyGenius, a computer lab management system by Howyar Technologies, has an Origin Validation Error vulnerability. Unauthenticated attackers on the same network can spoof the teacher workstation and send broadcast packets, causing student computers to attempt to establish a connection with the attacker.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89178"
-    },
-    {
-      "id": "CVE-2026-89177",
-      "published": "2026-09-11T08:16:48.813",
-      "lastModified": "2026-09-11T16:17:50.200",
-      "description": "WeenyGenius, a computer lab management system by Howyar Technologies, has a Use of Insecure Protocol vulnerability. Due to the reliance on ZMTP Null mode, unauthenticated attackers on the same network can capture packets to leak transmitted data, or perform replay attacks with forged commands to disrupt classroom operations.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89177"
-    },
-    {
-      "id": "CVE-2026-89176",
-      "published": "2026-09-11T08:16:48.677",
-      "lastModified": "2026-09-11T16:17:50.073",
-      "description": "WeenyGenius, a computer lab management system developed by Howyar Technologies, has a Missing Authentication vulnerability. Unauthenticated attackers on the same network can easily spoof student or teacher endpoints. Impersonating a student can disrupt normal classroom operations, whereas impersonating a teacher can induce student computers to initiate connections, thereby gaining remote control over the student endpoints.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89176"
-    },
-    {
-      "id": "CVE-2026-89175",
-      "published": "2026-09-11T08:16:48.543",
-      "lastModified": "2026-09-11T16:17:49.943",
-      "description": "Smart Video Intercom System developed by Kingdom Communication Associated has a Client-Side Authentication vulnerability. Unauthenticated remote attackers can bypass authentication to access specific pages and obtain partial system configuration values.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89175"
-    },
-    {
-      "id": "CVE-2026-89174",
-      "published": "2026-09-11T08:16:48.377",
-      "lastModified": "2026-09-11T16:17:49.810",
-      "description": "Smart Video Intercom System developed by Kingdom Communication Associated has a Missing Brute-force Protection vulnerability. Unauthenticated remote attackers can gain access to valid accounts through a large number of login attempts.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89174"
-    },
-    {
-      "id": "CVE-2026-89173",
-      "published": "2026-09-11T08:16:48.230",
-      "lastModified": "2026-09-11T17:19:31.583",
-      "description": "Smart Video Intercom System developed by Kingdom Communication Associated has a Sensitive Data Exposure vulnerability. Unauthenticated remote attackers can enumerate valid user accounts by exploiting differences in system responses.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89173"
-    },
-    {
-      "id": "CVE-2026-6642",
-      "published": "2026-09-11T08:16:48.007",
-      "lastModified": "2026-09-11T21:17:13.700",
-      "description": "The Media Library Assistant plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the bulk edit preset export/import mechanism in versions up to and including 3.35. This is due to insufficient output escaping on preset field values when they are rendered in HTML attribute contexts in the mla_generate_bulk_edit_form_fieldsets() function and mla-bulk-edit-fieldsets.tpl template. While wp_kses() filtering is applied during preset export for users without unfiltered_html capability, this does not prevent attribute injection attacks since the malicious payload consists of quotes and HTML attributes rather than HTML tags. When preset values are retrieved and rendered, they are directly assigned to template variables without esc_attr() escaping and then inserted into input element value attributes via simple string replacement. This makes it possible for authenticated attackers, with Author-level access and above (upload_files capability), to inject arbitrary web scripts that execute when an administrator imports the poisoned preset and the targeted input field receives focus.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-6642"
-    },
-    {
-      "id": "CVE-2026-6641",
-      "published": "2026-09-11T08:16:47.870",
-      "lastModified": "2026-09-11T14:17:32.130",
-      "description": "The Media Library Assistant plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'mla_gallery' shortcode in versions up to and including 3.35. This is due to insufficient input sanitization and output escaping on the mla_link_href parameter when mla_output is set to 'paginate_links', where the _paginate_links() function processes the value through mla_process_shortcode_parameter() and _replace_query_parameter() without proper URL escaping, then outputs it directly in href attributes without applying esc_url(). This makes it possible for authenticated attackers, with contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-6641"
-    },
-    {
-      "id": "CVE-2026-6640",
-      "published": "2026-09-11T08:16:46.647",
-      "lastModified": "2026-09-11T14:17:31.983",
-      "description": "The Media Library Assistant plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'mla_link_attributes' parameter in all versions up to, and including, 3.35 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-6640"
     }
   ]
 }
