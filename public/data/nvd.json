@@ -1,6 +1,123 @@
 {
-  "syncedAt": "2026-09-18T01:44:36.772Z",
+  "syncedAt": "2026-09-18T02:19:22.958Z",
   "items": [
+    {
+      "id": "CVE-2026-89257",
+      "published": "2026-09-11T12:16:56.160",
+      "lastModified": "2026-09-15T17:17:35.743",
+      "description": "AVideo through 29.0 contains an insecure direct object reference (IDOR) vulnerability in objects/categoryDeleteAssets.json.php. The endpoint validates only the Category::canCreateCategory() capability and a CSRF nonce before passing the attacker-supplied $_REQUEST['id'] to Category::deleteAssets(), which recursively removes {systemRootPath}videos/categories/assets/{id}/. It omits the Category::userCanEditCategory() ownership check enforced by the sibling Category::delete(). On installations where the non-default usersCanCreateNewCategories setting is enabled, an authenticated non-admin user with the canUpload capability can send a POST request with an arbitrary category ID and recursively delete any category's on-disk asset directory (icons/images). Category records and videos are not deleted. As of the advisory publication no patched version was available.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89257"
+    },
+    {
+      "id": "CVE-2026-89256",
+      "published": "2026-09-11T12:16:56.003",
+      "lastModified": "2026-09-11T20:19:23.217",
+      "description": "AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains a stored cross-site scripting vulnerability in the Bookmark plugin where chapter names are not encoded before being concatenated into public watch-page HTML. A video owner can inject malicious scripts via the bookmark name parameter, and every visitor of that video executes the payload in the AVideo origin.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89256"
+    },
+    {
+      "id": "CVE-2026-89255",
+      "published": "2026-09-11T12:16:55.850",
+      "lastModified": "2026-09-11T15:21:12.850",
+      "description": "AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains a stored cross-site scripting vulnerability in the LoginControl plugin that fails to HTML-encode PGP public keys echoed into a textarea element. An authenticated attacker can inject malicious JavaScript by submitting a crafted public key, which executes in an administrator's session when viewing the user's profile tab.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89255"
+    },
+    {
+      "id": "CVE-2026-89254",
+      "published": "2026-09-11T12:16:55.690",
+      "lastModified": "2026-09-11T21:17:57.507",
+      "description": "AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains a stored cross-site scripting vulnerability in the CustomizeUser plugin where the field_name parameter is stored raw without sanitization. Administrators can inject malicious scripts via the add.json.php endpoint that execute when viewing extra info pages or profile forms that render the typeToHTML function.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89254"
+    },
+    {
+      "id": "CVE-2026-89253",
+      "published": "2026-09-11T12:16:55.533",
+      "lastModified": "2026-09-11T15:21:12.850",
+      "description": "WWBN AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains a stored cross-site scripting vulnerability in the user 'donationLink' profile field. User::setDonationLink() (objects/user.php) stores the value and save() validates it only with filter_var(..., FILTER_VALIDATE_URL), which accepts strings such as http://evil.example/\"onmouseover=alert(document.domain)//, while getDonationLink() applies only strip_tags() and does not encode double quotes. plugin/CustomizeUser/actionButton.php echoes the value unencoded into an <a href=\"...\"> attribute, and that button is included from view/modeYoutubeBottom.php on the watch page when the CustomizeUser option allowDonationLink is enabled. An authenticated user who updates their own profile via objects/userUpdate.json.php can therefore break out of the href attribute and inject an event handler that executes JavaScript in the browser of any visitor—including an administrator—who views the attacker's videos and interacts with (for example, hovers over) the donation button. The issue was unfixed at the time of reporting.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89253"
+    },
+    {
+      "id": "CVE-2026-89252",
+      "published": "2026-09-11T12:16:55.377",
+      "lastModified": "2026-09-15T17:17:35.233",
+      "description": "AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 fails to verify ownership in addLiveLink.php when updating LiveLinks, allowing authenticated users to modify other users' links. A canStream user can overwrite another user's LiveLink HLS source and metadata by supplying an existing linkId, redirecting viewers to attacker-controlled media.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89252"
+    },
+    {
+      "id": "CVE-2026-89251",
+      "published": "2026-09-11T12:16:55.223",
+      "lastModified": "2026-09-11T19:17:47.450",
+      "description": "AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 fails to validate ad impressions in plugin/AD_Server/log.php, allowing logged-in users to submit arbitrary label values that trigger unverified wallet credits to campaign video owners. Attackers can repeatedly POST label=start requests to mint YPTWallet balance for any campaign video without proof an ad actually played.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89251"
+    },
+    {
+      "id": "CVE-2026-89250",
+      "published": "2026-09-11T12:16:55.063",
+      "lastModified": "2026-09-11T15:21:12.850",
+      "description": "WWBN AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains an unauthenticated file read vulnerability in the getRecordedFile.php endpoint that streams recorded FLV files from the temporary directory. Attackers can request the endpoint with a known or guessed stream key to download recorded live video files without authentication or authorization checks.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89250"
+    },
+    {
+      "id": "CVE-2026-89249",
+      "published": "2026-09-11T12:16:54.890",
+      "lastModified": "2026-09-11T21:17:57.147",
+      "description": "AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains a stored cross-site scripting vulnerability in the YPTWallet plugin where user-supplied CryptoWallet values are base64-encoded but not HTML-escaped before storage in wallet_log.information. Administrators viewing pending withdrawal requests in pendingRequests.php execute the stored markup in their session, allowing attackers to perform administrative actions via same-origin fetch requests.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89249"
+    },
+    {
+      "id": "CVE-2026-89248",
+      "published": "2026-09-11T12:16:54.730",
+      "lastModified": "2026-09-11T15:21:12.850",
+      "description": "AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 is missing an authentication/authorization check in plugin/WebRTC/status.json.php. When the WebRTC plugin is present, any unauthenticated remote user can request /plugin/WebRTC/status.json.php and receive JSON containing the absolute filesystem path of the WebRTC2RTMP helper binary (revealing the document-root path), the configured WebRTC port, file_exists/is_executable status for the binary, the contents of the WebRTC log/JSON files (videos/WebRTC2RTMP.log) when present, and whether the configured port is reachable on loopback (127.0.0.1) and on the public address. The endpoint performs no User::isLogged(), User::isAdmin(), or forbiddenPage() check. The issue was unfixed at the time of reporting.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89248"
+    },
+    {
+      "id": "CVE-2026-89247",
+      "published": "2026-09-11T12:16:54.573",
+      "lastModified": "2026-09-15T17:17:34.703",
+      "description": "WWBN AVideo at commit c3edcc274c389816d434acadac07ee78eaf330c1 and earlier contains an XML injection vulnerability in plugin/AD_Server/VMAP.php, which is reachable without authentication when the AD_Server plugin is enabled. The script emits Content-Type: application/xml and writes the timeOffset and idTag values returned by AD_Server::getVMAPSFromRequest() directly into VMAP attributes without encoding. Those values originate from the base64- and JSON-decoded $_REQUEST['vmaps'] parameter, which is not covered by $securityFilter in objects/security.php. A remote attacker can craft a vmaps value (containing a non-empty VAST.campaing entry) and induce a user to open the resulting VMAP URL or a video page using it, injecting arbitrary <vmap:AdBreak> and <vmap:AdTagURI>/AdSource nodes into the generated XML. The player's IMA path (afterVideoJS -> PlayerSkins::setIMAADTag) then requests the attacker-supplied ad URLs, resulting in ad injection and cross-origin requests from the victim's playback session. The issue was unfixed at the time of reporting.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89247"
+    },
+    {
+      "id": "CVE-2026-89246",
+      "published": "2026-09-11T12:16:54.423",
+      "lastModified": "2026-09-11T19:17:47.320",
+      "description": "WWBN AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains a CSV formula injection vulnerability in the myComments.download.php endpoint that fails to sanitize spreadsheet formula prefixes in comment text. Authenticated users can inject formulas starting with =, +, -, or @ characters that execute when administrators or video owners open the exported CSV file in spreadsheet applications.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89246"
+    },
+    {
+      "id": "CVE-2026-89245",
+      "published": "2026-09-11T12:16:54.270",
+      "lastModified": "2026-09-11T15:21:12.850",
+      "description": "WWBN AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 contains a cross-site request forgery vulnerability in playlistRemove.php that allows attackers to delete playlists by skipping CSRF protection checks. Attackers can craft a malicious form that submits a POST request to playlistRemove.php, causing a victim's playlist to be deleted when they visit the attacker's page while logged in.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89245"
+    },
     {
       "id": "CVE-2026-89244",
       "published": "2026-09-11T12:16:54.117",
@@ -783,123 +900,6 @@
       "score": 5.6,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78135"
-    },
-    {
-      "id": "CVE-2026-89145",
-      "published": "2026-09-11T02:18:35.617",
-      "lastModified": "2026-09-11T15:17:08.727",
-      "description": "Flextype CMS versions 0.9.9 through 1.0.0-alpha.3 fail to HTML-escape plugin directory names in the dependency error page rendered by getValidPluginsDependencies(). Attackers with write access to the plugins directory can create a plugin with HTML characters in its name to execute arbitrary scripts in users' browsers when dependency validation fails.",
-      "score": 4.2,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89145"
-    },
-    {
-      "id": "CVE-2026-89092",
-      "published": "2026-09-11T02:18:35.460",
-      "lastModified": "2026-09-11T18:17:00.230",
-      "description": "The nscd service in the GNU C Library 2.3.4 onwards may crash due to a \nstack overflow when a malicious DNS server returns too large a response \nfor a DNS query, resulting in degraded DNS resolution for the system.\n\n\n\nExploitation of this bug needs a system that has nscd enabled and using \nan untrusted DNS server for name resolution, with the compromised DNS \nserver being capable of processing records large enough to result in a \nstack overflow in an nscd thread stack.  During experimentation, bind 9 \nwas unable to handle large records, but that could change in future or \nwith a different name server.  In typical installations, nscd is \nexecuted in an isolated context as its own user without a shell, due to \nwhich any compromise of that service is isolated.\n\n\n\nThere is a remote possibility of nscd cache corruption if an attacker \nmanages to get the stack pointer into a desired point in the heap, \npotentially resulting in other caches in nscd being overwritten with \ncorrupt data through the stack overflow, until the buggy code path \neventually results in a crash.\n\n\n\nFinally, a crash in nscd may result in performance degradation when \nresolving names, but it does not result in a denial of service.",
-      "score": 4.2,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89092"
-    },
-    {
-      "id": "CVE-2026-88914",
-      "published": "2026-09-11T02:18:35.300",
-      "lastModified": "2026-09-16T19:42:43.623",
-      "description": "A flaw was found in GStreamer's gst-plugins-good isomp4 plugin. When processing a specially crafted MP4 or MOV file containing CEA-608 closed-caption data, an integer overflow in 32-bit unsigned arithmetic can bypass a bounds check in the caption parser. This leads to an out-of-bounds heap read of up to 244 bytes, which is then included in the downstream caption output. An attacker could exploit this by tricking a user into opening a malicious media file, potentially resulting in disclosure of adjacent heap memory or application crash.",
-      "score": 4.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88914"
-    },
-    {
-      "id": "CVE-2026-78134",
-      "published": "2026-09-11T02:18:34.910",
-      "lastModified": "2026-09-14T20:06:44.303",
-      "description": "strongSwan 4.5.0 through 6.0.7 has Incorrect Access Control in the eap-ttls and eap-peap plugins because there can be a missing or mismatched inner EAP identity.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78134"
-    },
-    {
-      "id": "CVE-2026-78133",
-      "published": "2026-09-11T02:18:34.757",
-      "lastModified": "2026-09-14T20:07:44.490",
-      "description": "libcharon in strongSwan 6.0.0 through 6.0.7 has a use-after-free in IKEv2 rekeying collision handling.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78133"
-    },
-    {
-      "id": "CVE-2026-78132",
-      "published": "2026-09-11T02:18:34.613",
-      "lastModified": "2026-09-14T20:08:12.657",
-      "description": "strongSwan 5.1.3 through 6.0.7 has an infinite loop in the x509 plugin's attribute certificate parser for ietfAttrSyntax.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78132"
-    },
-    {
-      "id": "CVE-2026-78131",
-      "published": "2026-09-11T02:18:34.490",
-      "lastModified": "2026-09-14T20:08:24.203",
-      "description": "strongSwan 4.2.0 through 6.0.7 has a missing release of memory after its effective lifetime in the x509 plugin's attribute certificate parser.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78131"
-    },
-    {
-      "id": "CVE-2026-78130",
-      "published": "2026-09-11T02:18:34.353",
-      "lastModified": "2026-09-15T16:17:24.987",
-      "description": "strongSwan 4.2.0 through 6.0.7 has a NULL pointer dereference in the x509 plugin's attribute certificate parser.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78130"
-    },
-    {
-      "id": "CVE-2026-78129",
-      "published": "2026-09-11T02:18:34.207",
-      "lastModified": "2026-09-14T20:08:56.593",
-      "description": "strongSwan 4.6.2 through 6.0.7 has an infinite loop in PKCS#5 decryption.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78129"
-    },
-    {
-      "id": "CVE-2026-78127",
-      "published": "2026-09-11T02:18:34.063",
-      "lastModified": "2026-09-14T20:09:10.940",
-      "description": "libcharon in strongSwan 4.1.2 through 6.0.7 has a missing release of memory after its effective lifetime in the IKE message parser.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78127"
-    },
-    {
-      "id": "CVE-2026-78126",
-      "published": "2026-09-11T02:18:33.920",
-      "lastModified": "2026-09-14T20:09:26.640",
-      "description": "strongSwan 4.1.10 through 6.0.7 allows a NULL pointer dereference in the eap-aka plugin.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78126"
-    },
-    {
-      "id": "CVE-2026-78124",
-      "published": "2026-09-11T02:18:33.770",
-      "lastModified": "2026-09-14T20:09:47.260",
-      "description": "strongSwan 5.0.2 through 6.0.7 allows PKCS#7 certificate enumeration in the openssl plugin that leads to a lack of release of memory after its effective lifetime.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78124"
-    },
-    {
-      "id": "CVE-2026-78123",
-      "published": "2026-09-11T02:18:33.413",
-      "lastModified": "2026-09-15T16:17:24.463",
-      "description": "strongSwan 5.0.2 through 6.0.7 has an Expired Pointer Dereference in PKCS#7 parsing in the openssl plugin.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78123"
     }
   ]
 }
