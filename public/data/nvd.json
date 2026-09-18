@@ -1,6 +1,152 @@
 {
-  "syncedAt": "2026-09-18T15:45:15.022Z",
+  "syncedAt": "2026-09-18T16:18:31.050Z",
   "items": [
+    {
+      "id": "CVE-2026-80963",
+      "published": "2026-09-11T20:19:02.220",
+      "lastModified": "2026-09-14T13:18:50.883",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndm-stats: fix a crash if allocation of per-cpu data fails\n\nIf \"dm_kvzalloc(percpu_alloc_size, cpu_to_node(cpu))\" fails, the code\njumps to the \"out\" label and calls dm_stat_free. dm_stat_free does\n\"for_each_possible_cpu(cpu) { dm_kvfree(s->stat_percpu[cpu][0].histogram,\ns->histogram_alloc_size);\", which crashes with NULL pointer dereference\nif s->stat_percpu[cpu] is NULL.\n\nThis commit fixes the bug by testing s->stat_percpu[cpu] for NULL before\nusing it.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80963"
+    },
+    {
+      "id": "CVE-2026-80962",
+      "published": "2026-09-11T20:19:02.100",
+      "lastModified": "2026-09-13T07:17:03.200",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndm-pcache: validate geometry fields from on-disk cache_info\n\ncache_segs_init() iterates cache_info->n_segs times indexing\ncache->segments[], which is sized to the cache device geometry, and\nget_seg_id() takes each segment id from the on-media cache_info and the\nper-segment next_seg link. Both come from cache device metadata that is\nonly CRC-protected with a fixed public seed, so whoever supplies the\ncache device on a table load (CAP_SYS_ADMIN) controls them: an oversized\nn_segs or an out-of-range id drives an out-of-bounds access of\ncache->segments[] and a wild CACHE_DEV_SEGMENT() pointer into the device\nmapping -- an out-of-bounds read and write from on-disk data.\n\nReject an n_segs that exceeds the device segment count and a segment id\nthat is out of range before either is used. Valid metadata is unaffected.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80962"
+    },
+    {
+      "id": "CVE-2026-80961",
+      "published": "2026-09-11T20:19:01.980",
+      "lastModified": "2026-09-13T07:17:03.070",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndm-pcache: validate kset key_num and intra-segment bounds\n\nTwo more fields decoded from the cache device go unbounded. The kset\nkey_num drives cache_kset_crc() and the replay loop in cache_replay(),\nthe writeback worker and the GC worker, but only the magic and a\nfixed-seed CRC are checked first, so a non-last kset whose key_num exceeds\nthe PCACHE_KSET_KEYS_MAX buffer reads past its end before the CRC compare.\nA key's intra-segment offset and length in cache_key_decode() are taken\nverbatim, so a key running past its segment is replayed into the cache\ntree and the data CRC check and every later read hit then copy adjacent\npersistent memory into the caller's bio -- an out-of-bounds read that\nleaks to user space. Both fields are controlled by whoever supplies the\ncache device (CAP_SYS_ADMIN); the CRC seed is public.\n\nAdd kset_onmedia_valid() to bound key_num before any kset read, and\nreject a key whose offset plus length, computed in 64 bits, exceeds the\nsegment data_size. Valid metadata is unaffected.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80961"
+    },
+    {
+      "id": "CVE-2026-80960",
+      "published": "2026-09-11T20:19:01.863",
+      "lastModified": "2026-09-11T20:19:01.863",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndm-pcache: validate on-media seg_num against the cache device size\n\nseg_num is read from the crc32c-only superblock, so whoever supplies the\ncache device on a table load (CAP_SYS_ADMIN) controls it. It sizes\ncache->segments[] and is the value every later on-media segment id is\nbounded against, yet it is never checked against the device. Because\ncache_dev->mapping is the direct map of the pmem, CACHE_DEV_SEGMENT() for\na segment id past the device resolves to ordinary kernel memory beyond\nthe mapping; a new-cache init reaching such an id has cache_seg_init() ->\ncache_dev_zero_range() memset() 12 KiB over that memory -- an\nout-of-bounds write into the kernel heap at table load. A zero seg_num\nmakes the segment allocations ZERO_SIZE_PTR.\n\nReject a seg_num that is zero, larger than the device can hold, or larger\nthan PCACHE_CACHE_SEGS_MAX before it is used.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80960"
+    },
+    {
+      "id": "CVE-2026-80959",
+      "published": "2026-09-11T20:19:01.750",
+      "lastModified": "2026-09-13T07:17:02.943",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndm-pcache: bound the persisted tail-position offset\n\ncache_pos_decode() takes the persisted key_tail and dirty_tail seg_off from\nthe cache device and addresses within the segment with it. A seg_off at or\npast the segment data_size, controllable by whoever supplies the device\n(CAP_SYS_ADMIN), reads past the segment data.\n\nReject a decoded seg_off that is not below the segment data_size.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80959"
+    },
+    {
+      "id": "CVE-2026-80958",
+      "published": "2026-09-11T20:19:01.637",
+      "lastModified": "2026-09-13T07:17:02.823",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndm-pcache: clamp the tail kset read to the segment data region\n\nThe tail-kset read in cache_replay(), the writeback worker and the GC\nworker bounds its length by PCACHE_SEG_SIZE - seg_off, the raw segment\nsize rather than the data region. A tail near the segment end reads past\nthe segment data into the following control area.\n\nClamp the read to cache_seg_remain(), the data region.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80958"
+    },
+    {
+      "id": "CVE-2026-80957",
+      "published": "2026-09-11T20:19:01.520",
+      "lastModified": "2026-09-11T20:19:01.520",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndm-pcache: detect a cycle in the last-kset chain during replay\n\ncache_replay() follows the on-media last-kset chain by next_cache_seg_id\nwith no cond_resched(). A forged chain that points back into a segment it\nhas already visited makes the replay loop follow it forever.\n\nCap the last-kset hops at cache->n_segs; a valid chain visits each segment\nat most once.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80957"
+    },
+    {
+      "id": "CVE-2026-80956",
+      "published": "2026-09-11T20:19:01.410",
+      "lastModified": "2026-09-11T20:19:01.410",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndm-pcache: only hand out initialized cache segments\n\nget_cache_segment() scans the segment map up to cache->n_segs, the\nphysical device segment count, but cache_segs_init() only initializes\nthe first cache_info->n_segs segments. A crafted image with\ncache_info->n_segs smaller than the device count leaves the remaining\npcache_cache_segment structs zeroed (segment.data == NULL), and the\nallocator can hand one to cache_kset_close(), which writes through the\nreturned segment's data pointer with no NULL check.\n\nBound the allocator's search to cache_info->n_segs so only initialized\nsegments are ever returned. A conforming cache sets n_segs equal to the\ndevice segment count, so this rejects nothing legitimate.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80956"
+    },
+    {
+      "id": "CVE-2026-80955",
+      "published": "2026-09-11T20:19:01.287",
+      "lastModified": "2026-09-13T07:17:02.700",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndm-pcache: fix use-after-free and invalid seg operations in kset_replay()\n\nIn kset_replay, when key->seg_gen is stale (key->seg_gen <\nkey->cache_pos.cache_seg->gen), cache_key_put(key) is called but then\nkey->cache_pos.cache_seg is accessed as the argument to cache_seg_get().\nThis is a use-after-free on the freed key memory. Although mempool\nrecycled memory is not immediately reclaimed or overwritten in practice,\nthis is still a potential UAF bug.\n\nAdditionally, for expired invalid keys, setting the cache->seg_map bit\nand calling cache_seg_get() is unreasonable since the corresponding\nsegment data is no longer valid.\n\nFix both issues by moving cache_seg_get() and __set_bit() after the\ngen check, so they only execute for valid keys, and using continue to\nskip invalid keys.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80955"
+    },
+    {
+      "id": "CVE-2026-80954",
+      "published": "2026-09-11T20:19:01.167",
+      "lastModified": "2026-09-13T07:17:02.590",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ni3c: Fix unlocked dereference of dev->desc in i3c_device_get_supported_xfer_mode()\n\ni3c_device_get_supported_xfer_mode() uses dev->desc to obtain the\nmaster controller.  However, dev->desc must not be dereferenced unless\nbus->lock is held, and this function does not take that lock.\n\nThe function only needs access to the master controller associated with\nthe device's bus.  Use dev->bus instead, which is always valid for the\nlifetime of the device and does not require dereferencing dev->desc.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80954"
+    },
+    {
+      "id": "CVE-2026-80953",
+      "published": "2026-09-11T20:19:01.040",
+      "lastModified": "2026-09-13T07:17:02.463",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ni3c: master: adi: initialize the lock before enabling interrupts\n\nadi_i3c_master_probe() requests the IRQ and unmasks REG_IRQ_PENDING_CMDR\nbefore the controller's IBI state, transfer queue list and transfer\nqueue lock are initialized.  A pending CMDR interrupt can therefore run\nadi_i3c_master_irq() and take master->xferqueue.lock before the dynamic\nlock has been initialized.\n\nThis issue was found by our static analysis tool and then manually\nreviewed against the current tree.\n\nThe grounded PoC kept the probe ordering and the IRQ path\nadi_i3c_master_probe() -> adi_i3c_master_irq() -> xferqueue.lock, with a\npending CMDR interrupt arriving after REG_IRQ_PENDING_CMDR is unmasked.\nLockdep reported:\n\n  INFO: trying to register non-static key.\n  you didn't initialize this object before use?\n  lock_acquire+0xbb/0x290\n  _raw_spin_lock_irqsave+0x36/0x60\n  adi_i3c_master_irq+0x32/0x56 [vuln_msv]\n  adi_i3c_master_probe+0x5a/0xf47 [vuln_msv]\n\nInitialize the transfer queue and IBI state before requesting and\nunmasking the IRQ.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80953"
+    },
+    {
+      "id": "CVE-2026-80952",
+      "published": "2026-09-11T20:19:00.927",
+      "lastModified": "2026-09-14T13:18:50.710",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ni3c: master: Fix info leak and UAF in device unregister path\n\ni3c_master_unregister_i3c_devs() clears i3cdev->dev->desc before\ncalling device_unregister().  During device_unregister(),\ndevice_del() emits a KOBJ_REMOVE uevent and unbinds the driver while\nthe device descriptor is still expected to be valid.  As a result,\ni3c_device_uevent() and a racing modalias_show() can observe a NULL\ndesc and fall back to an uninitialized stack struct i3c_device_info,\nleaking kernel stack contents in the generated modalias.  Driver\n.remove() callbacks may also encounter an unexpected NULL desc during\nunbind.\n\nKeep desc valid until device_unregister() has completed.  Since\ndevice_unregister() drops the device reference and may free the device,\ntake an extra reference with get_device() before unregistering.  Clear\ndesc afterwards and release the extra reference with put_device().\nThis preserves the release-time invariant that desc must be NULL while\navoiding both the information leak and a potential use-after-free from\nwriting desc after the device has been released.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80952"
+    },
+    {
+      "id": "CVE-2026-80951",
+      "published": "2026-09-11T20:19:00.803",
+      "lastModified": "2026-09-14T13:18:50.580",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ni3c: master: svc: bound IBI payload to the requested max_payload_len\n\nsvc_i3c_master_handle_ibi() reads the IBI payload from the RX FIFO into\nthe IBI slot. The loop is bounded by the hardware FIFO size\n(SVC_I3C_FIFO_SIZE), not by the slot size.\n\nslot->data points into the IBI pool, which i3c_generic_ibi_alloc_pool()\nsizes at max_payload_len per slot. svc_i3c_master_request_ibi() only\nrejects a max_payload_len larger than SVC_I3C_FIFO_SIZE, so a driver can\nrequest a smaller one. mctp-i3c requests 1. Each readsb() then copies the\ncontroller RXCOUNT bytes (up to 31) with no check against the slot size.\nA device that sends more bytes than the slot holds writes past\nslot->data, an out-of-bounds write into the IBI pool.\n\nBound the loop by dev->ibi->max_payload_len and clamp each read to the\nspace left in the slot, the same way dw-i3c does. A device can still send\nmore than the requested payload. Flush the leftover bytes from the RX FIFO\nso they do not leak into the next transfer.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80951"
+    },
+    {
+      "id": "CVE-2026-80950",
+      "published": "2026-09-11T20:19:00.683",
+      "lastModified": "2026-09-13T07:17:02.210",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ni3c: renesas: Check that the transfer is valid before accessing it\n\nThe Renesas I3C driver uses an asynchronous model to transfer data. It\nprepares a struct renesas_i3c_xfer, enqueues it, and waits for completion.\nThe interrupt handler dequeues the transfer, updates/uses it, and signals\nthe waiting thread.\n\nIf the completion times out, the waiting thread dequeues the transfer and\nfree it. If an interrupt fires after that, the handler may access freed\nmemory, leading to crashes.\n\nCheck that the transfer is still valid before accessing it in the\ninterrupt handler. With it clear any status flags and disable all\nthe interrupts to avoid triggering the same interrupts again.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80950"
+    },
+    {
+      "id": "CVE-2026-80949",
+      "published": "2026-09-11T20:19:00.563",
+      "lastModified": "2026-09-14T13:18:50.457",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: brcmfmac: Fix memory leak in brcmf_sdio_read_control()\n\nThe memory allocated for buf is not freed in some of the error paths in\nbrcmf_sdio_read_control(). Fix that by adding vfree() calls.\n\n[arend: rework as suggested by Johannes]",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80949"
+    },
+    {
+      "id": "CVE-2026-80948",
+      "published": "2026-09-11T20:19:00.443",
+      "lastModified": "2026-09-13T07:17:02.110",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: iwlwifi: dvm: fix memory leak in iwl_op_mode_dvm_start()\n\nIn iwl_op_mode_dvm_start(), jumping to out_free_eeprom currently bypasses\nthe out_free_eeprom_blob label. Consequently, error paths triggered after\nsuccessfully parsing the EEPROM free priv->nvm_data but leak\npriv->eeprom_blob.\n\nFix this memory leak by reordering the error handling labels so\nthat out_free_eeprom falls through to out_free_eeprom_blob.\n\nThe bug was first flagged by an experimental analysis tool we are\ndeveloping for kernel memory-management bugs while analyzing\nv6.13-rc1. The tool is still under development and is not yet publicly\navailable. Manual inspection confirms that the bug is still\npresent in v7.1-rc6.\n\nAn x86_64 allyesconfig build showed no new warnings. As we do not have\nsupported Intel DVM wireless hardware and firmware to test with, no\nruntime testing was able to be performed.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80948"
+    },
+    {
+      "id": "CVE-2026-80947",
+      "published": "2026-09-11T20:19:00.303",
+      "lastModified": "2026-09-13T07:17:01.960",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: rtl8xxxu: fix use-after-free from rx_urb_wq on stop\n\nrtl8xxxu arms rx_urb_wq from the RX completion path:\nrtl8xxxu_rx_complete() hands the URB to rtl8xxxu_queue_rx_urb(), which\nqueues it on rx_urb_pending_list and, once the list grows past\nRTL8XXXU_RX_URB_PENDING_WATER, schedules rx_urb_wq.  The worker\nrtl8xxxu_rx_urb_work() drains rx_urb_pending_list, recovers priv through\ncontainer_of, and resubmits each URB through rtl8xxxu_submit_rx_urb(),\nwhich anchors it on rx_anchor and dereferences priv->udev.\n\nrtl8xxxu_stop() cancels the sibling work items (c2hcmd_work, ra_watchdog,\nupdate_beacon_work) but never cancels rx_urb_wq, so a worker armed during\nthe last burst of RX traffic can run rtl8xxxu_rx_urb_work() after\nrtl8xxxu_disconnect() has called ieee80211_free_hw(), which frees priv,\nproducing a use-after-free.  The window opens under active RX traffic\n(pending count above the watermark) followed by a disconnect.\n\nThere are two teardown races to close:\n\n  * rtl8xxxu_queue_rx_urb() decided whether to enqueue under rx_urb_lock\n    but called schedule_work() after dropping the lock.  A completion\n    that observed shutdown == false and released the lock could then call\n    schedule_work() after rtl8xxxu_stop() had set shutdown and\n    cancel_work_sync() had already returned, arming the worker to run\n    after the teardown.  Move schedule_work() under the same !shutdown\n    branch so the arming decision is atomic with the shutdown check.\n\n  * rtl8xxxu_rx_urb_work() anchors every URB it drained back onto\n    rx_anchor through rtl8xxxu_submit_rx_urb().  A worker still running\n    when usb_kill_anchored_urbs(&priv->rx_anchor) returned would submit a\n    URB that escaped the kill.  In rtl8xxxu_stop(), call\n    cancel_work_sync(&priv->rx_urb_wq) before the kill so the worker is\n    drained first.\n\nAfter priv->shutdown is set under rx_urb_lock, completions can no longer\nqueue rx_urb_wq. cancel_work_sync() then drains the last queued or running\nworker, and the following usb_kill_anchored_urbs() kills the URBs it may\nhave submitted.\n\nrtl8xxxu_disconnect() is covered because ieee80211_unregister_hw()\nguarantees .stop() runs for a live interface before ieee80211_free_hw()\nfrees priv.  The probe error path needs no cancel: rx_urb_wq is\nINIT_WORK()'d there but cannot have been scheduled, since no URB is\nsubmitted before ieee80211_register_hw() succeeds.\n\nThis bug was found by static analysis.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80947"
+    },
+    {
+      "id": "CVE-2026-80946",
+      "published": "2026-09-11T20:19:00.180",
+      "lastModified": "2026-09-11T20:19:00.180",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfuse: copy request headers via a stack buffer for io-uring\n\nThe fuse-io-uring transport copies req->in.h out to the ring in\nfuse_uring_copy_to_ring() and req->out.h back in fuse_uring_commit().\nBoth headers live inside the fuse_request slab object, whose cache\n(fuse_req_cachep) is created without a usercopy whitelist, so copying\nthem directly to/from userspace trips CONFIG_HARDENED_USERCOPY and\npanics:\n\n  usercopy: Kernel memory exposure attempt detected from SLUB object\n  'fuse_request' (offset 56, size 40)!\n  kernel BUG at mm/usercopy.c:102!\n  Oops: invalid opcode: 0000 [#1] SMP KASAN NOPTI\n  RIP: 0010:usercopy_abort (mm/usercopy.c:90)\n  Call Trace:\n   __check_heap_object (mm/slub.c:8268)\n   __check_object_size (mm/usercopy.c:197 mm/usercopy.c:258 mm/usercopy.c:223)\n   copy_header_to_ring (fs/fuse/dev_uring.c:618)\n   fuse_uring_prepare_send (fs/fuse/dev_uring.c:776 fs/fuse/dev_uring.c:785)\n   fuse_uring_send_in_task (fs/fuse/dev_uring.c:1306)\n   tctx_task_work_run (io_uring/tw.c:96)\n   task_work_run (kernel/task_work.c:233)\n   io_run_task_work (io_uring/tw.h:84)\n   io_cqring_wait (io_uring/wait.c:278)\n   __do_sys_io_uring_enter (io_uring/io_uring.c:2685)\n   entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:121)\n\nBounce both headers through an on-stack copy so the usercopy touches\nstack memory, not the slab object.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80946"
+    },
     {
       "id": "CVE-2026-80945",
       "published": "2026-09-11T20:19:00.057",
@@ -718,166 +864,6 @@
       "score": 5.9,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18061"
-    },
-    {
-      "id": "CVE-2026-8304",
-      "published": "2026-09-11T16:17:51.710",
-      "lastModified": "2026-09-11T20:20:08.823",
-      "description": "Missing Authorization vulnerability in TUBITAK BILGEM Software Technologies Research Institute Pardus About allows Exploiting Incorrectly Configured Access Control Security Levels.\n\nThis issue affects Pardus About: from 1.2.1 before 1.2.5.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-8304"
-    },
-    {
-      "id": "CVE-2026-89265",
-      "published": "2026-09-11T16:17:51.337",
-      "lastModified": "2026-09-11T21:17:58.457",
-      "description": "MoguBlog through 6.2 contains an authorization bypass vulnerability in the POST /pictureSort/getPictureSortByUid endpoint, which omits the @AuthorityVerify annotation required to enforce role-based permissions. Authenticated back-office users without image-category permissions can supply a category uid to retrieve restricted image-category records including metadata such as name, cover file uid, sort order and timestamps.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89265"
-    },
-    {
-      "id": "CVE-2026-89264",
-      "published": "2026-09-11T16:17:51.193",
-      "lastModified": "2026-09-11T17:35:21.440",
-      "description": "MoguBlog through 6.2 fails to validate the comment author identity in the POST /web/comment/add endpoint, allowing authenticated users to post comments attributed to any other user. Attackers can supply arbitrary userUid values in the request body to impersonate other accounts including administrators.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89264"
-    },
-    {
-      "id": "CVE-2026-89263",
-      "published": "2026-09-11T16:17:51.053",
-      "lastModified": "2026-09-15T17:17:36.273",
-      "description": "MoguBlog through 6.2 fails to authenticate requests to the /web/comment/closeEmailNotification endpoint, allowing unauthenticated attackers to disable email notifications for arbitrary users. Remote callers can modify the startEmailNotification flag in Redis cache for any user identifier to suppress reply notifications without authorization.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89263"
-    },
-    {
-      "id": "CVE-2026-89262",
-      "published": "2026-09-11T16:17:50.907",
-      "lastModified": "2026-09-11T19:17:47.577",
-      "description": "MoguBlog through 6.2 contains an authorization bypass vulnerability in the comment deletion endpoint that performs ownership checks against request-body fields instead of the authenticated principal. Attackers can delete arbitrary comments and their replies by supplying comment UIDs and author UIDs obtained from unauthenticated listing endpoints.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89262"
-    },
-    {
-      "id": "CVE-2026-89261",
-      "published": "2026-09-11T16:17:50.740",
-      "lastModified": "2026-09-11T20:19:23.350",
-      "description": "MoguBlog through 6.2 exposes Elasticsearch index management endpoints in the mogu_search service without authentication, allowing remote attackers to delete, recreate, or alter the blog search index. Attackers can invoke POST endpoints to wipe the entire search index, delete specific documents, or inject malicious index entries, causing search functionality to return incorrect or no results.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89261"
-    },
-    {
-      "id": "CVE-2026-89260",
-      "published": "2026-09-11T16:17:50.560",
-      "lastModified": "2026-09-11T21:17:58.153",
-      "description": "MoguBlog through 6.2 contains an XML external entity injection vulnerability in the WeChat callback handler at POST /wechat/wechatCheck. The WechatRestApi.index() method passes the raw request body to SignUtil.xmlToMap(), which uses an unhardened dom4j SAXReader without DTD or external-entity restrictions. Unauthenticated remote attackers can submit DOCTYPE declarations with external parameter entities to read arbitrary local files or trigger outbound HTTP requests, with resolved entities reflected in error responses.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89260"
-    },
-    {
-      "id": "CVE-2026-89066",
-      "published": "2026-09-11T16:17:49.400",
-      "lastModified": "2026-09-11T18:24:59.400",
-      "description": "Improper neutralization of special elements used in an OS command in the task synthesis component in projen before 0.103.0 might allow context-dependent attackers to execute arbitrary commands on a developer workstation or continuous integration runner via shell metacharacters in project configuration values and repository file names that are interpolated into generated task definitions.\n\n\n\nTo remediate this issue, users should upgrade to version 0.103.0 and then re-synthesize the project so that .projen/tasks.json is regenerated with the corrected task definitions. Upgrading alone is not sufficient because the generated task definition file is committed to the repository.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89066"
-    },
-    {
-      "id": "CVE-2026-89065",
-      "published": "2026-09-11T16:17:49.253",
-      "lastModified": "2026-09-11T18:24:59.400",
-      "description": "Relative path traversal in the generated file manifest cleanup component in projen before 0.101.37 might allow context-dependent attackers to recursively delete files and directories outside the project directory that are writable by the environment running projen, via crafted entries in the version-controlled generated file manifest that is consumed during project synthesis.\n\n\n\nTo remediate this issue, users should upgrade to version 0.101.37. The corrected containment check is automatically applied by the projen runtime next time you run it.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89065"
-    },
-    {
-      "id": "CVE-2026-89013",
-      "published": "2026-09-11T16:17:48.853",
-      "lastModified": "2026-09-17T19:17:06.283",
-      "description": "Dolibarr 23.0.4 before 24.0.1 contains an authorization bypass vulnerability that allows unauthenticated attackers to read arbitrary files through the document storage endpoints by supplying a crafted hashp parameter value. Attackers can send a request with hashp=shared to skip token validation while satisfying the authorization condition in htdocs/document.php and htdocs/viewimage.php, gaining access to application logs, uploaded business documents, database backups containing password hashes, and files belonging to other multicompany entities.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89013"
-    },
-    {
-      "id": "CVE-2026-89012",
-      "published": "2026-09-11T16:17:48.680",
-      "lastModified": "2026-09-11T20:19:22.443",
-      "description": "Dolibarr 24.0.0 before 24.0.1 contains a case-sensitive denylist bypass vulnerability in the sqlfilters API query parameter that allows authenticated attackers to recover protected database fields by supplying uppercase variants of denylist-protected field names. Attackers can exploit the case-insensitive database column resolution against the case-sensitive denylist check in the core library to use prefix-matching predicates as a boolean oracle and extract full password hashes for any user account, including administrators.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89012"
-    },
-    {
-      "id": "CVE-2026-87122",
-      "published": "2026-09-11T16:17:47.857",
-      "lastModified": "2026-09-11T16:17:47.857",
-      "description": "Rejected reason: ** REJECT ** DO NOT USE THIS CANDIDATE NUMBER. ConsultIDs: CVE-2026-85984. Reason: This candidate is a reservation duplicate of CVE-2026-85984. Notes: All CVE users should reference CVE-2026-85984 instead of this candidate. All references and descriptions in this candidate have been removed to prevent accidental usage.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87122"
-    },
-    {
-      "id": "CVE-2026-81861",
-      "published": "2026-09-11T16:17:47.613",
-      "lastModified": "2026-09-11T20:19:13.263",
-      "description": "CWE-522: Insufficiently Protected Credentials vulnerability that could result in exposure of authentication information and unauthorized access to RTU functionality.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81861"
-    },
-    {
-      "id": "CVE-2026-7863",
-      "published": "2026-09-11T16:17:47.490",
-      "lastModified": "2026-09-11T17:35:21.440",
-      "description": "Improper neutralization of special elements used in an OS command ('OS command injection') vulnerability in TUBITAK BILGEM Software Technologies Research Institute Pardus Software allows OS Command Injection.\n\nThis issue affects Pardus Software: before 1.0.5.",
-      "score": 8.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7863"
-    },
-    {
-      "id": "CVE-2026-70341",
-      "published": "2026-09-11T16:17:46.080",
-      "lastModified": "2026-09-16T19:30:49.967",
-      "description": "Use after free in Microsoft Edge (Chromium-based) allows an authorized attacker to execute code over a network.",
-      "score": 8.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-70341"
-    },
-    {
-      "id": "CVE-2026-68497",
-      "published": "2026-09-11T16:17:39.610",
-      "lastModified": "2026-09-11T17:17:46.393",
-      "description": "jackson-databind binds a JSON string to a javax.xml.datatype.Duration or javax.xml.datatype.XMLGregorianCalendar field by passing the raw string verbatim to DatatypeFactory.newDuration(value) or newXMLGregorianCalendar(value) in CoreXMLDeserializers.Std._deserialize. These deserializers are registered by default with no opt-in, so a plain ObjectMapper or JsonMapper with no polymorphic typing and no special configuration reaches this path. The XML Schema lexical grammar permits numeric components of arbitrary length, which the JDK materializes through the native BigInteger(String) and BigDecimal(String) constructors, both quadratic in digit count. Because the digits sit inside a JSON string token rather than a JSON number token, jackson-core's StreamReadConstraints.maxNumberLength guard never applies; jackson's own NumberDeserializers call validateIntegerLength or validateFPLength before parsing a stringified number, but the XML datatype deserializer omits that pre-check. An unauthenticated attacker can therefore submit a single request of a few megabytes, such as a Duration value consisting of the letter P followed by several million digits and the letter Y, and force tens of seconds to several minutes of single-threaded CPU work; a handful of concurrent requests can saturate a server's worker threads. This affects com.fasterxml.jackson.core:jackson-databind from 2.0.0 before 2.18.10, from 2.19.0 before 2.21.6, and from 2.22.0 before 2.22.2, and tools.jackson.core:jackson-databind from 3.0.0 before 3.1.6 and from 3.2.0 before 3.2.2. Users should upgrade to 2.18.10, 2.21.6, 2.22.2, 3.1.6, or 3.2.2.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-68497"
-    },
-    {
-      "id": "CVE-2026-3869",
-      "published": "2026-09-11T16:17:06.200",
-      "lastModified": "2026-09-11T20:17:13.140",
-      "description": "CWE-303 : Incorrect Implementation of Authentication Algorithm vulnerability exists that could cause loss of confidentiality, integrity and availability of the PLC provided an application project with a lower application level is running on the PLC.",
-      "score": 9.2,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-3869"
-    },
-    {
-      "id": "CVE-2026-15439",
-      "published": "2026-09-11T16:17:05.597",
-      "lastModified": "2026-09-11T18:16:56.290",
-      "description": "The GamiPress plugin for WordPress is vulnerable to authenticated (Subscriber+) SQL Injection via the 'q' parameter of the wpForo integration AJAX selector (action gamipress_wpforo_get_posts) in versions up to, and including, 7.9.7. The value is passed only through $wpdb->esc_like() and interpolated directly into a single-quoted LIKE clause with no %s placeholder. Because esc_like() runs after WordPress core magic quotes, it doubles the injected backslash (\\' -> \\\\'), which MySQL reads as one literal backslash followed by a live closing quote, allowing the attacker to break out of the string and inject boolean-based SQL. The wpForo plugin only needs to be active to register the callback; no wpForo vulnerability is used. Requires a Subscriber account, which can read the gamipress_admin nonce (exposed on every admin page, e.g. /wp-admin/profile.php). Note: the researcher's Simple:Press vectors (PoC 2 & 3) do not reproduce in current code, which uses $wpdb->prepare() with %s placeholders; only the wpForo selector is confirmed.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15439"
     }
   ]
 }
