@@ -1,6 +1,33 @@
 {
-  "syncedAt": "2026-09-19T01:44:32.241Z",
+  "syncedAt": "2026-09-19T02:18:43.690Z",
   "items": [
+    {
+      "id": "CVE-2026-90679",
+      "published": "2026-09-13T04:17:25.417",
+      "lastModified": "2026-09-15T18:19:37.863",
+      "description": "Forgejo 13.0.0 through 16.0.4, when \"[federation] ENABLED = true\" is set, has a spoofing issue that affects identity integrity but does not allow account takeover or content modification. It does not verify that the HTTP Signature on an incoming ActivityPub activity was produced by the key belonging to the actor named in the activity body. The signature verification in routers/api/v1/activitypub/reqsignature.go validates the request signature, but the inbox activity handlers subsequently read the acting identity from the attacker-controlled JSON body without binding it to the verified signing key. Additionally, the signed Digest header is not recomputed against the received request body. A remote attacker who hosts a single valid ActivityPub actor and keypair can therefore submit signature-valid activities attributed to any actor identity they name.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90679"
+    },
+    {
+      "id": "CVE-2026-90678",
+      "published": "2026-09-13T04:17:25.227",
+      "lastModified": "2026-09-14T16:17:36.723",
+      "description": "An issue was discovered in HAProxy 3.3.0 through 3.4.4 and in 3.5-dev1 through 3.5-dev5. Exploitation requires an HTTP/3 frontend: HAProxy must be built with QUIC support and configured with a QUIC bind listener, and the affected traffic must reach a backend over HTTP/1.1 using chunked transfer coding on a reused connection. Under those conditions, when an HTTP/3 request carries no Content-Length header, the HTTP/3 multiplexer credits the length declared in a DATA frame header to the stream endpoint's known-input-payload estimate at the moment the frame header is decoded, before the payload has been received, and that declared length is emitted verbatim as the HTTP/1.1 chunk size. A remote unauthenticated client that declares more payload than it delivers and then ends the stream causes HAProxy to announce a chunk larger than the bytes it writes and to return the connection to the idle pool in a desynchronized state. The result is potential HTTP request smuggling on reused backend connections: an attacker can place a request past a frontend rule such as a path-based http-request deny, so that the smuggled request is never seen by HAProxy's HTTP analysis, and can cause concurrent clients' requests, including their request lines and Authorization headers, to be consumed as the attacker's request body and lost. Exploitation is not deterministic; it depends on a race with backend connection pooling, succeeding in a majority of but not all trials during testing, and can be retried freely. The mechanism was introduced in 3.3-dev10; releases 3.2.x and earlier are unaffected.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90678"
+    },
+    {
+      "id": "CVE-2026-90495",
+      "published": "2026-09-13T04:17:15.717",
+      "lastModified": "2026-09-14T20:56:48.220",
+      "description": "A vulnerability has been found in Fengoffice Feng Office up to 3.11.13.11. This impacts the function Contacts::instance->findAll of the file application/models/CompanyWebsite.class.php of the component Legacy API. Such manipulation of the argument auth leads to sql injection. The attack can be launched remotely. The exploit has been disclosed to the public and may be used. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90495"
+    },
     {
       "id": "CVE-2026-90494",
       "published": "2026-09-13T04:17:15.373",
@@ -873,33 +900,6 @@
       "score": 10,
       "severity": "CRITICAL",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85706"
-    },
-    {
-      "id": "CVE-2026-90467",
-      "published": "2026-09-12T02:16:24.770",
-      "lastModified": "2026-09-14T19:17:57.673",
-      "description": "aiosmtplib before 5.1.3 fails to properly validate email addresses supplied by callers, allowing attackers to inject ESMTP parameters into MAIL FROM and RCPT TO command lines. Attackers can craft malicious addresses containing spaces and angle brackets to append parameters like AUTH, NOTIFY, or ORCPT to envelope commands, forging authenticated identities or forcing delivery notifications to third parties.",
-      "score": 4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90467"
-    },
-    {
-      "id": "CVE-2026-89268",
-      "published": "2026-09-12T02:16:24.623",
-      "lastModified": "2026-09-14T19:17:56.610",
-      "description": "QloApps through 1.7.0 renders back-office list filter POST parameters into HTML input value attributes without escaping them in the list helper template. Attackers can induce authenticated users to submit crafted POST requests with malicious payloads to list controllers, executing arbitrary JavaScript in the victim's session to read administrative data and perform actions.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89268"
-    },
-    {
-      "id": "CVE-2026-89267",
-      "published": "2026-09-12T02:16:23.580",
-      "lastModified": "2026-09-15T17:17:36.800",
-      "description": "starlette-admin versions 0.16.1 through 0.17.1 fail to enforce the searchable_fields allowlist when configured as an empty list, allowing authenticated users to filter on non-searchable fields. Attackers can submit structured filter queries via the list API's where parameter to perform equality and comparison operations on excluded columns.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89267"
     }
   ]
 }
