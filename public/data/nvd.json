@@ -1,6 +1,24 @@
 {
-  "syncedAt": "2026-09-20T06:47:46.227Z",
+  "syncedAt": "2026-09-20T07:18:04.143Z",
   "items": [
+    {
+      "id": "CVE-2026-15891",
+      "published": "2026-09-13T23:16:27.870",
+      "lastModified": "2026-09-14T21:10:41.650",
+      "description": "The MQTT-SN client keepalive handler process_ping() in subsys/net/lib/mqtt_sn/mqtt_sn.c removes the gateway record after PINGREQ retries are exhausted. It invoked SYS_SLIST_PEEK_HEAD_CONTAINER(&client->gateways, gw, next) but discarded the result. That macro is a pure expression that does not assign to gw, so gw retained its NULL initializer regardless of the list contents.\n\nThe code then dereferences the NULL gw (gw->gw_id) and passes it to mqtt_sn_gw_destroy(), reaching k_mem_slab_free(&gateways, NULL). With CONFIG_MEM_SLAB_POINTER_VALIDATE enabled this triggers k_panic(); in the default configuration it performs a write through the NULL pointer ((char )mem = slab->free_list;) and corrupts the slab free list. The outcome is a crash/kernel panic or, on targets where address 0 is writable, silent memory-allocator corruption.\n\nThe vulnerable branch runs whenever the connected MQTT-SN gateway fails to answer keepalive PINGREQs for the configured number of retries. This condition is controlled by the remote peer: a malicious or compromised gateway, or an on-path/adjacent attacker that advertises itself as a gateway and then stops responding (or blackholes the real gateway's PINGRESPs), forces the client into the defect. MQTT-SN runs over UDP and no authentication is required.\n\nThe impact is a remotely triggerable denial of service (availability) of the affected MQTT-SN client; there is no attacker-controlled data written. The sibling remover process_advertise() uses SYS_SLIST_FOR_EACH_CONTAINER_SAFE and is not affected. The fix assigns the macro's return value to gw.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15891"
+    },
+    {
+      "id": "CVE-2026-90599",
+      "published": "2026-09-13T22:17:01.053",
+      "lastModified": "2026-09-14T20:56:48.220",
+      "description": "A flaw has been found in Rizwan17 inventory-management-system up to 5e74a46b4b70623d0e4a0c9c4aee3bd1777185d2. This affects an unknown function of the file includes/process.php. Executing a manipulation can lead to cross-site request forgery. It is possible to launch the attack remotely. The exploit has been published and may be used. This product takes the approach of rolling releases to provide continious delivery. Therefore, version details for affected and updated releases are not available. The project was informed of the problem early through an issue report but has not responded yet.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90599"
+    },
     {
       "id": "CVE-2026-90598",
       "published": "2026-09-13T22:17:00.897",
@@ -880,24 +898,6 @@
       "score": 6.3,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90500"
-    },
-    {
-      "id": "CVE-2026-90499",
-      "published": "2026-09-13T07:17:41.767",
-      "lastModified": "2026-09-14T20:56:48.220",
-      "description": "A security flaw has been discovered in lenve vhr 1.0-SNAPSHOT. This affects the function HrInfoController.updatePass of the file /hr/pass of the component Password Update Handler. The manipulation of the argument hrid results in improper authorization. The attack can be executed remotely. The exploit has been released to the public and may be used for attacks. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90499"
-    },
-    {
-      "id": "CVE-2026-90498",
-      "published": "2026-09-13T07:17:41.533",
-      "lastModified": "2026-09-15T15:17:27.507",
-      "description": "A vulnerability was identified in lenve vhr 1.0-SNAPSHOT. Affected by this issue is some unknown functionality of the file vhr.sql. The manipulation leads to use of default credentials. Remote exploitation of the attack is possible. The exploit is publicly available and might be used. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90498"
     }
   ]
 }
