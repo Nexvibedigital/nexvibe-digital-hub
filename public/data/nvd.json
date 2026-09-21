@@ -1,6 +1,276 @@
 {
-  "syncedAt": "2026-09-21T10:45:14.398Z",
+  "syncedAt": "2026-09-21T11:19:28.997Z",
   "items": [
+    {
+      "id": "CVE-2026-55235",
+      "published": "2026-09-14T16:17:12.513",
+      "lastModified": "2026-09-16T16:17:09.373",
+      "description": "langgraph-api implements the LangGraph API for rapid development and testing. Prior to 0.10.0, langgraph-api permits a run or cron to specify a relative webhook target that is delivered through an in-process loopback transport, and the authentication middleware treats that transport as internal without applying the authentication context used for external requests. In deployments that rely on per-user authorization to separate threads and runs, an authenticated user can direct a webhook to the server's own thread and run routes, allowing creation of a run on or modification of another user's thread and limited incorporation of the targeted thread's metadata into the created run record. The affected path requires webhook targets and per-user authorization boundaries; deployments that deliberately re-enable loopback delivery should restrict it to controlled same-process routes because those webhooks remain unauthenticated. This issue is fixed in version 0.10.0.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55235"
+    },
+    {
+      "id": "CVE-2026-54542",
+      "published": "2026-09-14T16:17:12.377",
+      "lastModified": "2026-09-14T20:16:46.453",
+      "description": "Nimiq is a Rust implementation of the Nimiq Proof-of-Stake protocol based on the Albatross consensus algorithm. Prior to 1.6.0, a malicious state-sync peer can crash a syncing node by sending a crafted TrieChunk whose proof contains a TrieNodeChild suffix that is individually valid but exceeds the 63-byte KeyNibbles backing array when combined with the parent key. KeyNibbles::Add in primitives/src/key_nibbles.rs performs the combined slice operation without checking the total length, and the input reaches put_chunk, TrieNodeChild::key, and TrieNodeChild::is_stump before proof.verify, so the attacker does not need a valid cryptographic proof. Exploitation requires the attacker to be selected as the victim's sync peer during state sync. The resulting out-of-bounds panic is transient because the node restarts and resynchronizes. This issue is fixed in version 1.6.0.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54542"
+    },
+    {
+      "id": "CVE-2026-54541",
+      "published": "2026-09-14T16:17:12.217",
+      "lastModified": "2026-09-16T16:17:08.883",
+      "description": "Nimiq is a Rust implementation of the Nimiq Proof-of-Stake protocol based on the Albatross consensus algorithm. Prior to 1.6.0, a malicious state-sync peer can crash a syncing node by sending a crafted TrieChunk proof containing two TrieProofNode values with identical keys. TrieProof::verify calls TrieProofNode::child_index in primitives/src/trie/trie_proof_node.rs, where is_prefix_of accepts equal keys and KeyNibbles::get is called at the key length, returns None, and is unconditionally unwrapped. Untrusted ResponseChunk data reaches commit_chunks, put_chunk, and proof.verify before cryptographic proof validation, so the attacker does not need a valid proof. Exploitation requires the attacker to be selected as the victim's sync peer during state sync, and the resulting panic is transient because the node restarts and resynchronizes. This issue is fixed in version 1.6.0.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54541"
+    },
+    {
+      "id": "CVE-2026-54529",
+      "published": "2026-09-14T16:17:12.050",
+      "lastModified": "2026-09-14T17:17:47.487",
+      "description": "SQLAdmin is a flexible Admin interface for SQLAlchemy models. Prior to 0.27.1, ModelView.sort_query in sqladmin/models.py accepts the attacker-controlled sortBy list-view query parameter without enforcing the configured column_sortable_list server-side allow-list in self._sort_fields. The value is resolved with getattr and passed to relationship joins and order_by, allowing requests to sort by columns hidden from column_list and by related-model columns through dotted paths. The resulting row order forms an information-exposure oracle for unexposed values, and reversing ascending and descending order confirms their relative ordering. Pairing sortBy with searchable or filterable columns and pagination can narrow the oracle toward specific values, but exact recovery depends on the application's available fields and data. This issue is fixed in version 0.27.1.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54529"
+    },
+    {
+      "id": "CVE-2026-53708",
+      "published": "2026-09-14T16:17:11.883",
+      "lastModified": "2026-09-14T17:17:46.410",
+      "description": "ContextForge is an AI gateway, registry, and proxy that provides centralized discovery, guardrails, and management for MCP, A2A, and REST or gRPC APIs. Prior to 1.0.3, the /admin/gateways/test call site in mcpgateway/admin.py calls validate_gateway_test_url() in mcpgateway/common/validators.py to resolve and reject private, loopback, link-local, and cloud-metadata addresses, but ResilientHttpClient later resolves the original hostname again without binding the validated address. When MCPGATEWAY_ADMIN_API_ENABLED is enabled, an attacker with a database-backed role containing explicit gateways.read permission can use DNS rebinding to return a public address during validation and a private or metadata address during connection, bypassing ssrf_blocked_networks and ssrf_dns_fail_closed because those controls apply only to the validation-time result. The endpoint's allow_admin_bypass=False setting means a bootstrap-only virtual platform-admin identity without a database role is not sufficient. Successful exploitation can reach internal services and cloud metadata, expose cloud credentials, access internal APIs, or probe internal network ports. This issue is fixed in version 1.0.3.",
+      "score": 6.6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53708"
+    },
+    {
+      "id": "CVE-2026-4103",
+      "published": "2026-09-14T16:17:11.710",
+      "lastModified": "2026-09-18T19:13:15.430",
+      "description": "Insufficient HTML sanitization in the Publisher Portal and Developer Portal allows untrusted user input to be rendered without proper encoding or neutralization. This enables the injection and execution of malicious JavaScript when affected API documents are viewed.\n\nSuccessful exploitation may result in the execution of malicious scripts within the user's browser context when viewing API documentation. Users with permissions to access the API documentation through these portals may be impacted, potentially allowing attackers to perform actions on behalf of the user, depending on their session privileges.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-4103"
+    },
+    {
+      "id": "CVE-2026-47701",
+      "published": "2026-09-14T16:17:11.540",
+      "lastModified": "2026-09-14T17:17:44.697",
+      "description": "The OpenTelemetry Operator is a Kubernetes Operator for the OpenTelemetry Collector. Prior to 0.152.0, cmd/otel-allocator TargetAllocator instances with targetAllocator.prometheusCR.enabled set to true preserve a selected ServiceMonitor endpoint's bearerTokenFile value as HTTPClientConfig.Authorization.CredentialsFile. A tenant who can create or update a ServiceMonitor matched by serviceMonitorSelector and serviceMonitorNamespaceSelector can point bearerTokenFile at a file in the Collector pod, including /var/run/secrets/kubernetes.io/serviceaccount/token, and direct scraping to a tenant-controlled endpoint. The Collector reads that file at scrape time and sends its contents as bearer authorization on every scrape interval. Exploitation also requires the Collector service-account token or another sensitive file to be mounted and the Collector to reach the chosen target. The DenyFSAccessThroughSMs control was absent, allowing disclosure of the Collector's service-account JWT or other mounted files, and resulting Kubernetes API impact is limited by the Collector service account's permissions. This issue is fixed in version 0.152.0.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-47701"
+    },
+    {
+      "id": "CVE-2025-24890",
+      "published": "2026-09-14T16:17:05.117",
+      "lastModified": "2026-09-14T19:17:11.973",
+      "description": "gitoxide is an implementation of git written in Rust. Prior to 0.13.3, the gix-sec crate on Windows incorrectly treats repositories controlled by another user as trusted when an administrator runs a dependent program with an unfiltered elevated token. In gix-sec/src/identity.rs, gix_sec::identity::is_path_owned_by_current_user obtains folder_owner and token_owner, but its administrator-specific IsWellKnownSid and CheckTokenMembership checks examine the running token rather than confirming the directory owner. This bypasses safe.directory-style protection for repositories owned and configured by a limited user, allowing repository configuration or hooks to execute commands with the administrator's privileges when an affected operation is performed. Exploitation requires Windows, an elevated administrator, a program that relies on gix-sec trust results, and interaction with a repository controlled by another user. An unelevated UAC process is not affected, and cloning is not affected because repository configuration and hooks are not copied. This issue is fixed in version 0.13.3.",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-24890"
+    },
+    {
+      "id": "CVE-2026-90791",
+      "published": "2026-09-14T15:17:13.417",
+      "lastModified": "2026-09-15T15:17:29.397",
+      "description": "A vulnerability was detected in GPAC up to f1219cde. This vulnerability affects the function gf_node_unregister of the file scenegraph/base_scenegraph.c of the component MP4Box. The manipulation results in use after free. The attack can be executed remotely. The exploit is now public and may be used. Upgrading to version abi-16.23 is able to resolve this issue. The patch is identified as 9eb40df4448b88d6a6ce3454657c06f47eff0b24. Upgrading the affected component is recommended.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90791"
+    },
+    {
+      "id": "CVE-2026-90790",
+      "published": "2026-09-14T15:17:13.200",
+      "lastModified": "2026-09-15T14:17:35.557",
+      "description": "A security vulnerability has been detected in a2aproject a2a-python up to 1.1.3. This affects the function _dispatch_notification of the file src/a2a/server/tasks/base_push_notification_sender.py of the component Push Notification Sender. The manipulation of the argument push_info.url leads to server-side request forgery. Remote exploitation of the attack is possible. Upgrading to version 1.1.4 is able to mitigate this issue. It is suggested to upgrade the affected component.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90790"
+    },
+    {
+      "id": "CVE-2026-90789",
+      "published": "2026-09-14T15:17:12.967",
+      "lastModified": "2026-09-14T20:56:48.220",
+      "description": "A weakness has been identified in itsourcecode Leave Management System 1.0. Affected by this issue is some unknown functionality of the file /login.php. Executing a manipulation of the argument user_email can lead to sql injection. The attack may be launched remotely. The exploit has been made available to the public and could be used for attacks.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90789"
+    },
+    {
+      "id": "CVE-2026-82438",
+      "published": "2026-09-14T15:17:10.900",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Description\n\nThree separate mechanisms allowed a web page on an unrelated origin to read responses that Storm's HTTP\ncomponents served to an authenticated user.\n\nThe Logviewer reflected the request's `Origin` header back in `Access-Control-Allow-Origin` while also\nsending `Access-Control-Allow-Credentials: true`. The published security model documents a permissive\n`Access-Control-Allow-Origin: *` posture as accepted, which is safe precisely because browsers refuse to\nhonour `*` together with credentials; reflecting the concrete origin removes that protection.\n\nThe shared CORS filter used by the UI, the Logviewer and DRPC was configured with a response header name\nwhere an initialisation parameter name was expected. The container ignored the setting and applied its own\ndefaults, which allow credentials.\n\nFinally, the UI and Logviewer wrapped API responses in a caller-supplied JSONP callback for every GET\nrequest. A script element on any origin can load such a response, which bypasses the same-origin policy\nentirely rather than negotiating it, and there was no way to turn the behaviour off.\n\nIn each case the effect is that a page visited by an authenticated operator can read cluster, topology and\nlog data on their behalf.\n\nMitigation\n\nUpgrade to 3.1.0, where the Logviewer no longer reflects the request origin in a credentialed response, the\nCORS filter is configured explicitly, and JSONP wrapping is governed by `ui.enable.jsonp`, which defaults to\nfalse.\n\nNote that disabling JSONP is a behaviour change for tooling that passes a `callback` query parameter; such\ntooling should be moved to ordinary JSON requests.\n\nUsers who cannot upgrade immediately should place the UI, Logviewer and DRPC HTTP endpoints behind a reverse\nproxy that strips `Access-Control-Allow-Origin` and `Access-Control-Allow-Credentials` from responses and\nrejects requests carrying a `callback` parameter.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82438"
+    },
+    {
+      "id": "CVE-2026-82437",
+      "published": "2026-09-14T15:17:10.757",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Description\n\nThe Logviewer offers `logs.users` and `logs.groups` so operators can control who may read log content. For\ndaemon logs those settings were not applied: the access decision combined the \"this is a daemon log\" flag\nwith the authorizer result in a way that discarded the authorizer's answer whenever the flag was set, and\nthe daemon log page and download endpoints reached the handler without consulting an authorizer at all. Any\nuser able to pass the configured servlet filter could therefore read `nimbus.log`, `supervisor.log` and the\nother daemon logs on every reachable node, which contain other tenants' topology names, owners and\nconfiguration fragments.\n\nThe same advisory covers the log listing endpoints, which accepted a user argument and never applied it, so\n`/listLogs` and `/searchLogs` returned every tenant's topology and worker log file names regardless of the\ncaller. That part is metadata only.\n\nThere was no configuration that closed either behaviour.\n\nMitigation\n\nUpgrade to 3.1.0, where the daemon log paths evaluate the same configured user and group lists that the\nworker log paths already used, and the listing endpoints filter by the requesting user.\n\nUsers who cannot upgrade immediately should place the Logviewer behind a reverse proxy that restricts the\ndaemon log endpoints, and should treat daemon log content as readable by any filter-authenticated user.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82437"
+    },
+    {
+      "id": "CVE-2026-82435",
+      "published": "2026-09-14T15:17:10.620",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Description\n\nThe worker's Netty message decoder is installed ahead of the SASL authentication handlers in the pipeline\nand acts on frames before any authentication has taken place. It allocated buffers sized from a\nlength field carried in the frame, so a single frame from an unauthenticated peer able to reach a worker\nslot port could drive a large allocation.\n\n`storm.messaging.netty.authentication` defaults to false, and the decoder runs before the handler that\nenforces it in any case, so no credentials are required. The attacker needs only TCP reachability to a\nworker port.\n\nThe effect of a single frame at the default 768 MB worker heap has not been measured to distinguish\nsustained worker loss from transient garbage-collection pressure. The severity assigned to this advisory\nreflects the more conservative reading; consumers who require a precise figure should test against their own\nworker heap configuration.\n\nMitigation\n\nUpgrade to 3.1.0, where frames are decoded only after the handshake completes.\n\nUsers who cannot upgrade immediately should ensure that worker slot ports are reachable only from within the\ncluster, as the security model already recommends, and should enable\n`storm.messaging.netty.authentication` where the deployment permits it.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82435"
+    },
+    {
+      "id": "CVE-2026-82434",
+      "published": "2026-09-14T15:17:10.453",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Description\n\nWhen ZooKeeper authentication is configured, Storm deliberately retains\n`storm.zookeeper.topology.auth.payload` in the topology configuration, because workers need it. Nimbus then\nserved that configuration verbatim to any caller holding read-only topology permissions, so a user whose\nonly grant was the ability to view a topology received its ZooKeeper credential.\n\nThat credential is not read-only. The cluster state implementation uses write-capable ACLs for worker\nheartbeats, backpressure and error state, so a recipient can forge or remove that state for the topology\nconcerned. It is not a write credential on assignments.\n\nThe same advisory covers the submission client, which logged the generated payload at INFO on every\nsubmission that generated one, and the SASL handlers, which logged it at DEBUG. The credential therefore\nalso reached any log aggregation or support bundle collected from the cluster.\n\nMitigation\n\nUpgrade to 3.1.0, where the payload is removed from the configuration served to read-only callers and is no\nlonger written to logs.\n\nUsers who cannot upgrade immediately should rotate `storm.zookeeper.topology.auth.payload` for existing\ntopologies, review retained logs and support bundles for the value, and restrict read-only topology\npermissions to trusted principals.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82434"
+    },
+    {
+      "id": "CVE-2026-82433",
+      "published": "2026-09-14T15:17:10.323",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Description\n\n`getNimbusConf` returned the complete daemon configuration without redaction after only a user-level\nauthorization check. Where the cluster is configured with them, that response includes\n`storm.zookeeper.auth.payload` and the keystore and truststore passwords for the Thrift, Netty and\nZooKeeper TLS configuration. The project masks passwords elsewhere before display, so the omission here is\ninconsistent rather than intended.\n\nThe UI endpoint `/api/v1/cluster/configuration` compounded this. It carried no `@AuthNimbusOp` annotation,\nand the authorization filter treated a missing annotation as \"no gate required\" and returned immediately, so\nthe endpoint applied no per-user check at all and proxied the request under the UI daemon's own principal.\nAny user able to pass `ui.filter` therefore received the full configuration, including principals that\nNimbus itself would have refused. \n\nMitigation\n\nUpgrade to 3.1.0, where credential-bearing values are masked before the configuration is served and where\nevery UI API endpoint must declare its authorization explicitly.\n\nUsers who cannot upgrade immediately should place the UI behind an authenticating reverse proxy that\nrestricts `/api/v1/cluster/configuration`, and should rotate the ZooKeeper authentication payload and any\nTLS keystore or truststore passwords that were reachable through it.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82433"
+    },
+    {
+      "id": "CVE-2026-82432",
+      "published": "2026-09-14T15:17:10.187",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Description\n\nNimbus validated `topology.blobstore.map` against the calling subject at submission time only. The rebalance\noperation accepts configuration overrides and stripped a small set of keys from them, but never re-ran that\nvalidation, so a caller authorised to rebalance a topology could introduce a blobstore map entry naming a\nblob whose ACL does not grant them access. Supervisors localise whatever key the map names, placing the\nblob's contents into the topology's working directory.\n\nThe same advisory covers `listBlobs`, which performed no authorization check and passed no subject, unlike\nthe neighbouring `getBlobMeta` and `beginBlobDownload` operations. It therefore returned every key in the\nblobstore to any caller able to reach the Nimbus Thrift port, which provides the key names that make the\nabove practical. On its own the disclosure is metadata only.\n\nMitigation\n\nUpgrade to 3.1.0, where rebalance configuration overrides are validated exactly as submission-time\nconfiguration is, against the rebalancing caller, and where `listBlobs` applies the configured\nauthorization.\n\nUsers who cannot upgrade immediately should restrict rebalance rights to trusted principals, keeping in mind\nthat membership of a topology's `topology.users` or `topology.groups` confers them.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82432"
+    },
+    {
+      "id": "CVE-2026-82431",
+      "published": "2026-09-14T15:17:10.053",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Description\n\n`SimpleACLAuthorizer` evaluated the user-level command set by returning early when `nimbus.users` was empty,\nbefore `nimbus.groups` was considered. An operator who restricted cluster access by group alone, leaving\n`nimbus.users` unset, therefore received no restriction at all: every authenticated principal was permitted\nevery user-level operation, including `submitTopology`, `beginFileUpload` and `getNimbusConf`.\n\n`docs/SECURITY.md` presents `nimbus.groups` as a supported way to lock down a cluster, so a deployment\nfollowing the documentation could believe it was restricted while it was not. The failure is silent; nothing\nin the logs or the configuration indicates that the group list is being ignored.\n\nBoth lists left empty continues to mean that no restriction is configured, which is the shipped default and\nis unchanged.\n\nMitigation\n\nUpgrade to 3.1.0, where `nimbus.groups` is evaluated whether or not `nimbus.users` is set.\n\nUsers who cannot upgrade immediately should additionally populate `nimbus.users` with the intended\nprincipals, since a non-empty user list causes the group list to be evaluated on affected versions.\nOperators should review Nimbus access logs for operations by principals outside the intended groups.\n\nNote that after upgrading, a cluster configured with `nimbus.groups` alone becomes restrictive for the first\ntime. This includes `NimbusClient`, which calls `getLeader` on every connection, so clients outside the\nconfigured groups will begin to be refused.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82431"
+    },
+    {
+      "id": "CVE-2026-82430",
+      "published": "2026-09-14T15:17:09.930",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Description\n\nWhen launching a Docker or OCI worker, the setuid-root `worker-launcher` first changes ownership of the\nentire worker directory to the untrusted topology user, and only afterwards reads and acts on the command\nfile that the supervisor wrote into that same directory. The file is opened without `O_NOFOLLOW` and without\nre-verifying its owner, so between the ownership change and the read the tenant can replace its contents.\n\nFor the Docker path the parsed command is executed with real uid 0, and the command sanitiser is not a\nprivilege boundary: it admits `-v` with an arbitrary source, `--device`, `--cap-add`, `--security-opt`,\n`--user` and `--net`, and copies positional arguments through verbatim. A rewritten file therefore yields an\nattacker-authored, root-equivalent container invocation with the host filesystem available.\n\nFor the OCI path the same rewrite window applies, and mount validation is structural only, with no\nsource or destination allow-list, so arbitrary host paths can be bind-mounted read-write into the\ncontainer. The `username` field of the command file is likewise attacker-settable and is checked only\nagainst non-root and minimum-uid rules, permitting execution as another tenant's uid.\n\nMitigation\n\nUpgrade to 3.1.0, where the command file is validated before the ownership change and re-verified on open,\nand where mount sources and destinations are constrained by configuration.\n\nUsers who cannot upgrade immediately should disable Docker and OCI worker isolation, or restrict topology\nsubmission on affected supervisors to trusted principals. Note that the launcher must be rebuilt and\nreinstalled after upgrading.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82430"
+    },
+    {
+      "id": "CVE-2026-82429",
+      "published": "2026-09-14T15:17:09.807",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Description\n\nThe setuid-root `worker-launcher` binary adjusts ownership and permissions of worker directories by walking\nthe tree with FTS and calling `lchown` and `chmod` on each entry's full pathname while running with an\neffective uid of 0. Both syscalls re-resolve the path at the time of the call, after FTS has classified the\nentry, and the trees being walked are owned and writable by the untrusted topology user.\n\nA tenant running code on a supervisor node could therefore replace an intermediate directory component with\na symbolic link between classification and the privileged operation, redirecting the root-owned `lchown` or\n`chmod` at an arbitrary file on the host. The operation is repeatable at will, since crashing a worker\nforces a relaunch and blob updates re-run the walk, so a failed attempt costs the attacker nothing.\n\nThis crosses the boundary that `supervisor.run.worker.as.user` and container isolation are intended to\nenforce. It is the same defect class as the Hadoop container-executor issues from which this code derives.\n\nMitigation\n\nUpgrade to 3.1.0, where the privileged walk operates on file descriptors it has already stat'd rather than\non pathnames re-resolved at call time.\n\nUsers who cannot upgrade immediately should not run untrusted topology code on supervisors configured with\n`supervisor.run.worker.as.user`, since the launcher is the boundary being crossed. Note that the launcher\nmust be rebuilt and reinstalled after upgrading; replacing the Java artifacts alone is not sufficient.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82429"
+    },
+    {
+      "id": "CVE-2026-82428",
+      "published": "2026-09-14T15:17:09.673",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Description\n\nDependency artifacts uploaded with `storm jar --artifacts` were stored under a blob key derived only from\nthe Maven coordinate, for example `dep---.jar`. The key was therefore identical\nfor every user of the cluster and predictable in advance. When the blob already existed, the uploader\ncaught `KeyAlreadyExistsException` and silently reused it, with no check that the existing blob's content\nor owner matched the artifact the submitter had resolved.\n\nA user who uploaded a blob under such a key first therefore controlled the bytes that every later submitter\nof the same coordinate would receive on the worker classpath, resulting in code execution inside another\ntenant's topology.\n\nThis affects deployments where more than one principal may create blobs and where the `--artifacts`\ndependency feature is used.\n\nMitigation\n\nUpgrade to 3.1.0, where each uploaded artifact receives a key carrying a freshly generated UUID and a\npre-existing blob is no longer silently reused.\n\nNote that the corrected key generation is on the SUBMITTING CLIENT, so upgrading the cluster alone does not\nclose this; every client that runs `storm jar --artifacts` must also be upgraded. Operators should audit\nexisting `dep-` blobs for unexpected owners before upgrading. Users who cannot upgrade immediately should\navoid the `--artifacts` mechanism in multi-tenant clusters and distribute dependencies inside the topology\njar instead.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82428"
+    },
+    {
+      "id": "CVE-2026-82427",
+      "published": "2026-09-14T15:17:09.553",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Description\n\nA topology's `topology.blobstore.map` lets the submitter choose a local name for each blob that the\nsupervisor localises. That name was used to build a path under the topology's working directory without\nnormalisation, in both `AsyncLocalizer` and `Container.createBlobstoreLinks`, and the symlink helper\nforce-deletes whatever already exists at the target before creating the link.\n\nA submitter could therefore use `../` segments to direct that delete-and-symlink operation at an arbitrary\npath, as the supervisor user, on every node the topology is scheduled onto. The consequences include\nrecursive deletion of supervisor-owned content and planting a symlink that causes a subsequent worker\nlaunch to execute attacker-chosen code as another tenant's operating-system user, which defeats the\nisolation that `supervisor.run.worker.as.user` is intended to provide.\n\nMitigation\n\nUpgrade to 3.1.0, where the resolved target must lie inside the expected root at both call sites.\n\nUsers who cannot upgrade immediately should restrict topology submission to trusted principals, and may\nreject submissions whose `topology.blobstore.map` entries contain path separators or `..` segments before\nthey reach Nimbus.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82427"
+    },
+    {
+      "id": "CVE-2026-82426",
+      "published": "2026-09-14T15:17:09.410",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Description\n\nNimbus accepted the `uploadedJarLocation` argument of `submitTopology` / `submitTopologyWithOpts` as a\nserver-side path and opened it directly, without checking that it referred to a file the caller had\nactually uploaded. The intended flow is that a client first calls `beginFileUpload`, which returns a path\ninside the Nimbus inbox, and uploads the jar in chunks to that location; nothing bound submission to that\nflow, and the `uploaders` map populated by `beginFileUpload` was never consulted at submit time.\n\nAn authenticated user with topology submission rights could therefore submit any path readable by the\nNimbus daemon user as their topology jar. Nimbus copied the file into the topology's jar blob, and the\nblob ACL grants the submitting subject read access, so the contents could then be retrieved with the\nordinary blob download RPCs. Candidate targets include the Nimbus Kerberos keytab, Thrift and UI TLS\nprivate keys, and `storm.yaml` with the ZooKeeper authentication payload. Possession of the Nimbus keytab\nturns an ordinary tenant into a cluster administrator.\n\nIn a deployment configured as the documentation recommends, submission is available to every\nauthenticated principal when `nimbus.users` is unset, so no elevated privilege is required.\n\nMitigation\n\nUpgrade to 3.1.0, where the submitted location is canonicalised and must resolve inside the Nimbus inbox.\n\nUsers who cannot upgrade immediately should restrict topology submission to trusted principals via\n`nimbus.users` or `nimbus.groups`, and should treat any file readable by the Nimbus daemon user as\npotentially exposed to submitters: rotate the Nimbus keytab and any TLS private keys or ZooKeeper\ncredentials reachable from that account. Local mode is unaffected.\n\n\nCredit\n\nIndependently reported to the Apache Storm PMC by n0mi1k, with a proof of concept.\n\nAlso found by the ASF using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82426"
+    },
+    {
+      "id": "CVE-2026-82019",
+      "published": "2026-09-14T15:17:09.223",
+      "lastModified": "2026-09-14T16:17:19.513",
+      "description": "TripleLift's ad rendering script (video-bundle.js) contains a DOM-based cross-site scripting vulnerability that allows unauthenticated attackers to execute arbitrary JavaScript in a publisher's domain by sending crafted postMessage payloads without origin validation. Attackers can cause a victim to visit an attacker-controlled page that sends malicious postMessage events to a publisher page running the ad script, enabling session hijacking and unauthorized DOM manipulation.",
+      "score": 4.2,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82019"
+    },
+    {
+      "id": "CVE-2026-7848",
+      "published": "2026-09-14T15:17:08.560",
+      "lastModified": "2026-09-18T17:49:08.457",
+      "description": "Alior Bank PrestaShop module \"raty\" for commercial partners is vulnerable to SQL Injection in the \"hookActionObjectProductUpdateBefore\", \"hookActionObjectCategoryUpdateBefore\", and \"hookActionObjectCategoryAddAfter\" hook methods. The module inserts values of the POST parameters \"alior_product_promotion\",  \"alior_category_promotion\" and \"alior_category_enabled\" directly into SQL UPDATE queries without any sanitization or validation. An attacker with access to the product or category add/edit functionality in the PrestaShop backoffice can inject arbitrary SQL, potentially allowing unauthorized access to and modification of database contents. This issue was fixed in versions: 9.0.7 and 8.1.11",
+      "score": 8.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7848"
+    },
+    {
+      "id": "CVE-2026-59570",
+      "published": "2026-09-14T15:17:06.720",
+      "lastModified": "2026-09-18T19:08:02.707",
+      "description": "On affected versions of Zscaler client connector, a pre-installed peer app can tear down the Zscaler tunnel, force user logout, and toggle packet capture.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59570"
+    },
+    {
+      "id": "CVE-2026-59569",
+      "published": "2026-09-14T15:17:06.603",
+      "lastModified": "2026-09-18T19:08:02.707",
+      "description": "An improper input validation vulnerability in Zscaler Client Connector on Android and ChromeOS allows an attacker to potentially bypass Zscaler controls.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59569"
+    },
+    {
+      "id": "CVE-2026-57130",
+      "published": "2026-09-14T15:17:06.453",
+      "lastModified": "2026-09-15T14:45:28.563",
+      "description": "PraisonAI is a multi-agent teams system. Prior to praisonaiagents 1.6.59, src/praisonai-agents/praisonaiagents/tools/email_tools.py interpolates LLM-controlled from_addr, subject, and query values directly into quoted IMAP SEARCH criteria. Embedded quote, backslash, newline, or null characters can escape the intended criterion and alter IMAP operations when search_emails, reply_email, or archive_email is exposed to an agent with configured email credentials, allowing mailbox data access, modification, deletion, or connection disruption. This issue is fixed in praisonaiagents 1.6.59.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57130"
+    },
+    {
+      "id": "CVE-2026-57129",
+      "published": "2026-09-14T15:17:06.317",
+      "lastModified": "2026-09-14T16:17:14.220",
+      "description": "PraisonAI is a multi-agent teams system. Prior to praisonaiagents 1.6.59, MentionsParser._process_file_mention accepts file-mention values and falls back from workspace-relative resolution to Path(file_path) without traversal, symlink, or workspace-boundary validation. Prompt input from users, bots, or workflows can therefore read arbitrary files accessible to the process, including credentials, keys, environment files, source code, and system configuration. This issue is fixed in praisonaiagents 1.6.59.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57129"
+    },
+    {
+      "id": "CVE-2026-57128",
+      "published": "2026-09-14T15:17:06.177",
+      "lastModified": "2026-09-16T13:42:48.797",
+      "description": "PraisonAI is a multi-agent teams system. Prior to praisonaiagents 1.6.58, the SSE server in src/praisonai-agents/praisonaiagents/server/server.py does not consult ServerConfig.auth_token before handling /publish, /events, or /info requests. A network client that can reach the server can broadcast arbitrary events to connected clients and obtain server configuration and client-count information. This issue is fixed in praisonaiagents 1.6.58.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57128"
+    },
     {
       "id": "CVE-2026-57126",
       "published": "2026-09-14T15:17:06.040",
@@ -630,276 +900,6 @@
       "score": 9.5,
       "severity": "CRITICAL",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-21391"
-    },
-    {
-      "id": "CVE-2026-9812",
-      "published": "2026-09-14T11:17:08.393",
-      "lastModified": "2026-09-16T19:30:49.967",
-      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.7, 10.11.x <= 10.11.22 fail to validate that a property field belongs to the specified run before updating its value which allows an authenticated user with run property-management access to crash the Playbooks plugin via a REST request referencing a property field that belongs to a different run. Mattermost Advisory ID: MMSA-2026-00684",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-9812"
-    },
-    {
-      "id": "CVE-2026-90898",
-      "published": "2026-09-14T11:17:08.237",
-      "lastModified": "2026-09-18T19:31:11.370",
-      "description": "Bifrost registers MCP clients through its management API. A stdio client is a command plus args. Bifrost starts that program in the gateway the moment the client is added. No MCP handshake required.\n\n\n\nThe default is governance.auth_config.is_enabled=false. Auth off means every caller is a local admin. One unauthenticated POST /api/mcp/client is enough to run a program as the Bifrost process user (appuser on the official image).\n\n\n\n transports/v2.1.0 refuses an unauthenticated stdio registration with 403. transports/v2.0.0 still allows it.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90898"
-    },
-    {
-      "id": "CVE-2026-90891",
-      "published": "2026-09-14T11:17:07.643",
-      "lastModified": "2026-09-18T19:15:11.780",
-      "description": "ASRock Polychrome SYNC/RGB software utility developed by ASRock Inc. has an Improper Access Control vulnerability. Authenticated local attackers can send a specially crafted IOCTL request to cause the driver to write to improperly restricted I/O ports, resulting in a forced operating system reboot.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90891"
-    },
-    {
-      "id": "CVE-2026-90890",
-      "published": "2026-09-14T11:17:07.493",
-      "lastModified": "2026-09-18T19:15:11.780",
-      "description": "ASRock Polychrome SYNC/RGB software utility developed by ASRock Inc. has an Untrusted Pointer Dereference vulnerability. Authenticated local attackers can send a specially crafted IOCTL request to cause the driver to dereference an unvalidated pointer, resulting in an operating system crash.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90890"
-    },
-    {
-      "id": "CVE-2026-90708",
-      "published": "2026-09-14T11:17:07.313",
-      "lastModified": "2026-09-15T17:17:38.973",
-      "description": "A weakness has been identified in Yot CMS up to 3.3.1. Affected by this vulnerability is the function Login of the file global.php of the component Cookie Handler. This manipulation of the argument yot3_user/yot3_pass causes sql injection. It is possible to initiate the attack remotely. The exploit has been made available to the public and could be used for attacks.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90708"
-    },
-    {
-      "id": "CVE-2026-90707",
-      "published": "2026-09-14T11:17:07.103",
-      "lastModified": "2026-09-15T14:17:32.230",
-      "description": "A security flaw has been discovered in Open5GS up to 2.7.x. Affected is the function amf_nnrf_try_old_amf_discovery_fallback of the file src/amf/nnrf-handler.c of the component Old AMF Discovery Fallback. The manipulation of the argument discovery_option results in use after free. The attack may be performed from remote. The patch is identified as ddd683a35f8aaac2b7b9884a24cd53bddfc65238. Applying a patch is advised to resolve this issue.",
-      "score": 8.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90707"
-    },
-    {
-      "id": "CVE-2026-90706",
-      "published": "2026-09-14T11:17:06.930",
-      "lastModified": "2026-09-14T20:56:48.220",
-      "description": "A vulnerability was identified in D-Link DWR-M921 1.1.52. This impacts the function formWsc of the file /boafrm/formWsc. The manipulation of the argument targetAPSsid leads to os command injection. The attack is possible to be carried out remotely. The exploit is publicly available and might be used.",
-      "score": 6.6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90706"
-    },
-    {
-      "id": "CVE-2026-90705",
-      "published": "2026-09-14T11:17:06.740",
-      "lastModified": "2026-09-16T15:18:40.683",
-      "description": "A vulnerability was determined in D-Link DWR-M921 1.1.52. This affects the function formsysCmd of the file /boafrm/formsysCmd of the component Boa Dispatch Table. Executing a manipulation of the argument sysCmd can lead to os command injection. The attack can be executed remotely. The exploit has been publicly disclosed and may be utilized.",
-      "score": 6.6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90705"
-    },
-    {
-      "id": "CVE-2026-8821",
-      "published": "2026-09-14T11:17:06.153",
-      "lastModified": "2026-09-16T19:30:49.967",
-      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.7, 10.11.x <= 10.11.22 fail to validate channel member-management permission during playbook run creation, allowing an authenticated channel member to add an arbitrary user to a restricted channel via the run owner field.. Mattermost Advisory ID: MMSA-2026-00677",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-8821"
-    },
-    {
-      "id": "CVE-2026-89180",
-      "published": "2026-09-14T11:17:05.860",
-      "lastModified": "2026-09-18T19:15:11.780",
-      "description": "EFence developed by Thinking Software Technology has a SQL Injection vulnerability, allowing unauthenticated remote attackers to inject arbitrary SQL commands to read database contents.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89180"
-    },
-    {
-      "id": "CVE-2026-87802",
-      "published": "2026-09-14T11:17:05.620",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Improper verification of cryptographic signature vulnerability in Apache Syncope.\n\n\n\nWhen SRA is configured for OAuth 2.0 without JWKS set URI assigned, an attacker can forge arbitrary JWTs to impersonate any user identity and permissions, gaining full access to services proxied by SRA.\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\n\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87802"
-    },
-    {
-      "id": "CVE-2026-87785",
-      "published": "2026-09-14T11:17:05.503",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Authentication bypass by spoofing vulnerability in Apache Syncope.\n\n\n\nWhen the configured JWKS settings for internal JWT authentication are disclosed (at least protocol and key), an attacker can spoof another user's privileges after completing a successful authentication and obtaining a valid JWT.\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\n\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87785"
-    },
-    {
-      "id": "CVE-2026-87779",
-      "published": "2026-09-14T11:17:05.370",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Insertion of sensitive information into log file vulnerability in Apache Syncope.\n\n\n\nWhen AES key of non-standard length (not 16/24/32 bytes) is configured, Syncope will pad the provided value with random characters. The resulting key value is logged.\n\n\n\nThis issue affects Apache Syncope: from 3.0.15 through 3.0.16, from 4.0.3 through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\n\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87779"
-    },
-    {
-      "id": "CVE-2026-86460",
-      "published": "2026-09-14T11:17:05.250",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Cypher injection vulnerability in the Neo4j persistence layer when processing some FIQL search conditions.\n\n\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\n\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86460"
-    },
-    {
-      "id": "CVE-2026-82232",
-      "published": "2026-09-14T11:17:05.123",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Improper neutralization of special elements used in an SQL command ('SQL injection') vulnerability in Apache Syncope.\n\n\n\nAn administrator with adequate entitlements can achieve execution of arbitrary SQL via stacked queries, leveraging unsanitized sort clauses for Task search.\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\n\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82232"
-    },
-    {
-      "id": "CVE-2026-81566",
-      "published": "2026-09-14T11:17:04.993",
-      "lastModified": "2026-09-16T19:28:06.713",
-      "description": "Joomla Extension - joomshaper.com - Missing Access Control in Menu Item Creation in SP Page Builder (Free and Pro) 4.0.0 - 6.9.0 - The add-to-menu routine invoked the com_menus item model's save() method directly. That model does not perform authorisation itself, because the relevant checks reside in the com_menus controller, and the only check applied was core.edit on com_sppagebuilder. Users with no permissions whatsoever on com_menus could therefore create menu items, and because the record identifier was taken from the submitted jform[menuid] field, could also overwrite existing ones. The home flag was read back from the database and preserved, so the site's home menu item could be repointed while remaining the home item.",
-      "score": 5.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81566"
-    },
-    {
-      "id": "CVE-2026-81565",
-      "published": "2026-09-14T11:17:04.863",
-      "lastModified": "2026-09-16T19:28:06.713",
-      "description": "Joomla Extension - joomshaper.com - Missing Directory Confinement in Media Upload in SP Page Builder (Free and Pro) 4.0.0 - 6.9.0 - The folder request parameter replaced the generated date-based destination folder in its entirety and was then passed to Folder::create() and File::upload() without either of the directory boundary checks applied elsewhere in the same file. Files could be written into any directory beneath the web root, including administrator/, templates/, cli/ and the site root. Joomla's PATH input filter prevented traversal above the web root, and existing files were not overwritten.",
-      "score": 6.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81565"
-    },
-    {
-      "id": "CVE-2026-81564",
-      "published": "2026-09-14T11:17:04.707",
-      "lastModified": "2026-09-16T19:28:06.713",
-      "description": "Joomla Extension - joomshaper.com - Missing Directory Confinement in Media Rename Allowing Arbitrary File Rename in SP Page Builder (Free and Pro) 4.0.0 - 6.9.0 - The media rename task applied neither of the directory boundary checks used by the folder operations in the same controller, and its validation guard required only that either a media record exist for the supplied identifier or that the supplied path be present in #__spmedia, rather than both. The identifier and the path were consequently never checked against one another, so any valid media identifier could be paired with an unrelated filesystem path, and the STR input filter left traversal sequences intact. An attacker could rename files elsewhere in the installation, including renaming configuration.php to take the site offline.",
-      "score": 7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81564"
-    },
-    {
-      "id": "CVE-2026-79700",
-      "published": "2026-09-14T11:17:04.570",
-      "lastModified": "2026-09-16T19:28:06.713",
-      "description": "Joomla Extension - joomshaper.com - Unauthenticated CAPTCHA Bypass via Request-Controlled CAPTCHA Configuration in SP Page Builder Pro 5.1.4 - 6.9.0 - The optin_form addon read the CAPTCHA type, the expected answer and the enabled flag from the request rather than from the stored addon configuration. Verification reduced to md5($captcha_question) != $captcha_answer with both operands supplied by the attacker, so any value passed.",
-      "score": 6.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79700"
-    },
-    {
-      "id": "CVE-2026-78375",
-      "published": "2026-09-14T11:17:04.430",
-      "lastModified": "2026-09-16T19:28:06.713",
-      "description": "Joomla Extension - joomshaper.com - Authenticated Privileged SQL Injection in the Content Plugin of SP Page Builder (Free and Pro) 5.2.1 - 6.9.0 - plgContentSppagebuilder::onContentAfterSave() read jform[attribs][sppagebuilder_article_id] from the request and concatenated it directly into the WHERE view_id = ... clause of a query against #__sppagebuilder without quoting or type casting. Joomla's ARRAY input filter does not sanitise element values, as InputFilter::clean() returns (array) $source with the elements untouched, so the entire payload could be delivered in a single POST field. The affected block also executed before the com_content.article context test, so it ran on every onContentAfterSave event regardless of which component triggered the save. An attacker could perform time-based blind SQL injection to read arbitrary database contents, including the #__users and #__session tables.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78375"
-    },
-    {
-      "id": "CVE-2026-5132",
-      "published": "2026-09-14T11:17:04.140",
-      "lastModified": "2026-09-16T19:30:49.967",
-      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.7, 10.11.x <= 10.11.22 fail to limit size of unpacked SDP messages compressed with zlib, which allows attacker to deny service or crash server via sending many SDP messages that unpack to large size.. Mattermost Advisory ID: MMSA-2026-00643",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-5132"
-    },
-    {
-      "id": "CVE-2026-20773",
-      "published": "2026-09-14T11:17:03.820",
-      "lastModified": "2026-09-18T19:30:42.730",
-      "description": "A role-based access control issue was identified in the administrative expression evaluation functionality. This could allow users with certain administrative roles to access expression testing capabilities beyond their intended permissions.",
-      "score": 8.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-20773"
-    },
-    {
-      "id": "CVE-2026-15814",
-      "published": "2026-09-14T11:17:03.697",
-      "lastModified": "2026-09-16T19:30:49.967",
-      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.7, 10.11.x <= 10.11.22 fail to limit the amount of memory allocated when decoding uploaded image files which allows an authenticated user to cause excessive server memory consumption and potential denial of service via uploading a specially crafted image as a profile picture, channel file attachment, team icon, or custom brand image. Mattermost Advisory ID: MMSA-2026-00719",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15814"
-    },
-    {
-      "id": "CVE-2026-14344",
-      "published": "2026-09-14T11:17:03.573",
-      "lastModified": "2026-09-16T19:30:49.967",
-      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.7, 10.11.x <= 10.11.22 fail to enforce the board-creation permission which allows an unauthorized authenticated user to create boards via the board duplicate, boards-and-blocks, and archive-import endpoints.. Mattermost Advisory ID: MMSA-2026-00715",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14344"
-    },
-    {
-      "id": "CVE-2026-14259",
-      "published": "2026-09-14T11:17:03.307",
-      "lastModified": "2026-09-16T19:30:49.967",
-      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.7, 10.11.x <= 10.11.22 fail to enforce board creation permissions when importing archive files which allows an authenticated non-guest team member to create Open or Private boards despite administrator restrictions via importing a crafted .boardarchive file. Mattermost Advisory ID: MMSA-2026-00712",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14259"
-    },
-    {
-      "id": "CVE-2026-13417",
-      "published": "2026-09-14T11:17:03.180",
-      "lastModified": "2026-09-16T19:30:49.967",
-      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.7, 10.11.x <= 10.11.22 fail to validate the type of `fields.properties` on block creation which allows an authenticated user with editor access to a board to crash the Boards plugin worker and trigger a denial of service via a child block whose `fields.properties` is a non-object value. Mattermost Advisory ID: MMSA-2026-00710",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13417"
-    },
-    {
-      "id": "CVE-2026-12882",
-      "published": "2026-09-14T11:17:03.050",
-      "lastModified": "2026-09-16T19:30:49.967",
-      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.7, 10.11.x <= 10.11.22 fail to parse Markdown autolinks with unmatched trailing closing parentheses in linear time, which allows an authenticated user with permission to create posts to cause excessive server CPU consumption and degrade availability for other users via specially crafted post or message attachment content. Mattermost Advisory ID: MMSA-2026-00703",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12882"
-    },
-    {
-      "id": "CVE-2026-11993",
-      "published": "2026-09-14T11:17:02.800",
-      "lastModified": "2026-09-16T19:30:49.967",
-      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.7, 10.11.x <= 10.11.22 fail to properly enforce the limit of concurrent files being processed and handled failed files, which allows a user with permission to upload files to spawn more goroutines than intended and block the indexing of other files via uploading heavy files constantly to the server.. Mattermost Advisory ID: MMSA-2026-00696",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-11993"
-    },
-    {
-      "id": "CVE-2026-10556",
-      "published": "2026-09-14T11:17:02.590",
-      "lastModified": "2026-09-16T19:30:49.967",
-      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.7, 10.11.x <= 10.11.22 fail to validate null entries in Microsoft Graph webhook notification payloads, which allows an unauthenticated attacker to crash the Microsoft Calendar plugin process and deny calendar integration service to all users on the instance via a crafted {{POST}} request to the public webhook endpoint.. Mattermost Advisory ID: MMSA-2026-00693",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-10556"
-    },
-    {
-      "id": "CVE-2026-10542",
-      "published": "2026-09-14T11:17:02.447",
-      "lastModified": "2026-09-16T19:30:49.967",
-      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.7, 10.11.x <= 10.11.22 fail to validate channel action ownership which allows channel managers to update actions in other channels via the channel action update endpoint.. Mattermost Advisory ID: MMSA-2026-00692",
-      "score": 5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-10542"
     }
   ]
 }
