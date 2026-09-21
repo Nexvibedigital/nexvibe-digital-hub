@@ -1,6 +1,546 @@
 {
-  "syncedAt": "2026-09-21T06:51:39.005Z",
+  "syncedAt": "2026-09-21T07:21:08.159Z",
   "items": [
+    {
+      "id": "CVE-2026-84179",
+      "published": "2026-09-14T14:17:13.130",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Description\n\n  getTopologyPageInfo merged the Nimbus daemon configuration with the topology's own configuration and returned the result without redaction in the topology_conf field of TopologyPageInfo. The Storm UI copied that value verbatim into the configuration field of GET /api/v1/topology/{id} and of the corresponding metrics endpoint.\n\n  Where the cluster is configured with them, the merged map includes storm.zookeeper.auth.payload, which Storm's own documentation directs operators to keep in storm-cluster-auth.yaml under permissions that deny access from workers, together with the keystore and truststore passwords for the Thrift, Netty and ZooKeeper TLS configuration, and any plugin key whose name denotes a secret.\n\n  getTopologyPageInfo is a topology read-only operation. Under SimpleACLAuthorizer a principal listed in topology.readonly.users or topology.readonly.groups could therefore read daemon credentials that the dedicated cluster configuration API, getNimbusConf, redacts and that is gated on nimbus.users instead. The sibling operations that exist to serve configuration were masked; the topology page, which merges in strictly more daemon state, was not.\n\n  Mitigation\n\n  Upgrade to 3.1.0, where credential-bearing values are masked before any configuration is served over the Nimbus API.\n\n  Users who cannot upgrade immediately should remove any principal that is not trusted with cluster credentials from topology.readonly.users, topology.readonly.groups, topology.users and topology.groups, and should rotate the ZooKeeper authentication payload and any TLS keystore or truststore passwords that were reachable through the topology page.\n\n  Credit\nWanxin Yin (yaklang.io) reported this issue to the Apache Security Team.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84179"
+    },
+    {
+      "id": "CVE-2026-82920",
+      "published": "2026-09-14T14:17:13.010",
+      "lastModified": "2026-09-16T19:30:49.967",
+      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.7 fail to enforce authorization boundaries on the access control policy update endpoint which allows a channel or team administrator to detach a system-assigned ABAC parent policy via a crafted PUT /api/v4/access_control_policies request with an empty imports list.. Mattermost Advisory ID: MMSA-2026-00724",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82920"
+    },
+    {
+      "id": "CVE-2026-82441",
+      "published": "2026-09-14T14:17:12.590",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Description\n\nA submitted topology carries two lists of blobstore keys, `dependency_jars` and `dependency_artifacts`,\nwhich the client fills in after uploading the corresponding blobs. Nimbus performed no validation of their\ncontents on the submission path, yet acts on them in two places.\n\nDuring cleanup of a finished topology, Nimbus deletes the keys named in those lists, and the deletion is\nperformed as the Nimbus subject, for which the blobstore short-circuits its ACL check. A submitter who\nlisted a key belonging to another topology, such as its `-stormjar.jar`, could therefore cause\nthat blob to be deleted when their own topology was cleaned up.\n\nSeparately, on acquiring leadership a Nimbus compares the dependency keys of all active topologies against\nthe blobstore contents and surrenders leadership if any is missing. A single key that does not exist, on a\nsingle active topology, therefore causes every Nimbus to acquire leadership, surrender it and requeue\nindefinitely, leaving the cluster without a leader and unable to schedule, clean up or accept submissions.\n\nMitigation\n\nUpgrade to 3.1.0, where a submission is refused unless every entry in both lists is a dependency blob key\nand exists in the blobstore.\n\nNote that this validates new submissions only; a topology stored by an affected version with an invalid list\nis unaffected by the upgrade. An operator whose cluster is failing to retain a leader should inspect the\nNimbus log for the dependency keys reported as missing and remove or resubmit the topology naming them.\n\nUsers who cannot upgrade immediately should restrict topology submission to trusted principals.\n\nCredit\n\nThis issue was discovered by rzo1 while investigating an unrelated blobstore defect.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82441"
+    },
+    {
+      "id": "CVE-2026-82439",
+      "published": "2026-09-14T14:17:12.470",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Description\n\nThe DRPC server kept a map from function name to request queue and created an entry the first time a\nfunction name was seen. No code path ever removed an entry: request cleanup removed the request from its\nqueue, and the shutdown path drained queues, but the queue object and its map entry remained for the life of\nthe process.\n\nFunction names come from the client and are not constrained to functions any topology has registered, so the\nnumber of retained entries is bounded only by the number of distinct names an attacker chooses to send, and\neach retained entry holds the name itself. `drpc.authorizer` is unset by default, so no credentials are\nrequired to reach the endpoint.\n\nThe retained state is permanent rather than a transient load spike, so the effect accumulates until the DRPC\nserver exhausts its heap.\n\nMitigation\n\nUpgrade to 3.1.0, where a function's queue is removed once nothing is waiting in it.\n\nUsers who cannot upgrade immediately should configure `drpc.authorizer` so that only trusted principals can\nreach the DRPC endpoints, and should ensure the DRPC ports are not reachable from untrusted networks.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82439"
+    },
+    {
+      "id": "CVE-2026-7208",
+      "published": "2026-09-14T14:17:12.120",
+      "lastModified": "2026-09-14T19:17:48.410",
+      "description": "Yealink SIP-T33G firmware versions 124.86.x.x prior to 124.87.0.0 contain a race condition vulnerability that allows authenticated attackers to interrupt active diagnostic processes by concurrently deleting output files written to predictable paths under the diagnostic directory. Attackers can trigger a diagnostic operation such as traceroute or ping and simultaneously invoke the file deletion endpoint to terminate the running process, leaving the system in an inconsistent state.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7208"
+    },
+    {
+      "id": "CVE-2026-73370",
+      "published": "2026-09-14T14:17:09.077",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Incorrect Authorization vulnerability in Apache Syncope.\n\n\n\nDelegated administration security checks performed by Reconciliation service's pull and push, being incomplete, could accept calls by administrator not provided with adequate entitlements.\n\n\n\n\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73370"
+    },
+    {
+      "id": "CVE-2026-73236",
+      "published": "2026-09-14T14:17:08.817",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Incorrect Authorization vulnerability in Apache Syncope.\n\n\n\nDelegated administration security checks are based on Realm hierarchy and enforced via prefix matches.\nDue to incorrect implementation, two sibling Realms whose names begin with the same string cannot be correctly distinguished, resulting in incorrect authorization.\n\n\n\n\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73236"
+    },
+    {
+      "id": "CVE-2026-73195",
+      "published": "2026-09-14T14:17:08.597",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Improper Encoding or Escaping of Output vulnerability in Apache Syncope.\n\n\n\nAuthenticated users can store a spreadsheet formula payload in one of their own plain attributes. When such users are included in a CSV export and the generated CSV file is opened by a spreadsheet application, the formula may be executed.\n\n\n\n\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73195"
+    },
+    {
+      "id": "CVE-2026-73191",
+      "published": "2026-09-14T14:17:08.450",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "URL Redirection to Untrusted Site ('Open Redirect') vulnerability in Apache Syncope.\n\n\n\n\n\nWhen the Syncope SRA is configured for CAS authentication, the target Apereo CAS instance's URL is calculated by unconditionally looking at client-supplied forwarded HTTP headers.\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73191"
+    },
+    {
+      "id": "CVE-2026-90957",
+      "published": "2026-09-14T13:19:32.907",
+      "lastModified": "2026-09-16T13:42:47.970",
+      "description": "Affected versions of MISP serve uploaded SVG images inline without a restrictive browser sandbox.\n\n\nThe commit explains that SVG files are XML documents rather than passive bitmap images. While scripts inside SVG do not execute when the SVG is rendered through a normal <img>, they can execute when the SVG is navigated to directly or embedded as a document. In that case, malicious <script> elements, event handlers, or javascript: URLs execute on the MISP origin with the viewer’s session.\n\n\nThe affected use cases include:\n\n\n\n - organisation SVG logos;\n - event-report SVG pictures.\n\n\n\n\n\n\nImportantly, the vulnerable behavior is on the serve path, not merely the upload path: the patch notes that a malicious SVG uploaded while SVG support was enabled could remain dangerous even after uploads were later disabled.\n\n\n\nVersion affected: ≤2.5.45",
+      "score": 5.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90957"
+    },
+    {
+      "id": "CVE-2026-90955",
+      "published": "2026-09-14T13:19:32.583",
+      "lastModified": "2026-09-16T13:42:47.777",
+      "description": "Affected versions of MISP’s interactive CLI shell do not reliably preserve the identity of the impersonated MISP user across audit logging.\n\n\nThe shell is designed to run actions as a supplied MISP user ID. However, the legacy SysLogLogable behavior stored that identity in behavior-instance state that could be overwritten when another model lazily attached the shared behavior. Consequently, subsequent CLI writes could lose the intended user attribution and be logged incorrectly. The commit also notes that CLI-originated records lacked a CLI marker, making them appear similar to ordinary web actions by that user.\n\n\n\nVersion affected: ≤2.5.45",
+      "score": 4.6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90955"
+    },
+    {
+      "id": "CVE-2026-90938",
+      "published": "2026-09-14T13:19:32.430",
+      "lastModified": "2026-09-14T14:17:20.117",
+      "description": "LangBot's plugin runtime (pip package langbot_plugin) through 0.4.17 starts a debug WebSocket server on 0.0.0.0:5401 (/plugin/ws) whose authentication is gated on plugin_debug_key, which defaults to an empty string and is never set by the upstream repository, Docker image, or docker-compose (which additionally publishes port 5401 to the host); the key check is therefore skipped entirely. Any remote attacker able to reach the port can register an arbitrary \"debug plugin\" without credentials. Because events are broadcast to all initialized plugins without filtering, the attacker's plugin receives the full context of every IM message event (including private chats, message chains, and user/sender IDs in plaintext) and can inject forged replies, send messages as any configured bot, enumerate bot UUIDs, invoke configured LLM models, read knowledge-base contents, and register malicious tools that feed every user's LLM pipeline. Registering with \"prod_mode\": true causes later legitimate installations of a plugin with the same author/name to be rejected, resulting in persistent denial of service. No patched version was available at the time of publication.",
+      "score": 8.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90938"
+    },
+    {
+      "id": "CVE-2026-90937",
+      "published": "2026-09-14T13:19:32.277",
+      "lastModified": "2026-09-16T15:18:45.053",
+      "description": "froxlor versions before 2.2.5 fail to validate newline characters in subdomain redirect URLs, allowing authenticated customers to inject arbitrary nginx or Apache configuration directives. Attackers can supply URLs containing literal newlines that are written verbatim into vhost config files during cron rebuild, enabling web server configuration corruption, denial of service, or hijacking of HTTP responses across hosted domains.",
+      "score": 9.9,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90937"
+    },
+    {
+      "id": "CVE-2026-90936",
+      "published": "2026-09-14T13:19:32.130",
+      "lastModified": "2026-09-14T21:17:43.030",
+      "description": "Froxlor before 2.3.7 fails to properly scope sender alias lookups to the current customer in customer_email.php. Authenticated attackers can enumerate global sender alias IDs and read other customers' allowed sender values by supplying arbitrary senderid parameters in delete confirmation requests.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90936"
+    },
+    {
+      "id": "CVE-2026-90935",
+      "published": "2026-09-14T13:19:31.987",
+      "lastModified": "2026-09-14T15:17:13.950",
+      "description": "Froxlor before 2.3.7 fails to validate the mysql_server parameter against a customer's allowed_mysqlserver allowlist in the Mysqls.add API command. Attackers can supply a disallowed server index to create MySQL databases and users on forbidden servers, bypassing per-customer access controls.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90935"
+    },
+    {
+      "id": "CVE-2026-90934",
+      "published": "2026-09-14T13:19:31.830",
+      "lastModified": "2026-09-14T19:18:12.967",
+      "description": "EspoCRM before 10.0.4 contains a field-level security bypass vulnerability in the meeting and call attendees endpoints that allows authenticated users to read restricted email addresses. Attackers can recover hidden attendee emails by exploiting incorrect ACL scope validation that checks parent event permissions instead of attendee entity permissions.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90934"
+    },
+    {
+      "id": "CVE-2026-90933",
+      "published": "2026-09-14T13:19:31.680",
+      "lastModified": "2026-09-14T14:17:19.997",
+      "description": "laradashboard through 1.2.2 contains a missing authorization vulnerability in the Local License API endpoints that allows any authenticated user to read, overwrite, and delete premium module license keys. Attackers with low-privileged accounts can access GET /api/admin/licenses/show, POST /api/admin/licenses/store, and POST /api/admin/licenses/remove endpoints to disclose confidential license keys, inject attacker-controlled values, or delete stored licenses entirely.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90933"
+    },
+    {
+      "id": "CVE-2026-90932",
+      "published": "2026-09-14T13:19:31.523",
+      "lastModified": "2026-09-16T15:18:44.557",
+      "description": "LaraDashboard versions 0.9.2 through 1.2.2 contain a path traversal vulnerability in the core-upgrade backup handling. CoreUpgradeController and BackupService (e.g. BackupService::deleteBackup()) concatenate the user-supplied backup_file/filename value directly onto the backup directory path without normalisation, without applying basename(), and without verifying that the resolved path remains inside storage/app/core-backups; the corresponding form requests only validate the value as a bounded string. An authenticated user holding only the delegated settings.edit permission (not Superadmin) can supply ../ traversal sequences to delete arbitrary files reachable on the host filesystem, including outside the application tree, or to restore a ZIP archive from an arbitrary on-disk location, writing arbitrary files into the application directories and achieving remote code execution. Note: the advisory states the vulnerable concatenation was introduced in the v0.9.7 release line. No patched version was available at the time of publication.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90932"
+    },
+    {
+      "id": "CVE-2026-90931",
+      "published": "2026-09-14T13:19:31.350",
+      "lastModified": "2026-09-14T21:17:42.903",
+      "description": "LaraDashboard versions 0.9.0 through 1.2.2 fail to sanitize SVG file content during media upload, allowing authenticated users with only the media.create permission to upload malicious SVG files containing script tags. When any user including administrators opens the stored SVG file served inline from the application origin, the embedded JavaScript executes in the dashboard context, enabling session hijacking and administrative account takeover.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90931"
+    },
+    {
+      "id": "CVE-2026-90930",
+      "published": "2026-09-14T13:19:31.190",
+      "lastModified": "2026-09-14T15:17:13.793",
+      "description": "File Browser through 2.63.23 applies path rules to the requested lexical path but resolves symbolic links without reapplying rules to the target, allowing authenticated users to bypass deny rules. Attackers can read and overwrite rule-denied files by accessing them through in-scope symbolic link aliases that resolve to denied paths.",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90930"
+    },
+    {
+      "id": "CVE-2026-90929",
+      "published": "2026-09-14T13:19:31.030",
+      "lastModified": "2026-09-14T19:18:12.457",
+      "description": "File Browser versions >= 2.5.0 and <= 2.63.23 contain an incorrect authorization flaw in the direct-upload endpoint (resourcePostHandler in http/resource.go). Unlike the TUS upload handler, the direct-upload handler does not reject a target that is an existing directory; a POST with ?override=true aimed at a directory fails inside writeFile (a directory cannot be opened for writing) and the failure-cleanup path then calls Fs.RemoveAll on the request path, recursively deleting the entire tree. This cleanup is gated by neither the Perm.Delete permission nor the checkDescendants rule walk applied by the delete and patch handlers, so an authenticated non-administrator holding only the default Create and Modify permissions can delete directories they are not authorized to delete, including rule-denied files within them. Deletion remains confined to the user's scope because ScopedFs.RemoveAll still enforces the scope guard. The faulty cleanup was introduced in v2.5.0; no patched version is available.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90929"
+    },
+    {
+      "id": "CVE-2026-90928",
+      "published": "2026-09-14T13:19:30.870",
+      "lastModified": "2026-09-14T14:17:19.880",
+      "description": "File Browser through 2.63.23 contains a memory exhaustion vulnerability in the subtitle conversion endpoint that loads entire subtitle files into memory without size limits. Authenticated attackers with download permission can request conversion of large .srt, .ass, or .ssa files and exhaust server memory through concurrent requests, causing denial of service.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90928"
+    },
+    {
+      "id": "CVE-2026-90927",
+      "published": "2026-09-14T13:19:30.710",
+      "lastModified": "2026-09-16T15:18:44.057",
+      "description": "filebrowser through 2.63.23 fails to limit WebSocket message size in the /api/command handler before checking permissions, allowing authenticated users to buffer arbitrarily large messages. Attackers can send oversized WebSocket messages to exhaust server heap memory and cause denial of service regardless of EnableExec setting or Execute permission.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90927"
+    },
+    {
+      "id": "CVE-2026-90784",
+      "published": "2026-09-14T13:19:30.500",
+      "lastModified": "2026-09-14T20:56:48.220",
+      "description": "A vulnerability has been found in Dvidelabs flatcc up to 0.6.3. The impacted element is the function fb_clear_parser of the file src/Compiler/semantics.c. The manipulation leads to memory leak. It is possible to initiate the attack remotely. The exploit has been disclosed to the public and may be used. The identifier of the patch is 8dbc3419738da066151991fd2bf1d0c85591dea2. It is suggested to install a patch to address this issue.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90784"
+    },
+    {
+      "id": "CVE-2026-90716",
+      "published": "2026-09-14T13:19:30.287",
+      "lastModified": "2026-09-16T15:18:41.733",
+      "description": "A vulnerability was detected in marcobambini Gravity up to 0.9.7. This impacts the function parse_number_expression of the file src/compiler/gravity_parser.c of the component Number Parser. Performing a manipulation results in out-of-bounds read. It is possible to initiate the attack remotely. The exploit is now public and may be used. Upgrading to version 0.9.8 will fix this issue. The patch is named 1b9bbf3ad5749e2a3434e6ad073c6e93c24207b6. It is recommended to upgrade the affected component.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90716"
+    },
+    {
+      "id": "CVE-2026-90715",
+      "published": "2026-09-14T13:19:30.080",
+      "lastModified": "2026-09-14T20:56:48.220",
+      "description": "A security vulnerability has been detected in marcobambini Gravity up to 0.9.7. This affects an unknown function of the file src/utils/gravity_json.c of the component udp json-parser. Such manipulation leads to integer overflow. The attack may be performed from remote. The exploit has been disclosed publicly and may be used. Upgrading to version 0.9.8 mitigates this issue. The name of the patch is 9b337c3eae5833c3956bed1fc01c21c14fd443f2. Upgrading the affected component is recommended.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90715"
+    },
+    {
+      "id": "CVE-2026-90714",
+      "published": "2026-09-14T13:19:29.887",
+      "lastModified": "2026-09-15T18:19:38.243",
+      "description": "A weakness has been identified in marcobambini Gravity up to 0.9.7. The impacted element is an unknown function of the file src/utils/gravity_json.c of the component JSON parser. This manipulation causes memory corruption. The attack is possible to be carried out remotely. The exploit has been made available to the public and could be used for attacks. Upgrading to version 0.9.8 is sufficient to resolve this issue. Patch name: 9b337c3eae5833c3956bed1fc01c21c14fd443f2. It is suggested to upgrade the affected component.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90714"
+    },
+    {
+      "id": "CVE-2026-90713",
+      "published": "2026-09-14T13:19:29.677",
+      "lastModified": "2026-09-15T14:17:33.490",
+      "description": "A security flaw has been discovered in vllm-project vLLM up to 0.29.0. The affected element is the function TiktokenTokenizer::new of the file rust/src/text/src/backend/hf/mod.rs of the component tiktoken vocab File Handler. The manipulation results in denial of service. The attack is only possible with local access. The exploit has been released to the public and may be used for attacks. The pull request to fix this issue awaits acceptance.",
+      "score": 3.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90713"
+    },
+    {
+      "id": "CVE-2026-78336",
+      "published": "2026-09-14T13:18:47.250",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Insertion of sensitive information into sent data vulnerability in Apache Syncope.\n\n\n\nAny authenticated user can query for the list of available OIDC providers configured for SSO with Console and Enduser. The returned payload contains all configuration settings, including client secrets, regardless of the entitlements owned by the caller.\n\n\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\n\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78336"
+    },
+    {
+      "id": "CVE-2026-78330",
+      "published": "2026-09-14T13:18:47.123",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Incorrect privilege assignment vulnerability in Apache Syncope.\n\nWhen the configured JWKS settings for internal JWT authentication are disclosed (at least protocol and key), an attacker can obtain admin privileges after completing a successful authentication and obtaining a valid low-privileges JWT.\n\n\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\n\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78330"
+    },
+    {
+      "id": "CVE-2026-78318",
+      "published": "2026-09-14T13:18:47.000",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Improper neutralization of input during web page generation ('cross-site scripting') vulnerability in Apache Syncope.\n\n\n\nThe notification message, as optionally shown by Console's and Enduser's login pages can be instructed to display HTML tags with unsafe JS inline, via malicious HTTP link generation.\n\n\n\nThis issue affects Apache Syncope: from 4.0.4 through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\n\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78318"
+    },
+    {
+      "id": "CVE-2026-78299",
+      "published": "2026-09-14T13:18:46.870",
+      "lastModified": "2026-09-16T20:38:33.883",
+      "description": "In Eclipse Embedded CDT versions 6.0 to 6.7 if the CMSIS-Pack archive extracts a compromised CMSIS pack the archive extraction can extract files to locations outside of the pack, allowing writing of arbitrary files to other locations on disk.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78299"
+    },
+    {
+      "id": "CVE-2026-77883",
+      "published": "2026-09-14T13:18:46.740",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Exposure of sensitive information through data queries vulnerability in Apache Syncope.\n\nAn administrator with adequate entitlements for Derived Schemas can create a malicious JEXL expression which allows any administrator with sufficient entitlements for User read to access LinkedAccount's (if present) or Manager's (if defined) sensitive information, possibly including hashed credentials.\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 4.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77883"
+    },
+    {
+      "id": "CVE-2026-77181",
+      "published": "2026-09-14T13:18:46.623",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Incorrect Authorization vulnerability in Apache Syncope.\n\n\n\nAn administrator with ClientApp's update entitlement is unable to perform the related operation, while ClientApp's create entitlement is checked both for create and update operations on ClientApp.\n\n\n\n\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77181"
+    },
+    {
+      "id": "CVE-2026-77147",
+      "published": "2026-09-14T13:18:46.490",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Improper Control of Generation of Code ('Code Injection') vulnerability in Apache Syncope.\n\nAn administrator with adequate entitlements for Implementations can create a malicious Groovy Command class containing untrusted code in their CommandArgs static implementation, bypassing the Groovy security sandbox.\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77147"
+    },
+    {
+      "id": "CVE-2026-77051",
+      "published": "2026-09-14T13:18:46.363",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') vulnerability in Apache Syncope.\n\n\n\n\n\nAn administrator with adequate entitlements can achieve execution of arbitrary SQL via stacked queries, leveraging unsanitized entityKey and opEvent parameters.\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77051"
+    },
+    {
+      "id": "CVE-2026-75030",
+      "published": "2026-09-14T13:18:45.990",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Missing Authorization vulnerability in Apache Syncope.\n\n\n\nAn administrator with task execution entitlements might be able to mass (de)provision group members, regardless of their group-related administration capabilities.\n\n\n\n\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75030"
+    },
+    {
+      "id": "CVE-2026-75015",
+      "published": "2026-09-14T13:18:45.860",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Insufficiently Protected Credentials vulnerability in Apache Syncope.\n\nAudit events, when sent to the configured store, are not sufficiently masked for the sensitive values they might carry on their payloads, thus allowing administrators to access such sensitive values.\n\n\n\n\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 4.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75015"
+    },
+    {
+      "id": "CVE-2026-73668",
+      "published": "2026-09-14T13:18:45.437",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Incorrect Authorization vulnerability in Apache Syncope.\n\n\n\n\n\nAn administrator with adequate entitlements in a given Realm may be able to read via REST the full Connector configuration, confidential properties included, scoped in another Realm and thus be able to effectively duplicate such Connector instance into the Realm they have administration rights for.\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73668"
+    },
+    {
+      "id": "CVE-2026-73579",
+      "published": "2026-09-14T13:18:45.313",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Incorrect Authorization vulnerability in Apache Syncope.\n\n\n\nAny search requests are transformed into SQL, Neo4J or Elasticsearch / Opensearch queries, depending on the actual deployment configuration.\nAn important component of such transformation is the Realms filter, which ensures that the search results are matching the requester's permissions.\nFor non-recursive search requests it is possible that such Realms filter is rendered as empty, thus voiding any restriction on requester privileges.\n\n\n\n\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73579"
+    },
+    {
+      "id": "CVE-2026-73470",
+      "published": "2026-09-14T13:18:45.190",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Improper Privilege Management vulnerability in Apache Syncope.\n\n\n\n\n\nDelegations can be created or updated with Roles not owned by the delegating User, or not for the same Realm subtree under the delegation management was granted for.\n\n\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73470"
+    },
+    {
+      "id": "CVE-2026-73178",
+      "published": "2026-09-14T13:18:45.067",
+      "lastModified": "2026-09-14T20:58:48.430",
+      "description": "Exposure of Sensitive Information to an Unauthorized Actor vulnerability in Apache Syncope.\n\nAn administrator with adequate entitlements can get access via REST to the list of existing Access Tokens, including their signed JWT body.\nThese values can be then used to perform further REST requests, impersonating users with higher administration entitlements.\n\n\n\n\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73178"
+    },
+    {
+      "id": "CVE-2026-12258",
+      "published": "2026-09-14T13:17:33.290",
+      "lastModified": "2026-09-18T19:21:49.497",
+      "description": "Inadequate access control in Hiperdino’s REST v1.0 API. The public endpoint ‘customer/check’ could allow an authenticated attacker to enter a telephone number or an email address. When the value entered belongs to a registered customer, the service returns the associated information (email address and telephone number). No authentication is required beyond a static bearer token, and there is no rate limiting or generic error handling. Successful exploitation of this vulnerability could allow a remote attacker to enumerate a user’s contact details, although this would require obtaining a valid static bearer token, constituting an information disclosure vulnerability.",
+      "score": 9.2,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12258"
+    },
+    {
+      "id": "CVE-2024-58383",
+      "published": "2026-09-14T13:17:15.150",
+      "lastModified": "2026-09-20T01:16:26.887",
+      "description": "Froxlor before 2.2.0 (affected up to and including 2.2.0-rc3) generates /etc/pure-ftpd/db/mysql.conf with mode 0644 via the XML configuration templates in lib/configfiles/, even though the file contains the Froxlor SQL user's password. On systems where the parent directories are world readable (the default on Debian 12), any unprivileged local user able to execute commands or code on the host — including virtual users without SSH access who can upload PHP/CGI scripts — can read the file and obtain the Froxlor database credentials. Database access can then be leveraged to alter an administrator's password hash and TOTP seed, log in as a Froxlor administrator, and ultimately gain root privileges. Only instances configured to use pure-ftpd are affected.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-58383"
+    },
+    {
+      "id": "CVE-2026-90919",
+      "published": "2026-09-14T12:17:51.807",
+      "lastModified": "2026-09-14T15:17:13.630",
+      "description": "LightLLM through 1.2.0 contains a remote code execution vulnerability in the Config Server's unauthenticated /visual_register WebSocket endpoint that passes the first client frame directly to pickle.loads(). Attackers can reach the Config Server port and send a malicious serialized payload with a __reduce__ method to execute arbitrary code with Config Server process privileges.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90919"
+    },
+    {
+      "id": "CVE-2026-90712",
+      "published": "2026-09-14T12:17:51.223",
+      "lastModified": "2026-09-14T20:56:48.220",
+      "description": "A vulnerability was identified in Gitlawb openclaude up to 0.30.0. Impacted is the function waitForCallback of the file src/services/api/xaiOAuthCallback.ts of the component xAI OAuth Callback Handler. The manipulation of the argument Error leads to denial of service. Remote exploitation of the attack is possible. The exploit is publicly available and might be used. The project was informed of the problem early through an issue report but has not responded yet.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90712"
+    },
+    {
+      "id": "CVE-2026-90710",
+      "published": "2026-09-14T12:17:51.043",
+      "lastModified": "2026-09-16T15:18:41.210",
+      "description": "A vulnerability was determined in taisan tarzan-cms 1.0.0. This issue affects the function openConnection of the file com/tarzan/cms/modules/admin/service/biz/ThemeService.java of the component Theme Download Function. Executing a manipulation of the argument httpUrl can lead to server-side request forgery. The attack may be launched remotely. The exploit has been publicly disclosed and may be utilized. The project was informed of the problem early through an issue report but has not responded yet.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90710"
+    },
+    {
+      "id": "CVE-2026-90709",
+      "published": "2026-09-14T12:17:50.830",
+      "lastModified": "2026-09-14T20:56:48.220",
+      "description": "A security vulnerability has been detected in Yot CMS up to 3.3.1. Affected by this issue is the function eval of the file modsys/console/admin.php of the component Admin Console. Such manipulation of the argument text leads to code injection. It is possible to launch the attack remotely. The exploit has been disclosed publicly and may be used.",
+      "score": 4.7,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90709"
+    },
+    {
+      "id": "CVE-2026-79701",
+      "published": "2026-09-14T12:17:46.137",
+      "lastModified": "2026-09-16T19:28:06.713",
+      "description": "Joomla Extension - joomshaper.com - Unauthenticated CAPTCHA Bypass in Module Context in the Contact, Opt-in and Form Builder Addons in SP Page Builder Pro 3.2.6 - 6.9.0 - In the ajax_contact, optin_form and form_builder addons, the result returned by the CAPTCHA plugin's onCheckAnswer event was discarded and replaced with a test for a non-empty string whenever the request-supplied view_type parameter equalled module. Submitting view_type=module together with any arbitrary token value therefore passed verification. This affected every instance of these addons placed inside an SP Page Builder module, irrespective of the CAPTCHA type configured for the site, and the view_type parameter was never validated against the context in which the form was actually rendered.",
+      "score": 6.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79701"
+    },
+    {
+      "id": "CVE-2026-21391",
+      "published": "2026-09-14T12:17:38.810",
+      "lastModified": "2026-09-18T19:30:42.730",
+      "description": "An improper validation vulnerability exists within PingAM where a well-crafted request allows arbitrary or protected ID Token claims to be set or overridden. In certain configurations this could allow an attacker to bypass authentication controls via spoofing leading to privilege escalation or impersonation.",
+      "score": 9.5,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-21391"
+    },
+    {
+      "id": "CVE-2026-9812",
+      "published": "2026-09-14T11:17:08.393",
+      "lastModified": "2026-09-16T19:30:49.967",
+      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.7, 10.11.x <= 10.11.22 fail to validate that a property field belongs to the specified run before updating its value which allows an authenticated user with run property-management access to crash the Playbooks plugin via a REST request referencing a property field that belongs to a different run. Mattermost Advisory ID: MMSA-2026-00684",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-9812"
+    },
+    {
+      "id": "CVE-2026-90898",
+      "published": "2026-09-14T11:17:08.237",
+      "lastModified": "2026-09-18T19:31:11.370",
+      "description": "Bifrost registers MCP clients through its management API. A stdio client is a command plus args. Bifrost starts that program in the gateway the moment the client is added. No MCP handshake required.\n\n\n\nThe default is governance.auth_config.is_enabled=false. Auth off means every caller is a local admin. One unauthenticated POST /api/mcp/client is enough to run a program as the Bifrost process user (appuser on the official image).\n\n\n\n transports/v2.1.0 refuses an unauthenticated stdio registration with 403. transports/v2.0.0 still allows it.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90898"
+    },
+    {
+      "id": "CVE-2026-90891",
+      "published": "2026-09-14T11:17:07.643",
+      "lastModified": "2026-09-18T19:15:11.780",
+      "description": "ASRock Polychrome SYNC/RGB software utility developed by ASRock Inc. has an Improper Access Control vulnerability. Authenticated local attackers can send a specially crafted IOCTL request to cause the driver to write to improperly restricted I/O ports, resulting in a forced operating system reboot.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90891"
+    },
+    {
+      "id": "CVE-2026-90890",
+      "published": "2026-09-14T11:17:07.493",
+      "lastModified": "2026-09-18T19:15:11.780",
+      "description": "ASRock Polychrome SYNC/RGB software utility developed by ASRock Inc. has an Untrusted Pointer Dereference vulnerability. Authenticated local attackers can send a specially crafted IOCTL request to cause the driver to dereference an unvalidated pointer, resulting in an operating system crash.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90890"
+    },
+    {
+      "id": "CVE-2026-90708",
+      "published": "2026-09-14T11:17:07.313",
+      "lastModified": "2026-09-15T17:17:38.973",
+      "description": "A weakness has been identified in Yot CMS up to 3.3.1. Affected by this vulnerability is the function Login of the file global.php of the component Cookie Handler. This manipulation of the argument yot3_user/yot3_pass causes sql injection. It is possible to initiate the attack remotely. The exploit has been made available to the public and could be used for attacks.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90708"
+    },
+    {
+      "id": "CVE-2026-90707",
+      "published": "2026-09-14T11:17:07.103",
+      "lastModified": "2026-09-15T14:17:32.230",
+      "description": "A security flaw has been discovered in Open5GS up to 2.7.x. Affected is the function amf_nnrf_try_old_amf_discovery_fallback of the file src/amf/nnrf-handler.c of the component Old AMF Discovery Fallback. The manipulation of the argument discovery_option results in use after free. The attack may be performed from remote. The patch is identified as ddd683a35f8aaac2b7b9884a24cd53bddfc65238. Applying a patch is advised to resolve this issue.",
+      "score": 8.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90707"
+    },
+    {
+      "id": "CVE-2026-90706",
+      "published": "2026-09-14T11:17:06.930",
+      "lastModified": "2026-09-14T20:56:48.220",
+      "description": "A vulnerability was identified in D-Link DWR-M921 1.1.52. This impacts the function formWsc of the file /boafrm/formWsc. The manipulation of the argument targetAPSsid leads to os command injection. The attack is possible to be carried out remotely. The exploit is publicly available and might be used.",
+      "score": 6.6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90706"
+    },
+    {
+      "id": "CVE-2026-90705",
+      "published": "2026-09-14T11:17:06.740",
+      "lastModified": "2026-09-16T15:18:40.683",
+      "description": "A vulnerability was determined in D-Link DWR-M921 1.1.52. This affects the function formsysCmd of the file /boafrm/formsysCmd of the component Boa Dispatch Table. Executing a manipulation of the argument sysCmd can lead to os command injection. The attack can be executed remotely. The exploit has been publicly disclosed and may be utilized.",
+      "score": 6.6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90705"
+    },
+    {
+      "id": "CVE-2026-8821",
+      "published": "2026-09-14T11:17:06.153",
+      "lastModified": "2026-09-16T19:30:49.967",
+      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.7, 10.11.x <= 10.11.22 fail to validate channel member-management permission during playbook run creation, allowing an authenticated channel member to add an arbitrary user to a restricted channel via the run owner field.. Mattermost Advisory ID: MMSA-2026-00677",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-8821"
+    },
+    {
+      "id": "CVE-2026-89180",
+      "published": "2026-09-14T11:17:05.860",
+      "lastModified": "2026-09-18T19:15:11.780",
+      "description": "EFence developed by Thinking Software Technology has a SQL Injection vulnerability, allowing unauthenticated remote attackers to inject arbitrary SQL commands to read database contents.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89180"
+    },
     {
       "id": "CVE-2026-87802",
       "published": "2026-09-14T11:17:05.620",
@@ -360,546 +900,6 @@
       "score": 8.5,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12518"
-    },
-    {
-      "id": "CVE-2026-90692",
-      "published": "2026-09-14T07:17:25.263",
-      "lastModified": "2026-09-15T14:17:29.170",
-      "description": "A vulnerability was detected in D-Link DIR-878 120B05. This affects the function SetDynamicDNSIPv6Settings of the component Dynamic DNS IPv6 Settings. The manipulation of the argument IPv6Address/Hostname results in stack-based buffer overflow. The attack may be launched remotely.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90692"
-    },
-    {
-      "id": "CVE-2026-90691",
-      "published": "2026-09-14T07:17:25.080",
-      "lastModified": "2026-09-14T20:56:48.220",
-      "description": "A security vulnerability has been detected in 0x4m4 HexStrike AI up to d689933ff579d839c676c82b231f8e98326c5f04. The impacted element is the function FileOperationsManager of the file hexstrike_server.py of the component API Files Endpoint. The manipulation of the argument filename leads to path traversal. The attack may be initiated remotely. The exploit has been disclosed publicly and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 8.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90691"
-    },
-    {
-      "id": "CVE-2026-90690",
-      "published": "2026-09-14T07:17:24.880",
-      "lastModified": "2026-09-16T15:18:39.120",
-      "description": "A weakness has been identified in 0x4m4 HexStrike AI up to d689933ff579d839c676c82b231f8e98326c5f04. The affected element is the function subprocess.Popen of the file hexstrike_server.py of the component API Tools Endpoint. Executing a manipulation of the argument additional_args/target/username/password/scan_type/payload can lead to os command injection. The attack can be launched remotely. The exploit has been made available to the public and could be used for attacks. This product does not use versioning. This is why information about affected and unaffected releases are unavailable. A fix appears to be in progress.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90690"
-    },
-    {
-      "id": "CVE-2026-90689",
-      "published": "2026-09-14T07:17:24.700",
-      "lastModified": "2026-09-14T20:56:48.220",
-      "description": "A security flaw has been discovered in Tenda W20E 15.11.0.61068_1546_841_CN_TDC. Impacted is the function formDelWebAuthWhiteUser. Performing a manipulation of the argument webAuthWhiteUserIndex results in stack-based buffer overflow. The attack can be initiated remotely.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90689"
-    },
-    {
-      "id": "CVE-2026-90688",
-      "published": "2026-09-14T07:17:24.513",
-      "lastModified": "2026-09-15T16:17:39.990",
-      "description": "A vulnerability was identified in Tenda W20E 15.11.0.61068_1546_841_CN_TDC. This issue affects the function formIPMacBindAdd of the component HTTP Handler. Such manipulation of the argument IPMacBindRule leads to stack-based buffer overflow. It is possible to launch the attack remotely.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90688"
-    },
-    {
-      "id": "CVE-2026-88853",
-      "published": "2026-09-14T07:17:24.383",
-      "lastModified": "2026-09-16T19:28:06.713",
-      "description": "Joomla Extension - regularlabs.com - Privileged stored XSS via event handler option in Modals Pro extension for Joomla < 17.0.0 - Modals Pro intentionally supports JavaScript Events such as on-open and on-closed. Affected versions do not distinguish trusted extension configuration from event code supplied in ordinary article content. A lower-privileged author can therefore use a documented executable feature which should be reserved for trusted authors.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88853"
-    },
-    {
-      "id": "CVE-2026-88852",
-      "published": "2026-09-14T07:17:24.250",
-      "lastModified": "2026-09-16T19:28:06.713",
-      "description": "Joomla Extension - regularlabs.com - Privileged stored XSS via url option in Snippets Free extension for Joomla < 7.0.0, Snippets Pro extension for Joomla < 11.0.0 - Snippets substitutes variable values supplied by an article tag into saved Snippet content. The affected versions do not consider the article author's trust level. A lower-privileged author can therefore place an unsafe value into a security-sensitive position chosen by the trusted Snippet author.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88852"
-    },
-    {
-      "id": "CVE-2026-85196",
-      "published": "2026-09-14T07:17:23.017",
-      "lastModified": "2026-09-16T19:28:06.713",
-      "description": "Joomla Extension - regularlabs.com - Reflected XSS in Articles Anywhere extension for Joomla < 20.0.0, Users Anywhere extension for Joomla < 2.1.0 - Articles Anywhere Pro and Users Anywhere Pro return values from request-input data tags without making them safe for the context in which the tag is used. Joomla's string input filter does not make the same value safe for HTML text, an HTML attribute and a URL. A visitor-controlled request value can therefore become an executable URL or a new event attribute in output configured by a site author.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85196"
-    },
-    {
-      "id": "CVE-2026-85195",
-      "published": "2026-09-14T07:17:22.887",
-      "lastModified": "2026-09-16T19:28:06.713",
-      "description": "Joomla Extension - regularlabs.com - Privileged stored XSS via link option in Articles Anywhere extension for Joomla < 20.0.0 - Articles Anywhere accepts link options such as onclick and onmouseover. In affected versions, those options become real HTML event attributes without checking the article author's trust level. The plugin syntax survives Joomla's normal Author content filter because the executable HTML is generated later.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85195"
-    },
-    {
-      "id": "CVE-2026-85192",
-      "published": "2026-09-14T07:17:22.757",
-      "lastModified": "2026-09-16T19:28:06.713",
-      "description": "Joomla Extension - regularlabs.com - Authenticated, privileged remote code execution in Conditional Content extension for Joomla < 8.0.0 - Conditional Content Pro accepts inline PHP Condition Rules in article syntax. In affected versions, the PHP is passed to the Conditions evaluator without checking who authored the article. Joomla's normal Author text filter preserves the syntax, so publishing the article causes the code to run as the web-server process.",
-      "score": 9.4,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85192"
-    },
-    {
-      "id": "CVE-2026-85191",
-      "published": "2026-09-14T07:17:22.627",
-      "lastModified": "2026-09-16T19:28:06.713",
-      "description": "Joomla Extension - regularlabs.com - Privileged stored XSS via rtla-alias option in Tabs & Accordions extension for Joomla < 3.1.0 - Tabs & Accordions rewrites links matching an item alias into calls to its browser API. The affected renderer places the alias inside a quoted JavaScript argument in an HTML onclick attribute without securing both the JavaScript-string and HTML-attribute contexts. A crafted data-rlta-alias value can therefore change the generated handler.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85191"
-    },
-    {
-      "id": "CVE-2026-85190",
-      "published": "2026-09-14T07:17:22.490",
-      "lastModified": "2026-09-16T19:28:06.713",
-      "description": "Joomla Extension - regularlabs.com - Privileged stored XSS via class option in Quick Index extension for Joomla < 5.0.5 - Quick Index inserts configurable class values into generated HTML without escaping them for an HTML attribute. A crafted value can close the intended class attribute and introduce a new attribute. Joomla's content filter cannot reliably prevent this because Quick Index creates the executable HTML after the authored plugin syntax was filtered.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85190"
-    },
-    {
-      "id": "CVE-2026-85189",
-      "published": "2026-09-14T07:17:22.357",
-      "lastModified": "2026-09-16T19:28:06.713",
-      "description": "Joomla Extension - regularlabs.com - Privileged stored XSS via executable URL schemes in Modals extension for Joomla < 17.0.0 - Modals treats a destination using an executable browser URL scheme as an ordinary modal URL. The value can reach both the generated link and the iframe-loading path. Authored content can consequently become JavaScript in a visitor's browser without using Modals' separate Pro JavaScript Events feature.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85189"
-    },
-    {
-      "id": "CVE-2026-85188",
-      "published": "2026-09-14T07:17:22.203",
-      "lastModified": "2026-09-16T19:28:06.713",
-      "description": "Joomla Extension - regularlabs.com - Database data disclosure in Advanced Module Manager (Free, Pro) < 12.1.0, Conditional Content (Free, Pro) < 8.0.0, Content Templater (Pro) < 14.2.0, ReReplacer (Pro) < 16.2.0 for Joomla - The Conditions editor creates a default Condition Set name from the item to which the set is linked. The affected code accepts the database table and label-column names from the request. Although these names are quoted as SQL identifiers, they are not restricted to the tables and columns used by supported Regular Labs integrations. An attacker can therefore select a valid but unrelated database field. This is an authorization failure rather than SQL injection.",
-      "score": 6.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85188"
-    },
-    {
-      "id": "CVE-2026-85125",
-      "published": "2026-09-14T07:17:22.037",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "The Android application \"YAMAP -Social Trekking GPS App\" contains an improper access control vulnerability in its WebView implementation. The in-app browser may cause information leakage from the app or redirect users to unintended websites.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85125"
-    },
-    {
-      "id": "CVE-2026-82796",
-      "published": "2026-09-14T07:17:21.897",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "SolarView Compact contains a cross-site scripting vulnerability in Image Management. If this vulnerability is exploited, an arbitrary OS command may be executed by an attacker who can log in to the product.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82796"
-    },
-    {
-      "id": "CVE-2026-82795",
-      "published": "2026-09-14T07:17:21.763",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "SolarView Compact contains a cross-site scripting vulnerability in Schedule Settings and Mail Send Setting. If this vulnerability is exploited, an arbitrary OS command may be executed by an attacker who can log in to the product.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82795"
-    },
-    {
-      "id": "CVE-2026-82794",
-      "published": "2026-09-14T07:17:21.617",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "SolarView Compact contains an OS command Injection vulnerability in in Schedule Settings. If this vulnerability is exploited, an arbitrary OS command may be executed by an attacker who can log in to the product.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82794"
-    },
-    {
-      "id": "CVE-2026-82793",
-      "published": "2026-09-14T07:17:21.480",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Unrestricted upload of file with dangerous type issue exists in Contec CAN 2.0B Communication Wireless LAN / USB Converter Unit. If a specially crafted file is uploaded by a remote authenticated attacker, arbitrary code may be executed on the product.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82793"
-    },
-    {
-      "id": "CVE-2026-82792",
-      "published": "2026-09-14T07:17:21.343",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Cross-site scripting vulnerability exists in Contec CAN 2.0B Communication Wireless LAN / USB Converter Unit. If this vulnerability is exploited, an arbitrary script may be executed on a logged-in user's web browser.",
-      "score": 5.2,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82792"
-    },
-    {
-      "id": "CVE-2026-82791",
-      "published": "2026-09-14T07:17:21.203",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Improper neutralization of special elements used in an OS command ('OS Command Injection') issue exists in Contec CAN 2.0B Communication Wireless LAN / USB Converter Unit. If this vulnerability is exploited, an arbitrary OS command may be executed by an attacker who can log in to the product.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82791"
-    },
-    {
-      "id": "CVE-2026-82790",
-      "published": "2026-09-14T07:17:21.063",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Cross-site scripting vulnerability exists in PC-HELPER Wireless I/O DIO-0404RY-LWF and PC-HELPER Wireless I/O DIO-0404RY-LWF-US. If this vulnerability is exploited, an arbitrary script may be executed on a logged-in user's web browser.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82790"
-    },
-    {
-      "id": "CVE-2026-82789",
-      "published": "2026-09-14T07:17:20.920",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "An improper neutralization of directives in dynamically evaluated code ('Eval Injection') issue exists in CONPROSYS HMI System(CHS). If exploited, arbitrary code may be executed by an attacker who can log in to the product.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82789"
-    },
-    {
-      "id": "CVE-2026-82788",
-      "published": "2026-09-14T07:17:20.790",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Cross-site scripting vulnerability exists in CPSL-08P1EN. If this vulnerability is exploited, an arbitrary script may be executed on a logged-in user's web browser.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82788"
-    },
-    {
-      "id": "CVE-2026-82787",
-      "published": "2026-09-14T07:17:20.660",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Missing authentication for critical function vulnerability exists in CPSL-08P1EN. If this vulnerability is exploited, an affected product may be operated by a remote attacker without authentication.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82787"
-    },
-    {
-      "id": "CVE-2026-82786",
-      "published": "2026-09-14T07:17:20.510",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Insufficiently protected credentials issue exists in Remote I/O Coupler Unit (Server Type) CPSN-MCB271-*. If this vulnerability is exploited, sensitive information may be restored from a backup file.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82786"
-    },
-    {
-      "id": "CVE-2026-82785",
-      "published": "2026-09-14T07:17:20.370",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Stack-based buffer overflow vulnerability exists in Remote I/O Coupler Unit (Server Type) CPSN-MCB271-*. Receiving a specially crafted request created and sent by a remote attacker may cause a denial-of-service (DoS) condition.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82785"
-    },
-    {
-      "id": "CVE-2026-82784",
-      "published": "2026-09-14T07:17:20.230",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Missing authentication for critical function vulnerability exists in Remote I/O Coupler Unit (Server Type) CPSN-MCB271-*. An attacker may execute a REST API without authentication, which could allow the attacker to retrieve I/O values and/or control the output.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82784"
-    },
-    {
-      "id": "CVE-2026-82783",
-      "published": "2026-09-14T07:17:20.087",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Plaintext storage of a password issue exists in CONPROSYS nano Series . If this vulnerability is exploited, an attacker with physical access to the product may obtain credentials.",
-      "score": 4.2,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82783"
-    },
-    {
-      "id": "CVE-2026-82782",
-      "published": "2026-09-14T07:17:19.943",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Out-of-bounds write vulnerability exists in CONPROSYS nano Series. Receiving a specially crafted request created and sent by a remote attacker may cause a denial-of-service (DoS) condition.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82782"
-    },
-    {
-      "id": "CVE-2026-82781",
-      "published": "2026-09-14T07:17:19.803",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Cross-site scripting vulnerability exists in CONPROSYS nano Series. If this vulnerability is exploited, an arbitrary script may be executed on a logged-in user's web browser.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82781"
-    },
-    {
-      "id": "CVE-2026-82780",
-      "published": "2026-09-14T07:17:19.663",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Unrestricted upload of file with dangerous type issue exists in CONPROSYS TM Series. If a specially crafted file is uploaded by a remote authenticated attacker, an arbitrary command may be executed on the product.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82780"
-    },
-    {
-      "id": "CVE-2026-82779",
-      "published": "2026-09-14T07:17:19.530",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Improper neutralization of special elements used in an OS command ('OS Command Injection') issue exists in CONPROSYS TM Series. If this vulnerability is exploited, an arbitrary OS command may be executed by an attacker who can log in to the product.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82779"
-    },
-    {
-      "id": "CVE-2026-82778",
-      "published": "2026-09-14T07:17:19.393",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "An exposure of information through directory listing issue exists in CONPROSYS PAC Series. Accessing a specific URL on this product may allow a remote unauthenticated attacker to obtain the directory list without authentication.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82778"
-    },
-    {
-      "id": "CVE-2026-82777",
-      "published": "2026-09-14T07:17:19.247",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Improper neutralization of special elements used in an OS command ('OS Command Injection') issue exists in CONPROSYS PAC Series. If this vulnerability is exploited, an arbitrary OS command may be executed by an attacker who can log in to the product.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82777"
-    },
-    {
-      "id": "CVE-2026-82776",
-      "published": "2026-09-14T07:17:19.113",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Cross-site scripting vulnerability exists in CONPROSYS PAC Series. If this vulnerability is exploited, an arbitrary script may be executed on a logged-in user's web browser.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82776"
-    },
-    {
-      "id": "CVE-2026-82775",
-      "published": "2026-09-14T07:17:18.970",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "An exposure of information through directory listing issue exists in CONPROSYS M2M Gateway Series and CONPROSYS M2M Controller Series. Accessing a specific URL on this product may allow a remote unauthenticated attacker to obtain the directory list without authentication.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82775"
-    },
-    {
-      "id": "CVE-2026-82774",
-      "published": "2026-09-14T07:17:18.833",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Improper neutralization of special elements used in an OS command ('OS Command Injection') issue exists in CONPROSYS M2M Gateway Series and CONPROSYS M2M Controller Series. If this vulnerability is exploited, an arbitrary OS command may be executed by an attacker who can log in to the product.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82774"
-    },
-    {
-      "id": "CVE-2026-82773",
-      "published": "2026-09-14T07:17:18.690",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Cross-site scripting vulnerability exists in CONPROSYS M2M Gateway Series and CONPROSYS M2M Controller Series. If this vulnerability is exploited, an arbitrary script may be executed on a logged-in user's web browser.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82773"
-    },
-    {
-      "id": "CVE-2026-82772",
-      "published": "2026-09-14T07:17:18.557",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Buffer overflow vulnerability exists in Contec EC1000 series. If a remote attacker sends a specially crafted request to the product's web service, an arbitrary program may be executed.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82772"
-    },
-    {
-      "id": "CVE-2026-82771",
-      "published": "2026-09-14T07:17:18.413",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Cross-site scripting vulnerability exists in Contec EC1000 series. If this vulnerability is exploited, an arbitrary script may be executed on a logged-in user's web browser.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82771"
-    },
-    {
-      "id": "CVE-2026-82770",
-      "published": "2026-09-14T07:17:18.277",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Buffer overflow vulnerability exists in Contec RP-WAH-SR Series. If a remote attacker sends a specially crafted request to the product's web service, an arbitrary program may be executed.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82770"
-    },
-    {
-      "id": "CVE-2026-82769",
-      "published": "2026-09-14T07:17:18.120",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Cross-site scripting vulnerability exists in Contec RP-WAH-SR Series. If this vulnerability is exploited, an arbitrary script may be executed on a logged-in user's web browser.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82769"
-    },
-    {
-      "id": "CVE-2026-82768",
-      "published": "2026-09-14T07:17:17.980",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Path traversal vulnerability exists in SGA1000. If this vulnerability is exploited, arbitrary files on the server may be viewed and/or altered by an attacker who can access the product via FTP.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82768"
-    },
-    {
-      "id": "CVE-2026-82767",
-      "published": "2026-09-14T07:17:17.843",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Cross-site scripting vulnerability exists in SGA1000. If this vulnerability is exploited, an arbitrary script may be executed on a logged-in user's web browser.",
-      "score": 5.2,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82767"
-    },
-    {
-      "id": "CVE-2026-82766",
-      "published": "2026-09-14T07:17:17.707",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Improper neutralization of special elements used in an OS command ('OS Command Injection') issue exists in SGA1000. If this vulnerability is exploited, an arbitrary OS command may be executed by an attacker who can log in to the product.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82766"
-    },
-    {
-      "id": "CVE-2026-82765",
-      "published": "2026-09-14T07:17:17.553",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Path traversal vulnerability exists in Contec FX5000 series, FX4000 series, and FX3000 series. If this vulnerability is exploited, arbitrary files on the server may be viewed and/or altered by an attacker who can access the product via FTP.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82765"
-    },
-    {
-      "id": "CVE-2026-82764",
-      "published": "2026-09-14T07:17:17.363",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Cross-site request forgery vulnerability exists in multiple Contec products. If a user views a specially crafted page while logged in to the affected product, unintended operations may be performed.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82764"
-    },
-    {
-      "id": "CVE-2026-82763",
-      "published": "2026-09-14T07:17:17.210",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Cross-site scripting vulnerability exists in Contec FX5000 series, FX4000 series, and FX3000 series. If this vulnerability is exploited, an arbitrary script may be executed on a logged-in user's web browser.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82763"
-    },
-    {
-      "id": "CVE-2026-82762",
-      "published": "2026-09-14T07:17:17.040",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "Improper neutralization of special elements used in an OS command ('OS Command Injection') issue exists in Contec FX5000 series, FX4000 series, and FX3000 series. If this vulnerability is exploited, an arbitrary OS command may be executed by an attacker who can log in to the product.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82762"
-    },
-    {
-      "id": "CVE-2026-71198",
-      "published": "2026-09-14T07:17:16.867",
-      "lastModified": "2026-09-14T15:17:06.843",
-      "description": "In OpenStack Glance before 32.0.1, the location API does not validate destination hosts when adding an HTTP location to an image. Unlike the web-download import path, the location API only checks the URL scheme and does not apply the import_filtering_opts host restrictions. An authenticated user can add a location pointing to internal endpoints such as the cloud metadata service (169.254.169.254), and retrieve the response by downloading the image data. This affects both the new POST /v2/images/{id}/locations API and the old PATCH API when show_multiple_locations is enabled. Deployments with the HTTP store backend enabled are affected.",
-      "score": 7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71198"
-    },
-    {
-      "id": "CVE-2026-68955",
-      "published": "2026-09-14T07:17:16.663",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "The installer for Rakuten Kobo Desktop Application (Windows version) insecurely loads Dynamic Link Libraries. If there is a crafted DLL at the same directory when invoking the affected installer, arbitrary code may be executed with the privileges of the user who performed the installation.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-68955"
-    },
-    {
-      "id": "CVE-2026-25832",
-      "published": "2026-09-14T07:17:16.490",
-      "lastModified": "2026-09-14T17:17:43.637",
-      "description": "In Mbed TLS 3.6.x before 3.6.7 and 4.1.x before 4.1.2, the TLS 1.3 client accepts HelloRetryRequest selecting an unadvertised group.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-25832"
-    },
-    {
-      "id": "CVE-2025-26790",
-      "published": "2026-09-14T07:17:16.267",
-      "lastModified": "2026-09-14T19:17:12.480",
-      "description": "Withsecure Atlant with Capricorn engine before 2025-01-20_02 allows a Remote Denial of Service via an out-of-bounds memory read during processing of a document file by the antivirus engine.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-26790"
-    },
-    {
-      "id": "CVE-2024-23176",
-      "published": "2026-09-14T07:17:16.097",
-      "lastModified": "2026-09-16T19:31:54.210",
-      "description": "An issue was discovered in the MassMessage extension in MediaWiki before 1.40.2. For a Special:MassMessage?uselang=x-xss URL, the i18n key massmessage-form-page-help allows XSS.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-23176"
-    },
-    {
-      "id": "CVE-2023-51769",
-      "published": "2026-09-14T07:17:15.933",
-      "lastModified": "2026-09-16T15:17:32.727",
-      "description": "Frappe before 14.49.0 allows an XSS attack that is associated with blog pages and exception pages.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2023-51769"
-    },
-    {
-      "id": "CVE-2023-50462",
-      "published": "2026-09-14T07:17:15.793",
-      "lastModified": "2026-09-14T16:17:04.853",
-      "description": "An issue was discovered in the content_consent (aka Content Consent) extension through 2.0.1 for TYPO3. It fails to verify whether a specified content element identifier is permitted by the plugin. This enables an unauthenticated user to display various content elements, leading to an insecure direct object reference (IDOR) issue with the potential to expose internal content elements.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2023-50462"
-    },
-    {
-      "id": "CVE-2023-50461",
-      "published": "2026-09-14T07:17:15.653",
-      "lastModified": "2026-09-14T17:17:42.147",
-      "description": "An issue was discovered in the direct_mail (aka Direct Mail) extension through 9.5.1 for TYPO3. The Configuration backend module of the extension allows an authenticated user to write to an arbitrary TSConfig page for folders configured as Direct Mail. Exploiting this may lead to Configuration Injection (TYPO3 10.4 and above) and to Arbitrary Code Execution (TYPO3 9.5 and below). A valid backend user account, with access to the Direct Mail Configuration backend module, is needed to exploit this.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2023-50461"
-    },
-    {
-      "id": "CVE-2023-50460",
-      "published": "2026-09-14T07:17:15.510",
-      "lastModified": "2026-09-14T19:17:10.847",
-      "description": "An issue was discovered in the femanager extension 7.x before 7.2.3 for TYPO3. The backend module allows an authenticated backend user to perform various actions (userLogout, confirmUser, refuseUser, and resendUserConfirmation) for any frontend user in the system.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2023-50460"
-    },
-    {
-      "id": "CVE-2023-50459",
-      "published": "2026-09-14T07:17:15.353",
-      "lastModified": "2026-09-14T15:17:03.600",
-      "description": "An issue was discovered in the femanager extension 7.x before 7.2.3 for TYPO3. It fails to check access permissions for the edit user component. An authenticated frontend user can exploit this to either edit data of various frontend users or delete various frontend user accounts.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2023-50459"
     }
   ]
 }
