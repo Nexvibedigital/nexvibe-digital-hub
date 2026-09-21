@@ -1,6 +1,195 @@
 {
-  "syncedAt": "2026-09-21T13:46:02.345Z",
+  "syncedAt": "2026-09-21T14:20:18.225Z",
   "items": [
+    {
+      "id": "CVE-2026-50276",
+      "published": "2026-09-14T18:17:49.990",
+      "lastModified": "2026-09-14T18:17:49.990",
+      "description": "dd-trace-rb is Datadog's client library for Ruby. Prior to 2.32.0, W3C baggage extraction does not enforce DD_TRACE_BAGGAGE_MAX_ITEMS, which defaults to 64, or DD_TRACE_BAGGAGE_MAX_BYTES, which defaults to 8192, although those limits apply during baggage injection. A remote unauthenticated attacker can send a baggage HTTP header containing many comma-separated key-value pairs or a single very large value. The extraction path allocates entries while parsing the attacker-controlled header on every request, causing unbounded CPU and memory consumption in an HTTP service where the baggage propagation style is enabled, which is the default for most affected tracers. This can cause denial of service. This issue is fixed in version 2.32.0.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-50276"
+    },
+    {
+      "id": "CVE-2026-50270",
+      "published": "2026-09-14T18:17:49.830",
+      "lastModified": "2026-09-14T20:16:45.143",
+      "description": "dd-trace-java is a Datadog APM client for Java. Prior to 1.62.0, W3C baggage extraction does not enforce DD_TRACE_BAGGAGE_MAX_ITEMS, which defaults to 64, or DD_TRACE_BAGGAGE_MAX_BYTES, which defaults to 8192, although those limits apply during baggage injection. A remote unauthenticated attacker can send a baggage HTTP header containing many comma-separated key-value pairs or a single very large value. The extraction path allocates map entries while parsing the attacker-controlled header on every request, causing unbounded CPU and memory consumption in an HTTP service where the baggage propagation style is enabled, which is the default for most affected tracers. This can cause denial of service. This issue is fixed in version 1.62.0.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-50270"
+    },
+    {
+      "id": "CVE-2026-50157",
+      "published": "2026-09-14T18:17:49.663",
+      "lastModified": "2026-09-14T20:16:45.027",
+      "description": "Auth0 Symfony is a Symfony SDK for Auth0 Authentication and Management APIs. From 5.0.0-BETA0 until 5.9.0, the Authorizer::authenticate() and Authorizer::supports() paths in the Authorizer security authenticator may accept OAuth 2.0 bearer access tokens from the token URL query parameter as well as the Authorization header for protected HTTP routes. Query-string tokens can be recorded in server logs, browser history, or referrer data and then replayed against protected API endpoints. This issue is fixed in version 5.9.0.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-50157"
+    },
+    {
+      "id": "CVE-2026-49400",
+      "published": "2026-09-14T18:17:49.513",
+      "lastModified": "2026-09-16T16:17:08.003",
+      "description": "October System provides the system module for October Content Management System. Prior to versions 3.7.17 and 4.2.21, the backend `SessionMaker` trait stored widget session state as `base64(serialize(...))` and consumed it with `unserialize()` without an `allowed_classes` restriction. Any code path that could write to a `widget.*` session key with attacker-controlled bytes could trigger PHP object injection the next time the widget read its session state, allowing instantiation of arbitrary classes and reachable PHP gadget chains. This issue only affects installations running with `cms.safe_mode` enabled. Safe Mode is a niche opt-in feature, primarily used for demo installations and multi-tenant or shared-editor scenarios where untrusted users are deliberately granted access to the CMS markup editor. In standard production deployments Safe Mode is off, backend access is restricted to trusted administrators, and a markup editor can already execute arbitrary PHP directly. The session-write path that reaches this sink is gated by the Safe Mode sandbox, so installations without Safe Mode enabled are not exposed. Scope of impact is narrow even with Safe Mode enabled. The standard backend code paths that populate widget session state (search terms, sort options, selected IDs, filter values) wrap the input inside a known array shape before serializing, so user-supplied values never reach `unserialize()` as a controllable serialized payload. Exploitation requires the Safe Mode session-write path together with a suitable PHP gadget chain reachable from the installed dependency set. The hardening below removes the underlying object-injection sink so the class of issue is closed off regardless. The vulnerability has been patched in v3.7.17 and v4.2.21. Two changes were applied. `Backend\\Traits\\SessionMaker` now stores widget session state as plain JSON instead of `base64(serialize(...))`, eliminating the object-injection sink entirely for new writes. Reads transparently fall back to the legacy format for one upgrade cycle so existing sessions retain their saved widget state. The legacy `unserialize()` fallback path now sets `allowed_classes => false`, so even values written before the upgrade cannot instantiate objects. As a workaround, restrict CMS markup editing access to fully trusted administrators only, the standard October CMS recommendation for any deployment.",
+      "score": 3.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-49400"
+    },
+    {
+      "id": "CVE-2026-49250",
+      "published": "2026-09-14T18:17:49.360",
+      "lastModified": "2026-09-14T19:17:23.587",
+      "description": "Conform, a type-safe form validation library, allows the parsing of nested objects in the form of object.property. From 1.8.0 until 1.19.4, the parseSubmission future API in packages/conform-dom/formdata.ts repeatedly scans FormData or URLSearchParams entries by each unique field name. An unauthenticated attacker can submit a crafted form containing many unique names, causing excessive synchronous CPU work and denial of service in an application that passes the submission to parseSubmission. Applications should continue to enforce request parsing limits before invoking Conform. This issue is fixed in version 1.19.4.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-49250"
+    },
+    {
+      "id": "CVE-2026-47256",
+      "published": "2026-09-14T18:17:48.250",
+      "lastModified": "2026-09-14T19:17:22.573",
+      "description": "OpenTelemetry, also known as OTel, is a vendor-neutral open source Observability framework for instrumenting, generating, collecting, and exporting telemetry data such as traces, metrics, and logs. Prior to 0.154.0, the Sentry exporter reads the remote OTLP sender-controlled service.name resource attribute in exporter/sentryexporter/sentry_exporter.go through extractProjectSlug and getOrCreateProjectEndpoint, passes the raw project slug to GetOTLPEndpoints and GetProjectKeys in exporter/sentryexporter/sentry_client.go, and interpolates it into a Sentry API URL without applying projectSlugRegexp through validateRoutingConfig at runtime in exporter/sentryexporter/config.go. Special characters can turn the expected path suffix into query data in all deployments or introduce slash and dot segments that traverse paths when the Sentry deployment normalizes them, while the Collector attaches its operator-configured bearer token to the request. A successful request can reach token-authorized administrative, organization, member, or key endpoints within the configured Sentry organization, and an attacker-controlled project slug can redirect subsequently exported telemetry. Sentry token middleware prevents cross-organization access. This issue is fixed in version 0.154.0.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-47256"
+    },
+    {
+      "id": "CVE-2026-46696",
+      "published": "2026-09-14T18:17:47.687",
+      "lastModified": "2026-09-14T18:17:47.687",
+      "description": "October System provides the system module for October Content Management System. Versions prior to 3.7.17 and 4.2.21 have a vulnerability in the Twig sandbox security policy that allowed a chained bypass when `cms.safe_mode` is enabled. The Laravel session store was exposed to Twig with unrestricted method access, and raw SQL methods reachable through Eloquent's `__call` forwarding were not blocked across the full builder chain. When combined, a backend user with CMS markup editing access could read arbitrary database values via raw SQL expressions and write to the backend authentication session key, forging a backend session as another existing user. The scope of impact is narrow. Safe Mode is a niche feature, primarily used for demo installations and multi-tenant or shared-editor scenarios where untrusted users are deliberately granted access to the CMS markup editor. Standard production deployments do not enable Safe Mode, because under normal October CMS guidance backend access - including markup editing - is restricted to trusted administrators, and direct PHP injection through markup is already possible without Safe Mode in that configuration. This issue only affects sites that meet all of the following conditions: `cms.safe_mode` is enabled (a deliberate opt-in for demos or untrusted-editor scenarios; the site has at least one backend user with CMS markup editing access who is not intended to be trusted as a full administrator; and the site has at least one existing superuser account whose session the lower-privileged user can impersonate. The vulnerability has been patched in v3.7.17 and v4.2.21. The Laravel session store is now wrapped in a proxy that exposes only an explicit subset of read/write methods and rejects writes to reserved session key prefixes (`admin_auth`, `october_auth`, `login_*`, `_token`, and other framework internals). Raw SQL and subquery methods (`selectRaw`, `whereRaw`, `orderByRaw`, `joinSub`, and related) are now blocked on `Query\\Builder`, `Eloquent\\Builder`, and `Eloquent\\Model` so the blocklist is consistent across the `__call` forwarding chain. All sites that enable `cms.safe_mode` are encouraged to upgrade to the latest patched version. A workaround is available. Restrict CMS markup editing access to fully trusted administrators only - the standard October CMS recommendation for any deployment. Note that disabling `cms.safe_mode` is not a workaround; Safe Mode is the boundary this issue affects, and disabling it removes the only sandbox between markup editors and the server.",
+      "score": 3.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-46696"
+    },
+    {
+      "id": "CVE-2026-44162",
+      "published": "2026-09-14T18:17:47.513",
+      "lastModified": "2026-09-14T19:17:21.570",
+      "description": "fluent-plugin-s3 is an Amazon S3 input and output plugin for Fluentd. From 0.7.0 to 1.8.4, the in_s3 input plugin reads the entire decompressed payload of gzip, lzma2, and lzop objects into memory without enforcing a decompression_size_limit. An attacker with permission to upload objects to the monitored S3 bucket can provide a highly compressed object that expands excessively when Fluentd processes it. The resulting memory exhaustion can cause the operating system to terminate the Fluentd process and disrupt all log collection on the affected node. This issue is fixed in version 1.8.5.",
+      "score": 2.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-44162"
+    },
+    {
+      "id": "CVE-2026-34151",
+      "published": "2026-09-14T18:17:47.107",
+      "lastModified": "2026-09-14T19:17:19.853",
+      "description": "XWiki Platform is a generic wiki platform. Prior to 17.10.5 and 18.2.0, the /skin/ action in com.xpn.xwiki.web.SkinAction can resolve double-encoded parent-directory segments outside the intended skin or web-application resource prefix when Jetty 12 or later decodes the request path. The affected lookup is replaced with Environment.getResourceAsStream(String, String), which constrains a resource to its expected prefix. An unauthenticated remote attacker can use the vulnerable behavior to read arbitrary resources permitted to the Jetty process, including WEB-INF/xwiki.cfg and, depending on deployment depth and operating-system permissions, host files. Tomcat and Jetty versions before 12 do not appear affected. This issue is fixed in versions 17.10.5 and 18.2.0.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-34151"
+    },
+    {
+      "id": "CVE-2026-19542",
+      "published": "2026-09-14T18:17:46.850",
+      "lastModified": "2026-09-18T18:17:47.257",
+      "description": "Calling tdelete on a sufficiently deep tree in the GNU C Library version 2.1 to 2.44 may write one pointer past the end of an alloca-allocated array on the stack, which may crash the application.\n\nThe tdelete implementation keeps an explicit stack of parent nodes for rebalancing, which is grown as needed while descending the tree.  Two rebalancing branches push an additional entry without checking the capacity, and write past the array when the stack is exactly full. Triggering this requires a node at a depth of exactly 40 (or 40 plus a multiple of 20), which implies a tree with at least a million nodes, so an attacker must drive a large number of insertions and deletions through an application that uses tsearch and tdelete.  The written value is a pointer into a tree node and is not directly attacker controlled.  No affected application in common distributions has been identified.",
+      "score": 5.6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19542"
+    },
+    {
+      "id": "CVE-2026-19499",
+      "published": "2026-09-14T18:17:45.753",
+      "lastModified": "2026-09-18T18:17:47.257",
+      "description": "Calling strfmon and strfmon_l in the GNU C Library version 2.38 to 2.44 can write past the end of the caller-supplied output buffer when a conversion uses right-justified width padding.\n\nExploitation requires an application code path that calls strfmon or strfmon_l with right-justified width padding into a destination buffer that is large enough for the padding to succeed but too small for the internal memmove call. The field width or format may be attacker-influenced or a fixed susceptible pattern in the caller.\n\nAt the time of publication, no network-facing application impact is known.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19499"
+    },
+    {
+      "id": "CVE-2026-90804",
+      "published": "2026-09-14T17:17:57.163",
+      "lastModified": "2026-09-18T14:42:39.483",
+      "description": "A vulnerability was detected in GNU Binutils 2.47. Affected by this issue is the function _bfd_elf_write_section_eh_frame of the file bfd/elf-eh-frame.c of the component Eh Frame Section Handler. Performing a manipulation of the argument cie_length/fde_length/augmentation_data_size/write_offset results in buffer overflow. Attacking locally is a requirement. The exploit is now public and may be used. The project was informed of the problem early through a bug report but has not responded yet.",
+      "score": 4.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90804"
+    },
+    {
+      "id": "CVE-2026-90803",
+      "published": "2026-09-14T17:17:56.983",
+      "lastModified": "2026-09-18T14:41:59.927",
+      "description": "A security vulnerability has been detected in GNU Binutils 2.47. Affected by this vulnerability is the function elf_x86_64_relocate_section of the file bfd/elf64-x86-64.c of the component ld. Such manipulation of the argument roff leads to buffer overflow. An attack has to be approached locally. The exploit has been disclosed publicly and may be used. Upgrading to version 2.48 addresses this issue. The name of the patch is 471130b39c03623ec6d78ece377ff4da3f6bfe7b. It is recommended to upgrade the affected component.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90803"
+    },
+    {
+      "id": "CVE-2026-90802",
+      "published": "2026-09-14T17:17:56.800",
+      "lastModified": "2026-09-18T14:42:16.407",
+      "description": "A weakness has been identified in GNU Binutils 2.47. Affected is the function bfd_putl64 of the file bfd/libbfd.c of the component ld. This manipulation causes null pointer dereference. The attack requires local access. The exploit has been made available to the public and could be used for attacks. The project was informed of the problem early through a bug report but has not responded yet.",
+      "score": 4.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90802"
+    },
+    {
+      "id": "CVE-2026-90801",
+      "published": "2026-09-14T17:17:56.610",
+      "lastModified": "2026-09-18T14:42:27.257",
+      "description": "A security flaw has been discovered in GNU Binutils 2.47. This impacts the function cache_bwrite of the file bfd/cache.c of the component ld. The manipulation of the argument nbytes results in buffer overflow. The attack requires a local approach. The exploit has been released to the public and may be used for attacks. The project was informed of the problem early through a bug report but has not responded yet.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90801"
+    },
+    {
+      "id": "CVE-2026-90796",
+      "published": "2026-09-14T17:17:56.430",
+      "lastModified": "2026-09-15T15:17:29.547",
+      "description": "A vulnerability was identified in itsourcecode Leave Management System 1.0. This affects an unknown function of the file /module/company/index.php. The manipulation of the argument ID leads to sql injection. The attack can be initiated remotely. The exploit is publicly available and might be used.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90796"
+    },
+    {
+      "id": "CVE-2026-84445",
+      "published": "2026-09-14T17:17:51.743",
+      "lastModified": "2026-09-14T17:17:51.743",
+      "description": "gRPC-Go is the Go language implementation of gRPC. Prior to 1.82.2 and 1.83.2, servers created with xds.NewGRPCServer() allow internal/transport/http2_server.go to accept an RPC containing neither the :authority header nor the Host header, while RouteAndProcess in internal/xds/server/routing.go assumes that an authority value exists and indexes the empty slice. A remote client that can complete transport connection establishment can trigger an index-out-of-bounds panic that is not recovered by the per-RPC goroutine and terminates the entire server process. In insecure or ordinary TLS deployments the request can be unauthenticated, while strict mTLS or ALTS deployments require valid transport credentials before the malformed RPC can reach the interceptor. This issue is fixed in versions 1.82.2 and 1.83.2.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84445"
+    },
+    {
+      "id": "CVE-2026-76461",
+      "published": "2026-09-14T17:17:51.113",
+      "lastModified": "2026-09-15T12:47:32.497",
+      "description": "A vulnerability in the email parsing of Cisco AsyncOS Software for Cisco Secure Email Gateway could allow an unauthenticated, remote attacker to execute arbitrary commands with root privileges on the underlying operating system.\r\n\r\nThis vulnerability is due to insufficient validation in the email parsing logic. An attacker could exploit this vulnerability by sending a crafted email message that contains malicious SQL statements through an affected device. A successful exploit could allow the attacker to execute arbitrary SQL statements, leading to command execution with root privileges on the underlying operating system.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76461"
+    },
+    {
+      "id": "CVE-2026-76443",
+      "published": "2026-09-14T17:17:50.970",
+      "lastModified": "2026-09-15T18:19:13.380",
+      "description": "As part of Cisco's ongoing commitment to proactive security and product quality, the Cisco Secure Email Gateway and Cisco Secure Email and Web Manager engineering team has conducted a comprehensive internal security review. This review resulted in software hardening releases that address multiple internally discovered vulnerabilities.\r\n\r\nThe vulnerabilities tracked by CVE-2026-76443 are related to issues with improper neutralization that are grouped under the Common Weakness Enumeration (CWE) Pillar CWE-707.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76443"
+    },
+    {
+      "id": "CVE-2026-76442",
+      "published": "2026-09-14T17:17:50.810",
+      "lastModified": "2026-09-16T04:18:41.067",
+      "description": "As part of Cisco's ongoing commitment to proactive security and product quality, the Cisco Secure Email Gateway and Cisco Secure Email and Web Manager engineering team has conducted a comprehensive internal security review. This review resulted in software hardening releases that address multiple internally discovered vulnerabilities.\r\n\r\nThe vulnerabilities tracked by CVE-2026-76442 are related to issues with improper validation of specified quantity in input that are grouped under the Common Weakness Enumeration (CWE) Pillar CWE-1284.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76442"
+    },
+    {
+      "id": "CVE-2026-76441",
+      "published": "2026-09-14T17:17:50.673",
+      "lastModified": "2026-09-15T18:19:13.097",
+      "description": "As part of Cisco's ongoing commitment to proactive security and product quality, the Cisco Secure Email Gateway and Cisco Secure Email and Web Manager engineering team has conducted a comprehensive internal security review. This review resulted in software hardening releases that address multiple internally discovered vulnerabilities.\r\n\r\nThe vulnerabilities tracked by CVE-2026-76441 are related to issues with improper access control that are grouped under the Common Weakness Enumeration (CWE) Pillar CWE-284.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76441"
+    },
     {
       "id": "CVE-2026-76440",
       "published": "2026-09-14T17:17:50.520",
@@ -709,195 +898,6 @@
       "score": 6.8,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12985"
-    },
-    {
-      "id": "CVE-2026-90961",
-      "published": "2026-09-14T14:17:21.270",
-      "lastModified": "2026-09-16T13:42:47.997",
-      "description": "The LdapAuth and LinOTPAuth authentication plugins in MISP contain an authentication bypass vulnerability. Both LdapAuthenticate and LinOTPAuthenticate replace CakePHP's FormAuthenticate class but fail to replicate its _checkFields() input validation guard. As a result, the email and password fields extracted from the login request are passed to downstream authentication logic without verifying that they are non-empty strings.\n\nIn the LDAP authenticator, an empty or null password is forwarded to ldap_bind(). Per RFC 4513 section 5.1.2, a bind request with a valid DN and an empty password constitutes an unauthenticated bind, which many LDAP directory servers accept as successful. An attacker who knows any valid user email address in the directory can therefore authenticate as that user without possessing a password. Additionally, non-string values (null, false, arrays) are either coerced to empty strings by ldap_bind(), raise TypeErrors, or are misinterpreted as find conditions in _findUser(), all of which can lead to unintended authentication outcomes.\n\nIn the LinOTP authenticator, the same missing guard allows non-string credentials to be concatenated into the LinOTP verification request, and in the mixed-authentication branch an empty password is accepted against a stored hash of the empty string.\n\nA secondary issue in the LDAP authenticator is that newly created user accounts (auto-provisioned on first LDAP login) were assigned an empty password. Because the save path skips validation, the empty string is hashed and stored. If the user later ceases to be found in LDAP and the mixed-authentication fallback is used, the stored hash of the empty string verifies against an empty password, again permitting unauthenticated access.\n\nThe vulnerability requires that the affected plugin (LdapAuth or LinOTPAuth) is enabled on the MISP instance and that the attacker knows at least one valid email address registered in the directory or MISP user store. No prior authentication is required. Successful exploitation grants the attacker the full privileges of the impersonated user, which may include administrative access to threat intelligence data.\n\n\nVersion affected: ≤2.5.45",
-      "score": 9.3,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90961"
-    },
-    {
-      "id": "CVE-2026-90949",
-      "published": "2026-09-14T14:17:20.840",
-      "lastModified": "2026-09-16T19:42:43.623",
-      "description": "A flaw was found in GIMP's PSP (Paint Shop Pro) file loader. When processing a compressed selection channel, a heap-based buffer overflow can occur due to a mismatch between the allocated buffer size and the amount of data decompressed. A remote attacker could exploit this vulnerability by crafting a malicious PSP file. Opening this file in GIMP could lead to a crash or arbitrary code execution.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90949"
-    },
-    {
-      "id": "CVE-2026-90948",
-      "published": "2026-09-14T14:17:20.693",
-      "lastModified": "2026-09-16T19:42:43.623",
-      "description": "A flaw was found in GIMP's ICO file loader. When processing an ICO file containing an embedded PNG image, an integer overflow can occur during the calculation of the required buffer size. This leads to an undersized buffer being allocated, causing a heap-based buffer overflow when the decoded pixel data is written. A remote attacker could exploit this by crafting a malicious ICO file, which, when opened, could lead to arbitrary code execution or a crash.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90948"
-    },
-    {
-      "id": "CVE-2026-90941",
-      "published": "2026-09-14T14:17:20.553",
-      "lastModified": "2026-09-16T16:17:21.410",
-      "description": "novel-plus through 5.3.3 contains an authorization bypass vulnerability in the BookController download endpoint that allows authenticated backend accounts to export complete book text including paid chapters. Attackers can supply a bookId and bookName to retrieve all chapter content without VIP or purchase verification, bypassing the permission checks and data-scope limits enforced elsewhere in the admin interface.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90941"
-    },
-    {
-      "id": "CVE-2026-90940",
-      "published": "2026-09-14T14:17:20.400",
-      "lastModified": "2026-09-20T01:16:32.840",
-      "description": "novel-plus through 5.3.3 contains an insecure default cache-management password in the CacheController.refreshCache endpoint that allows anonymous attackers to invalidate portal caches by supplying the hardcoded default value in the URL path. Attackers can trigger unauthorized cache invalidation by accessing the cache/refresh endpoint with the known default password, forcing unnecessary database queries to repopulate the cache.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90940"
-    },
-    {
-      "id": "CVE-2026-90939",
-      "published": "2026-09-14T14:17:20.240",
-      "lastModified": "2026-09-14T15:17:14.117",
-      "description": "novel-plus through 5.3.3 contains an information disclosure vulnerability in the /sys/user/list endpoint that lacks proper permission annotations. Authenticated attackers can retrieve password hashes and personal data including email addresses and phone numbers for users within their data scope, enabling offline hash cracking and account takeover.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90939"
-    },
-    {
-      "id": "CVE-2026-90788",
-      "published": "2026-09-14T14:17:19.707",
-      "lastModified": "2026-09-16T16:17:20.710",
-      "description": "A security flaw has been discovered in magicblack MacCMS10 2026.1000.4055. Affected by this vulnerability is an unknown functionality of the file /admin1.php/admin/template/index/path/.%40template%40default%40html%40label.html of the component Template Handler. Performing a manipulation results in os command injection. The attack may be initiated remotely. The exploit has been released to the public and may be used for attacks. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 4.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90788"
-    },
-    {
-      "id": "CVE-2026-90787",
-      "published": "2026-09-14T14:17:19.530",
-      "lastModified": "2026-09-14T20:56:48.220",
-      "description": "A vulnerability was identified in Soarkey StudentManagement up to e08f7f1d5015af407aa4cca0ada3dea189b4937e. Affected is the function RegisterServlet.doPost of the file code/WebContent/register.html of the component Registration Workflow. Such manipulation of the argument level leads to improper privilege management. The attack can be launched remotely. The exploit is publicly available and might be used. This product does not use versioning. This is why information about affected and unaffected releases are unavailable. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90787"
-    },
-    {
-      "id": "CVE-2026-90786",
-      "published": "2026-09-14T14:17:19.353",
-      "lastModified": "2026-09-15T16:17:41.200",
-      "description": "A vulnerability was determined in Dvidelabs flatcc up to 0.6.3. This impacts the function align_order_members of the file src/compiler/semantics.c of the component Duplicate Symbol Handler. This manipulation causes reachable assertion. The attack can be initiated remotely. The exploit has been publicly disclosed and may be utilized. Patch name: 8b19ba4e992ebcad7f5970704d1afc5507fa5205. To fix this issue, it is recommended to deploy a patch.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90786"
-    },
-    {
-      "id": "CVE-2026-90785",
-      "published": "2026-09-14T14:17:19.183",
-      "lastModified": "2026-09-15T14:17:34.570",
-      "description": "A vulnerability was found in Dvidelabs flatcc up to 0.6.3. This affects the function analyze_struct of the file src/compiler/semantics.c of the component Struct Analysis. The manipulation results in reachable assertion. It is possible to launch the attack remotely. The exploit has been made public and could be used. The patch is identified as f705032346ee39efd7d3848c50b73d455d28d06d. A patch should be applied to remediate this issue.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90785"
-    },
-    {
-      "id": "CVE-2026-86349",
-      "published": "2026-09-14T14:17:15.687",
-      "lastModified": "2026-09-16T19:30:49.967",
-      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.8, 10.11.x <= 10.11.22 fail to limit the nesting depth in the server-side Markdown parser which allows an authenticated attacker to cause a denial of service (CPU resource exhaustion) via a crafted post containing deeply nested blockquotes or list items.. Mattermost Advisory ID: MMSA-2026-00707",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86349"
-    },
-    {
-      "id": "CVE-2026-86348",
-      "published": "2026-09-14T14:17:15.570",
-      "lastModified": "2026-09-16T19:30:49.967",
-      "description": "Mattermost versions <=11.9 11.0.9 11.4.8 11.7.7 10.22.11.0 fail to recover from handler panics, which allows an authenticated user to crash the plugin via a post-action request with an unexpected field type.. Mattermost Advisory ID: MMSA-2026-00701",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86348"
-    },
-    {
-      "id": "CVE-2026-84179",
-      "published": "2026-09-14T14:17:13.130",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Description\n\n  getTopologyPageInfo merged the Nimbus daemon configuration with the topology's own configuration and returned the result without redaction in the topology_conf field of TopologyPageInfo. The Storm UI copied that value verbatim into the configuration field of GET /api/v1/topology/{id} and of the corresponding metrics endpoint.\n\n  Where the cluster is configured with them, the merged map includes storm.zookeeper.auth.payload, which Storm's own documentation directs operators to keep in storm-cluster-auth.yaml under permissions that deny access from workers, together with the keystore and truststore passwords for the Thrift, Netty and ZooKeeper TLS configuration, and any plugin key whose name denotes a secret.\n\n  getTopologyPageInfo is a topology read-only operation. Under SimpleACLAuthorizer a principal listed in topology.readonly.users or topology.readonly.groups could therefore read daemon credentials that the dedicated cluster configuration API, getNimbusConf, redacts and that is gated on nimbus.users instead. The sibling operations that exist to serve configuration were masked; the topology page, which merges in strictly more daemon state, was not.\n\n  Mitigation\n\n  Upgrade to 3.1.0, where credential-bearing values are masked before any configuration is served over the Nimbus API.\n\n  Users who cannot upgrade immediately should remove any principal that is not trusted with cluster credentials from topology.readonly.users, topology.readonly.groups, topology.users and topology.groups, and should rotate the ZooKeeper authentication payload and any TLS keystore or truststore passwords that were reachable through the topology page.\n\n  Credit\nWanxin Yin (yaklang.io) reported this issue to the Apache Security Team.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84179"
-    },
-    {
-      "id": "CVE-2026-82920",
-      "published": "2026-09-14T14:17:13.010",
-      "lastModified": "2026-09-16T19:30:49.967",
-      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.7 fail to enforce authorization boundaries on the access control policy update endpoint which allows a channel or team administrator to detach a system-assigned ABAC parent policy via a crafted PUT /api/v4/access_control_policies request with an empty imports list.. Mattermost Advisory ID: MMSA-2026-00724",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82920"
-    },
-    {
-      "id": "CVE-2026-82441",
-      "published": "2026-09-14T14:17:12.590",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Description\n\nA submitted topology carries two lists of blobstore keys, `dependency_jars` and `dependency_artifacts`,\nwhich the client fills in after uploading the corresponding blobs. Nimbus performed no validation of their\ncontents on the submission path, yet acts on them in two places.\n\nDuring cleanup of a finished topology, Nimbus deletes the keys named in those lists, and the deletion is\nperformed as the Nimbus subject, for which the blobstore short-circuits its ACL check. A submitter who\nlisted a key belonging to another topology, such as its `-stormjar.jar`, could therefore cause\nthat blob to be deleted when their own topology was cleaned up.\n\nSeparately, on acquiring leadership a Nimbus compares the dependency keys of all active topologies against\nthe blobstore contents and surrenders leadership if any is missing. A single key that does not exist, on a\nsingle active topology, therefore causes every Nimbus to acquire leadership, surrender it and requeue\nindefinitely, leaving the cluster without a leader and unable to schedule, clean up or accept submissions.\n\nMitigation\n\nUpgrade to 3.1.0, where a submission is refused unless every entry in both lists is a dependency blob key\nand exists in the blobstore.\n\nNote that this validates new submissions only; a topology stored by an affected version with an invalid list\nis unaffected by the upgrade. An operator whose cluster is failing to retain a leader should inspect the\nNimbus log for the dependency keys reported as missing and remove or resubmit the topology naming them.\n\nUsers who cannot upgrade immediately should restrict topology submission to trusted principals.\n\nCredit\n\nThis issue was discovered by rzo1 while investigating an unrelated blobstore defect.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82441"
-    },
-    {
-      "id": "CVE-2026-82439",
-      "published": "2026-09-14T14:17:12.470",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Description\n\nThe DRPC server kept a map from function name to request queue and created an entry the first time a\nfunction name was seen. No code path ever removed an entry: request cleanup removed the request from its\nqueue, and the shutdown path drained queues, but the queue object and its map entry remained for the life of\nthe process.\n\nFunction names come from the client and are not constrained to functions any topology has registered, so the\nnumber of retained entries is bounded only by the number of distinct names an attacker chooses to send, and\neach retained entry holds the name itself. `drpc.authorizer` is unset by default, so no credentials are\nrequired to reach the endpoint.\n\nThe retained state is permanent rather than a transient load spike, so the effect accumulates until the DRPC\nserver exhausts its heap.\n\nMitigation\n\nUpgrade to 3.1.0, where a function's queue is removed once nothing is waiting in it.\n\nUsers who cannot upgrade immediately should configure `drpc.authorizer` so that only trusted principals can\nreach the DRPC endpoints, and should ensure the DRPC ports are not reachable from untrusted networks.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82439"
-    },
-    {
-      "id": "CVE-2026-7208",
-      "published": "2026-09-14T14:17:12.120",
-      "lastModified": "2026-09-14T19:17:48.410",
-      "description": "Yealink SIP-T33G firmware versions 124.86.x.x prior to 124.87.0.0 contain a race condition vulnerability that allows authenticated attackers to interrupt active diagnostic processes by concurrently deleting output files written to predictable paths under the diagnostic directory. Attackers can trigger a diagnostic operation such as traceroute or ping and simultaneously invoke the file deletion endpoint to terminate the running process, leaving the system in an inconsistent state.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7208"
-    },
-    {
-      "id": "CVE-2026-73370",
-      "published": "2026-09-14T14:17:09.077",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Incorrect Authorization vulnerability in Apache Syncope.\n\n\n\nDelegated administration security checks performed by Reconciliation service's pull and push, being incomplete, could accept calls by administrator not provided with adequate entitlements.\n\n\n\n\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73370"
-    },
-    {
-      "id": "CVE-2026-73236",
-      "published": "2026-09-14T14:17:08.817",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Incorrect Authorization vulnerability in Apache Syncope.\n\n\n\nDelegated administration security checks are based on Realm hierarchy and enforced via prefix matches.\nDue to incorrect implementation, two sibling Realms whose names begin with the same string cannot be correctly distinguished, resulting in incorrect authorization.\n\n\n\n\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73236"
-    },
-    {
-      "id": "CVE-2026-73195",
-      "published": "2026-09-14T14:17:08.597",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Improper Encoding or Escaping of Output vulnerability in Apache Syncope.\n\n\n\nAuthenticated users can store a spreadsheet formula payload in one of their own plain attributes. When such users are included in a CSV export and the generated CSV file is opened by a spreadsheet application, the formula may be executed.\n\n\n\n\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73195"
-    },
-    {
-      "id": "CVE-2026-73191",
-      "published": "2026-09-14T14:17:08.450",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "URL Redirection to Untrusted Site ('Open Redirect') vulnerability in Apache Syncope.\n\n\n\n\n\nWhen the Syncope SRA is configured for CAS authentication, the target Apereo CAS instance's URL is calculated by unconditionally looking at client-supplied forwarded HTTP headers.\n\nThis issue affects Apache Syncope: from 3.0.0-M0 through 3.0.16, from 4.0.0-M0 Through 4.0.7, from 4.1.0-M0 through 4.1.2.\n\nUsers are recommended to upgrade to version 4.0.8 / 4.1.3, which fix this issue.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73191"
     }
   ]
 }
