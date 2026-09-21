@@ -1,6 +1,132 @@
 {
-  "syncedAt": "2026-09-21T23:18:01.643Z",
+  "syncedAt": "2026-09-21T23:43:31.626Z",
   "items": [
+    {
+      "id": "CVE-2026-1758",
+      "published": "2026-09-15T11:17:07.587",
+      "lastModified": "2026-09-18T19:30:42.730",
+      "description": "Session fixation vulnerability in Secomea GateManager (webserver module) allows Session Fixation.\n\nThis issue affects GateManager: 11.5;0, 11.4.625515072:0.\n\n\n\nFixed in Version 11.6 or 11.4.626194074 and above",
+      "score": 8.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-1758"
+    },
+    {
+      "id": "CVE-2026-91859",
+      "published": "2026-09-15T10:17:06.470",
+      "lastModified": "2026-09-16T13:42:48.993",
+      "description": "Affected versions of MISP can record incorrect access-log data for requests that terminate in an exception.\n\n\nBecause CakeErrorController extends AppController, exception rendering runs the application startup path a second time. As a result, __accessMonitor() calls AccessLog::logRequest() twice for one HTTP request. The second deferred writer measures the error-controller execution instead of the original request and can overwrite the row created by the first pass. The corrupted fields include request duration, SQL query count, memory usage, and potentially the recorded query log.\n\n\nThe bug was masked because the same model instance retained the ID of the first saved row, causing the later save to issue an UPDATE rather than insert an obvious duplicate row.\n\nVersion affected: ≤2.5.45",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91859"
+    },
+    {
+      "id": "CVE-2026-91857",
+      "published": "2026-09-15T10:17:06.267",
+      "lastModified": "2026-09-16T13:42:48.977",
+      "description": "Affected versions of MISP expose several state-changing controller actions without restricting them to POST.\n\n\nThe affected actions are:\n\n\n\n - EventReportsController::purgeUnusedPictures()\n\n - NoticelistsController::enableNoticelist()\n\n - ServersController::removeOrphanedCorrelations()\n\n - WorkflowsController::rebuildRedis()\n\n\n\n\n\n\nThe patch adds allowMethod(['post']) to each action, preventing them from being triggered through ordinary GET requests.\n\n\nFor purgeUnusedPictures(), the corresponding UI previously used $.get(). The fix converts that request to POST and supplies X-CSRF-Token, while the controller enables header-only CSRF validation for that AJAX action.\n\n\nBecause GET requests can be induced cross-origin through links, images, redirects, or navigation, accepting GET for these state-changing operations can let an attacker trigger them using the authenticated victim's session.\n\nVersion affected: ≤2.5.45",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91857"
+    },
+    {
+      "id": "CVE-2026-62379",
+      "published": "2026-09-15T10:17:06.107",
+      "lastModified": "2026-09-15T15:17:20.270",
+      "description": "Open Access Management (OpenAM) is an access management solution. Prior to 16.1.2, the pre-authentication /authservice PLL endpoint accepts a CustomCallback XML element whose className value selects an arbitrary Java class for AuthXMLUtils to load and instantiate without verifying that it implements DSAMECallbackInterface. Default configurations expose the endpoint without authentication, allowing attacker-controlled class initialization and unsafe deserialization of a serialized Subject value to execute code in the server process. Enabling sunRemoteAuthSecurityEnabled does not prevent the vulnerable parsing and instantiation because its check occurs later. This issue is fixed in version 16.1.2.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62379"
+    },
+    {
+      "id": "CVE-2026-62280",
+      "published": "2026-09-15T10:17:05.957",
+      "lastModified": "2026-09-16T18:17:10.437",
+      "description": "Open Access Management (OpenAM) is an access management solution. From 13.0.0 until 16.1.2, the OAuth2 authorize endpoint's display=wap consent page reflects request-derived values through ConsentRequiredResource and wap/authorize.ftl without HTML escaping. An attacker can induce a user with an active OpenAM session to follow a crafted authorization link and execute JavaScript in the OpenAM origin, enabling session or cookie theft, CSRF-token disclosure, and actions with the victim's privileges. At least one registered OAuth2 client is required, but the attacker does not need to control that client. This issue is fixed in version 16.1.2.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62280"
+    },
+    {
+      "id": "CVE-2026-62263",
+      "published": "2026-09-15T10:17:05.810",
+      "lastModified": "2026-09-15T14:17:03.660",
+      "description": "Open Access Management (OpenAM) is an access management solution. Prior to 16.1.2, WebAuthnAuthentication.deserialize applies an ObjectInputFilter that allows every serialized object at depth greater than 1 and therefore constrains only an AuthenticatorImpl root object. A pre-authentication attacker can supply a userHandle whose serialized graph has a valid AuthenticatorImpl root and a nested gadget class, causing readObject or readResolve execution before the cast and assertion verification when a usable gadget is on the classpath. This bypasses the incomplete remediation for the earlier WebAuthn deserialization vulnerability. This issue is fixed in version 16.1.2.",
+      "score": 9.2,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62263"
+    },
+    {
+      "id": "CVE-2026-59341",
+      "published": "2026-09-15T10:17:05.673",
+      "lastModified": "2026-09-18T19:21:34.307",
+      "description": "A security vulnerability exists in the Sealed Secrets controller's unauthenticated POST endpoints. By submitting a modified payload containing custom Go template logic in spec.template.data, an attacker with internal network access can abuse the handler as a decryption oracle to recover the full plaintext of any sealed secret.\n\n\n\nThe POST /v1/verify and /v1/rotate handlers call Unseal() to decrypt target secrets, then render any Go templates found in spec.template.data.* using the decrypted payload as the evaluation context (pkg/apis/sealedsecrets/v1alpha1/sealedsecret_expansion.go). Errors encountered during template execution are directly reflected in the resulting HTTP response status codes.\n\n\n\nMissing AEAD label binding: the spec.template.data field is omitted from the AEAD authenticated-data label binding ciphertext to metadata. As a result, an attacker can copy a target's valid metadata and encryptedData verbatim, satisfying AEAD decryption and label validation, while freely replacing spec.template.data with arbitrary template logic.\n\n\n\nSide-channel oracle: template execution errors map directly to HTTP response codes. HTTP 200 (OK) indicates template execution succeeded; HTTP 409 (Conflict) indicates template execution failed (e.g. via {{ fail \"...\" }}).\n\n\n\nBy injecting conditional statements such as {{ if eq (substr 0 1 .password) \"S\" }}ok{{ else }}{{ fail \"x\" }}{{ end }}, an attacker receives an HTTP 200 status when a character guess is correct and an HTTP 409 when it is incorrect. This differential response leaks one character-equality bit per request, allowing full secret extraction over successive queries.\n\n\n\nAttack vector & prerequisites: unauthenticated; requires network access to the controller's internal service port (:8080). Although this service is not exposed to the public internet by default, it is accessible to any pod within the Kubernetes cluster or via a kubectl port-forward connection.",
+      "score": 4.2,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59341"
+    },
+    {
+      "id": "CVE-2026-53660",
+      "published": "2026-09-15T10:17:05.527",
+      "lastModified": "2026-09-15T13:16:42.597",
+      "description": "Open Access Management (OpenAM) is an access management solution. Prior to 16.1.1, the default configuration initializes the iPlanetDirectoryPro SSO cookie with HttpOnly disabled and without a protective SameSite default, and OAuth and OpenID Connect consent flows reuse that cookie through CsrfProtection as a CSRF token. When combined with same-origin cross-site scripting and a user following an attacker-controlled link, the cookie can be read and reused to steal the SSO session and complete attacker-driven consent grants. This issue is fixed in version 16.1.1.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53660"
+    },
+    {
+      "id": "CVE-2026-48717",
+      "published": "2026-09-15T10:17:05.377",
+      "lastModified": "2026-09-15T14:16:55.147",
+      "description": "Open Access Management (OpenAM) is an access management solution. Prior to 16.1.1, AuthorizationCodeGrantTypeHandler requires a code_verifier only when the realm-wide codeVerifierEnforced setting is enabled, even when an authorization code stores a code_challenge. Because that setting is disabled by default, an attacker who intercepts a PKCE-protected authorization code can omit code_verifier and redeem the code, while an explicitly incorrect verifier is rejected. Public clients are directly affected, and confidential-client exploitation additionally requires client authentication material or another redemption context. This issue is fixed in version 16.1.1.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-48717"
+    },
+    {
+      "id": "CVE-2026-47426",
+      "published": "2026-09-15T10:17:05.230",
+      "lastModified": "2026-09-17T14:17:14.497",
+      "description": "Open Access Management (OpenAM) is an access management solution. Prior to 16.1.1, the private_key_jwt client authentication path uses ClientJwksResolverCache without reliably binding a cached jwks_uri resolver and verified assertion to the expected clientID in ClientCredentialsReader. An attacker controlling any registered client with published keys, including one obtained through open dynamic registration when enabled, can authenticate as another client whose keys are exposed through jwks_uri and mint tokens in that client's name across realms in the same OpenAM process. This issue is fixed in version 16.1.1.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-47426"
+    },
+    {
+      "id": "CVE-2026-47424",
+      "published": "2026-09-15T10:17:05.077",
+      "lastModified": "2026-09-15T13:16:41.853",
+      "description": "Open Access Management (OpenAM) is an access management solution. Prior to 16.1.1, GroovySandboxValueFilter permits an authenticated server-side script author to escape the scripting sandbox despite the default class allow and deny lists. A user such as a sub-realm RealmAdmin who can create or edit a script in an executed context can invoke operating-system commands as the OpenAM application server account, crossing the realm-scoped administration boundary and compromising the JVM and every realm it serves. This issue is fixed in version 16.1.1.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-47424"
+    },
+    {
+      "id": "CVE-2026-46623",
+      "published": "2026-09-15T10:17:04.920",
+      "lastModified": "2026-09-17T14:17:14.333",
+      "description": "Open Access Management (OpenAM) is an access management solution. Prior to 16.1.1, the OAuth2 authentication module updates an existing local account with profile attributes that can include userPassword and inetUserStatus, rewriting the password to the username and reactivating disabled accounts. The missing OAuth.removeRestrictedAccountUpdateAttributes filtering permits these credential and status fields to reach the account update. With account creation enabled, repeated OAuth login causes the default ldapService chain to accept the username as both identifier and password, allowing an unauthenticated attacker to take over the local account without interacting with the identity provider. The rewrite can be denied for usernames shorter than the configured minimum password length. This issue is fixed in version 16.1.1.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-46623"
+    },
+    {
+      "id": "CVE-2026-46619",
+      "published": "2026-09-15T10:17:04.770",
+      "lastModified": "2026-09-15T15:17:15.700",
+      "description": "Open Access Management (OpenAM) is an access management solution. Prior to 16.1.1, MSISDNValidation in the MSISDN authentication module concatenates the request-supplied MSISDN value into an LDAP search filter without escaping, while the default empty trusted-gateway list allows all traffic. In a realm where an MSISDN module is enabled in a reachable authentication chain, an unauthenticated remote attacker can inject LDAP filter metacharacters, select an arbitrary matching user, and obtain a normal authenticated OpenAM session without a password. This issue is fixed in version 16.1.1.",
+      "score": 9.3,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-46619"
+    },
+    {
+      "id": "CVE-2026-46498",
+      "published": "2026-09-15T10:17:04.623",
+      "lastModified": "2026-09-15T13:16:41.707",
+      "description": "Open Access Management (OpenAM) is an access management solution. Prior to 16.1.1, OAuthTokenStore reads caller-supplied token identifiers from the shared Core Token Store (CTS) without an OAuth-only namespace, and OAuthAdapter accepts a row whose BLOB claims to contain an OAuth token without binding the trusted CTS type or verifying integrity. An attacker who can place controlled JSON in CTS under a known token identifier, such as through Push Registration followed by an anonymous SNS callback in an enabled realm, can mint OAuth bearer tokens and OpenID Connect ID tokens with chosen subject, client, realm, and scope. The flaw does not by itself create an OpenAM SSO session or grant console access. This issue is fixed in version 16.1.1.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-46498"
+    },
     {
       "id": "CVE-2026-45794",
       "published": "2026-09-15T10:17:04.470",
@@ -772,132 +898,6 @@
       "score": 7.3,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90840"
-    },
-    {
-      "id": "CVE-2026-91201",
-      "published": "2026-09-14T23:19:00.783",
-      "lastModified": "2026-09-18T18:18:03.493",
-      "description": "DocsGPT through 0.20.0 posts OAuth connector session tokens to a wildcard target origin in the callback-status endpoint without validating sender origin. Attackers can obtain session tokens and provider account emails by acting as window.opener during OAuth authorization, then use tokens to disconnect victims' cloud storage connectors.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91201"
-    },
-    {
-      "id": "CVE-2026-91200",
-      "published": "2026-09-14T23:19:00.630",
-      "lastModified": "2026-09-15T14:17:46.707",
-      "description": "DevSpace through 6.3.21 fails to reject parent-directory segments in tar entry names from the in-pod sync stream. Attackers operating a malicious container can stream tar entries with traversal sequences to write arbitrary files on the developer workstation, enabling code execution.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91200"
-    },
-    {
-      "id": "CVE-2026-91199",
-      "published": "2026-09-14T23:19:00.473",
-      "lastModified": "2026-09-17T20:18:53.447",
-      "description": "Refly through 1.1.0 contains a server-side request forgery vulnerability in the POST /v1/misc/scrape endpoint that fetches caller-supplied URLs without validating the scheme, host, or resolved address. Authenticated attackers can make the backend issue requests to loopback, private, and link-local addresses including cloud metadata services to read page titles and descriptions of internal resources.",
-      "score": 5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91199"
-    },
-    {
-      "id": "CVE-2026-91198",
-      "published": "2026-09-14T23:19:00.323",
-      "lastModified": "2026-09-16T19:47:01.197",
-      "description": "GrowthBook through 5.0.1 returns unredacted fact table definitions including raw warehouse SQL in payloads served by unauthenticated public report and experiment endpoints. Attackers with knowledge of a publicly shared report or experiment identifier can read internal data warehouse query text, schema, table names, filter values and datasource identifiers.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91198"
-    },
-    {
-      "id": "CVE-2026-91197",
-      "published": "2026-09-14T23:19:00.173",
-      "lastModified": "2026-09-16T17:18:19.020",
-      "description": "Flowable flowable-engine through 8.0.0 contains an XML external entity injection vulnerability in ProcessDiagramLayoutFactory.parseXml() that fails to disable external entity resolution when parsing deployed BPMN resources. Attackers with process deployment privileges can embed DOCTYPE declarations with external entities in BPMN files to read arbitrary local files or trigger requests to internal network endpoints when diagram layout is computed.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91197"
-    },
-    {
-      "id": "CVE-2026-90835",
-      "published": "2026-09-14T23:18:59.973",
-      "lastModified": "2026-09-15T14:37:14.523",
-      "description": "A flaw has been found in michaelliao itranswarp up to 2.19. The impacted element is the function Markdown.toHtml of the file Markdown.java of the component Page Content Rendering. This manipulation causes cross site scripting. The attack may be initiated remotely. The exploit has been published and may be used. The project was informed of the problem early through an issue report but has not responded yet. This vulnerability only affects products that are no longer supported by the maintainer.",
-      "score": 3.5,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90835"
-    },
-    {
-      "id": "CVE-2026-90831",
-      "published": "2026-09-14T23:18:59.797",
-      "lastModified": "2026-09-16T17:18:18.080",
-      "description": "A vulnerability was detected in GNU Binutils 2.47. The affected element is the function _bfd_elf_strtab_delref of the file bfd/elf-strtab.c of the component ELF String Table. The manipulation results in memory corruption. The attack requires a local approach. The exploit is now public and may be used. The project was informed of the problem early through a bug report but has not responded yet.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90831"
-    },
-    {
-      "id": "CVE-2026-90830",
-      "published": "2026-09-14T23:18:59.620",
-      "lastModified": "2026-09-16T15:28:03.553",
-      "description": "A security vulnerability has been detected in GNU Binutils 2.47. Impacted is the function _bfd_write_merged_section of the file bfd/merge.c of the component Section Merge. The manipulation leads to null pointer dereference. The attack needs to be performed locally. The exploit has been disclosed publicly and may be used. The project was informed of the problem early through a bug report but has not responded yet.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90830"
-    },
-    {
-      "id": "CVE-2026-90829",
-      "published": "2026-09-14T23:18:59.440",
-      "lastModified": "2026-09-16T15:28:15.217",
-      "description": "A weakness has been identified in GNU Binutils 2.47. This issue affects the function bfd_elf_set_group_contents of the file bfd/elf.c of the component SHT_GROUP Section Handler. Executing a manipulation can lead to null pointer dereference. The attack needs to be launched locally. The exploit has been made available to the public and could be used for attacks. The project was informed of the problem early through a bug report but has not responded yet.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90829"
-    },
-    {
-      "id": "CVE-2026-81900",
-      "published": "2026-09-14T23:18:48.333",
-      "lastModified": "2026-09-16T20:47:10.650",
-      "description": "Concrete CMS before 9.5.3 applied only trim() to the YouTube block's stored width and height values and printed them into iframe HTML attributes without escaping or integer casting, resulting in stored cross-site scripting. A user with edit_block permission could inject an event handler that executed script for visitors rendering the page, acting with administrative privileges where the victim was an administrator. The Concrete CMS security team gave this vulnerability a CVSS v4.0 score of 7.3 with vector CVSS:4.0/AV:N/AC:L/AT:P/PR:H/UI:P/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N. Thanks sh4d0byss for reporting.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81900"
-    },
-    {
-      "id": "CVE-2026-77191",
-      "published": "2026-09-14T23:18:36.170",
-      "lastModified": "2026-09-16T20:36:52.890",
-      "description": "An authenticated supplicant on an adjacent network may bypass intended network authorization policy and send unrestricted traffic during a brief window (milliseconds to seconds) between the completion of the authentication phase and the full enforcement of its assigned ACL.",
-      "score": 2.6,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77191"
-    },
-    {
-      "id": "CVE-2026-75945",
-      "published": "2026-09-14T23:18:35.970",
-      "lastModified": "2026-09-16T20:36:52.890",
-      "description": "A race condition may cause a supplicant to remain in an authorized state after a clear dot1x host all command is issued.",
-      "score": 2.6,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75945"
-    },
-    {
-      "id": "CVE-2026-75944",
-      "published": "2026-09-14T23:18:35.760",
-      "lastModified": "2026-09-16T20:36:52.890",
-      "description": "A race condition during supplicant re-authentication may leave a stale ACL entry that persists in the system. If the AclAgent subsequently restarts, this stale entry may be applied to new supplicants, resulting in incorrect access control enforcement. User interaction (an AclAgent restart by an administrator) is required for the unintended behavior to take effect.",
-      "score": 2.6,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75944"
-    },
-    {
-      "id": "CVE-2026-75943",
-      "published": "2026-09-14T23:18:35.457",
-      "lastModified": "2026-09-16T20:36:52.890",
-      "description": "A brief (milliseconds to seconds) traffic leak may occur when an authenticated supplicant is removed, either via the clear dot1x host all CLI command or due to a supplicant timeout. During this window, the supplicant's traffic may pass without ACL enforcement.",
-      "score": 2.6,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75943"
     }
   ]
 }
