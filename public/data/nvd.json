@@ -1,6 +1,276 @@
 {
-  "syncedAt": "2026-09-21T14:46:32.012Z",
+  "syncedAt": "2026-09-21T15:18:13.154Z",
   "items": [
+    {
+      "id": "CVE-2026-86836",
+      "published": "2026-09-14T18:20:20.193",
+      "lastModified": "2026-09-16T20:38:33.883",
+      "description": "In Eclipse Ankaios versions 0.1.0 through 1.0.2, the agent creates workload files and Control Interface named pipes (FIFOs) under a predictable path derived from the agent name and a hash of the workload's runtime configuration. If a directory or FIFO already exists at that path when the agent (re)starts, the agent reuses it based only on an existence and/or file-type check, without validating its owner or permissions. A local, unprivileged user with write access to the same base directory (by default under `$TMPDIR/ankaios`, e.g. shared `/tmp`) can pre-create this path hierarchy, including the two Control Interface FIFOs, before the agent starts. The agent then treats the attacker-owned FIFOs as the legitimate Control Interface for the targeted workload. The attacker can complete the Control Interface handshake and issue requests using that workload's configured `controlInterfaceAccess` permissions, allowing impersonation of the workload and, depending on its configured permissions, unauthorized reading and/or modification of the cluster's desired state.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86836"
+    },
+    {
+      "id": "CVE-2026-85921",
+      "published": "2026-09-14T18:20:20.047",
+      "lastModified": "2026-09-16T19:30:49.967",
+      "description": "Double free in Windows Secure Kernel Mode allows an authorized attacker to elevate privileges locally.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85921"
+    },
+    {
+      "id": "CVE-2026-85892",
+      "published": "2026-09-14T18:20:19.343",
+      "lastModified": "2026-09-16T19:30:49.967",
+      "description": "Concurrent execution using shared resource with improper synchronization ('race condition') in Microsoft Edge (Chromium-based) allows an authorized attacker to elevate privileges locally.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85892"
+    },
+    {
+      "id": "CVE-2026-73494",
+      "published": "2026-09-14T18:19:58.857",
+      "lastModified": "2026-09-14T20:16:50.707",
+      "description": "blaze is a Scala library for building asynchronous pipelines, with a focus on network IO. Prior to 0.23.18 and from 1.0.0-M1 until 1.0.0-M42, five HTTP/1.1 conformance laxities in the hand-written Java parser under http/src/main/java/org/http4s/blaze/http/parser/ can cause blaze to derive a different request boundary than a stricter fronting intermediary. A default BlazeServerBuilder accepts invalid or valueless header field names that violate tchar syntax, obsolete folded field lines (obs-fold), unsupported Transfer-Encoding values, duplicate Content-Length fields, and requests containing both Transfer-Encoding and Content-Length. If a lenient or legacy proxy forwards the malformed bytes but interprets them differently, the disagreement can permit front-end authorization bypass, response-queue poisoning on pooled backend connections, or cache poisoning. Exploitation requires a pair of disagreeing parsers; no non-default blaze configuration is required. The affected checks are enforced in BodyAndHeaderParser and Http1ServerParser. This issue is fixed in versions 0.23.18 and 1.0.0-M42.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73494"
+    },
+    {
+      "id": "CVE-2026-70658",
+      "published": "2026-09-14T18:19:45.213",
+      "lastModified": "2026-09-14T19:17:40.293",
+      "description": "Pay is a payments engine for Ruby on Rails 6.0 and higher. Prior to 11.6.2, Pay::Webhooks::PaddleBillingController#valid_signature? in app/controllers/pay/webhooks/paddle_billing_controller.rb compares the computed 64-character SHA-256 HMAC with the attacker-controlled h1 token from the Paddle-Signature header using Ruby String#==. An unauthenticated remote attacker who can repeatedly submit requests to /pay/webhooks/paddle_billing and obtain sufficiently precise timing measurements can infer matching digest prefixes and recover a valid signature. A forged accepted webhook is enqueued through Pay::Webhooks::ProcessJob and can cause a host application to update billing state, provision paid features, record refunds, or trigger customer notifications. This issue is fixed in version 11.6.2.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-70658"
+    },
+    {
+      "id": "CVE-2026-57583",
+      "published": "2026-09-14T18:17:58.720",
+      "lastModified": "2026-09-14T19:17:37.133",
+      "description": "OpenZeppelin Contracts Wizard is a web application to interactively build a contract out of components from OpenZeppelin Contracts. Prior to @openzeppelin/wizard 0.10.11, @openzeppelin/wizard-cairo 3.0.1, @openzeppelin/wizard-stellar 0.6.2, and @openzeppelin/wizard-stylus 0.3.1, the setInfo code path prints info.securityContact and info.license verbatim into single-line comments in generated Solidity, Cairo, Stellar/Soroban, and Stylus source. A line terminator ends the comment and causes following input to be emitted as source declarations. Exploitation requires an integration to populate these fields from untrusted input and a user to consume the generated source; normal self-service web, AI assistant, CLI, and self-hosted API use does not cross that trust boundary, shared links cannot set the fields, and no code executes on a Wizard service. This issue affects generated-source integrity only and is fixed in versions 0.10.11, 3.0.1, 0.6.2, and 0.3.1 of the respective packages.",
+      "score": 3.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57583"
+    },
+    {
+      "id": "CVE-2026-57581",
+      "published": "2026-09-14T18:17:58.567",
+      "lastModified": "2026-09-16T16:17:13.207",
+      "description": "DotVVM is an open source MVVM framework for web applications. Prior to 4.2.11, 4.3.15, and 5.0.0-preview09-final, applications with configured file upload storage allow unauthenticated users to submit files directly to DotvvmFileUploadMiddleware without an X-DotVVM-UploadToken generated by the FileUpload component. An attacker can repeatedly upload files and fill application storage, causing denial of service. DotvvmConfiguration.Security.AuthorizeFileUpload can additionally restrict which users may upload files. This issue is fixed in versions 4.2.11, 4.3.15, and 5.0.0-preview09-final.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57581"
+    },
+    {
+      "id": "CVE-2026-57578",
+      "published": "2026-09-14T18:17:57.913",
+      "lastModified": "2026-09-14T19:17:36.643",
+      "description": "DotVVM is an open source MVVM framework for web applications. Prior to 4.2.11, 4.3.15, and 5.0.0-preview09-final, AuthorizeActionFilter performs no authorization because its explicit ICommandActionFilter.OnCommandExecutingAsync, IViewModelActionFilter.OnViewModelCreatedAsync, and IPresenterActionFilter.OnPresenterExecutingAsync implementations return completed tasks instead of invoking the corresponding checks. Applications relying on this filter can therefore expose protected commands, view models, or presenters to unauthorized requests without any special bypass technique. AuthorizeAttribute correctly implements the same interfaces and can be used as a workaround. This issue is fixed in versions 4.2.11, 4.3.15, and 5.0.0-preview09-final.",
+      "score": 9.2,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57578"
+    },
+    {
+      "id": "CVE-2026-57577",
+      "published": "2026-09-14T18:17:57.353",
+      "lastModified": "2026-09-14T18:17:57.353",
+      "description": "DotVVM is an open source MVVM framework for web applications. Prior to 4.2.11, 4.3.15, and 5.0.0-preview09-final, a route containing multiple unconstrained parameters in one path segment can cause excessive regular-expression backtracking in DotvvmRoute.IsMatch when a remote requester supplies a long near-match path. DotvvmRouteParser.RouteRegex previously had no matching timeout. Patched runtimes retry with the .NET non-backtracking engine, while runtimes that do not support non-backtracking matching return HTTP 503 after the one-second timeout in DotvvmRoutingMiddleware. This issue is fixed in versions 4.2.11, 4.3.15, and 5.0.0-preview09-final.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57577"
+    },
+    {
+      "id": "CVE-2026-57570",
+      "published": "2026-09-14T18:17:57.180",
+      "lastModified": "2026-09-14T19:17:36.150",
+      "description": "backpack/crud provides Create, Read, Update & Delete (CRUD) functions for Backpack, a collection of Laravel packages that help users build custom administration panels. From 6.0.0 until 6.8.15 and 7.0.47, HasMany and MorphMany handling through attachManyRelation during CRUD create and update operations accepts submitted child primary keys without consistently restricting updates to records belonging to the current parent or permitted by the developer-defined relation scope. An authenticated low-privilege administrator who can edit a parent form exposing an affected multiple-relation field can cause unrelated child records to be reassigned, detached, nulled, or deleted across ownership or tenant boundaries. Exploitation requires related records that should not be attachable or removable by that administrator and the absence of additional application-level authorization around submitted relation values. This issue is distinct from earlier direct main-entity CRUD scoping fixes because it affects secondary models modified by relationship-saving logic. This issue is fixed in versions 6.8.15 and 7.0.47.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57570"
+    },
+    {
+      "id": "CVE-2026-55866",
+      "published": "2026-09-14T18:17:56.150",
+      "lastModified": "2026-09-14T19:17:33.193",
+      "description": "SpiceDB is an open source database system for creating and managing security-critical application permissions. From 1.34.0 until 1.54.0, SpiceDB can return PERMISSIONSHIP_HAS_PERMISSION instead of PERMISSIONSHIP_CONDITIONAL_PERMISSION or PERMISSIONSHIP_NO_PERMISSION because checkRequestToKey() and checkRequestToKeyWithCanonical() in internal/dispatch/keys/computed.go omit CheckHints when constructing dispatch Check cache keys. The incorrect result requires a permission combining relations with intersection or exclusion, a subject reachable through caveated and non-caveated branches, LookupResources with a context parameter running concurrently with CheckPermission or CheckBulkPermissions for the same resource and subject, and an enabled dispatch result cache. Under these conditions, a result computed for one hint set can poison the cache entry used by a semantically different authorization check, allowing permission without satisfying the caveat. This issue is fixed in version 1.54.0.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55866"
+    },
+    {
+      "id": "CVE-2026-55847",
+      "published": "2026-09-14T18:17:55.990",
+      "lastModified": "2026-09-14T20:16:48.180",
+      "description": "Allure 2 is the version 2.x branch of Allure Report, a multi-language test reporting tool. Prior to 2.39.0, the ansi.js helper at allure-generator/src/main/javascript/helpers/ansi.js passes attacker-influenced statusMessage and statusTrace values through AnsiToHtml without HTML escaping and wraps the result in Handlebars SafeString, disabling template auto-escaping in allure-generator/src/main/javascript/blocks/status-details/status-details.hbs. JunitXmlPlugin.java can populate these fields directly from crafted JUnit XML failure messages and traces, and equivalent input flows exist in the TRX, xUnit XML, xctest, and Allure1 and Allure2 plugins. When a user views the affected status details, unescaped markup executes arbitrary JavaScript in the report origin, which can expose report data and compromise sessions associated with that origin. This is an incomplete-fix case because PR 3271 escaped link helpers but did not address the ANSI helper. This issue is fixed in version 2.39.0.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55847"
+    },
+    {
+      "id": "CVE-2026-55846",
+      "published": "2026-09-14T18:17:55.830",
+      "lastModified": "2026-09-16T16:17:10.377",
+      "description": "Allure 2 is the version 2.x branch of Allure Report, a multi-language test reporting tool. Prior to 2.39.0, the HTTP server started by allure serve and allure open uses URI.getPath() in Commands.setUpServer() in allure-commandline/src/main/java/io/qameta/allure/Commands.java and passes the percent-decoded request path to reportDirectory.resolve() without normalizing the result or confirming that it remains inside that directory. An unauthenticated client that can reach the server can submit parent-directory segments, including percent-encoded segments, and cause serveFile() to return any regular file readable by the Allure process. The server binds to localhost by default, but the --host option can expose it to other systems, and local users, adjacent containers, or browser-origin attacks may reach a local listener. This can disclose credentials, configuration, source code, build secrets, and other CI/CD data. This issue is fixed in version 2.39.0.",
+      "score": 6.2,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55846"
+    },
+    {
+      "id": "CVE-2026-55832",
+      "published": "2026-09-14T18:17:55.663",
+      "lastModified": "2026-09-14T19:17:32.717",
+      "description": "Tract is a tiny, no-nonsense, self-contained TensorFlow and ONNX inference toolkit. Prior to 0.21.17, 0.22.3, and 0.23.2, the tract-onnx crate passes the attacker-controlled external_data location from an ONNX model through onnx/src/tensor.rs get_external_resources and joins the value to the model directory without rejecting absolute paths or parent directory components. Loading an untrusted model through model_for_path can therefore make onnx/src/data_resolver.rs MmapDataResolver open an arbitrary local file and place the file contents into model tensors or inference output. Attacker-controlled offset and length fields can also select an out-of-range mapping slice and cause a denial of service, but the flaw does not write files or execute code. This issue is fixed in versions 0.21.17, 0.22.3, and 0.23.2.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55832"
+    },
+    {
+      "id": "CVE-2026-55253",
+      "published": "2026-09-14T18:17:55.500",
+      "lastModified": "2026-09-14T20:16:47.800",
+      "description": "LangChain MongoDB provides integrations between MongoDB, Atlas, LangChain, and LangGraph. Prior to langgraph-checkpoint-mongodb 0.3.0 and langgraph-store-mongodb 0.4.0, MongoDBSaver.list(), MongoDBSaver.alist(), and MongoDBStore.search() incorporate filter dictionaries into MongoDB queries without recursively rejecting keys prefixed with $. An authenticated caller who controls a filter argument through HTTP query parameters, request body fields, or agent tool arguments can inject MongoDB Query Language operators such as $regex or $where. In a multi-tenant deployment that uses the filter to enforce per-user or per-tenant isolation, injected operators can bypass intended equality filtering and expose other tenants' checkpoint or store data. Filters constructed entirely from trusted server-side values have lower practical risk. This issue is fixed in langgraph-checkpoint-mongodb 0.3.0 and langgraph-store-mongodb 0.4.0.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55253"
+    },
+    {
+      "id": "CVE-2026-55091",
+      "published": "2026-09-14T18:17:54.790",
+      "lastModified": "2026-09-14T20:16:47.163",
+      "description": "flat-to-nested converts a hierarchy from a flat representation to a nested representation. Prior to 1.1.2, FlatToNested.prototype.convert in index.js uses attacker-influenced id and parent record fields directly as keys in the plain temp and pendingChildOf objects. When parent or id is __proto__, temp[parent] can resolve to Object.prototype, and initPush() can write attacker-controlled data to the global children prototype property while existing prototype methods remain intact. Any application that passes attacker-influenced flat records to convert() can therefore expose unrelated objects to polluted inherited state, causing application-logic corruption or denial of service and potentially enabling greater impact when a downstream prototype-pollution gadget is present. The constructor and prototype strings are also unsafe inherited-key values in the same lookup design. This issue is fixed in version 1.1.2.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55091"
+    },
+    {
+      "id": "CVE-2026-54723",
+      "published": "2026-09-14T18:17:53.703",
+      "lastModified": "2026-09-14T19:17:31.703",
+      "description": "devpi is a Python package index staging server and packaging, testing, and release tool. Prior to 6.20.2 and 7.0.0b3, a server configured with the primary or deprecated master role allows an unauthenticated, modified GET request to the +changelog route because verify_primary does not reject a missing identity and therefore fails to require ReplicaIdentity. The response can disclose complete database content, including Argon2 password hashes and identifiers and salts for devpi-tokens; exposed hashes may be subject to dictionary attacks, and public tokens may assist attempts to derive the server secret. Large responses can also consume significant CPU, input/output capacity, and bandwidth. Servers using the standalone role are not exposed through replication, and an instance served exclusively through nginx with devpi-lockdown redirects the request to login with no known exploit. This issue is fixed in devpi-server versions 6.20.2 and 7.0.0b3.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54723"
+    },
+    {
+      "id": "CVE-2026-54567",
+      "published": "2026-09-14T18:17:53.547",
+      "lastModified": "2026-09-16T16:17:09.010",
+      "description": "Flask-Reuploaded provides file uploads for Flask. From 1.5.0 until 1.6.0, UploadSet.save(storage, name=...) in src/flask_uploads/flask_uploads.py applies lowercase_ext to the default upload path but uses the case-preserving extension helper for a caller-supplied name before extension_allowed evaluates an AllExcept denylist. An attacker who controls the name override can use a mixed-case dangerous extension to bypass a lowercase denylist and store the file in the served upload directory. Exploitation requires a denylist configuration, a user-influenced name override, and a deployment that resolves or executes extensions case-insensitively; pure allowlists remain protected and path containment is not bypassed. On an execution-capable upload directory, the stored file can execute with the web server's privileges and affect confidentiality, integrity, and availability. This issue is fixed in version 1.6.0.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54567"
+    },
+    {
+      "id": "CVE-2026-54182",
+      "published": "2026-09-14T18:17:53.380",
+      "lastModified": "2026-09-14T19:17:30.167",
+      "description": "backpack/crud provides Create, Read, Update & Delete (CRUD) functions for Backpack, a collection of Laravel packages that help users build custom administration panels. Prior to 4.1.70, 5.6.2, 6.8.13, and 7.0.36, Backpack\\CRUD\\Stats::makeCurlRequest in src/Stats.php is reached from BackpackServiceProvider::boot() and constructs a shell command with a URL influenced by the HTTP Host header, which it passes to exec() without adequate shell neutralization. An unauthenticated attacker whose malformed Host value reaches PHP can inject operating-system commands when exec() and curl are available and the 1-in-100 random gate is reached. Repeated requests can reach the random gate. Successful exploitation executes commands as the web-server user, exposing environment secrets, files, and reachable services and permitting data modification or service disruption. Common reverse-proxy Host validation and hardened PHP configurations that disable exec() reduce reachability but do not correct the vulnerable construction. This issue is fixed in versions 4.1.70, 5.6.2, 6.8.13, and 7.0.36.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54182"
+    },
+    {
+      "id": "CVE-2026-54181",
+      "published": "2026-09-14T18:17:53.223",
+      "lastModified": "2026-09-14T20:16:45.570",
+      "description": "backpack/crud provides Create, Read, Update & Delete (CRUD) functions for Backpack, a collection of Laravel packages that help users build custom administration panels. From 6.0.0 until 6.8.14 and 7.0.38, src/resources/views/crud/columns/color.blade.php inverts the escaped and raw rendering branches controlled by $column['escaped'], which defaults to true, causing $column['text'] to be rendered unescaped by default. An attacker who can store an unsanitized value in a color column can execute script in the browser of a user who views the CRUD list, including an administrator, with access to the victim's session-backed application capabilities. Exploitation requires write access to the stored color value and a victim viewing the list. This issue is fixed in versions 6.8.14 and 7.0.38.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54181"
+    },
+    {
+      "id": "CVE-2026-54180",
+      "published": "2026-09-14T18:17:53.070",
+      "lastModified": "2026-09-14T20:16:45.443",
+      "description": "backpack/crud provides Create, Read, Update & Delete (CRUD) functions for Backpack, a collection of Laravel packages that help users build custom administration panels. From 6.0.0 until 6.8.14 and 7.0.38, the Update, Delete, and Reorder operations resolve records from the unscoped model query instead of the query configured through addClause() or addBaseClause(). An authenticated user who knows or guesses an out-of-scope record primary key can therefore modify, delete, or reorder records hidden by tenant, ownership, or other row-level access-control scopes. Applications that do not rely on CRUD query clauses for authorization are not affected by this specific bypass. The fix routes all three write operations through getModelWithCrudPanelQuery(), matching the scoped list and read behavior. This issue is fixed in versions 6.8.14 and 7.0.38.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54180"
+    },
+    {
+      "id": "CVE-2026-54178",
+      "published": "2026-09-14T18:17:52.917",
+      "lastModified": "2026-09-16T17:17:20.457",
+      "description": "backpack/crud provides Create, Read, Update & Delete (CRUD) functions for Backpack, a collection of Laravel packages that help users build custom administration panels. Prior to 6.8.12 and 7.0.35, HasUploadFields::uploadMultipleFilesToDisk in src/app/Models/Traits/HasUploadFields.php trusts disk-relative paths from clear_<attribute>[] and passes them to Storage::disk()->delete without confirming that the paths are persisted on the current model record. An authenticated user with Update access to a CRUD using this mutator through src/app/Models/Traits/CrudTrait.php can delete another record's attachment, a shared asset, or another operational file on the configured disk by submitting its path. The newer MultipleFiles uploader is not affected because it intersects requested deletions with the record's persisted file list. This flaw does not permit reading the deleted files. The 5.x line remains affected through its final releases. This issue is fixed in versions 6.8.12 and 7.0.35.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54178"
+    },
+    {
+      "id": "CVE-2026-54177",
+      "published": "2026-09-14T18:17:52.757",
+      "lastModified": "2026-09-16T17:17:20.323",
+      "description": "backpack/crud provides Create, Read, Update & Delete (CRUD) functions for Backpack, a collection of Laravel packages that help users build custom administration panels. From 6.0.0 until 6.8.14 and 7.0.38, HasUploadFields methods uploadFileToDisk and uploadMultipleFilesToDisk, used through CrudTrait, and the withFiles() path through FileNameGenerator do not internally reject server-executable file types. An authenticated administrator can achieve remote code execution by using an upload-enabled CRUD field without mimes: and mimetypes: validation when the public disk is web-accessible through php artisan storage:link and the web-server and PHP-FPM configuration executes the stored extension. The legacy path preserves an accepted extension and the newer path derives an extension without blocking dangerous types. The package-level restriction is defense in depth and does not replace application-level upload validation. This issue is fixed in versions 6.8.14 and 7.0.38.",
+      "score": 6.6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54177"
+    },
+    {
+      "id": "CVE-2026-54176",
+      "published": "2026-09-14T18:17:52.593",
+      "lastModified": "2026-09-14T19:17:29.667",
+      "description": "backpack/crud provides Create, Read, Update & Delete (CRUD) functions for Backpack, a collection of Laravel packages that help users build custom administration panels. From 6.0.0 until 6.8.14 and 7.0.38, MyAccountController::postAccountInfoForm at POST /admin/edit-account-info permits AccountInfoRequest to update backpack_authentication_column(), which is email by default, without requiring current_password or otherwise verifying the account's existing password. An attacker with a temporary authenticated Backpack session can change the account-recovery email and later use the password-reset flow after the original session expires, converting session compromise into persistent account takeover. The same mechanism permits an insider to set a personal recovery address before access is revoked. The separate password-change endpoint is not affected because it verifies old_password. This issue is fixed in versions 6.8.14 and 7.0.38.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54176"
+    },
+    {
+      "id": "CVE-2026-54175",
+      "published": "2026-09-14T18:17:52.430",
+      "lastModified": "2026-09-14T19:17:29.183",
+      "description": "backpack/crud provides Create, Read, Update & Delete (CRUD) functions for Backpack, a collection of Laravel packages that help users build custom administration panels. Prior to 6.8.11 and 7.0.34, MyAccountController::postAccountInfoForm in src/app/Http/Controllers/MyAccountController.php at POST /admin/edit-account-info passes request data from $request->except(['_token']) to the user model instead of restricting updates to fields accepted by AccountInfoRequest::validationData(). An attacker with an authenticated Backpack session can therefore mass-assign password, the authentication column, or other deployment-specific fillable attributes. With the default Laravel 11 user model, a submitted plaintext password is automatically hashed and persisted, converting temporary session access into persistent account takeover without the old_password check enforced by the separate password-change route. Changing the authentication email can also enable later password-reset takeover, while additional fillable security attributes can permit deployment-specific privilege escalation or security-control changes. This issue is fixed in versions 6.8.11 and 7.0.34.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54175"
+    },
+    {
+      "id": "CVE-2026-54150",
+      "published": "2026-09-14T18:17:52.277",
+      "lastModified": "2026-09-14T19:17:27.703",
+      "description": "next-video is a library for adding video to Next.js applications. Prior to 2.8.1, the GET endpoint exported by next-video/request-handler and commonly mounted at /api/video accepts an unauthenticated url query parameter, while src/utils/utils.ts isRemote() treats any value without an HTTP or HTTPS prefix as a local path. src/request-handler.ts passes that value through src/assets.ts getAssetPath() to src/config.ts loadAsset(), which appends a JSON suffix and uses fs.readFile without canonicalizing the path or verifying that it remains inside the configured video folder. A remote attacker can therefore escape the intended asset directory and read JSON files accessible to the application process, including Next.js server-action encryption material, preview-mode keys, build manifests, route metadata, absolute paths, and application video asset identifiers. Applications that do not expose the runtime request handler are not affected through this route. This issue is fixed in version 2.8.1.",
+      "score": 6.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54150"
+    },
+    {
+      "id": "CVE-2026-54087",
+      "published": "2026-09-14T18:17:51.930",
+      "lastModified": "2026-09-14T19:17:26.610",
+      "description": "EasyAdmin is a fast and modern admin generator for Symfony applications. From 5.0.0 until 5.0.13, FileField and ImageField can accept browser-executable uploads while templates/crud/field/file.html.twig links to stored files for inline same-origin rendering without a download attribute or Content-Disposition attachment header. When uploads are stored under the public web root, an attacker with access to an affected form can upload HTML through FileField or SVG through ImageField, and JavaScript executes in an authenticated administrator's origin when the file is opened from the backend. Exploitation requires a privilege gap between the uploader and viewer. The issue can expose session or CSRF tokens and enable privilege escalation, but does not permit PHP or PHTML code execution because Symfony guessExtension does not produce those stored extensions. This issue is fixed in version 5.0.13.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54087"
+    },
+    {
+      "id": "CVE-2026-53752",
+      "published": "2026-09-14T18:17:51.773",
+      "lastModified": "2026-09-16T16:17:08.503",
+      "description": "docx4j is an open source Java library for creating, editing, and saving OpenXML packages, including DOCX, PPTX, and XLSX files. Prior to 11.5.14, PropertyResolver and adjacent helpers recursively follow the WordprocessingML w:basedOn style inheritance chain without cycle detection. A well-formed DOCX containing mutually based styles causes unbounded recursion in PropertyResolver.fillPPrStack and related effective-style resolution paths, resulting in StackOverflowError. Server-side conversion and table-of-contents processing of an untrusted document can terminate a worker thread, degrade a thread pool, or deny service, although isolation in disposable workers or safe containment of StackOverflowError can reduce the practical effect. The fix adds cyclic-style tracking and CyclicStylesException handling. This issue is fixed in version 11.5.14.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53752"
+    },
+    {
+      "id": "CVE-2026-53659",
+      "published": "2026-09-14T18:17:51.610",
+      "lastModified": "2026-09-14T19:17:25.610",
+      "description": "http4k is a functional toolkit for Kotlin HTTP applications. Prior to 4.51.0.0, 5.42.0.0, and 6.49.0.0, ServerFilters.GZip, RequestFilters.GunZip, and the underlying Gzip request-body decompression functions impose no limit on decompressed size. An unauthenticated client can send a small gzip-encoded request body that expands to gigabytes, exhausting the JVM heap and denying service to other clients. The fix uses SizeLimitedInputStream to enforce a default 10 MiB limit, causes ServerFilters.GZip and RequestFilters.GunZip to return 413 Request Entity Too Large, and causes other decompression paths to throw SizeLimitExceededException. This issue is fixed in versions 4.51.0.0, 5.42.0.0, and 6.49.0.0.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53659"
+    },
+    {
+      "id": "CVE-2026-53495",
+      "published": "2026-09-14T18:17:51.053",
+      "lastModified": "2026-09-14T18:17:51.053",
+      "description": "containerd is an open-source container runtime. Prior to 1.7.35, 2.0.12, 2.2.8, and 2.3.5, containerd on Linux with the CRI plugin enabled can indefinitely block the drainExecSyncIO goroutine in internal/cri/server/container_execsync.go when CRI ExecSync is used by exec probes or lifecycle hooks that launch long-lived background child processes retaining standard input and output pipes. The input and output drain phase has no default timeout and did not stop when the request context was canceled, so repeated ExecSync invocations can accumulate blocked goroutines and host memory. The resulting resource exhaustion can cause the OOM killer to terminate containerd, leaving the container runtime unavailable until restart. Deployments not using containerd's CRI implementation and containers not running on Linux are not affected. This issue is fixed in versions 1.7.35, 2.0.12, 2.2.8, and 2.3.5.",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53495"
+    },
     {
       "id": "CVE-2026-50276",
       "published": "2026-09-14T18:17:49.990",
@@ -628,276 +898,6 @@
       "score": 6.8,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-24890"
-    },
-    {
-      "id": "CVE-2026-90791",
-      "published": "2026-09-14T15:17:13.417",
-      "lastModified": "2026-09-15T15:17:29.397",
-      "description": "A vulnerability was detected in GPAC up to f1219cde. This vulnerability affects the function gf_node_unregister of the file scenegraph/base_scenegraph.c of the component MP4Box. The manipulation results in use after free. The attack can be executed remotely. The exploit is now public and may be used. Upgrading to version abi-16.23 is able to resolve this issue. The patch is identified as 9eb40df4448b88d6a6ce3454657c06f47eff0b24. Upgrading the affected component is recommended.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90791"
-    },
-    {
-      "id": "CVE-2026-90790",
-      "published": "2026-09-14T15:17:13.200",
-      "lastModified": "2026-09-15T14:17:35.557",
-      "description": "A security vulnerability has been detected in a2aproject a2a-python up to 1.1.3. This affects the function _dispatch_notification of the file src/a2a/server/tasks/base_push_notification_sender.py of the component Push Notification Sender. The manipulation of the argument push_info.url leads to server-side request forgery. Remote exploitation of the attack is possible. Upgrading to version 1.1.4 is able to mitigate this issue. It is suggested to upgrade the affected component.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90790"
-    },
-    {
-      "id": "CVE-2026-90789",
-      "published": "2026-09-14T15:17:12.967",
-      "lastModified": "2026-09-14T20:56:48.220",
-      "description": "A weakness has been identified in itsourcecode Leave Management System 1.0. Affected by this issue is some unknown functionality of the file /login.php. Executing a manipulation of the argument user_email can lead to sql injection. The attack may be launched remotely. The exploit has been made available to the public and could be used for attacks.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90789"
-    },
-    {
-      "id": "CVE-2026-82438",
-      "published": "2026-09-14T15:17:10.900",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Description\n\nThree separate mechanisms allowed a web page on an unrelated origin to read responses that Storm's HTTP\ncomponents served to an authenticated user.\n\nThe Logviewer reflected the request's `Origin` header back in `Access-Control-Allow-Origin` while also\nsending `Access-Control-Allow-Credentials: true`. The published security model documents a permissive\n`Access-Control-Allow-Origin: *` posture as accepted, which is safe precisely because browsers refuse to\nhonour `*` together with credentials; reflecting the concrete origin removes that protection.\n\nThe shared CORS filter used by the UI, the Logviewer and DRPC was configured with a response header name\nwhere an initialisation parameter name was expected. The container ignored the setting and applied its own\ndefaults, which allow credentials.\n\nFinally, the UI and Logviewer wrapped API responses in a caller-supplied JSONP callback for every GET\nrequest. A script element on any origin can load such a response, which bypasses the same-origin policy\nentirely rather than negotiating it, and there was no way to turn the behaviour off.\n\nIn each case the effect is that a page visited by an authenticated operator can read cluster, topology and\nlog data on their behalf.\n\nMitigation\n\nUpgrade to 3.1.0, where the Logviewer no longer reflects the request origin in a credentialed response, the\nCORS filter is configured explicitly, and JSONP wrapping is governed by `ui.enable.jsonp`, which defaults to\nfalse.\n\nNote that disabling JSONP is a behaviour change for tooling that passes a `callback` query parameter; such\ntooling should be moved to ordinary JSON requests.\n\nUsers who cannot upgrade immediately should place the UI, Logviewer and DRPC HTTP endpoints behind a reverse\nproxy that strips `Access-Control-Allow-Origin` and `Access-Control-Allow-Credentials` from responses and\nrejects requests carrying a `callback` parameter.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82438"
-    },
-    {
-      "id": "CVE-2026-82437",
-      "published": "2026-09-14T15:17:10.757",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Description\n\nThe Logviewer offers `logs.users` and `logs.groups` so operators can control who may read log content. For\ndaemon logs those settings were not applied: the access decision combined the \"this is a daemon log\" flag\nwith the authorizer result in a way that discarded the authorizer's answer whenever the flag was set, and\nthe daemon log page and download endpoints reached the handler without consulting an authorizer at all. Any\nuser able to pass the configured servlet filter could therefore read `nimbus.log`, `supervisor.log` and the\nother daemon logs on every reachable node, which contain other tenants' topology names, owners and\nconfiguration fragments.\n\nThe same advisory covers the log listing endpoints, which accepted a user argument and never applied it, so\n`/listLogs` and `/searchLogs` returned every tenant's topology and worker log file names regardless of the\ncaller. That part is metadata only.\n\nThere was no configuration that closed either behaviour.\n\nMitigation\n\nUpgrade to 3.1.0, where the daemon log paths evaluate the same configured user and group lists that the\nworker log paths already used, and the listing endpoints filter by the requesting user.\n\nUsers who cannot upgrade immediately should place the Logviewer behind a reverse proxy that restricts the\ndaemon log endpoints, and should treat daemon log content as readable by any filter-authenticated user.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82437"
-    },
-    {
-      "id": "CVE-2026-82435",
-      "published": "2026-09-14T15:17:10.620",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Description\n\nThe worker's Netty message decoder is installed ahead of the SASL authentication handlers in the pipeline\nand acts on frames before any authentication has taken place. It allocated buffers sized from a\nlength field carried in the frame, so a single frame from an unauthenticated peer able to reach a worker\nslot port could drive a large allocation.\n\n`storm.messaging.netty.authentication` defaults to false, and the decoder runs before the handler that\nenforces it in any case, so no credentials are required. The attacker needs only TCP reachability to a\nworker port.\n\nThe effect of a single frame at the default 768 MB worker heap has not been measured to distinguish\nsustained worker loss from transient garbage-collection pressure. The severity assigned to this advisory\nreflects the more conservative reading; consumers who require a precise figure should test against their own\nworker heap configuration.\n\nMitigation\n\nUpgrade to 3.1.0, where frames are decoded only after the handshake completes.\n\nUsers who cannot upgrade immediately should ensure that worker slot ports are reachable only from within the\ncluster, as the security model already recommends, and should enable\n`storm.messaging.netty.authentication` where the deployment permits it.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82435"
-    },
-    {
-      "id": "CVE-2026-82434",
-      "published": "2026-09-14T15:17:10.453",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Description\n\nWhen ZooKeeper authentication is configured, Storm deliberately retains\n`storm.zookeeper.topology.auth.payload` in the topology configuration, because workers need it. Nimbus then\nserved that configuration verbatim to any caller holding read-only topology permissions, so a user whose\nonly grant was the ability to view a topology received its ZooKeeper credential.\n\nThat credential is not read-only. The cluster state implementation uses write-capable ACLs for worker\nheartbeats, backpressure and error state, so a recipient can forge or remove that state for the topology\nconcerned. It is not a write credential on assignments.\n\nThe same advisory covers the submission client, which logged the generated payload at INFO on every\nsubmission that generated one, and the SASL handlers, which logged it at DEBUG. The credential therefore\nalso reached any log aggregation or support bundle collected from the cluster.\n\nMitigation\n\nUpgrade to 3.1.0, where the payload is removed from the configuration served to read-only callers and is no\nlonger written to logs.\n\nUsers who cannot upgrade immediately should rotate `storm.zookeeper.topology.auth.payload` for existing\ntopologies, review retained logs and support bundles for the value, and restrict read-only topology\npermissions to trusted principals.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82434"
-    },
-    {
-      "id": "CVE-2026-82433",
-      "published": "2026-09-14T15:17:10.323",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Description\n\n`getNimbusConf` returned the complete daemon configuration without redaction after only a user-level\nauthorization check. Where the cluster is configured with them, that response includes\n`storm.zookeeper.auth.payload` and the keystore and truststore passwords for the Thrift, Netty and\nZooKeeper TLS configuration. The project masks passwords elsewhere before display, so the omission here is\ninconsistent rather than intended.\n\nThe UI endpoint `/api/v1/cluster/configuration` compounded this. It carried no `@AuthNimbusOp` annotation,\nand the authorization filter treated a missing annotation as \"no gate required\" and returned immediately, so\nthe endpoint applied no per-user check at all and proxied the request under the UI daemon's own principal.\nAny user able to pass `ui.filter` therefore received the full configuration, including principals that\nNimbus itself would have refused. \n\nMitigation\n\nUpgrade to 3.1.0, where credential-bearing values are masked before the configuration is served and where\nevery UI API endpoint must declare its authorization explicitly.\n\nUsers who cannot upgrade immediately should place the UI behind an authenticating reverse proxy that\nrestricts `/api/v1/cluster/configuration`, and should rotate the ZooKeeper authentication payload and any\nTLS keystore or truststore passwords that were reachable through it.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82433"
-    },
-    {
-      "id": "CVE-2026-82432",
-      "published": "2026-09-14T15:17:10.187",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Description\n\nNimbus validated `topology.blobstore.map` against the calling subject at submission time only. The rebalance\noperation accepts configuration overrides and stripped a small set of keys from them, but never re-ran that\nvalidation, so a caller authorised to rebalance a topology could introduce a blobstore map entry naming a\nblob whose ACL does not grant them access. Supervisors localise whatever key the map names, placing the\nblob's contents into the topology's working directory.\n\nThe same advisory covers `listBlobs`, which performed no authorization check and passed no subject, unlike\nthe neighbouring `getBlobMeta` and `beginBlobDownload` operations. It therefore returned every key in the\nblobstore to any caller able to reach the Nimbus Thrift port, which provides the key names that make the\nabove practical. On its own the disclosure is metadata only.\n\nMitigation\n\nUpgrade to 3.1.0, where rebalance configuration overrides are validated exactly as submission-time\nconfiguration is, against the rebalancing caller, and where `listBlobs` applies the configured\nauthorization.\n\nUsers who cannot upgrade immediately should restrict rebalance rights to trusted principals, keeping in mind\nthat membership of a topology's `topology.users` or `topology.groups` confers them.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82432"
-    },
-    {
-      "id": "CVE-2026-82431",
-      "published": "2026-09-14T15:17:10.053",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Description\n\n`SimpleACLAuthorizer` evaluated the user-level command set by returning early when `nimbus.users` was empty,\nbefore `nimbus.groups` was considered. An operator who restricted cluster access by group alone, leaving\n`nimbus.users` unset, therefore received no restriction at all: every authenticated principal was permitted\nevery user-level operation, including `submitTopology`, `beginFileUpload` and `getNimbusConf`.\n\n`docs/SECURITY.md` presents `nimbus.groups` as a supported way to lock down a cluster, so a deployment\nfollowing the documentation could believe it was restricted while it was not. The failure is silent; nothing\nin the logs or the configuration indicates that the group list is being ignored.\n\nBoth lists left empty continues to mean that no restriction is configured, which is the shipped default and\nis unchanged.\n\nMitigation\n\nUpgrade to 3.1.0, where `nimbus.groups` is evaluated whether or not `nimbus.users` is set.\n\nUsers who cannot upgrade immediately should additionally populate `nimbus.users` with the intended\nprincipals, since a non-empty user list causes the group list to be evaluated on affected versions.\nOperators should review Nimbus access logs for operations by principals outside the intended groups.\n\nNote that after upgrading, a cluster configured with `nimbus.groups` alone becomes restrictive for the first\ntime. This includes `NimbusClient`, which calls `getLeader` on every connection, so clients outside the\nconfigured groups will begin to be refused.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82431"
-    },
-    {
-      "id": "CVE-2026-82430",
-      "published": "2026-09-14T15:17:09.930",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Description\n\nWhen launching a Docker or OCI worker, the setuid-root `worker-launcher` first changes ownership of the\nentire worker directory to the untrusted topology user, and only afterwards reads and acts on the command\nfile that the supervisor wrote into that same directory. The file is opened without `O_NOFOLLOW` and without\nre-verifying its owner, so between the ownership change and the read the tenant can replace its contents.\n\nFor the Docker path the parsed command is executed with real uid 0, and the command sanitiser is not a\nprivilege boundary: it admits `-v` with an arbitrary source, `--device`, `--cap-add`, `--security-opt`,\n`--user` and `--net`, and copies positional arguments through verbatim. A rewritten file therefore yields an\nattacker-authored, root-equivalent container invocation with the host filesystem available.\n\nFor the OCI path the same rewrite window applies, and mount validation is structural only, with no\nsource or destination allow-list, so arbitrary host paths can be bind-mounted read-write into the\ncontainer. The `username` field of the command file is likewise attacker-settable and is checked only\nagainst non-root and minimum-uid rules, permitting execution as another tenant's uid.\n\nMitigation\n\nUpgrade to 3.1.0, where the command file is validated before the ownership change and re-verified on open,\nand where mount sources and destinations are constrained by configuration.\n\nUsers who cannot upgrade immediately should disable Docker and OCI worker isolation, or restrict topology\nsubmission on affected supervisors to trusted principals. Note that the launcher must be rebuilt and\nreinstalled after upgrading.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82430"
-    },
-    {
-      "id": "CVE-2026-82429",
-      "published": "2026-09-14T15:17:09.807",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Description\n\nThe setuid-root `worker-launcher` binary adjusts ownership and permissions of worker directories by walking\nthe tree with FTS and calling `lchown` and `chmod` on each entry's full pathname while running with an\neffective uid of 0. Both syscalls re-resolve the path at the time of the call, after FTS has classified the\nentry, and the trees being walked are owned and writable by the untrusted topology user.\n\nA tenant running code on a supervisor node could therefore replace an intermediate directory component with\na symbolic link between classification and the privileged operation, redirecting the root-owned `lchown` or\n`chmod` at an arbitrary file on the host. The operation is repeatable at will, since crashing a worker\nforces a relaunch and blob updates re-run the walk, so a failed attempt costs the attacker nothing.\n\nThis crosses the boundary that `supervisor.run.worker.as.user` and container isolation are intended to\nenforce. It is the same defect class as the Hadoop container-executor issues from which this code derives.\n\nMitigation\n\nUpgrade to 3.1.0, where the privileged walk operates on file descriptors it has already stat'd rather than\non pathnames re-resolved at call time.\n\nUsers who cannot upgrade immediately should not run untrusted topology code on supervisors configured with\n`supervisor.run.worker.as.user`, since the launcher is the boundary being crossed. Note that the launcher\nmust be rebuilt and reinstalled after upgrading; replacing the Java artifacts alone is not sufficient.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82429"
-    },
-    {
-      "id": "CVE-2026-82428",
-      "published": "2026-09-14T15:17:09.673",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Description\n\nDependency artifacts uploaded with `storm jar --artifacts` were stored under a blob key derived only from\nthe Maven coordinate, for example `dep---.jar`. The key was therefore identical\nfor every user of the cluster and predictable in advance. When the blob already existed, the uploader\ncaught `KeyAlreadyExistsException` and silently reused it, with no check that the existing blob's content\nor owner matched the artifact the submitter had resolved.\n\nA user who uploaded a blob under such a key first therefore controlled the bytes that every later submitter\nof the same coordinate would receive on the worker classpath, resulting in code execution inside another\ntenant's topology.\n\nThis affects deployments where more than one principal may create blobs and where the `--artifacts`\ndependency feature is used.\n\nMitigation\n\nUpgrade to 3.1.0, where each uploaded artifact receives a key carrying a freshly generated UUID and a\npre-existing blob is no longer silently reused.\n\nNote that the corrected key generation is on the SUBMITTING CLIENT, so upgrading the cluster alone does not\nclose this; every client that runs `storm jar --artifacts` must also be upgraded. Operators should audit\nexisting `dep-` blobs for unexpected owners before upgrading. Users who cannot upgrade immediately should\navoid the `--artifacts` mechanism in multi-tenant clusters and distribute dependencies inside the topology\njar instead.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82428"
-    },
-    {
-      "id": "CVE-2026-82427",
-      "published": "2026-09-14T15:17:09.553",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Description\n\nA topology's `topology.blobstore.map` lets the submitter choose a local name for each blob that the\nsupervisor localises. That name was used to build a path under the topology's working directory without\nnormalisation, in both `AsyncLocalizer` and `Container.createBlobstoreLinks`, and the symlink helper\nforce-deletes whatever already exists at the target before creating the link.\n\nA submitter could therefore use `../` segments to direct that delete-and-symlink operation at an arbitrary\npath, as the supervisor user, on every node the topology is scheduled onto. The consequences include\nrecursive deletion of supervisor-owned content and planting a symlink that causes a subsequent worker\nlaunch to execute attacker-chosen code as another tenant's operating-system user, which defeats the\nisolation that `supervisor.run.worker.as.user` is intended to provide.\n\nMitigation\n\nUpgrade to 3.1.0, where the resolved target must lie inside the expected root at both call sites.\n\nUsers who cannot upgrade immediately should restrict topology submission to trusted principals, and may\nreject submissions whose `topology.blobstore.map` entries contain path separators or `..` segments before\nthey reach Nimbus.\n\nCredit\n\nThe ASF -- found using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82427"
-    },
-    {
-      "id": "CVE-2026-82426",
-      "published": "2026-09-14T15:17:09.410",
-      "lastModified": "2026-09-14T20:58:48.430",
-      "description": "Description\n\nNimbus accepted the `uploadedJarLocation` argument of `submitTopology` / `submitTopologyWithOpts` as a\nserver-side path and opened it directly, without checking that it referred to a file the caller had\nactually uploaded. The intended flow is that a client first calls `beginFileUpload`, which returns a path\ninside the Nimbus inbox, and uploads the jar in chunks to that location; nothing bound submission to that\nflow, and the `uploaders` map populated by `beginFileUpload` was never consulted at submit time.\n\nAn authenticated user with topology submission rights could therefore submit any path readable by the\nNimbus daemon user as their topology jar. Nimbus copied the file into the topology's jar blob, and the\nblob ACL grants the submitting subject read access, so the contents could then be retrieved with the\nordinary blob download RPCs. Candidate targets include the Nimbus Kerberos keytab, Thrift and UI TLS\nprivate keys, and `storm.yaml` with the ZooKeeper authentication payload. Possession of the Nimbus keytab\nturns an ordinary tenant into a cluster administrator.\n\nIn a deployment configured as the documentation recommends, submission is available to every\nauthenticated principal when `nimbus.users` is unset, so no elevated privilege is required.\n\nMitigation\n\nUpgrade to 3.1.0, where the submitted location is canonicalised and must resolve inside the Nimbus inbox.\n\nUsers who cannot upgrade immediately should restrict topology submission to trusted principals via\n`nimbus.users` or `nimbus.groups`, and should treat any file readable by the Nimbus daemon user as\npotentially exposed to submitters: rotate the Nimbus keytab and any TLS private keys or ZooKeeper\ncredentials reachable from that account. Local mode is unaffected.\n\n\nCredit\n\nIndependently reported to the Apache Storm PMC by n0mi1k, with a proof of concept.\n\nAlso found by the ASF using Claude agents to study the security of open-source projects, validated and reported by Apache Storm.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82426"
-    },
-    {
-      "id": "CVE-2026-82019",
-      "published": "2026-09-14T15:17:09.223",
-      "lastModified": "2026-09-14T16:17:19.513",
-      "description": "TripleLift's ad rendering script (video-bundle.js) contains a DOM-based cross-site scripting vulnerability that allows unauthenticated attackers to execute arbitrary JavaScript in a publisher's domain by sending crafted postMessage payloads without origin validation. Attackers can cause a victim to visit an attacker-controlled page that sends malicious postMessage events to a publisher page running the ad script, enabling session hijacking and unauthorized DOM manipulation.",
-      "score": 4.2,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82019"
-    },
-    {
-      "id": "CVE-2026-7848",
-      "published": "2026-09-14T15:17:08.560",
-      "lastModified": "2026-09-18T17:49:08.457",
-      "description": "Alior Bank PrestaShop module \"raty\" for commercial partners is vulnerable to SQL Injection in the \"hookActionObjectProductUpdateBefore\", \"hookActionObjectCategoryUpdateBefore\", and \"hookActionObjectCategoryAddAfter\" hook methods. The module inserts values of the POST parameters \"alior_product_promotion\",  \"alior_category_promotion\" and \"alior_category_enabled\" directly into SQL UPDATE queries without any sanitization or validation. An attacker with access to the product or category add/edit functionality in the PrestaShop backoffice can inject arbitrary SQL, potentially allowing unauthorized access to and modification of database contents. This issue was fixed in versions: 9.0.7 and 8.1.11",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7848"
-    },
-    {
-      "id": "CVE-2026-59570",
-      "published": "2026-09-14T15:17:06.720",
-      "lastModified": "2026-09-18T19:08:02.707",
-      "description": "On affected versions of Zscaler client connector, a pre-installed peer app can tear down the Zscaler tunnel, force user logout, and toggle packet capture.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59570"
-    },
-    {
-      "id": "CVE-2026-59569",
-      "published": "2026-09-14T15:17:06.603",
-      "lastModified": "2026-09-18T19:08:02.707",
-      "description": "An improper input validation vulnerability in Zscaler Client Connector on Android and ChromeOS allows an attacker to potentially bypass Zscaler controls.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59569"
-    },
-    {
-      "id": "CVE-2026-57130",
-      "published": "2026-09-14T15:17:06.453",
-      "lastModified": "2026-09-15T14:45:28.563",
-      "description": "PraisonAI is a multi-agent teams system. Prior to praisonaiagents 1.6.59, src/praisonai-agents/praisonaiagents/tools/email_tools.py interpolates LLM-controlled from_addr, subject, and query values directly into quoted IMAP SEARCH criteria. Embedded quote, backslash, newline, or null characters can escape the intended criterion and alter IMAP operations when search_emails, reply_email, or archive_email is exposed to an agent with configured email credentials, allowing mailbox data access, modification, deletion, or connection disruption. This issue is fixed in praisonaiagents 1.6.59.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57130"
-    },
-    {
-      "id": "CVE-2026-57129",
-      "published": "2026-09-14T15:17:06.317",
-      "lastModified": "2026-09-14T16:17:14.220",
-      "description": "PraisonAI is a multi-agent teams system. Prior to praisonaiagents 1.6.59, MentionsParser._process_file_mention accepts file-mention values and falls back from workspace-relative resolution to Path(file_path) without traversal, symlink, or workspace-boundary validation. Prompt input from users, bots, or workflows can therefore read arbitrary files accessible to the process, including credentials, keys, environment files, source code, and system configuration. This issue is fixed in praisonaiagents 1.6.59.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57129"
-    },
-    {
-      "id": "CVE-2026-57128",
-      "published": "2026-09-14T15:17:06.177",
-      "lastModified": "2026-09-16T13:42:48.797",
-      "description": "PraisonAI is a multi-agent teams system. Prior to praisonaiagents 1.6.58, the SSE server in src/praisonai-agents/praisonaiagents/server/server.py does not consult ServerConfig.auth_token before handling /publish, /events, or /info requests. A network client that can reach the server can broadcast arbitrary events to connected clients and obtain server configuration and client-count information. This issue is fixed in praisonaiagents 1.6.58.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57128"
-    },
-    {
-      "id": "CVE-2026-57126",
-      "published": "2026-09-14T15:17:06.040",
-      "lastModified": "2026-09-15T14:45:28.563",
-      "description": "PraisonAI is a multi-agent teams system. Prior to praisonaiagents 1.6.58, SpiderTools._validate_url calls _host_is_blocked, which checks literal host encodings but does not resolve DNS names before scrape_page, crawl, extract_links, extract_text, or URL-mention fetches connect. An attacker-controlled hostname resolving to a loopback, private, link-local, or cloud-metadata address therefore bypasses the SSRF policy without a rebinding race and can expose internal responses to the agent. This issue is fixed in praisonaiagents 1.6.58.",
-      "score": 8.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57126"
-    },
-    {
-      "id": "CVE-2026-57125",
-      "published": "2026-09-14T15:17:05.900",
-      "lastModified": "2026-09-15T14:45:28.563",
-      "description": "PraisonAI is a multi-agent teams system. Prior to praisonai 4.6.59 and praisonaiagents 1.6.59, the unauthenticated POST /api/v1/runs Jobs API accepts attacker-controlled agent_yaml, and the approve field can mark execute_command as YAML-approved before @require_approval checks critical tools. This chain allows a remote caller to cause a configured language model agent to invoke arbitrary operating-system commands without credentials or operator interaction. This vulnerability is fixed in praisonai 4.6.59 and praisonaiagents 1.6.59 as fixed versions.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57125"
-    },
-    {
-      "id": "CVE-2026-57123",
-      "published": "2026-09-14T15:17:05.753",
-      "lastModified": "2026-09-15T14:45:28.563",
-      "description": "PraisonAI is a multi-agent teams system. Prior to praisonaiagents 1.6.59, ToolsMCPServer.run_sse and launch_tools_mcp_server bind to 0.0.0.0 and create /sse and /messages/ routes without invoking the available SecurityConfig authentication, origin-validation, or DNS-rebinding controls. Any reachable client can list and invoke registered tools, and a browser can target a local instance through DNS rebinding, with impact determined by the registered file, shell, and code-execution tools. This vulnerability is fixed in praisonaiagents 1.6.59.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57123"
-    },
-    {
-      "id": "CVE-2026-57120",
-      "published": "2026-09-14T15:17:05.607",
-      "lastModified": "2026-09-16T16:17:12.970",
-      "description": "PraisonAI is a multi-agent teams system. Prior to praisonaiagents 1.6.59, execute_code sandbox mode permits runtime assembly of blocklisted dunder names and allows str.format or str.format_map to resolve dotted fields through C-level attribute access that bypasses _safe_getattr. This exposes class, qualified-name, base-class, globals, and object-dictionary attributes to prompt-influenced code when approval is automatically granted, producing a high-impact read primitive without establishing a complete in-process execution chain. This issue is fixed in praisonaiagents 1.6.59.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57120"
-    },
-    {
-      "id": "CVE-2026-57115",
-      "published": "2026-09-14T15:17:05.450",
-      "lastModified": "2026-09-15T14:45:28.563",
-      "description": "PraisonAI is a multi-agent teams system. Prior to praisonaiagents 1.6.59, SpiderTools.scrape_page validates only the initial URL and lets requests.Session.get follow redirects automatically, so a public-looking URL can redirect to a loopback, private, link-local, or metadata address without revalidation. The redirected response body is returned through scrape_page and its extract_links, crawl, and extract_text callers, allowing disclosure from otherwise blocked services. This issue is fixed in praisonaiagents 1.6.59.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57115"
-    },
-    {
-      "id": "CVE-2026-25687",
-      "published": "2026-09-14T15:17:05.090",
-      "lastModified": "2026-09-18T19:08:02.707",
-      "description": "A race condition in the ZPA tunnel handler of affected versions of Zscaler Client Connector (ZCC) allows a heap corruption, resulting in a denial of service (client crash) and potentially arbitrary code execution in the context of the ZCC process.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-25687"
-    },
-    {
-      "id": "CVE-2026-15600",
-      "published": "2026-09-14T15:17:04.393",
-      "lastModified": "2026-09-18T17:49:08.457",
-      "description": "Alior Bank PrestaShop module \"raty\" for commercial partners is vulnerable to SQL Injection in the toggleCategoryPromotionAction method. The module inserts value of the POST parameter \"status\" into SQL UPDATE queries without any sanitization or validation. An attacker with access to the product or category add/edit functionality in the PrestaShop backoffice can inject arbitrary SQL, potentially allowing unauthorized access to and modification of database contents.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15600"
-    },
-    {
-      "id": "CVE-2026-12985",
-      "published": "2026-09-14T15:17:04.270",
-      "lastModified": "2026-09-16T19:30:49.967",
-      "description": "Mattermost versions 11.9.x <= 11.9.0, 11.8.x <= 11.8.4, 11.7.x <= 11.7.7 Mattermost failed to validate Dynamic Client Registration redirect URIs by URL component (matching glob patterns against the raw URI string instead) which allows a remote unauthenticated attacker to register an OAuth client with an attacker-controlled callback host that bypasses the configured redirect URI allowlist via a crafted redirect URI that places an allowlisted host/path suffix inside the query string.. Mattermost Advisory ID: MMSA-2026-00700",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12985"
     }
   ]
 }
