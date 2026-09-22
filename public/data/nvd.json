@@ -1,6 +1,60 @@
 {
-  "syncedAt": "2026-09-22T02:45:39.283Z",
+  "syncedAt": "2026-09-22T03:19:43.666Z",
   "items": [
+    {
+      "id": "CVE-2026-91786",
+      "published": "2026-09-15T11:17:12.580",
+      "lastModified": "2026-09-16T19:42:43.623",
+      "description": "A flaw was found in GNOME Shell. When processing icons from a remote search provider via D-Bus, the system fails to validate the icon's declared dimensions against the actual data buffer size. A malicious or compromised remote search provider could exploit this by providing oversized icon dimensions, leading to an out-of-bounds read. This can cause the GNOME Shell process to crash, disrupting the user's session, and potentially disclose sensitive information from adjacent memory.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91786"
+    },
+    {
+      "id": "CVE-2026-86818",
+      "published": "2026-09-15T11:17:12.453",
+      "lastModified": "2026-09-16T19:40:00.317",
+      "description": "fast-uri is a dependency-free RFC 3986 URI parser for Node.js, used by Fastify and ajv, that added a mailto scheme parser in version 4.1.3. In versions 4.1.3 and 4.1.4, the mailto parser compares each query field name to the reserved names to, subject, and body while the name is still percent-encoded, and decodes it only when storing it as a generic header, so a percent-encoded spelling of a reserved field name is not recognized as that field at parse time but is re-emitted as the literal field name when the parsed URI is serialized. An application that validates, logs, or displays the recipient list from the first parse and then serializes the URI and sends it can silently gain an attacker-chosen recipient, and the subject and body fields can be smuggled across the same roundtrip. The issue is fixed in fast-uri 4.1.5, and users should upgrade to 4.1.5 or later. As a workaround, do not act on a mailto URI that fast-uri has re-serialized without first decoding and re-validating its recipient, subject, and body fields.",
+      "score": 4.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86818"
+    },
+    {
+      "id": "CVE-2026-86472",
+      "published": "2026-09-15T11:17:12.327",
+      "lastModified": "2026-09-16T19:40:00.317",
+      "description": "fast-uri is a dependency-free RFC 3986 URI parser for Node.js, used by Fastify and ajv. In versions before 2.4.7, from 3.0.0 through 3.1.7, and from 4.0.0 through 4.1.4, fast-uri folds the host to lowercase before it percent-decodes the host, so a percent-encoded uppercase octet such as %41 decodes to a literal A that is never folded. For a scheme-relative reference such as //host there is no scheme, so the host canonicalization that would normally repair this does not run, and parse, normalize, and equal then disagree on the same host. An application that makes a case-sensitive host decision on fast-uri output, for example a host allowlist or denylist that compares the parsed host or uses equal, can be steered past the check with a percent-encoded uppercase octet, and because hostnames are case-insensitive in DNS and HTTP the evading spelling still reaches the host the check meant to gate. The issue is fixed in fast-uri 2.4.7, 3.1.8, and 4.1.5, and users should upgrade to one of those versions or later. As a workaround, compare hosts case-insensitively by lowercasing the parsed host before any allowlist or denylist decision.",
+      "score": 4.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86472"
+    },
+    {
+      "id": "CVE-2026-80489",
+      "published": "2026-09-15T11:17:12.193",
+      "lastModified": "2026-09-18T18:17:47.257",
+      "description": "Converting crafted EUC_JISX0213 input to UCS-4 or the internal wide character encoding, for example with iconv, in the GNU C Library version 2.3 to 2.44 may result in the converter making no progress, causing the calling application to hang.\n\nSome EUC_JISX0213 sequences decode to two code points.  If the output buffer has room for only the first one, the converter stores the second in the conversion state and returns E2BIG, but it never clears that pending character after emitting it on the next call.  The converter then keeps emitting the pending character without consuming further input, so an application that retries the conversion loops forever. The input must be attacker controlled and the application must convert it with an output buffer small enough to split the two code points. Only the EUC_JISX0213 character set is affected, which is not commonly used.  The related defect in SHIFT_JISX0213 converter is tracked separately as CVE-2026-77117.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80489"
+    },
+    {
+      "id": "CVE-2026-77117",
+      "published": "2026-09-15T11:17:12.063",
+      "lastModified": "2026-09-18T18:17:47.257",
+      "description": "Converting crafted SHIFT_JISX0213 input to UCS-4 or the internal wide character encoding, for example with iconv, in the GNU C Library version 2.3 to 2.44 may result in the converter making no progress, causing the calling application to hang.\n\nSome SHIFT_JISX0213 sequences decode to two code points.  If the output buffer has room for only the first one, the converter stores the second in the conversion state and returns E2BIG, but it never clears that pending character after emitting it on the next call.  The converter then keeps emitting the pending character without consuming further input, so an application that retries the conversion loops forever. The input must be attacker controlled and the application must convert it with an output buffer small enough to split the two code points. Only the SHIFT_JISX0213 character set is affected, which is not commonly used.  The related defect in the EUC_JISX0213 converter is tracked separately as CVE-2026-80489.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77117"
+    },
+    {
+      "id": "CVE-2026-57148",
+      "published": "2026-09-15T11:17:11.910",
+      "lastModified": "2026-09-16T18:17:10.087",
+      "description": "PraisonAI is a multi-agent teams system. Prior to 0.1.6, praisonai_platform/services/auth_service.py falls back to the public dev-secret-change-me HS256 signing key when PLATFORM_JWT_SECRET is unset, while the startup and token-issuance guards are disabled because PLATFORM_ENV also defaults to dev. An unauthenticated attacker can sign a JWT containing an attacker-chosen sub value, and AuthService._verify_token() accepts it as an authenticated identity, enabling user or workspace-owner impersonation when a target identifier is known. This vulnerability is fixed in praisonai-platform 0.1.6.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57148"
+    },
     {
       "id": "CVE-2026-57147",
       "published": "2026-09-15T11:17:11.760",
@@ -844,60 +898,6 @@
       "score": 6.3,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90857"
-    },
-    {
-      "id": "CVE-2026-90856",
-      "published": "2026-09-15T03:17:06.910",
-      "lastModified": "2026-09-15T14:37:14.523",
-      "description": "A security vulnerability has been detected in SourceCodester College Notes Gallery Management System 1.0. This impacts an unknown function of the file signup.php of the component Registration Flow. Such manipulation of the argument role leads to improper privilege management. The attack can be launched remotely. The exploit has been disclosed publicly and may be used.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90856"
-    },
-    {
-      "id": "CVE-2026-90855",
-      "published": "2026-09-15T03:17:06.733",
-      "lastModified": "2026-09-15T14:37:14.523",
-      "description": "A weakness has been identified in SourceCodester/katojkalemba Online Food Ordering System 1.0. This affects an unknown function of the file /web/order.php. This manipulation of the argument ID causes sql injection. The attack can be initiated remotely. The exploit has been made available to the public and could be used for attacks.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90855"
-    },
-    {
-      "id": "CVE-2026-90854",
-      "published": "2026-09-15T03:17:06.560",
-      "lastModified": "2026-09-16T17:18:18.527",
-      "description": "A security flaw has been discovered in SourceCodester/katojkalemba Online Food Ordering System 1.0. The impacted element is an unknown function of the file /web/category-foods.php. The manipulation of the argument ID results in sql injection. It is possible to launch the attack remotely. The exploit has been released to the public and may be used for attacks.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90854"
-    },
-    {
-      "id": "CVE-2026-90852",
-      "published": "2026-09-15T03:17:06.377",
-      "lastModified": "2026-09-15T19:17:46.910",
-      "description": "A vulnerability has been found in luben zstd-jni up to 1.5.7-13. This vulnerability affects the function ZstdCompressCtx.loadDict of the file ZstdCompressCtx.java of the component Dictionary Sharing. Such manipulation leads to use after free. The attack can be executed remotely. The exploit has been disclosed to the public and may be used. Upgrading to version 1.5.7-14 is able to resolve this issue. The name of the patch is a560131d7834598afd9cea6b7c107bc88e915936. The affected component should be upgraded. The vendor was contacted early, responded in a very professional manner and quickly released a fixed version of the affected product.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90852"
-    },
-    {
-      "id": "CVE-2026-88262",
-      "published": "2026-09-15T03:17:06.233",
-      "lastModified": "2026-09-18T19:41:42.593",
-      "description": "Insufficient session expiration vulnerability in bizwell xClick allows Authentication Bypass.\n\nThis issue affects xClick: R2, R3, and R3.1.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88262"
-    },
-    {
-      "id": "CVE-2026-88261",
-      "published": "2026-09-15T03:17:06.083",
-      "lastModified": "2026-09-18T19:41:42.593",
-      "description": "Improper input validation vulnerability in bizwell xClick allows Stored XSS.\n\nThis issue affects xClick: R2, R3, and R3.1.",
-      "score": 5.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88261"
     }
   ]
 }
