@@ -1,6 +1,87 @@
 {
-  "syncedAt": "2026-09-22T01:43:59.674Z",
+  "syncedAt": "2026-09-22T02:19:22.460Z",
   "items": [
+    {
+      "id": "CVE-2026-57147",
+      "published": "2026-09-15T11:17:11.760",
+      "lastModified": "2026-09-17T15:16:48.603",
+      "description": "PraisonAI is a multi-agent teams system. Prior to 0.1.6, praisonai_platform/services/auth_service.py assigns the public dev-secret-change-me value to JWT_SECRET when PLATFORM_JWT_SECRET is unset, and its production guard does not run when PLATFORM_ENV is also unset because that setting defaults to dev. A remote unauthenticated attacker can mint an HS256 token with an arbitrary sub and email, and the platform's AuthService._verify_token() and get_current_user dependency accept the forged identity for protected API routes. This vulnerability is fixed in praisonai-platform 0.1.6.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57147"
+    },
+    {
+      "id": "CVE-2026-57141",
+      "published": "2026-09-15T11:17:11.617",
+      "lastModified": "2026-09-15T14:45:28.563",
+      "description": "PraisonAI is a multi-agent teams system. Prior to 1.7.2, the codeMode tool in src/praisonai-ts/src/tools/builtins/code-mode.ts executes model-generated JavaScript with new Function() and with(sandbox), while a regular-expression blocklist can be bypassed with Function('return this')() to recover the global object and by constructing the child_process module name dynamically. An attacker who can influence the code argument can access host process capabilities, read or write files, obtain environment credentials, and execute operating-system commands with the PraisonAI process privileges. This issue is fixed in version 1.7.2.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57141"
+    },
+    {
+      "id": "CVE-2026-57140",
+      "published": "2026-09-15T11:17:11.473",
+      "lastModified": "2026-09-15T14:45:28.563",
+      "description": "PraisonAI is a multi-agent teams system. From 1.6.0 until 1.7.2, AgentOS in src/praisonai-ts/src/os/agentos.ts uses the 0.0.0.0 default from src/praisonai-ts/src/os/config.ts and registers GET /api/agents and POST /api/chat without authentication middleware. A remote caller who can reach the service can obtain agent names, roles, and instruction prefixes and can invoke a selected agent, potentially reaching its tools, memory, external APIs, credentials, and workflow state. An initial remediation was released in version 1.7.2.",
+      "score": 9.4,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57140"
+    },
+    {
+      "id": "CVE-2026-57139",
+      "published": "2026-09-15T11:17:11.327",
+      "lastModified": "2026-09-17T15:16:48.487",
+      "description": "PraisonAI is a multi-agent teams system. From 1.5.0 until 1.7.2, MCPServer.startHttp() in src/praisonai-ts/src/mcp/server.ts binds without a host restriction and forwards every HTTP POST request to handleRequest() without authentication or authorization. Any network client that can reach the port can call tools/list, tools/call, resources/read, or prompts/get, causing registered handlers to run with server-side credentials and process privileges or disclose registered data. An initial remediation was released in version 1.7.2.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57139"
+    },
+    {
+      "id": "CVE-2026-57138",
+      "published": "2026-09-15T11:17:11.180",
+      "lastModified": "2026-09-17T14:17:14.627",
+      "description": "PraisonAI is a multi-agent teams system. From 1.4.0 until 1.7.2, codeMode in src/praisonai-ts/src/tools/builtins/code-mode.ts executes untrusted JavaScript with new Function() inside with(sandbox) and relies on a small source-code blocklist plus shadowed process and require properties. Code can use ({}).constructor.constructor to recover the real Function constructor, obtain process and process.mainModule.require, and reach host filesystem and subprocess APIs despite the advertised sandbox. Attackers who control codeMode input can read secrets, modify files, execute commands, or exhaust the host process. This issue is fixed in version 1.7.2.",
+      "score": 9.9,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57138"
+    },
+    {
+      "id": "CVE-2026-57137",
+      "published": "2026-09-15T11:17:11.030",
+      "lastModified": "2026-09-15T14:45:28.563",
+      "description": "PraisonAI is a multi-agent teams system. From 1.4.0 until 1.7.2, createAgentLoop() in src/praisonai-ts/src/ai/agent-loop.ts passes executable tools to generateText() before invoking the onToolCall approval callback. Because the wrapped AI SDK executes tool handlers during generation, a callback that returns false records tool_rejected only after the denied tool has already produced side effects and populated toolResults. Applications using onToolCall as a human or policy approval boundary can therefore execute rejected file, command, API, or data-modifying operations. This issue is fixed in version 1.7.2.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57137"
+    },
+    {
+      "id": "CVE-2026-57136",
+      "published": "2026-09-15T11:17:10.883",
+      "lastModified": "2026-09-15T14:45:28.563",
+      "description": "PraisonAI is a multi-agent teams system. From 1.2.3 until 1.7.2, CommandValidator in src/praisonai-ts/src/cli/features/sandbox-executor.ts validates only the first whitespace-delimited executable against allowedCommands, then SandboxExecutor passes the complete command string to sh -c. A command beginning with an allowed executable can append a non-allowlisted command through shell metacharacters, causing arbitrary commands to run with the PraisonAI process privileges. This issue is fixed in version 1.7.2.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57136"
+    },
+    {
+      "id": "CVE-2026-57135",
+      "published": "2026-09-15T11:17:10.733",
+      "lastModified": "2026-09-15T14:45:28.563",
+      "description": "PraisonAI is a multi-agent teams system. From 1.2.3 until 1.7.2, SandboxExecutor network-isolated mode in src/praisonai-ts/src/cli/features/sandbox-executor.ts uses buildEnv() only to inject invalid http_proxy and https_proxy environment variables and does not establish an operating-system network boundary. Programs that ignore those proxy variables can open sockets directly, allowing supposedly isolated commands to reach localhost, internal services, cloud metadata, or external hosts and potentially exfiltrate data. An initial remediation was released in version 1.7.2.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57135"
+    },
+    {
+      "id": "CVE-2026-57134",
+      "published": "2026-09-15T11:17:10.583",
+      "lastModified": "2026-09-15T14:45:28.563",
+      "description": "PraisonAI is a multi-agent teams system. From 1.5.1 until 1.7.2, MCPSecurity.evaluatePolicy() in src/praisonai-ts/src/mcp/security.ts invokes the configured credential validator only when AuthMethod is api-key or bearer. Basic and OAuth policies accept any non-empty Authorization header without calling auth.validate(), then return an authenticated result, allowing callers with invalid credentials to access MCP tools and resources protected by those policies. This issue is fixed in version 1.7.2.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57134"
+    },
     {
       "id": "CVE-2026-57133",
       "published": "2026-09-15T11:17:10.437",
@@ -817,87 +898,6 @@
       "score": 5.1,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88261"
-    },
-    {
-      "id": "CVE-2026-91774",
-      "published": "2026-09-15T02:16:50.183",
-      "lastModified": "2026-09-17T20:18:53.703",
-      "description": "Yao through v1.0.0-rc22 authenticates but fails to authorize the GET /user/teams/:id endpoint, allowing any logged-in user to read full team records. Attackers can supply a known team identifier to retrieve sensitive team data including name, description, owner information, and settings without membership verification.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91774"
-    },
-    {
-      "id": "CVE-2026-91773",
-      "published": "2026-09-15T02:16:50.013",
-      "lastModified": "2026-09-16T19:47:01.197",
-      "description": "Soft Serve versions 0.7.1 through 0.11.6 fail to scope Git LFS lock queries by repository, allowing authenticated users to read lock metadata from repositories they cannot access. Attackers with write access to any repository can enumerate lock IDs globally to recover locked file paths, usernames, and lock timestamps from private repositories.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91773"
-    },
-    {
-      "id": "CVE-2026-91772",
-      "published": "2026-09-15T02:16:49.843",
-      "lastModified": "2026-09-16T17:18:19.283",
-      "description": "Halo through 2.26.1 contains an open redirect vulnerability in the anonymous thumbnail endpoint that fails to validate the uri query parameter. Attackers can craft malicious links on the trusted Halo domain that redirect visitors to arbitrary external sites, enabling phishing attacks and abuse of redirect-based trust relationships.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91772"
-    },
-    {
-      "id": "CVE-2026-91771",
-      "published": "2026-09-15T02:16:49.680",
-      "lastModified": "2026-09-18T18:18:04.030",
-      "description": "Weights & Biases wandb before 0.29.0 fails to validate the file name from server responses in the File.download function, allowing path traversal attacks. Attackers controlling the backend can supply file names with directory traversal sequences to write files outside the intended download directory, potentially enabling code execution through modification of shell startup files or Python import paths.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91771"
-    },
-    {
-      "id": "CVE-2026-91770",
-      "published": "2026-09-15T02:16:49.517",
-      "lastModified": "2026-09-15T15:17:31.903",
-      "description": "IceHRM before 36.0.0 fails to validate employee ownership on seven REST sub-resource endpoints, allowing authenticated employees to read any colleague's HR records. Attackers can substitute arbitrary employee IDs in skill, education, certification, language, leave, attendance, and status endpoints to access sensitive personnel data.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91770"
-    },
-    {
-      "id": "CVE-2026-90851",
-      "published": "2026-09-15T02:16:49.330",
-      "lastModified": "2026-09-15T14:37:14.523",
-      "description": "A flaw has been found in PHPGurukul Hostel Management System 3.0. This affects an unknown part of the file /admin/includes/checklogin.php. This manipulation of the argument ID causes improper access controls. Remote exploitation of the attack is possible. The exploit has been published and may be used.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90851"
-    },
-    {
-      "id": "CVE-2026-90850",
-      "published": "2026-09-15T02:16:49.143",
-      "lastModified": "2026-09-15T14:37:14.523",
-      "description": "A vulnerability was detected in PHPGurukul Hostel Management System 3.0. Affected by this issue is some unknown functionality of the file /admin/manage-students.php. The manipulation results in cross site scripting. The attack may be launched remotely. The exploit is now public and may be used.",
-      "score": 2.4,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90850"
-    },
-    {
-      "id": "CVE-2026-90849",
-      "published": "2026-09-15T02:16:48.960",
-      "lastModified": "2026-09-15T14:37:14.523",
-      "description": "A security vulnerability has been detected in SourceCodester College Notes Gallery Management System 1.0. Affected by this vulnerability is an unknown functionality of the file /College/login.php. The manipulation of the argument User leads to sql injection. The attack may be initiated remotely. The exploit has been disclosed publicly and may be used.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90849"
-    },
-    {
-      "id": "CVE-2026-90848",
-      "published": "2026-09-15T02:16:48.780",
-      "lastModified": "2026-09-16T17:18:18.380",
-      "description": "A weakness has been identified in Governikus AusweisApp up to 2.5.4. Affected is an unknown function of the component StartPAOSResponse Handler. Executing a manipulation of the argument ResultMessage can lead to cross site scripting. The attack can be launched remotely. Upgrading to version 2.5.5 is able to address this issue. It is recommended to upgrade the affected component. This CVE was requested by the vendor.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90848"
     }
   ]
 }
