@@ -1,6 +1,223 @@
 {
-  "syncedAt": "2026-09-23T07:46:19.176Z",
+  "syncedAt": "2026-09-23T08:20:56.627Z",
   "items": [
+    {
+      "id": "CVE-2026-89821",
+      "published": "2026-09-16T11:16:47.503",
+      "lastModified": "2026-09-16T11:16:47.503",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amd/display: avoid divide-by-zero in __is_lut_linear()\n\n__is_lut_linear() computes the expected value of each entry with\n\n\texpected = i * MAX_DRM_LUT_VALUE / (size - 1);\n\nIf it is ever called with a single-entry LUT, size - 1 is zero and the\nkernel takes a divide error (#DE). A LUT with fewer than two entries\ncannot describe a linear mapping anyway, so return false early instead\nof dividing by zero.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89821"
+    },
+    {
+      "id": "CVE-2026-89820",
+      "published": "2026-09-16T11:16:47.383",
+      "lastModified": "2026-09-16T11:16:47.383",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amd/display: fix dc_lock leak on GPU reset error paths\n\nOn GPU reset, dm_suspend() takes dc_lock and leaves it for dm_resume()\nto drop. If amdgpu_dm_commit_zero_streams() or dm_dmub_hw_init() fails,\nthe function returns with the lock still held. The matching resume path\nis then skipped, so every later dc_lock take hangs.\n\nRelease the cached DC state and unlock before returning the error.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89820"
+    },
+    {
+      "id": "CVE-2026-89819",
+      "published": "2026-09-16T11:16:47.253",
+      "lastModified": "2026-09-16T15:18:11.173",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amd/display: validate plane degamma LUT size for private color prop\n\nUnlike the CRTC degamma path, which is guarded by\namdgpu_dm_verify_lut_sizes(), the per-plane degamma LUT size was never\nvalidated before use. __set_dm_plane_degamma() passed the user-supplied\nsize straight into __is_lut_linear() and, for a non-linear LUT, into\n__set_input_tf() -> __drm_lut_to_dc_gamma(), the latter always iterating\nMAX_COLOR_LUT_ENTRIES entries regardless of the actual LUT size.\n\nA malformed AMD_PLANE_DEGAMMA_LUT blob (e.g. a single entry) could thus\ntrigger a divide-by-zero in __is_lut_linear() or an out-of-bounds read in\n__drm_lut_to_dc_gamma(). Reject any plane degamma LUT whose size does not\nmatch MAX_COLOR_LUT_ENTRIES, mirroring the invariant the code already\nasserts a few lines below (and which the CRTC path enforces).\n\nThe AMD_PLANE_DEGAMMA_LUT property is only exposed on builds with\nAMD_PRIVATE_COLOR defined.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89819"
+    },
+    {
+      "id": "CVE-2026-89818",
+      "published": "2026-09-16T11:16:47.113",
+      "lastModified": "2026-09-16T15:18:11.030",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amdgpu/vcn: fix integer overflow in dec_msg buffer count check\n\nIf the supplied msg[2] (num_buffers) is 0x3FFFFFFF, the expression\n6 + num_buffers * 4 wraps to 2 and the bounds check passes, letting\nthe parser loop far past the end of the message BO. Triggering it\nadditionally requires a ~4GiB mapping so that msg[1] survives the\nearlier \"header does not fit in BO\" check.\n\nRewrite the test in division form, which is overflow-free by\nconstruction. Also update the message to reflect that msg is invalid.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89818"
+    },
+    {
+      "id": "CVE-2026-89817",
+      "published": "2026-09-16T11:16:46.990",
+      "lastModified": "2026-09-16T11:16:46.990",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/gud: NUL-terminate TV mode names read from the device\n\ngud_connector_add_tv_mode() reads a buffer of fixed-size mode names from\nthe USB device and passes pointers into it to\ndrm_mode_create_tv_properties_legacy(), which calls strlen() on each one.\nNothing guarantees the device NUL-terminates a name, so strlen() can run\npast the end of a slot and, for the last mode, past the end of the\nallocation.\n\nTerminate each name at the end of its slot before use.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89817"
+    },
+    {
+      "id": "CVE-2026-89816",
+      "published": "2026-09-16T11:16:46.837",
+      "lastModified": "2026-09-16T11:16:46.837",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm: Fix drm_crtc_commit leak if signaled when PAGE_FLIP_EVENT is used\n\nCommit 1c6ceeee6ebb (\"drm/atomic: Fix memleak on ERESTARTSYS during\nnon-blocking commits\") fixed a very similar issue when the event was\nallocated by drm_atomic_helper_setup_commit() itself.\n\nHowever, if the event is allocated in prepare_signaling(), it will also be\nset to NULL in complete_signaling(), which prevents drm_crtc_commit from\nbeing put in __drm_atomic_helper_crtc_destroy_state().\n\nDropping the reference when the event is set to NULL at\ncomplete_signaling() fixes the leak.\n\nThe leak can be reproduced by sending a signal to the thread using\nDRM_MODE_PAGE_FLIP_EVENT and using a sw_sync fence to cause the atomic\nioctl to block at drm_atomic_helper_wait_for_fences(). It happened both\nwith amdgpu and vkms.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89816"
+    },
+    {
+      "id": "CVE-2026-89815",
+      "published": "2026-09-16T11:16:46.720",
+      "lastModified": "2026-09-21T14:17:27.127",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/ttm: Drop tt->restore after successful restore\n\nttm_pool_restore_and_alloc() can successfully complete the restore\nprocess via ttm_pool_restore_commit(), but tt->restore is not dropped\nafterward. As a result, subsequent backup/restore flows observe what\nappears to be a completed restore, while in reality shmem handles are\nstill installed in tt->pages, leading to the stack trace below.\n\nFix this by freeing and dropping tt->restore in\nttm_pool_restore_and_alloc() upon successful completion of the restore.\n\n20545 [  309.784531] RIP: 0010:sg_alloc_append_table_from_pages+0x38c/0x490\n20547 [  309.809570] RSP: 0018:ffffc9000623b838 EFLAGS: 00010206\n20548 [  309.814827] RAX: 0000000000001000 RBX: ffff88816e42a160 RCX: 0000000000000000\n20549 [  309.821986] RDX: 0000000000002000 RSI: 0000000000000003 RDI: 0000000000001000\n20550 [  309.829147] RBP: ffff88816e42a168 R08: 0000000000000002 R09: 000000007ffff000\n20551 [  309.836310] R10: ffffc9000623b928 R11: 0000000000000000 R12: 000000007ffff000\n20552 [  309.843471] R13: ffff88815ba5a100 R14: 0000000000000000 R15: 0000000000000001\n20553 [  309.850634] FS:  00007f9ff305e700(0000) GS:ffff888276c94000(0000) knlGS:0000000000000000\n20554 [  309.858749] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033\n20555 [  309.864519] CR2: 00007f9fca701000 CR3: 00000001565e2005 CR4: 0000000008f70ef0\n20556 [  309.871678] PKRU: 55555558\n20557 [  309.874403] Call Trace:\n20558 [  309.876866]  <TASK>\n20559 [  309.878988]  sg_alloc_table_from_pages_segment+0x60/0x100\n20560 [  309.884415]  ? ttm_resource_manager_usage+0x36/0x60 [ttm]\n20561 [  309.889845]  ? xe_tt_map_sg+0x7d/0xd0 [xe]\n20562 [  309.894045]  xe_tt_map_sg+0x7d/0xd0 [xe]\n20563 [  309.898037]  xe_bo_move+0x927/0xaa0 [xe]\n20564 [  309.902029]  ttm_bo_handle_move_mem+0xba/0x170 [ttm]\n20565 [  309.907022]  ttm_bo_validate+0xbe/0x190 [ttm]\n20566 [  309.911405]  xe_bo_validate+0x9a/0x120 [xe]\n20567 [  309.915663]  xe_gpuvm_validate+0xd9/0x140 [xe]\n20568 [  309.920206]  drm_gpuvm_validate+0x2f0/0x5b0 [drm_gpuvm]\n20569 [  309.925459]  ? drm_exec_lock_obj+0x63/0x210 [drm_exec]\n20570 [  309.930627]  xe_vm_validate_rebind+0x46/0xb0 [xe]\n20571 [  309.935428]  xe_exec_fn+0x20/0x40 [xe]\n20572 [  309.939249]  drm_gpuvm_exec_lock+0x78/0xc0 [drm_gpuvm]\n20573 [  309.944410]  xe_validation_exec_lock+0x5a/0xa0 [xe]\n20574 [  309.949385]  xe_exec_ioctl+0x806/0xc30 [xe]\n20575 [  309.953639]  ? ttwu_queue_wakelist+0xd9/0xf0\n20576 [  309.957935]  ? __pfx_xe_exec_fn+0x10/0x10 [xe]\n20577 [  309.962449]  ? __wake_up_common+0x73/0xa0\n20578 [  309.966482]  ? __pfx_xe_exec_ioctl+0x10/0x10 [xe]\n20579 [  309.971263]  drm_ioctl_kernel+0xa3/0x100\n20580 [  309.975209]  drm_ioctl+0x213/0x440\n20581 [  309.978637]  ? __pfx_xe_exec_ioctl+0x10/0x10 [xe]\n20582 [  309.983415]  xe_drm_ioctl+0x67/0xd0 [xe]\n20583 [  309.987408]  __x64_sys_ioctl+0x7f/0xd0",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89815"
+    },
+    {
+      "id": "CVE-2026-89814",
+      "published": "2026-09-16T11:16:46.610",
+      "lastModified": "2026-09-17T10:17:04.577",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amdgpu: clamp the isolation index for rings outside a partition\n\nadev->isolation[] has one slot per partition, but a ring that is not\nassigned to one keeps AMDGPU_XCP_NO_PARTITION, which is ~0, so indexing\nthe array with it is out of bounds. SDMA submissions hit this on both\nthe isolation enforcement and the VM flush path and trip UBSAN.\n\nFall back to the first slot the way the cleaner shader path already\ndoes, and stop taking the address before the ring type check that makes\nit relevant.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89814"
+    },
+    {
+      "id": "CVE-2026-89813",
+      "published": "2026-09-16T11:16:46.503",
+      "lastModified": "2026-09-17T10:17:04.490",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amdgpu: force complete the KIQ ring fences on reset\n\nLike the MES scheduler ring, the KIQ ring sets no_scheduler = true and uses a\npolling fence, so it is skipped by the force-completion loop in\namdgpu_device_pre_asic_reset(). Its hw fence value lives in wb (GTT) memory and\nsurvives a MODE1 reset while fence_drv.sync_seq keeps advancing, so after a\nreset the first KIQ submission can poll forever on a seq that is never written\nback.\n\nForce complete the KIQ ring fences too so their hw fence is realigned to\nsync_seq.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89813"
+    },
+    {
+      "id": "CVE-2026-89812",
+      "published": "2026-09-16T11:16:46.380",
+      "lastModified": "2026-09-17T10:17:04.390",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amdgpu: force complete the MES ring fences on reset\n\nThe MES scheduler ring has no drm scheduler (no_scheduler = true), so it is\nskipped by the force-completion loop in amdgpu_device_pre_asic_reset(). It uses\na polling fence whose hw value lives in wb (GTT) memory and survives a MODE1\nreset, while fence_drv.sync_seq keeps advancing for every packet.\n\nWhen the reset is triggered because MES itself stopped responding, the\ntimed-out packets advance sync_seq past the last hw fence value MES wrote.\nAfter resume the first MES submission polls forever on a seq that is never\nwritten back, failing the resume and wedging the box on a second reset:\n\n  amdgpu: MES ring buffer is full.\n  amdgpu: *ERROR* ring gfx_0.0.0 test failed (-110)\n  amdgpu: resume of IP block <gfx_v11_0> failed -110\n  amdgpu: GPU reset end with ret = -110\n\nForce complete the MES scheduler ring fences together with the scheduler rings\nso their hw fence is realigned to sync_seq.\n\nv2: cover all XCCs (one scheduler ring each), not just mes.ring[0].",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89812"
+    },
+    {
+      "id": "CVE-2026-89811",
+      "published": "2026-09-16T11:16:46.267",
+      "lastModified": "2026-09-17T10:17:04.273",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amdkfd: Add TLB flush after MES queue eviction/suspension\n\nMES (Micro Engine Scheduler) does not perform heavy-weight TLB\ninvalidation after unmapping queues, unlike HWS which does this\nautomatically. This causes a race condition where in-flight DMA\ndescriptors can access memory that has been unmapped, leading to page\nfaults and GPU queue hangs during SVM page migration.\n\nThe issue manifests as KFDSVMRangeTest.MultiThreadMigrationTest\nfailures on gfx1151 (Strix Point) with XNACK mode 1 enabled - the GPU\ncompute queue hangs with packets submitted but never consumed.\n\nAdd kfd_flush_tlb() calls after MES queue removal in two locations:\n- evict_process_queues_cpsch(): after all queues removed during eviction\n- suspend_queues(): after debug/criu queue suspension (with mem_fence barrier)\n\nThis ensures all in-flight memory accesses from unmapped queues are\nflushed before memory is freed or migrated.\n\n(cherry picked from commit f5c4f88e0f9c45a8fb9dfac0c1df726c95e41b77)",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89811"
+    },
+    {
+      "id": "CVE-2026-89810",
+      "published": "2026-09-16T11:16:46.157",
+      "lastModified": "2026-09-17T10:17:04.157",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amdkfd: Fix error path at svm_migrate_copy_to_ram\n\nIf page migration from device to sys ram fails for some reasons driver needs\nrelease and unlock allocated system pages. To do that driver should use page\nphysical address, or pfn, then get struct page*. Current driver uses dma\naddress(for adev) that is not correct with IOMMU enabled, or even in general.\n\nThe patch releases and unlocks allocated system pages based on where migration\nfailed by struct page* of sys ram pages. Also dma_unmap correspodent system\nram pages at error path.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89810"
+    },
+    {
+      "id": "CVE-2026-89809",
+      "published": "2026-09-16T11:16:46.047",
+      "lastModified": "2026-09-17T10:17:04.047",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amdkfd: fix scope of mqd_mgr dereference in pqm_debugfs_mqds\n\nReading /sys/kernel/debug/kfd/mqds while a process holds an active KFD\nqueue triggers a NULL pointer dereference because the for loop that\ncalls mqd_mgr->debugfs_show_mqd() is incorrectly placed outside the\nif (pqn->q) block that initializes mqd_mgr.\n\nThe queue list can contain entries where pqn->q is NULL (kernel queues\nwhere only pqn->kq is valid). In the original code:\n\n  if (pqn->q) {\n      ...\n      mqd_mgr = q->device->dqm->mqd_mgrs[mqd_type];\n      size = mqd_mgr->mqd_stride(...);\n  }\n\n  for (xcc = 0; xcc < num_xccs; xcc++) {  // WRONG: outside if block\n      mqd = q->mqd + size * xcc;\n      r = mqd_mgr->debugfs_show_mqd(m, mqd);\n  }\n\nWhen iterating over a queue node where pqn->q is NULL:\n1. The if (pqn->q) block is skipped\n2. mqd_mgr remains uninitialized (NULL from declaration)\n3. The for loop executes anyway\n4. mqd_mgr->debugfs_show_mqd(m, mqd) dereferences NULL\n\nThe crash manifests as:\n\n  BUG: kernel NULL pointer dereference, address: 0000000000000000\n  #PF: supervisor instruction fetch in kernel mode\n  RIP: 0010:0x0\n  Call Trace:\n   pqm_debugfs_mqds+0x10c/0x1d0 [amdgpu]\n   kfd_debugfs_mqds_by_process+0x9b/0x110 [amdgpu]\n   seq_read_iter+0x132/0x4b0\n   ...\n\nFix by moving the for loop inside the if (pqn->q) block, so mqd_mgr\nand related variables are only used when properly initialized.\n\n(cherry picked from commit 8bfe29d5c798940f797aa24135d2734c3ffce9de)",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89809"
+    },
+    {
+      "id": "CVE-2026-89808",
+      "published": "2026-09-16T11:16:45.940",
+      "lastModified": "2026-09-17T10:17:03.883",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amdkfd: Fix the case that vm range is hole at svm_migrate_copy_to_vram\n\nWhen migration vm range is hole at cpu side(MIGRATE_PFN_MIGRATE set +\nMIGRATE_PFN_VALID unset) driver still allocates device pages. There is no\ndma map of src pages and migration. j is 0 and svm_migrate_copy_memory_gart()\nwill return an uninitialized r. That can trigger out_free_vram_pages to drop\nall VRAM just set up.\n\nInitialize r and only call the last svm_migrate_copy_memory_gart if j > 0.\n\nCurrent code postponed the last page to the final copy. This patch flushes on\nthe last page when reach to the end of current drm_buddy_block; avoids another\nsvm_migrate_copy_memory_gart.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89808"
+    },
+    {
+      "id": "CVE-2026-89807",
+      "published": "2026-09-16T11:16:45.817",
+      "lastModified": "2026-09-16T11:16:45.817",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amdkfd: guard against NULL restore_mqd in CRIU queue restore\n\nBoth create_queue_cpsch() and create_queue_nocpsch() unconditionally\ncall mqd_mgr->restore_mqd() when a CRIU restore is in progress\n(qd != NULL), with no NULL guard. On any system where restore_mqd is\nnot implemented for the given queue type, a user holding\nCAP_CHECKPOINT_RESTORE can trigger a kernel NULL pointer dereference\nand panic the machine by issuing KFD_IOC_CRIU_OP_RESTORE with a\ncrafted queue restore object. Note that checkpoint_mqd is likewise\nunimplemented on GFX12, so no legitimate CRIU image can reach this\npath — only a hand-crafted restore payload.\n\nAdd a NULL guard for restore_mqd immediately after mqd_mgr is\nresolved, unwinding via the existing error labels and returning\n-EOPNOTSUPP if the callback is not implemented. This mirrors the\nexisting checkpoint_mqd guard in checkpoint_mqd().",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89807"
+    },
+    {
+      "id": "CVE-2026-89806",
+      "published": "2026-09-16T11:16:45.703",
+      "lastModified": "2026-09-16T15:18:10.350",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/sysfb: ofdrm: Fix integer overflow in fb_size calculation\n\nThe framebuffer size calculation `fb_size = linebytes * height` can\noverflow when both values are large (e.g., 46341 * 46341 > INT_MAX).\nSince linebytes and height are both int types, the multiplication is\nperformed as int * int, which results in undefined behavior on overflow.\n\nUse check_mul_overflow() to detect and prevent this overflow, consistent\nwith the approach used in simpledrm.c and corebootdrm.c.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89806"
+    },
+    {
+      "id": "CVE-2026-89805",
+      "published": "2026-09-16T11:16:45.470",
+      "lastModified": "2026-09-16T15:18:10.237",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/pagemap: Fix folio allocation fallback and use-after-put\n\ndrm_pagemap_migrate_populate_ram_pfn() had two issues when populating\nRAM PFNs with higher-order folios:\n\n1. The higher-order vma_alloc_folio()/folio_alloc() calls did not pass\n   __GFP_NOWARN, so a THP allocation failure under memory pressure\n   would spam the kernel log, and there was no fallback path despite a\n   TODO comment stating one was needed. Add __GFP_NOWARN to the\n   higher-order allocation and, on failure, fall back to order-0\n   allocations for the entire range originally covered by the failed\n   higher-order allocation, leaving MIGRATE_PFN_COMPOUND unset for\n   those PFNs.\n\n2. In the free_pages error path, order was computed via\n   folio_order(page_folio(page)) *after* put_page(page) had already\n   dropped the reference, resulting in a use-after-free/put when that\n   was the last reference on the page. Compute order before releasing\n   the page.\n\nIntroducing the fallback in 1. also requires the source page array\nhanded to ->copy_to_ram() to be built differently. Both callers only\npopulated the entry at the head of each source folio, relying on the\ncopy callback to derive the rest of the folio from the order recorded\nin the matching drm_pagemap_addr. Once the destination has been demoted\nto order-0 folios the drm_pagemap_addr entries are per-page, so a source\npage is needed for every one of them; leaving them NULL makes the copy\ncallback stop after the first page and the remainder of the range is\nnever copied.\n\nThe source folio is only split later, by migrate_vma_pages() /\nmigrate_device_pages(), so its order cannot be used to detect the\ndemotion - test the destination for MIGRATE_PFN_COMPOUND instead. Factor\nthe array population out into drm_pagemap_migrate_populate_src_pages()\nand use it from both drm_pagemap_evict_to_ram() and\n__drm_pagemap_migrate_to_ram().",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89805"
+    },
+    {
+      "id": "CVE-2026-89804",
+      "published": "2026-09-16T11:16:45.347",
+      "lastModified": "2026-09-16T15:18:10.130",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/nouveau/dmem: fix mismatched DMA unmap size for large folios\n\nDevice-private THP migration maps migration buffers with page_size()\nand records that length in dma_info->size.  For a compound folio\npage_size() is PAGE_SIZE << order, but two teardown sites still pass a\nliteral PAGE_SIZE to dma_unmap_page():\n\n  - nouveau_dmem_migrate_to_ram() on the success path, and\n  - nouveau_dmem_migrate_copy_one() on the copy-error path.\n\nFor an order > 0 folio this unmaps less than was mapped, leaking the\nremainder of the IOMMU/IOVA mapping.  The other unmap sites, in\nnouveau_dmem_migrate_chunk() and nouveau_dmem_evict_chunk(), already\nuse the saved size; use it here too.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89804"
+    },
+    {
+      "id": "CVE-2026-89803",
+      "published": "2026-09-16T11:16:45.227",
+      "lastModified": "2026-09-16T15:18:09.993",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/nouveau: unsubscribe the channel-kill event before the fence context\n\nnouveau_channel_del() tears the fence context down first and only drops\nthe channel-kill subscription later, in the middle of the nvif object\nteardown:\n\n\tif (chan->fence)\n\t\tnouveau_fence(chan->cli->drm)->context_del(chan);\n\t...\n\tnvif_object_dtor(&chan->vram);\n\tnvif_event_dtor(&chan->kill);\n\nThe subscribed handler is nouveau_channel_killed(), which calls\nnouveau_channel_kill() and from there nouveau_fence_context_kill() on\nchan->fence. A kill event delivered in that window takes fctx->lock and\nwalks fctx->pending on a fence context that context_del() has already\nfreed.\n\nNothing reaches this below Fermi today, because the subscription is\ngated on FERMI_CHANNEL_GPFIFO and nothing kills a channel there. On\nFermi and newer the window is real but narrow, since a kill has to land\nexactly while the channel is being destroyed. That is reason enough on\nits own, which is why this carries a Fixes: tag. The last patch in this\nseries subscribes Tesla channels as well; nothing kills those today, so\nit does not widen the exposure now, but it is the groundwork for a\nrecovery path that would, and the ordering is better fixed before that\nlands than alongside it.\n\nDrop the subscription before anything it depends on is torn down.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89803"
+    },
+    {
+      "id": "CVE-2026-89802",
+      "published": "2026-09-16T11:16:45.113",
+      "lastModified": "2026-09-16T11:16:45.113",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/nouveau/uvmm: fix NULL deref unwinding an OP_MAP_SPARSE op\n\nEach bind_job_op is zeroed by kzalloc_obj() in bind_job_op_from_uop(),\nand the OP_MAP_SPARSE case in nouveau_uvmm_bind_job_submit() only creates\na region, so op->ops stays NULL for a successfully processed sparse map.\n\nIf a later op in the same job fails, the reverse unwind loop revisits that\nop and calls drm_gpuva_ops_free(&uvmm->base, op->ops) unconditionally.\ndrm_gpuva_ops_free() dereferences its argument right away\n(list_for_each_entry_safe on &ops->list), so a NULL op->ops oopses. The\npath is reachable by any render-node fd holder, since NOUVEAU_VM_BIND is\nDRM_RENDER_ALLOW.\n\nGuard the free with IS_ERR_OR_NULL(), as nouveau_uvmm_bind_job_cleanup()\nalready does for the identical free.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89802"
+    },
+    {
+      "id": "CVE-2026-89801",
+      "published": "2026-09-16T11:16:44.997",
+      "lastModified": "2026-09-16T15:18:09.867",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/nouveau/uvmm: fix premature region free on failed OP_UNMAP_SPARSE\n\nIn nouveau_uvmm_bind_job_submit()'s OP_UNMAP_SPARSE arm, op->reg is set\nfrom nouveau_uvma_region_find(), which only looks the region up and takes\nno reference; a region's sole reference is its membership in\nuvmm->region_mt. Two failure paths leave op->reg set: the -ENOENT check\nwhen the region is busy, and the drm_gpuvm_sm_unmap_ops_create() failure.\nThe sibling nouveau_uvmm_sm_unmap_prepare() failure just below clears\nop->reg; these two do not.\n\nunwind_continue steps back one op, so the failing op is skipped by the\nunwind loop and its op->reg stays set. nouveau_uvmm_bind_job_cleanup()\nthen enters its if (op->reg) branch and calls nouveau_uvma_region_remove()\nand nouveau_uvma_region_put() on it, dropping the tree's sole reference\nand freeing a region this job never created. The comment above the\ncleanup loop documents the broken invariant: op->reg must be NULL on\nsubmit failure.\n\nThis frees a live region on an unrelated failure, reachable single-job\nwhen drm_gpuvm_sm_unmap_ops_create() returns -ENOMEM; if another job owns\nthe same region, its cleanup then removes and puts the freed region, a\nuse-after-free. Clear op->reg on both failure paths.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89801"
+    },
+    {
+      "id": "CVE-2026-89800",
+      "published": "2026-09-16T11:16:44.877",
+      "lastModified": "2026-09-16T11:16:44.877",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/nouveau/uvmm: clear the dirty flag when unwinding an OP_UNMAP_SPARSE\n\nA successful OP_UNMAP_SPARSE marks its region dirty with\nnouveau_uvma_region_dirty() and defers the teardown to\nnouveau_uvmm_bind_job_cleanup(); it does not remove the region from\nuvmm->region_mt.\n\nIf a later op in the job fails, the unwind path never clears reg->dirty\n(set in one place, cleared nowhere) and sets op->reg = NULL, so cleanup\nskips the teardown. The region is left in the tree with dirty set and its\ncompletion never signalled. Later binds over that range then fail\npermanently -- -ENOENT or -EINVAL from the dirty checks, or an unkillable\nwait_for_completion() in bind_validate_region() -- for the lifetime of\nthe uvmm.\n\nClear reg->dirty when the unwind reverts the sparse unmap, restoring the\nregion to the state it was found in.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89800"
+    },
+    {
+      "id": "CVE-2026-89799",
+      "published": "2026-09-16T11:16:44.767",
+      "lastModified": "2026-09-21T14:17:27.000",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nbpf: Disable preemption in bpf_get_stackid\n\nThe get_perf_callchain call needs disabled preemption plus we need\nit disabled as long as we access its returned trace entries buffer.\n\nNote the bpf_get_stackid_pe function is executed already with\npreemption disabled.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89799"
+    },
+    {
+      "id": "CVE-2026-89798",
+      "published": "2026-09-16T11:16:44.660",
+      "lastModified": "2026-09-21T14:17:26.890",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nrpcrdma: arm rn_done before publishing the notification\n\nrpcrdma_rn_register() inserts @rn into rd_xa with xa_alloc() before\nstoring the caller's callback in rn->rn_done. The xarray makes @rn\nreachable to rpcrdma_remove_one(), which walks rd_xa and invokes\nrn->rn_done(rn) for every registered notification. A device removal\nthat races a fresh registration can therefore observe @rn with\nrn_done still NULL, because the notification objects are zero\nallocated by their owners, and call through a NULL function pointer.\n\nStore rn->rn_done before xa_alloc() publishes @rn. The xarray's\nstore-side and load-side ordering then guarantees that any CPU which\nfinds @rn in rd_xa also observes the armed callback.\n\nrpcrdma_rn_unregister() treats a non-NULL rn_done as the sentinel\nfor a completed registration, so the early store must not survive a\nfailed registration. Clear rn_done again when xa_alloc() fails.\nWere it left set, the failed-accept cleanup path would call\nrpcrdma_rn_unregister() on an @rn that was never inserted, erasing\nan unrelated rd_xa slot and underflowing rd_kref.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89798"
+    },
+    {
+      "id": "CVE-2026-89797",
+      "published": "2026-09-16T11:16:44.547",
+      "lastModified": "2026-09-16T11:16:44.547",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\npower: supply: ab8500_fg: fix use-after-free on remove\n\nab8500_fg_remove() destroys the driver workqueue while the threaded\ninterrupt handlers are still armed; they are devm-managed and freed\nonly after ->remove() returns, so a handler that fires in that\nwindow queues work on the freed workqueue.\n\nTear the workqueue down through devm instead, registering its cleanup\nafter the power supply and before the interrupt requests.  devm then\nfrees the interrupts first, so the handlers can no longer queue work,\nbefore disabling the delayed and plain work items and destroying the\nworkqueue.  Disabling the items, rather than cancelling them, keeps\nthem disabled so no producer (including the power-supply\nexternal_power_changed callback) can requeue them.\n\nFound by an in-house static analysis tool.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89797"
+    },
+    {
+      "id": "CVE-2026-89796",
+      "published": "2026-09-16T11:16:44.423",
+      "lastModified": "2026-09-21T14:17:26.750",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmm/damon/core: avoid infinite kdamond_merge_regions() internal loop\n\nPatch series \"mm/damon: unurgent fixes for infinite loop, NULL de-ref and\nraces\", v1.1.\n\nSashiko found a few issues in DAMON that could cause infinite loop, NULL\ndereference and monitoring results degradation.  The first two sounds\nscary but the infinite loop happens only under unreasonable user setup. \nThe NULL dereference is only in a unit test.  Monitoring results\ndegradation is trivial since it is only best-effort, and those happens\nfrom only unlikely races.  Still those are bugs that better to fix if\npossible.  Fix those.\n\n\nThis patch (of 6):\n\nDue to online parameter update like events, the number of DAMON regions\ncould be higher than the user-set upper limit.  kdamond_merge_regions()\nrepeats merge regions until the number meets the limit, while doubling the\nmerge threshold up to the theoretical maximum threshold.  It is tried only\nup to the theoretical maximum threshold because even the aggressive\nmerging can fail from reducing the number of regions under the\nuser-defined upper limit.  For example, there could be many user-defined\nnon-contiguous regions that cannot be merged.\n\nThe threshold based loop break condition is evaluated by comparing the\nthreshold for the next merging try against the theoretical maximum\nthreshold.  If max_thres is larger than UINT_MAX / 2, doubling the\nthreshold could make it overflow, and bypass the loop break condition.  In\nthe case, if the number of regions cannot be reduced under the upper limit\nlike explained above, the loop will run infinitely.\n\nPrevent the case by doing the break condition check before doubling the\nthreshold.  Also, prevent the threshold exceeding the maximum threshold,\nas it could overflow and apply the wrong merge threshold.\n\nThis issue is unlikely to occur in real world, since having the max_thres\nhigher than UINT_MAX / 2 require unrealistically large aggregation\nintervals compared to the sampling interval.  Also, it requires an\nunrealistically large number of uncontiguous regions setup.  Nonetheless,\nthe consequence is bad and the fix is simple.\n\nThe issue was discovered [1] by Sashiko.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89796"
+    },
+    {
+      "id": "CVE-2026-89795",
+      "published": "2026-09-16T11:16:44.307",
+      "lastModified": "2026-09-16T15:18:09.640",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nPCI: Allow per function PCI slots to fix slot reset on s390\n\nOn s390 systems, which use a machine level hypervisor, PCI devices are\nalways accessed through a form of PCI pass-through which fundamentally\noperates on a per PCI function granularity. This is also reflected in the\ns390 PCI hotplug driver which creates hotplug slots for individual PCI\nfunctions. Its reset_slot() function, which is a wrapper for\nzpci_hot_reset_device(), thus also resets individual functions.\n\nCurrently, the pci_create_slot() assigns the same pci_slot object to\nmultifunction devices. This approach worked fine on s390 systems that only\nexposed virtual functions as individual PCI domains to the operating\nsystem.  Since commit 44510d6fa0c0 (\"s390/pci: Handling multifunctions\")\ns390 supports exposing the topology of multifunction PCI devices by\ngrouping them in a shared PCI domain. This creates a problem when resetting\na function through the hotplug driver's slot_reset() interface.\n\nWhen attempting to reset a function through the hotplug driver, the shared\nslot assignment causes the wrong function to be reset instead of the\nintended one. It also leaks memory as we do create a pci_slot object for\nthe function, but don't correctly free it in pci_slot_release().\n\nAdd a flag for struct pci_slot to allow per function PCI slots for\nfunctions managed through a hypervisor, which exposes individual PCI\nfunctions while retaining the topology. Since we can use all 8 bits for\nslot 'number' (for ARI devices), change slot 'number' u16 to account for\nspecial values PCI_SLOT_PLACEHOLDER and PCI_SLOT_ALL_DEVICES.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89795"
+    },
     {
       "id": "CVE-2026-89794",
       "published": "2026-09-16T11:16:44.197",
@@ -643,249 +860,6 @@
       "score": 7.4,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-2380"
-    },
-    {
-      "id": "CVE-2026-92355",
-      "published": "2026-09-16T08:16:40.813",
-      "lastModified": "2026-09-16T19:41:10.423",
-      "description": "In affected versions of Octopus Server, a user with permission to modify non built-in external feeds could exploit a path traversal flaw to overwrite arbitrary files on the server, which in some configurations could lead to remote code execution.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92355"
-    },
-    {
-      "id": "CVE-2026-92091",
-      "published": "2026-09-16T08:16:40.583",
-      "lastModified": "2026-09-16T19:42:43.623",
-      "description": "A flaw was found in jwcrypto. The JWK.import_key() function validates the key_ops JWK member for duplicate values using an algorithm with O(n^2) time complexity, and the length of key_ops is not bounded. A remote, unauthenticated attacker can supply a JWK with a large key_ops array to an application that passes attacker-controlled key material to a public key-import API (reachable via ECDH-ES key agreement, OIDC dynamic client registration, DPoP, or ACME account key registration, among others) to consume excessive CPU time, resulting in a denial of service.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92091"
-    },
-    {
-      "id": "CVE-2026-89207",
-      "published": "2026-09-16T08:16:40.440",
-      "lastModified": "2026-09-18T19:25:59.470",
-      "description": "A vulnerability has been identified in WTV676-HB6035 Web Interface (All versions < V3.94), WTV776-HB6035 Web Interface (All versions < V4.17). Affected devices do not properly validate input received from backend services.\r\nThis could allow an unauthenticated remote attacker to force the device into protection mode, which results in losing remote connectivity functions (Web Access).",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89207"
-    },
-    {
-      "id": "CVE-2026-88263",
-      "published": "2026-09-16T08:16:40.303",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "XikeStor Layer3 switches miss authentication for downloading configuration data. Unauthenticated attacker may retrieve the configuration data containing network configurations and passwords to operate the affected product improperly or to exploit the affected product as a jump host.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88263"
-    },
-    {
-      "id": "CVE-2026-86341",
-      "published": "2026-09-16T08:16:40.183",
-      "lastModified": "2026-09-16T19:23:34.623",
-      "description": "GitLab has remediated an issue in GitLab EE affecting all versions from 17.1 before 19.1.8, 19.2 before 19.2.6, and 19.3 before 19.3.2 that, under certain conditions, an authenticated user with Owner or Maintainer permissions could have silently disabled protected environment deployment approval requirements, allowing unapproved deployments to reach production, due to improper access control checks performed after the protected resource was modified.",
-      "score": 4.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86341"
-    },
-    {
-      "id": "CVE-2026-84408",
-      "published": "2026-09-16T08:16:40.060",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "QND contains an improper access control vulnerability in a named pipe, which may allow a local attacker who is logged in to a Windows PC where the affected product's client is installed to execute arbitrary commands with SYSTEM privileges.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84408"
-    },
-    {
-      "id": "CVE-2026-81326",
-      "published": "2026-09-16T08:16:39.917",
-      "lastModified": "2026-09-16T19:27:25.623",
-      "description": "QND uses a hard-coded cryptographic key, which may allow a local attacker who is logged in to a Windows PC where the affected product's client is installed to obtain administrator credentials, including an ID and password.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81326"
-    },
-    {
-      "id": "CVE-2026-27565",
-      "published": "2026-09-16T08:16:39.740",
-      "lastModified": "2026-09-16T19:17:14.183",
-      "description": "An unauthenticated remote attacker can upload a malicious IODD file that places and executes a shell script with root privileges. The shell script remains active even after a reboot.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27565"
-    },
-    {
-      "id": "CVE-2026-27564",
-      "published": "2026-09-16T08:16:39.583",
-      "lastModified": "2026-09-16T19:17:13.860",
-      "description": "A high-privileged remote attacker can exploit a command injection vulnerability in the /api/datastorage/data endpoint by sending a PUT request with admin credentials allowing execution of commands with root privileges on the device.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27564"
-    },
-    {
-      "id": "CVE-2026-27563",
-      "published": "2026-09-16T08:16:39.437",
-      "lastModified": "2026-09-18T18:17:06.277",
-      "description": "A high-privileged remote attacker can exploit a command injection vulnerability in the /api/datastorage/data endpoint by sending a crafted GET request with admin credentials allowing execution of commands with root privileges on the device.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27563"
-    },
-    {
-      "id": "CVE-2026-27562",
-      "published": "2026-09-16T08:16:39.283",
-      "lastModified": "2026-09-16T19:13:03.413",
-      "description": "A high-privileged remote attacker can exploit a command injection vulnerability in the /api/iodd/config endpoint by sending a crafted PUT request with admin credentials allowing execution of commands with root privileges on the device.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27562"
-    },
-    {
-      "id": "CVE-2026-27561",
-      "published": "2026-09-16T08:16:39.133",
-      "lastModified": "2026-09-16T19:17:13.633",
-      "description": "A high-privileged remote attacker can exploit a command injection vulnerability in the /api/iodd/config endpoint by sending a crafted GET request with admin credentials allowing execution of commands with root privileges on the device.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27561"
-    },
-    {
-      "id": "CVE-2026-27560",
-      "published": "2026-09-16T08:16:38.977",
-      "lastModified": "2026-09-16T19:17:13.420",
-      "description": "A high-privileged remote attacker can exploit a command injection vulnerability in the /api/status/data endpoint by sending a crafted DELETE request with admin credentials allowing execution of commands with root privileges on the device.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27560"
-    },
-    {
-      "id": "CVE-2026-27559",
-      "published": "2026-09-16T08:16:38.827",
-      "lastModified": "2026-09-16T19:17:13.233",
-      "description": "A low-privileged remote attacker can exploit a command injection vulnerability in the /api/status/data endpoint by sending a crafted GET request with user credentials allowing execution of commands with root privileges on the device.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27559"
-    },
-    {
-      "id": "CVE-2026-27558",
-      "published": "2026-09-16T08:16:38.673",
-      "lastModified": "2026-09-18T18:17:06.090",
-      "description": "A low-privileged remote attacker can exploit a command injection vulnerability in the /index.php/attached_devices_tab/ajax_remove_uploaded_iodd_files endpoint using operator credentials allowing execution of commands with root privileges on the device.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27558"
-    },
-    {
-      "id": "CVE-2026-27557",
-      "published": "2026-09-16T08:16:38.520",
-      "lastModified": "2026-09-16T19:13:03.413",
-      "description": "An unauthenticated remote attacker can exploit a path traversal vulnerability in the /index.php/view_uploaded_iodd_file endpoint allowing the SSH server's private keys to be read.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27557"
-    },
-    {
-      "id": "CVE-2026-27556",
-      "published": "2026-09-16T08:16:38.370",
-      "lastModified": "2026-09-16T19:17:13.047",
-      "description": "A low-privileged remote attacker can exploit a local file inclusion vulnerability in the /index.php/ajax/save_iodd_parameters endpoint using a valid operator cookie allowing execution of arbitrary PHP code on the device.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27556"
-    },
-    {
-      "id": "CVE-2026-27555",
-      "published": "2026-09-16T08:16:38.213",
-      "lastModified": "2026-09-16T19:17:12.857",
-      "description": "A low-privileged remote attacker can exploit a local file inclusion vulnerability in the /index.php/ajax/get_iodd_port_info endpoint using a valid user cookie allowing execution of arbitrary PHP code on the device.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27555"
-    },
-    {
-      "id": "CVE-2026-27554",
-      "published": "2026-09-16T08:16:38.063",
-      "lastModified": "2026-09-16T19:17:12.660",
-      "description": "A low-privileged remote attacker can exploit a command injection vulnerability in the /index.php/ajax/save_iodd_parameters endpoint using operator credentials allowing execution of commands with root privileges on the device.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27554"
-    },
-    {
-      "id": "CVE-2026-27553",
-      "published": "2026-09-16T08:16:37.950",
-      "lastModified": "2026-09-19T03:17:14.020",
-      "description": "A low-privileged remote attacker can manipulate the schema path parameter in the /index.php/diagnostics_tab/ajax_diag_table_rows endpoint using a valid user cookie allowing disclosure of all user password hashes.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27553"
-    },
-    {
-      "id": "CVE-2026-27552",
-      "published": "2026-09-16T08:16:37.793",
-      "lastModified": "2026-09-16T19:13:03.413",
-      "description": "A low-privileged remote attacker can exploit improper authorization in the /index.php/attached_devices_tab/do_upload endpoint to upload IODD files to the device, potentially altering device behavior or causing system crashes.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27552"
-    },
-    {
-      "id": "CVE-2026-27551",
-      "published": "2026-09-16T08:16:37.640",
-      "lastModified": "2026-09-16T19:17:11.840",
-      "description": "A low-privileged remote attacker can exploit a command injection vulnerability in the /index.php/ajax/parameterManage endpoint using user credentials allowing execution of commands with root privileges on the device.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27551"
-    },
-    {
-      "id": "CVE-2026-27550",
-      "published": "2026-09-16T08:16:37.487",
-      "lastModified": "2026-09-16T19:17:11.227",
-      "description": "A low-privileged remote attacker can exploit a command injection vulnerability in the Field_Shadow_Password class using operator credentials allowing execution of commands with root privileges on the device.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27550"
-    },
-    {
-      "id": "CVE-2026-27549",
-      "published": "2026-09-16T08:16:37.333",
-      "lastModified": "2026-09-16T19:17:11.013",
-      "description": "A low-privileged remote attacker can exploit a command injection vulnerability in the /index.php/attached_devices_tab/do_upload endpoint using operator credentials allowing execution of commands with root privileges on the device.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27549"
-    },
-    {
-      "id": "CVE-2026-27548",
-      "published": "2026-09-16T08:16:37.180",
-      "lastModified": "2026-09-18T18:17:05.893",
-      "description": "A low-privileged remote attacker can exploit a command injection vulnerability in the /index.php/ajax/get_iodd_port_info endpoint using user or operator credentials allowing execution of commands with root privileges on the device.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27548"
-    },
-    {
-      "id": "CVE-2026-27547",
-      "published": "2026-09-16T08:16:37.027",
-      "lastModified": "2026-09-16T19:13:03.413",
-      "description": "A low-privileged remote attacker can exploit a command injection vulnerability in the /index.php/ajax/get_iodd_menu_info endpoint using valid user or operator credentials allowing execution of commands with root privileges on the device.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27547"
-    },
-    {
-      "id": "CVE-2026-27546",
-      "published": "2026-09-16T08:16:36.850",
-      "lastModified": "2026-09-16T19:17:10.840",
-      "description": "An unauthenticated remote attacker can exploit an authentication bypass in the _account_log function to log in as an admin, even when accounts are properly configured.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27546"
     }
   ]
 }
