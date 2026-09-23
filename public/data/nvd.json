@@ -1,6 +1,148 @@
 {
-  "syncedAt": "2026-09-23T06:49:51.274Z",
+  "syncedAt": "2026-09-23T07:20:41.386Z",
   "items": [
+    {
+      "id": "CVE-2026-89794",
+      "published": "2026-09-16T11:16:44.197",
+      "lastModified": "2026-09-16T11:16:44.197",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nksmbd: zero pipe read compound padding\n\nCompound response handling extends the last response iov to an eight-byte\nboundary.\n\nsmb2_read_pipe() allocates only the payload size, so the alignment padding\ncan expose up to seven bytes of uninitialized kernel heap memory.\n\nAllocate the aligned size and clear the unused tail before pinning the\nresponse buffer.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89794"
+    },
+    {
+      "id": "CVE-2026-86585",
+      "published": "2026-09-16T11:16:44.070",
+      "lastModified": "2026-09-18T19:44:10.957",
+      "description": "The lack of signature verification of firmware update packages in VEO and VEO-XS Wi-Fi monitors, in versions prior to 01.48.001, allows an attacker who controls the delivery of an update to install unauthorised firmware.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86585"
+    },
+    {
+      "id": "CVE-2026-86107",
+      "published": "2026-09-16T11:16:43.920",
+      "lastModified": "2026-09-16T19:10:09.867",
+      "description": "The VeloCloud Edge and Gateway exhibit an out-of-bounds write vulnerability when processing tunneled IP fragments between authenticated overlay neighbors. This vulnerability impacts the VeloCloud VCMP tunnel protocol only.\n\nA successful exploit can cause the affected process to terminate and restart, leading to a temporary disruption of traffic. Hosts on the internet that are unauthenticated and unable to form an overlay peer relationship can not trigger the vulnerable logic.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86107"
+    },
+    {
+      "id": "CVE-2026-86106",
+      "published": "2026-09-16T11:16:43.783",
+      "lastModified": "2026-09-16T20:36:52.890",
+      "description": "An unauthenticated actor with network access to the private HA interconnect may trigger sensitive HA peer functions without verification. This could result in elevated command execution on Edge units where HA is enabled.",
+      "score": 9.6,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86106"
+    },
+    {
+      "id": "CVE-2026-14916",
+      "published": "2026-09-16T11:16:40.503",
+      "lastModified": "2026-09-18T19:07:38.320",
+      "description": "A JWT signature verification vulnerability affects Kong components that perform JWT validation for MCP OAuth2 or DataKit integrations inside Kong API Gateway Enterprise. The affected code does not properly validate that the JWT signing algorithm is compatible with the type of key used for verification.\n\n\n\nAs a result, an unauthenticated remote attacker may be able to craft a forged JWT that is incorrectly accepted as valid, leading to authentication bypass and potential compromise of confidentiality, integrity, and availability.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14916"
+    },
+    {
+      "id": "CVE-2026-89793",
+      "published": "2026-09-16T10:16:55.173",
+      "lastModified": "2026-09-16T15:18:09.510",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nublk: clear VM_MAYWRITE on read-only ublk char device mmap\n\nublk_ch_mmap() rejects mmap requests with VM_WRITE set, but never\nclears VM_MAYWRITE on the resulting read-only mapping. This allows\na userspace daemon to mmap the per-queue command buffer PROT_READ,\nthen upgrade it to PROT_WRITE via mprotect(), since VM_MAYWRITE was\nnever cleared.\n\nThe command buffer holds struct ublksrv_io_desc entries that are\nkernel-written ABI; a writable mapping lets an unprivileged daemon\nprocess corrupt fields such as addr, op_flags, nr_sectors, and\nstart_sector.\n\nSame bug class as the drm/panthor and drm/vc4 VM_MAYWRITE fixes, and\nthe 2026-08-13 ptp/vmclock fix (a5edadbae57e).\n\nVerified via mprotect() PoC: before the fix, a PROT_READ mapping can\nbe upgraded to PROT_READ|PROT_WRITE and a write into the command\nbuffer corrupts io_desc fields (confirmed under KASAN). After the\nfix, mprotect() returns -EACCES.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89793"
+    },
+    {
+      "id": "CVE-2026-86792",
+      "published": "2026-09-16T10:16:55.060",
+      "lastModified": "2026-09-18T14:30:06.090",
+      "description": "Apache Airflow Apache Kafka provider versions 1.15.0 before 2.0.0 resolve dotted-path strings found in a Kafka connection's `extra` field into Python callables via `import_string`, with no allowlist, and hand them to the confluent-kafka client which invokes them. Deployments that have enabled the Kafka event producer — `dag_run_events_enabled` or `task_instance_events_enabled`, both disabled by default — build that client inside the scheduler process, so a user whose only privilege is editing Airflow connections gains arbitrary code execution in the control plane; the Airflow security model limits connection-configuration users to code execution on workers, not the scheduler. Deployments using Google Managed Kafka are not affected, because that code path overwrites any user-supplied `oauth_cb`; plain brokers and Amazon MSK are exposed. Users are recommended to upgrade to apache-airflow-providers-apache-kafka 2.0.0 or later, which adds an allowlist configuration option for connection-string callbacks.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86792"
+    },
+    {
+      "id": "CVE-2026-86474",
+      "published": "2026-09-16T10:16:54.947",
+      "lastModified": "2026-09-18T19:44:10.957",
+      "description": "The lack of TLS certificate validation when downloading firmware updates in VEO and VEO-XS Wi-Fi monitors, in versions prior to 01.48.001, allows an attacker to perform man-in-the-middle attacks on the update channel.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86474"
+    },
+    {
+      "id": "CVE-2026-86466",
+      "published": "2026-09-16T10:16:54.837",
+      "lastModified": "2026-09-18T14:29:43.570",
+      "description": "Apache Airflow FAB provider: the Authentik OAuth path in the FAB auth manager does not validate the issuer or audience claims of the id_token it accepts. An attacker holding a token that the same Authentik identity provider minted for a different client application can present it to Airflow and be authenticated as the user it names, because the audience claim is never checked. Affects deployments using the FAB auth manager with Authentik OAuth where the same Authentik instance also serves other applications; the attacker needs a valid token for any of those other applications, not for Airflow.\n\nCVE-2026-75156 corrected the same missing validation on the Azure AD path in this file; the Authentik path was left unchanged and is fixed here. Deployments that applied the CVE-2026-75156 fix and use Authentik must also upgrade for this one.\n\nUsers of apache-airflow-providers-fab are recommended to upgrade to version 3.9.0 or later, which fixes the issue.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86466"
+    },
+    {
+      "id": "CVE-2026-86443",
+      "published": "2026-09-16T10:16:54.707",
+      "lastModified": "2026-09-18T19:44:10.957",
+      "description": "Cleartext storage of sensitive information in the DuoxMe application for Android, in versions prior to 4.3.4, allows an attacker with local access to the device to retrieve the credentials stored by the application and impersonate the user account.",
+      "score": 6.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86443"
+    },
+    {
+      "id": "CVE-2026-85628",
+      "published": "2026-09-16T10:16:53.670",
+      "lastModified": "2026-09-18T19:44:10.957",
+      "description": "Transmission of the home Wi-Fi credentials without encryption during the pairing process between the DuoxMe application and VEO and VEO-XS Wi-Fi monitors, in versions prior to 4.3.4 of the application and 01.50.001 of the monitor firmware, allows an attacker on the Wi-Fi Direct network to intercept the network password.",
+      "score": 7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85628"
+    },
+    {
+      "id": "CVE-2026-84501",
+      "published": "2026-09-16T10:16:53.557",
+      "lastModified": "2026-09-18T14:36:51.747",
+      "description": "An unauthenticated attacker can inject arbitrary fake log lines into Apache ZooKeeper's operational log by sending a crafted add_auth(\"ensemble\", ...) request containing newline characters (\\n). When the ensemble name doesn't match, EnsembleAuthenticationProvider.handleAuthentication() logs the raw, unsanitized name via LOG.warn(). Because SLF4J's {} placeholder preserves embedded newlines, the attacker can forge complete log entries — with arbitrary timestamps, log levels, class names, and messages — that are visually indistinguishable from genuine ZooKeeper log output.\n\nThis issue affects Apache ZooKeeper: from 3.9.0 through 3.9.5, from 3.8.0 through 3.8.6.\n\nUsers are recommended to upgrade to version 3.8.7 or 3.9.6, which fixes the issue.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84501"
+    },
+    {
+      "id": "CVE-2026-84439",
+      "published": "2026-09-16T10:16:53.433",
+      "lastModified": "2026-09-18T14:37:30.650",
+      "description": "When audit logging is enabled (zookeeper.audit.enable=true), an unauthenticated attacker can inject arbitrary fields into Apache ZooKeeper's audit log by sending a digest authentication request with tab characters (\\t) embedded in the username. Because the audit log uses tab-separated key=value format, the injected tabs are parsed as legitimate field separators, allowing the attacker to spoof audit results (e.g., injecting result=success), forge operation types, and corrupt forensic evidence.\n\nA log injection vulnerability in Apache ZooKeeper allows a client that can call setACL to inject forged key-value fields into zookeeper_audit.log. When audit logging is enabled, the server serializes attacker-controlled digest ACL ids into the acl= audit field without escaping tab characters. Because audit events are emitted as tab-separated key=value records, a crafted ACL id can make one successful setAcl event appear to contain forged fields such as operation=delete and znode=/forged. This undermines the integrity of downstream audit parsing, alerting, and incident response.\n\nThis issue affects Apache ZooKeeper: from 3.9.0 through 3.9.5, from 3.8.0 through 3.8.6.\n\nUsers are recommended to upgrade to version 3.9.6 or 3.8.7, which fixes the issue.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84439"
+    },
+    {
+      "id": "CVE-2026-82310",
+      "published": "2026-09-16T10:16:53.307",
+      "lastModified": "2026-09-18T14:28:10.570",
+      "description": "Apache Airflow FAB provider: deactivating a user account does not stop tokens issued to that account before deactivation. Password authentication correctly rejects the disabled account, but the Core API continues to accept an existing, unexpired token naming it, and lets that token mint a replacement — so the account keeps its role-scoped access indefinitely after an administrator has disabled it. The user replays their own legitimate credential; no signature forgery or privilege escalation is involved, and the access stays within the roles the account already held.\n\nAffects deployments using Airflow 3 with the FAB auth manager and Core API token authentication, where an administrator deactivates an account whose row remains in the database and whose previously issued token has not expired. The trigger is administrative deactivation as a containment action, which silently fails to contain.\n\nUsers of apache-airflow-providers-fab are recommended to upgrade to version 3.9.0 or later, which rejects tokens naming a deactivated account.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82310"
+    },
+    {
+      "id": "CVE-2026-79993",
+      "published": "2026-09-16T10:16:53.190",
+      "lastModified": "2026-09-18T14:37:21.703",
+      "description": "The `deleteContainer` opcode (0x14/20) is processed without verifying the caller's ACL permissions, allowing any authenticated client to delete specific znodes in the data tree regardless of the ACL restrictions on the znode or its parent. This opcode is considered internal-only and the official client doesn't have API for it, but a client that can open a plain TCP session on the ZooKeeper client port (2181 by default) - with NO authentication and NO ACL permissions - can delete any empty persistent znode (including regular persistent nodes, container nodes, and TTL nodes) by issuing the raw protocol OpCode deleteContainer (20). The deleteContainer request path completely skips both the session check and the DELETE ACL check that are enforced by the regular delete (OpCode 2) path. This is an authorization bypass / ACL enforcement bug.\n\nThis issue affects Apache ZooKeeper: from 3.9.0 through 3.9.5, from 3.8.0 through 3.8.6.\n\nUsers are recommended to upgrade to version 3.9.6 or 3.8.7, which fixes the issue.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79993"
+    },
+    {
+      "id": "CVE-2026-77190",
+      "published": "2026-09-16T10:16:53.030",
+      "lastModified": "2026-09-16T19:08:50.420",
+      "description": "On affected platforms running Arista EOS, an unauthenticated attacker who is network-adjacent to the switch and able to connect to a device with PIM Sparse Mode and MLAG configured, can send malformed messages that cause the Pimsm agent to terminate unexpectedly. The Pimsm agent is automatically restarted, but repeated attacks can cause the agent to restart continuously, resulting in a sustained denial of service.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77190"
+    },
     {
       "id": "CVE-2026-76187",
       "published": "2026-09-16T10:16:52.910",
@@ -744,150 +886,6 @@
       "score": 9.8,
       "severity": "CRITICAL",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27546"
-    },
-    {
-      "id": "CVE-2026-8030",
-      "published": "2026-09-16T07:16:37.890",
-      "lastModified": "2026-09-16T19:23:34.623",
-      "description": "GitLab has remediated an issue in GitLab CE/EE affecting all versions from 13.0 before 19.1.8, 19.2 before 19.2.6, and 19.3 before 19.3.2 that under certain conditions could have allowed an authenticated user to prevent another user from modifying their group settings due to improper validation of group URL slugs during namespace transfers.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-8030"
-    },
-    {
-      "id": "CVE-2026-86475",
-      "published": "2026-09-16T07:16:37.780",
-      "lastModified": "2026-09-16T20:25:29.240",
-      "description": "The Appointment Hour Booking WordPress plugin before 1.5.95 does not check every appointment in a booking submission against the capacity configured for its own slot, allowing unauthenticated visitors to take slots that are already fully booked.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86475"
-    },
-    {
-      "id": "CVE-2026-84906",
-      "published": "2026-09-16T07:16:37.677",
-      "lastModified": "2026-09-16T20:25:29.240",
-      "description": "The Eventin WordPress plugin before 4.1.24 does not verify that a completed payment corresponds to the order it is applied to, confirming only that the payment gateway reports the transaction as successful, not its amount, currency, or which order it belongs to, allowing unauthenticated visitors to mark unpaid orders of any value as paid by replaying the transaction of a single genuine low-value payment.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84906"
-    },
-    {
-      "id": "CVE-2026-7514",
-      "published": "2026-09-16T07:16:37.560",
-      "lastModified": "2026-09-16T19:23:34.623",
-      "description": "GitLab has remediated an issue in GitLab CE/EE affecting all versions from 13.9 before 19.1.8, 19.2 before 19.2.6, and 19.3 before 19.3.2 that an authenticated user with developer-role permissions could substitute package file content and hide packages from their owners due to improper authorization checks in the Generic Package Registry.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7514"
-    },
-    {
-      "id": "CVE-2026-79708",
-      "published": "2026-09-16T07:16:37.440",
-      "lastModified": "2026-09-16T19:23:34.623",
-      "description": "GitLab has remediated an issue in GitLab EE affecting all versions from 19.0 before 19.1.8, 19.2 before 19.2.6, and 19.3 before 19.3.2 that, under certain conditions could have allowed an authenticated user with developer permissions to execute a policy test pipeline on projects within their group and access protected CI/CD variables restricted to higher-privileged roles, due to insufficient scope validation.",
-      "score": 8.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79708"
-    },
-    {
-      "id": "CVE-2026-78252",
-      "published": "2026-09-16T07:16:37.323",
-      "lastModified": "2026-09-16T19:23:34.623",
-      "description": "GitLab has remediated an issue in GitLab CE/EE affecting all versions from 15.3 before 19.1.8, 19.2 before 19.2.6, and 19.3 before 19.3.2 that, under certain conditions, an authenticated user could have induced a targeted user to perform unintended state-changing HTTP requests due to improper sanitization of user-controlled data in the Markdown JSON table renderer.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78252"
-    },
-    {
-      "id": "CVE-2026-73447",
-      "published": "2026-09-16T07:16:37.087",
-      "lastModified": "2026-09-17T12:18:25.707",
-      "description": "A privileged attacker can exploit certain operation to execute arbitrary commands with root privileges, leading to full device compromise. An authenticated user can exploit gRPC Network Security Interface (gNSI) Certz service on Arista EOS-based products to escalate privileges and execute arbitrary OS commands via a crafted Certz Rotate request. The Bootz service is also affected.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73447"
-    },
-    {
-      "id": "CVE-2026-3855",
-      "published": "2026-09-16T07:16:36.950",
-      "lastModified": "2026-09-16T19:23:34.623",
-      "description": "GitLab has remediated an issue in GitLab CE/EE affecting all versions from 18.2.7 before 19.1.8, 19.2 before 19.2.6, and 19.3 before 19.3.2 that under certain conditions could have allowed an authenticated user with project-level permissions to access restricted file contents on the server or cause denial of service due to improper validation of parameters in the Terraform state upload functionality.",
-      "score": 3.1,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-3855"
-    },
-    {
-      "id": "CVE-2026-1168",
-      "published": "2026-09-16T07:16:36.827",
-      "lastModified": "2026-09-16T19:23:34.623",
-      "description": "GitLab has remediated an issue in GitLab CE/EE affecting all versions from 18.4.6 before 19.1.8, 19.2 before 19.2.6, and 19.3 before 19.3.2 that under certain conditions could have allowed an unauthenticated user to cause denial of service due to improper resource allocation limits in the GraphQL complexity calculation logic.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-1168"
-    },
-    {
-      "id": "CVE-2026-19857",
-      "published": "2026-09-16T07:16:36.720",
-      "lastModified": "2026-09-16T20:25:29.240",
-      "description": "The Formidable Forms WordPress plugin before 6.35 does not prevent a request-derived value from reaching the WordPress shortcode parser when it substitutes a supported token into a form's custom HTML, allowing unauthenticated visitors to have arbitrary shortcodes, with attacker-chosen attributes, executed server-side on any page displaying an affected form.",
-      "score": 4.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19857"
-    },
-    {
-      "id": "CVE-2026-19619",
-      "published": "2026-09-16T07:16:36.600",
-      "lastModified": "2026-09-16T19:23:34.623",
-      "description": "GitLab has remediated an issue in GitLab CE/EE affecting all versions from 19.0 before 19.1.8, 19.2 before 19.2.6, and 19.3 before 19.3.2 that under certain conditions could have allowed an unauthenticated user to execute arbitrary JavaScript in the context of a targeted user's session due to improper sanitization of pasted HTML content in the Content Editor.",
-      "score": 4.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19619"
-    },
-    {
-      "id": "CVE-2026-19248",
-      "published": "2026-09-16T07:16:32.943",
-      "lastModified": "2026-09-18T19:21:34.307",
-      "description": "QDomDocument XML parsing is vulnerable to a remotely-triggerable denial-of-service crash when processing untrusted input.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19248"
-    },
-    {
-      "id": "CVE-2026-16794",
-      "published": "2026-09-16T07:16:32.807",
-      "lastModified": "2026-09-16T19:23:34.623",
-      "description": "GitLab has remediated an issue in GitLab EE affecting all versions from 18.11 before 19.1.8, 19.2 before 19.2.6, and 19.3 before 19.3.2 that under certain conditions could have allowed an authenticated user with the Security Manager role to execute arbitrary CI/CD jobs and access protected variables within group projects due to improper authorization controls on compliance framework management.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16794"
-    },
-    {
-      "id": "CVE-2026-13407",
-      "published": "2026-09-16T07:16:32.690",
-      "lastModified": "2026-09-16T20:25:29.240",
-      "description": "The Royal Elementor Addons WordPress plugin before 1.7.1067 does not properly sanitize and escape values submitted through its form widget before including them in the body of administrator notification emails, allowing unauthenticated attackers to inject arbitrary HTML into emails sent to the site administrator on form submission.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13407"
-    },
-    {
-      "id": "CVE-2025-14871",
-      "published": "2026-09-16T07:16:32.543",
-      "lastModified": "2026-09-16T19:23:34.623",
-      "description": "GitLab has remediated an issue in GitLab CE/EE affecting all versions from 18.4.6 before 19.1.8, 19.2 before 19.2.6, and 19.3 before 19.3.2 that under certain conditions could have allowed an unauthenticated user to cause denial of service due to improper resource allocation limits in the GraphQL complexity calculation logic.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-14871"
-    },
-    {
-      "id": "CVE-2024-11222",
-      "published": "2026-09-16T07:16:31.470",
-      "lastModified": "2026-09-17T04:17:33.057",
-      "description": "GitLab has remediated an issue in GitLab CE/EE affecting all versions from 13.0 before 19.1.8, 19.2 before 19.2.6, and 19.3 before 19.3.2 that under certain conditions could have allowed a developer user to perform actions in the context of another user's merge request commit due to a race condition issue in pipeline creation.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-11222"
     }
   ]
 }
