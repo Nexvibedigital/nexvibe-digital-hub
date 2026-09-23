@@ -1,6 +1,69 @@
 {
-  "syncedAt": "2026-09-23T03:46:00.056Z",
+  "syncedAt": "2026-09-23T04:20:29.852Z",
   "items": [
+    {
+      "id": "CVE-2026-78227",
+      "published": "2026-09-16T09:17:05.987",
+      "lastModified": "2026-09-16T19:41:10.423",
+      "description": "NLnet Labs Unbound 1.22.0 up to and including 1.26.1, has a use-after-free vulnerability when compiled for DNS-over-QUIC support with '--with-libngtcp2'. Each DoQ stream owns an output buffer that holds the DNS response. ngtcp2's retransmission buffer keeps a shallow pointer into the output buffer for as long as a STREAM frame may be resent. On a client RESET_STREAM, the output buffer is freed but ngtcp2 still holds the matching retransmission entries. The next PTO timeout makes ngtcp2 re-encode the STREAM frame and copy from the freed buffer. A malicious actor that can query Unbound over DoQ and that withholds ACKs, sends RESET_STREAM, and waits for PTO, reaches this use-after-free with no privilege. This leads to retransmissions against freed memory and eventually an abnormal server exit under a 20-query spray.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78227"
+    },
+    {
+      "id": "CVE-2026-77955",
+      "published": "2026-09-16T09:17:05.780",
+      "lastModified": "2026-09-16T19:41:10.423",
+      "description": "In NLnet Labs Unbound 1.13.2 up to and including 1.26.1, a vulnerability in ZONEMD configured zones (zonemd-check: yes) which are located below (but not at) a trust anchor allow for an attack window where (tampered with) zone contents are served (or stored to disk) prior to the ZONEMD integrity check. This is caused by the needed DS/DNSKEY asynchronous resolution that needs to happen before the ZONEMD check completes. If a zonefile is written to disk (zonefile: option) while the ZONEMD check failed, the tampered data are reloaded on startup and available until ZONEMD verification concludes again. If verification fails, the data is not served any more but still persists on disk for future reloads.",
+      "score": 4.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77955"
+    },
+    {
+      "id": "CVE-2026-77860",
+      "published": "2026-09-16T09:17:05.623",
+      "lastModified": "2026-09-16T19:41:10.423",
+      "description": "In NLnetLabs Unbound 1.20.0 up to and including 1.26.0, a vulnerability on the 'serve-expired' code path can cause a double decrement on the 'wait-limit' counter per client IP essentially bypassing one of the counter measures that was introduced for DNSBomb (CVE-2024-33655). A malicious actor can exploit this by controlling an authoritative zone with short TTL, so cached entries expire quickly. Each 'slow' query, one the attacker's authoritative never answers, is followed by one query for an expired cached name, which is answered immediately via the 'serve-expired' path and decrements the counter twice. This second query was named 'pump'. By alternating slow queries and pumps, the attacker keeps the per-client counter at or below the configured 'wait-limit' indefinitely, and can hold an arbitrary number of pending queries from a single source IP, up to the global mesh quota (num-queries-per-thread); eventually bypassing one of the counter measures introduced for DNSBomb (CVE-2024-33655). This vulnerability is present on the 'serve-expired' code path.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77860"
+    },
+    {
+      "id": "CVE-2026-73464",
+      "published": "2026-09-16T09:17:05.463",
+      "lastModified": "2026-09-17T04:18:00.663",
+      "description": "On affected platforms running Arista EOS with gRPC Network Management Interface (gNMI) enabled, a specially crafted request could allow a malicious authenticated client with gRPC Network Management Interface (gNMI) access to execute arbitrary code with root privileges on the switch.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73464"
+    },
+    {
+      "id": "CVE-2026-73463",
+      "published": "2026-09-16T09:17:05.300",
+      "lastModified": "2026-09-16T19:08:50.420",
+      "description": "On affected platforms running Arista EOS, when multiple gRPC Network Security Interface (gNSI) transports are configured, a race condition in the gNSI Authz service may cause a policy rotation to fail silently. An authenticated user whose access was revoked by the new policy may retain unauthorized access to gRPC interfaces. This does not affect Bootz.\n\nThis issue was discovered internally by Arista, and the company is not aware of any malicious exploitation of this vulnerability in customer networks.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73463"
+    },
+    {
+      "id": "CVE-2026-73461",
+      "published": "2026-09-16T09:17:05.147",
+      "lastModified": "2026-09-17T04:18:00.483",
+      "description": "On affected EOS platforms with AAA-based gRPC authorization enabled for OpenConfig, gRPC requests of an authenticated user to OpenConfig may use the wrong privilege level, resulting in an authorization using the wrong AAA method list. This does not impact non-gRPC OpenConfig requests such as NETCONF.",
+      "score": 8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73461"
+    },
+    {
+      "id": "CVE-2026-73454",
+      "published": "2026-09-16T09:17:05.020",
+      "lastModified": "2026-09-17T04:18:00.073",
+      "description": "On affected platforms running Arista EOS with gRPC Network Security Interface (gNSI) Credentialz configured, a specially crafted request can cause unintended modifications to the target account's properties. This may result in the account being assigned elevated privileges or access beyond what an administrator intended.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73454"
+    },
     {
       "id": "CVE-2026-73445",
       "published": "2026-09-16T09:17:04.853",
@@ -835,69 +898,6 @@
       "score": 6.1,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18555"
-    },
-    {
-      "id": "CVE-2026-78088",
-      "published": "2026-09-16T04:18:41.503",
-      "lastModified": "2026-09-16T19:17:39.820",
-      "description": "The Contest Gallery – Upload & Vote Photos, Media, Sell with PayPal & Stripe plugin for WordPress is vulnerable to Unauthenticated Arbitrary File Overwrite in all versions up to, and including, 32.0.1 due to insufficient file path validation in the 'baseUrlForFacebook' parameter. This makes it possible for authenticated attackers, with subscriber-level access and above, to overwrite known files which may lead to remote code execution when certain preconditions are met.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78088"
-    },
-    {
-      "id": "CVE-2026-18595",
-      "published": "2026-09-16T04:18:00.970",
-      "lastModified": "2026-09-16T19:17:10.060",
-      "description": "The WP-Lister Lite for eBay plugin for WordPress is vulnerable to Stored Cross-Site Scripting via AJAX Cron Handler Request Parameter in all versions up to, and including, 3.8.9 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-18595"
-    },
-    {
-      "id": "CVE-2026-16588",
-      "published": "2026-09-16T04:17:59.377",
-      "lastModified": "2026-09-17T18:16:37.050",
-      "description": "The WP Directory Kit plugin for WordPress is vulnerable to blind SQL Injection via the 'order_by' parameter in all versions up to, and including, 1.5.4 due to insufficient escaping on the user supplied parameter and lack of sufficient preparation on the existing SQL query. This makes it possible for authenticated attackers, with custom-level access and above, to append additional SQL queries into already existing queries that can be used to extract sensitive information from the database.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16588"
-    },
-    {
-      "id": "CVE-2026-14349",
-      "published": "2026-09-16T04:17:58.777",
-      "lastModified": "2026-09-16T19:17:06.020",
-      "description": "The TrueBooker – Appointment Booking and Scheduler System plugin for WordPress is vulnerable to authorization bypass in all versions up to, and including, 1.2.3. This is due to the plugin not properly verifying that a user is authorized to perform an action. This makes it possible for unauthenticated attackers to modify the email address of arbitrary user accounts, including administrators, which can be leveraged to reset the account's password and gain access to it.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14349"
-    },
-    {
-      "id": "CVE-2026-12793",
-      "published": "2026-09-16T04:17:56.110",
-      "lastModified": "2026-09-17T18:16:36.517",
-      "description": "The JetFormBuilder — Dynamic Blocks Form Builder plugin for WordPress is vulnerable to Privilege Escalation in all versions up to, and including, 3.6.2. This is due to the plugin not validating that a submitted form ID belongs to a JetFormBuilder form before parsing the referenced post's content as form schema and executing an Advanced Validation server-side callback. This makes it possible for unauthenticated attackers to create a new administrator-level user account.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12793"
-    },
-    {
-      "id": "CVE-2026-11996",
-      "published": "2026-09-16T04:17:53.683",
-      "lastModified": "2026-09-16T19:17:05.910",
-      "description": "The Advanced Popups plugin for WordPress is vulnerable to Stored Cross-Site Scripting via 'Notification Button Link' Field in all versions up to, and including, 1.2.3 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with author-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-11996"
-    },
-    {
-      "id": "CVE-2026-11984",
-      "published": "2026-09-16T04:17:52.780",
-      "lastModified": "2026-09-16T19:17:04.830",
-      "description": "The Ad Inserter – Ad Manager & AdSense Ads plugin for WordPress is vulnerable to authorization bypass in all versions up to, and including, 2.8.16 due to a missing capability check on the `ai-debug-code` URL-parameter. This makes it possible for unauthenticated attackers to view administrator-configured header and footer code blocks that have been disabled from public display.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-11984"
     }
   ]
 }
