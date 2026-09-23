@@ -1,6 +1,340 @@
 {
-  "syncedAt": "2026-09-23T08:46:33.845Z",
+  "syncedAt": "2026-09-23T09:19:55.946Z",
   "items": [
+    {
+      "id": "CVE-2026-89863",
+      "published": "2026-09-16T11:16:54.353",
+      "lastModified": "2026-09-16T15:18:14.050",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: edif: Fix NULL pointer deref in RX SA delete check\n\nqla_chk_edif_rx_sa_delete_pending() obtains the SCSI command via\nGET_CMD_SP(sp) and immediately dereferences cmd->sc_data_direction.\nThat command pointer can be NULL: the firmware may post a status\ncompletion for a command that has already been returned or aborted.  The\ncaller qla2x00_status_entry() acknowledges this on the very same status\npath, re-fetching GET_CMD_SP(sp) and bailing out with the \"Command\nalready returned\" message when it is NULL -- but that check runs only\nafter qla_chk_edif_rx_sa_delete_pending() has already dereferenced the\npointer, so a NULL cmd crashes the kernel in interrupt context.\n\nReturn early when cmd is NULL, before touching cmd->sc_data_direction.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89863"
+    },
+    {
+      "id": "CVE-2026-89862",
+      "published": "2026-09-16T11:16:54.237",
+      "lastModified": "2026-09-16T11:16:54.237",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Fix BSG job leak on validate flash image error path\n\nqla28xx_validate_flash_image() returns QLA_SUCCESS (0) unconditionally,\ntelling the FC BSG transport (fc_bsg_host_dispatch()) that the driver\nowns and will complete the request. But bsg_job_done() is guarded by \"if\n(!rval)\", so on the error path (rval == -EINVAL) neither the driver nor\nthe transport completes the job. The request dangles until it times out,\nleaking block layer resources.\n\nCommit c2c68225b145 (\"scsi: qla2xxx: Fix bsg_done() causing double\nfree\") added the \"if (!rval)\" guard to a batch of BSG handlers. That is\ncorrect for handlers that also return the error code (the transport then\ncompletes the job once via fail_host_msg), but this function returns\nQLA_SUCCESS unconditionally, so the guard turned a correct single\ncompletion into a leak.\n\nAlways call bsg_job_done(): bsg_reply->result is DID_OK and the error is\nreported in vendor_rsp[0], and since the function returns 0 the\ntransport will not complete the job a second time.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89862"
+    },
+    {
+      "id": "CVE-2026-89861",
+      "published": "2026-09-16T11:16:54.100",
+      "lastModified": "2026-09-16T15:18:13.917",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Hold vport reference in qla24xx_report_id_acquisition()\n\nIn the format 1 path, the virtual port is located on ha->vp_list while\nholding vport_slock, but the lock is dropped before vp is used:\nqla_update_host_map() is called and VP_IDX_ACQUIRED/REGISTER_FC4_NEEDED/\nREGISTER_FDMI_NEEDED are set on vp. No reference is taken across that\nwindow, so a concurrent qla24xx_deallocate_vp_id() can tear the vport\ndown and free it, leading to a use-after-free.\n\nTake a vport reference (vref_count) under vport_slock when the matching\nvp is found, and drop it after the last use of\nvp. qla24xx_deallocate_vp_id() waits for vref_count to reach zero before\nunlinking and freeing the vport, so the pointer stays valid. This\nmatches the reference idiom already used by the other ha->vp_list\ntraversals.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89861"
+    },
+    {
+      "id": "CVE-2026-89860",
+      "published": "2026-09-16T11:16:53.957",
+      "lastModified": "2026-09-16T15:18:13.790",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Initialize NVMe abort_work once at submission\n\nqla_nvme_fcp_abort() and qla_nvme_ls_abort() ran INIT_WORK() on\npriv->abort_work immediately before schedule_work(). INIT_WORK()\nreinitializes the work_struct, resetting its list head and clearing the\npending bit. If an abort is issued more than once for the same command\n(for example, concurrent transport teardown and a timeout-driven abort),\nthe second INIT_WORK() reinitializes a work item that is already queued,\nwhich can corrupt the workqueue list and lead to crashes or a looping\nworker.\n\nInitialize priv->abort_work once at command submission, next to the\nexisting per-command spin_lock_init(&priv->cmd_lock), and leave only\nschedule_work() in the abort paths. schedule_work() already does nothing\nwhen the work item is still pending, so a repeated abort no longer\ndisturbs an in-flight work item. The command is not returned to the\ntransport until the final kref_put()/release callback runs after\nabort_work has completed, so the work item is idle before priv is reused\nand the single submission-time INIT_WORK() is safe.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89860"
+    },
+    {
+      "id": "CVE-2026-89859",
+      "published": "2026-09-16T11:16:53.830",
+      "lastModified": "2026-09-21T14:17:27.630",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Zero dport diagnostics buffer to avoid info leak\n\nqla2x00_do_dport_diagnostics() allocates the qla_dport_diag response\nbuffer with kmalloc_obj() (non-zeroing) and, on success, copies the full\nsizeof(*dd) back to user space via sg_copy_from_buffer(). The inbound\nsg_copy_to_buffer() only fills as many bytes as the user request payload\nprovides, and qla26xx_dport_diagnostics() zeroes only dd->buf. The\noptions and unused[] fields are therefore copied out uninitialized,\nleaking kernel heap contents to user space.\n\nAllocate with kzalloc_obj(), matching qla2x00_do_dport_diagnostics_v2().",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89859"
+    },
+    {
+      "id": "CVE-2026-89858",
+      "published": "2026-09-16T11:16:53.693",
+      "lastModified": "2026-09-16T11:16:53.693",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Bound image count in qla2x00_update_fru_versions()\n\nqla2x00_update_fru_versions() copies the user-supplied BSG request into\na fixed 256-byte stack buffer (bsg[DMA_POOL_SIZE]) and then iterates\nlist->count times over the qla_image_version array embedded in that\nbuffer, advancing the image pointer each iteration. count is taken\ndirectly from user input with no upper bound, while only (DMA_POOL_SIZE\n- sizeof(list->count)) / sizeof(struct qla_image_version) = 6 entries\nactually fit. A larger count walks the image pointer off the end of the\nstack buffer, reading adjacent kernel stack memory and sending it to the\ndevice via qla2x00_write_sfp().\n\nReject requests whose declared count does not fit in the buffer.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89858"
+    },
+    {
+      "id": "CVE-2026-89857",
+      "published": "2026-09-16T11:16:53.573",
+      "lastModified": "2026-09-16T15:18:13.657",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Hold qpair lock when sending NVMe LS reject\n\nqla_nvme_ls_reject_iocb() allocates from and advances the request ring\nthrough __qla2x00_alloc_iocbs() (which assumes the hardware_lock is\nheld) and qla2x00_start_iocbs() (which advances the ring and rings the\nrequest-in doorbell), but takes no lock itself. Two of its callers\ninvoke it without the producer lock held:\n\n - qla_nvme_xmt_ls_rsp(), the NVMe-FC .xmt_ls_rsp transport callback, on\n   its error path, and\n\n - qla2xxx_process_purls_pkt(), run from the purex work/DPC context.\n\nBoth use ha->base_qpair, whose qp_lock_ptr is hardware_lock, so they can\nrun concurrently with normal I/O submission on the base ring and corrupt\nthe ring producer state, leading to duplicated or dropped commands. The\nthird caller, qla2xxx_process_purls_iocb(), runs inside\nqla24xx_process_response_queue() with the qpair lock already held and is\nsafe; that is also why the lock cannot be taken inside the helper itself\n(it would recursively re-acquire hardware_lock on the response path).\n\nTake qp_lock_ptr around the two unlocked callers and document the helper\nas caller-locked. Both run in process context, so spin_lock_irqsave() is\nused and nothing in the locked region sleeps.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89857"
+    },
+    {
+      "id": "CVE-2026-89856",
+      "published": "2026-09-16T11:16:53.440",
+      "lastModified": "2026-09-16T15:18:13.507",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Clamp MSI-X derived queue counts to avoid truncation\n\nha->msix_count is u16, but ha->max_req_queues, ha->max_rsp_queues and\nha->max_qpairs are u8. Deriving the queue count as\n\"ha->max_req_queues = ha->msix_count - 1\" therefore truncates: a board\n(or a misconfigured/malicious hot-plugged device) advertising 257 MSI-X\nvectors yields msix_count - 1 == 256, which truncates to 0. An MSI-X\ncount of 1 zeroes it as well, and in target mode the subsequent\n\"ha->max_req_queues--\" then underflows 0 to 255.\n\nWhen the count is 0, qla2x00_alloc_queues() calls\nkzalloc_objs(struct req_que *, 0), which returns ZERO_SIZE_PTR. That is\nnot NULL, so the allocation check passes and the following\n\"ha->req_q_map[0] = req\" dereferences ZERO_SIZE_PTR, corrupting memory\nor crashing the kernel.\n\nAdd qla_calc_queue_count() to clamp the derived value into\n[1, QLA_MAX_QUEUES - 1] so it always fits in u8 and is never zero, and\nuse it at all three derivation sites (qla25xx_iospace_config(),\nqla83xx_iospace_config() and qla24xx_enable_msix()). Also guard the\ntarget-mode decrement so it cannot reintroduce a zero (which would in\nturn underflow max_qpairs).",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89856"
+    },
+    {
+      "id": "CVE-2026-89855",
+      "published": "2026-09-16T11:16:53.313",
+      "lastModified": "2026-09-16T11:16:53.313",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Serialize flash version read in reset handler\n\nThe \"update cache versions without reset\" sysfs reset operation (0x20261)\ncalls get_flash_version(), which reads hardware flash registers, without\nholding ha->optrom_mutex. The VPD update path serializes the same call\nunder optrom_mutex, so this reset path can interleave its flash register\naccesses with a concurrent VPD or optrom flash operation and corrupt the\nreads.\n\nHold ha->optrom_mutex across the get_flash_version() call to match the\nVPD update path.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89855"
+    },
+    {
+      "id": "CVE-2026-89854",
+      "published": "2026-09-16T11:16:53.180",
+      "lastModified": "2026-09-16T15:18:13.367",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Fix cs84xx use-after-free on host teardown\n\nqla84xx_put_chip() drops the last reference to ha->cs84xx and frees it via\n__qla84xx_chip_release() without clearing ha->cs84xx. During teardown it ran\nbefore scsi_remove_host(), which is what removes the 84xx_fw_version host\nsysfs attribute. A concurrent read of that attribute in the window between\nthe two calls executes qla24xx_84xx_fw_version_show(), which dereferences\nthe freed ha->cs84xx, resulting in a use-after-free.\n\nMove qla84xx_put_chip() to after scsi_remove_host() in both\nqla2x00_remove_one() and qla2x00_disable_board_on_pci_error(). Once\nscsi_remove_host() returns, the sysfs attribute is gone and kernfs has\ndrained any in-flight show(), so no reader can touch cs84xx; the put still\nruns before the host and ha are freed.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89854"
+    },
+    {
+      "id": "CVE-2026-89853",
+      "published": "2026-09-16T11:16:53.040",
+      "lastModified": "2026-09-16T11:16:53.040",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Fix FCE trace use-after-free during firmware dump\n\nqla2x00_free_fce_trace() freed and cleared ha->fce while holding only\nfce_mutex. The firmware-dump consumers qla27xx_fwdt_entry_t264() and\nqla25xx_copy_fce() read ha->fce (NULL check followed by a copy of the\nbuffer) under hardware_lock and never take fce_mutex. A debugfs FCE\ndisable could therefore free the DMA buffer between a dump's NULL check\nand its copy, resulting in a use-after-free.\n\nUnpublish ha->fce under hardware_lock, then release the lock and free\nthe DMA buffer (dma_free_coherent() may sleep). A concurrent dump either\ncompletes its check and copy with the buffer still valid, or observes\nha->fce == NULL and skips it.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89853"
+    },
+    {
+      "id": "CVE-2026-89852",
+      "published": "2026-09-16T11:16:52.900",
+      "lastModified": "2026-09-16T11:16:52.900",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Zero mailbox struct in qla2x00_get_firmware_state()\n\nThe mbx_cmd_t is allocated on the stack but left uninitialized.\nqla2x00_mailbox_command() has several early-return paths (PCI permanent\nfailure, device failed, EEH busy, ISP abort pending, mailbox access\ntimeout, purge mbox) that return without writing the input mailbox\nregisters back into mcp->mb[]. qla2x00_get_firmware_state() then\nunconditionally copies mcp->mb[1..6] (and mb[12]) into the caller's\nstates[] array regardless of the return value.\n\nOn such a failure the copied values are uninitialized kernel stack\nmemory, which is then exposed to userspace via the fw_state and\nmpi_fw_state sysfs handlers. Zero the mailbox struct so a failed query\nyields deterministic zeroed state instead of leaking stack contents.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89852"
+    },
+    {
+      "id": "CVE-2026-89851",
+      "published": "2026-09-16T11:16:52.757",
+      "lastModified": "2026-09-16T11:16:52.757",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Fix FCE trace enable parsing in debugfs\n\nqla2x00_dfs_fce_write() called kstrtoul() with a NULL result pointer,\nso a successful parse would dereference NULL and oops. Worse, the int\nreturn value (0 on success, negative errno on failure) was assigned to\nthe unsigned long enable flag, inverting the intended logic: a valid\nnumber was treated as \"disable\" while a parse failure enabled FCE.\n\nParse the value into enable and propagate parse errors to userspace.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89851"
+    },
+    {
+      "id": "CVE-2026-89850",
+      "published": "2026-09-16T11:16:52.623",
+      "lastModified": "2026-09-16T11:16:52.623",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Don't query firmware state while chip is down\n\nqla2x00_fw_state_show() initializes rval to QLA_FUNCTION_FAILED and jumps\nto the out: label when the chip is down or EEH is busy. The out: block\nthen re-issued qla2x00_get_firmware_state() because rval != QLA_SUCCESS,\ndefeating the chip-down/EEH-busy guards and issuing a mailbox command\n(outside optrom_mutex) during ISP reset or PCI error recovery, which can\nhang the adapter. It also turned a normal in-lock mailbox failure into a\nsecond unsynchronized mailbox attempt.\n\nMake the out: fallback only mark the firmware state as unknown. The\nmailbox is now issued at most once, inside optrom_mutex, and only when\nthe chip is up and not EEH-busy.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89850"
+    },
+    {
+      "id": "CVE-2026-89849",
+      "published": "2026-09-16T11:16:52.497",
+      "lastModified": "2026-09-16T15:18:13.230",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Reject non-SCSI SRB on status IOCB fast path\n\nqla2x00_status_entry() filters out non-TYPE_SRB entries and the\nSRB_NVME_CMD, SRB_BIDI_CMD and SRB_TM_CMD types, then falls through to a\nSCSI fast path that assumes the command is an SRB_SCSI_CMD. The first\nthing on that path, qla_chk_edif_rx_sa_delete_pending(), and the\nsubsequent handling both evaluate GET_CMD_SP(sp), i.e. sp->u.scmd.cmd.\n\nThe srb u union overlays the SCSI command pointer with other command\nlayouts (bsg_job, iocb_cmd). If firmware delivers an unexpected\nSTATUS_TYPE IOCB for a non-SCSI handle, sp->u.scmd.cmd can read as a\nnon-NULL garbage pointer, bypassing the NULL checks in\nqla_chk_edif_rx_sa_delete_pending() and at the cp == NULL test, and\nleading to a wild pointer dereference.\n\nReject any SRB whose type is not SRB_SCSI_CMD before entering the fast\npath. The outstanding_cmds slot is left untouched so a genuinely\nnon-SCSI command still completes through its proper handler.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89849"
+    },
+    {
+      "id": "CVE-2026-89848",
+      "published": "2026-09-16T11:16:52.197",
+      "lastModified": "2026-09-16T15:18:13.107",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Quiesce response IRQ before freeing request queue\n\nqla2xxx_delete_qpair() deletes the request queue before the response\nqueue. qla25xx_delete_req_que() frees the request queue memory\n(kfree(req) in qla25xx_free_req_que()), but the response-queue MSI-X is\nonly released later, in qla25xx_free_rsp_que(). In that window the\nresponse interrupt can still fire, qla2xxx_msix_rsp_q() queues\nqpair->q_work, and qla_do_work() -> qla24xx_process_response_queue()\ndereferences the now-freed rsp->req (LOGINOUT/CT/ELS entries and the\nstatus path), a use-after-free.\n\nThe cancel_work_sync() added for the qpair teardown lives in the\nresponse free path, which runs after the request queue is already freed,\nso it does not protect rsp->req.\n\nRelease the response-queue interrupt and flush qpair->q_work before\ndeleting the request queue, so no late completion can reach the freed\nrequest queue. Clearing have_irq makes the subsequent\nqla25xx_free_rsp_que() skip its free_irq(), and the firmware\nqueue-delete order (request then response) is preserved; the\nrequest-delete mailbox completes on the default vector and is unaffected\nby dropping the qpair response interrupt early.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89848"
+    },
+    {
+      "id": "CVE-2026-89847",
+      "published": "2026-09-16T11:16:51.990",
+      "lastModified": "2026-09-16T15:18:12.967",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Avoid double completion in async IOCB timeout\n\nqla2x00_async_iocb_timeout() tries to abort a timed-out async IOCB. When\nqla24xx_async_abort_cmd() fails, both the SRB_LOGIN_CMD path and the\nSRB_CTRL_VP/default path scan outstanding_cmds[] for the SRB and then\ncall sp->done(sp, QLA_FUNCTION_TIMEOUT) unconditionally, without checking\nwhether the SRB was actually found and removed.\n\nIf the response ISR completes the same handle first, it removes the SRB\nunder qp_lock_ptr and runs sp->done() -> complete(sp->comp). The\nsubmitter qla24xx_control_vp() wakes from wait_for_completion(), clears\nsp->comp, drops its reference and returns, reclaiming the on-stack\ncompletion. The timer reference keeps the SRB alive across the timeout\nhandler, but not the submitter's stack. The timeout then issues a second\nsp->done() -> qla_ctrlvp_sp_done(), which evaluates \"if (sp->comp)\ncomplete(sp->comp)\"; with the pointer loaded before the submitter's NULL\nstore, complete() writes into the freed stack frame, a use-after-free.\n\nTrack whether this path removed the SRB from outstanding_cmds and only\ncall sp->done() when it did, so the command is completed exactly once by\nwhichever path owns it. This mirrors the sp_found guard already used in\nqla24xx_abort_iocb_timeout().",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89847"
+    },
+    {
+      "id": "CVE-2026-89846",
+      "published": "2026-09-16T11:16:51.853",
+      "lastModified": "2026-09-16T15:18:12.823",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Bound rsp_info_len to avoid OOB sense-data read\n\nIn qla2x00_status_entry(), the FWI2 status path advances sense_data and\nshrinks par_sense_len by rsp_info_len:\n\n\tif (IS_FWI2_CAPABLE(ha)) {\n\t\tsense_data += rsp_info_len;\n\t\tpar_sense_len -= rsp_info_len;\n\t}\n\nrsp_info_len is a 32-bit value taken directly from the target's FCP\nresponse (sf.rsp_data_len), while par_sense_len is the IOCB data area\nsize (28 bytes for 24xx, 60 bytes for 29xx). A hostile or buggy target\nreporting an rsp_info_len larger than par_sense_len makes the unsigned\nsubtraction underflow to a huge value and advances sense_data out of\nbounds.\n\nThe underflowed par_sense_len then defeats the cap in\nqla2x00_handle_sense():\n\n\tif (sense_len > par_sense_len)\n\t\tsense_len = par_sense_len;\n\tmemcpy(cp->sense_buffer, sense_data, sense_len);\n\nso the memcpy reads up to SCSI_SENSE_BUFFERSIZE bytes from the\nout-of-bounds sense_data pointer, leaking adjacent response-ring/heap\nmemory into the command's sense buffer.\n\nClamp rsp_info_len to par_sense_len before the subtraction so\npar_sense_len can never underflow and sense_data stays within the IOCB\ndata area. The fix sits before the comp_status switch, covering both\nqla2x00_handle_sense() call sites.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89846"
+    },
+    {
+      "id": "CVE-2026-89845",
+      "published": "2026-09-16T11:16:51.720",
+      "lastModified": "2026-09-16T11:16:51.720",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Avoid req_q_map double-read in qla2x00_error_entry()\n\nqla2x00_error_entry() reads ha->req_q_map[que] twice: once for the NULL\ncheck and again when assigning it to req. The map slot is cleared by\nqla25xx_free_req_que() (ha->req_q_map[que_id] = NULL under mq_lock)\nduring queue teardown, while the response-queue interrupt that drives\nqla2x00_error_entry() is still registered (the IRQ is released later in\nqla25xx_free_rsp_que()). If the slot is set to NULL between the two\nreads, req becomes NULL and is dereferenced.\n\nRead the slot once into req and NULL-check the local before use. mq_lock\nis a mutex and cannot be taken from interrupt context, so the single\nread plus local check is the appropriate fix for the reported NULL\ndereference.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89845"
+    },
+    {
+      "id": "CVE-2026-89844",
+      "published": "2026-09-16T11:16:51.567",
+      "lastModified": "2026-09-16T15:18:12.703",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Hold vport_slock for host map update in report ID acquisition\n\nqla24xx_report_id_acquisition() format-1 handling drops vport_slock after\ntaking the vport reference and then calls qla_update_host_map() without\nthe lock. That reaches qla_update_vp_map(), which mutates the ha->host_map\nbtree via btree_insert32()/btree_update32()/btree_remove32() and is\ndocumented to require vport_slock to be held by the caller. Running it\nunlocked can race concurrent host_map updates and corrupt the btree.\n\nThe format-2 path in the same function already wraps its host_map update\n(SET_AL_PA) in vport_slock; the format-1 path is the lone outlier.\n\nHold vport_slock across the format-1 qla_update_host_map() call to honor\nthe documented locking contract. The vref_count taken in the loop keeps\nthe vport valid, so this only adds the missing host_map serialization.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89844"
+    },
+    {
+      "id": "CVE-2026-89843",
+      "published": "2026-09-16T11:16:51.157",
+      "lastModified": "2026-09-16T11:16:51.157",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Zero-init bsg stack buffers to avoid info leak\n\nSeveral bsg handlers stage their request/reply in an uninitialized 256-byte\non-stack buffer (uint8_t bsg[DMA_POOL_SIZE]) and fill it via\nsg_copy_to_buffer(), which only copies as many bytes as the user-supplied\nrequest payload. When the request is shorter than the structure, the\nremainder of the buffer is left holding stale stack data.\n\nqla2x00_read_fru_status() and qla2x00_read_i2c() then copy the full\nstructure back to the reply payload with sg_copy_from_buffer(), leaking the\nuninitialized stack bytes to user space. The write/update paths do not copy\nthe buffer back, but can feed uninitialized fields to the device.\n\nZero the stack buffer at declaration in all five handlers, mirroring the\nheap kzalloc() approach, so short requests can no longer expose stale\nmemory.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89843"
+    },
+    {
+      "id": "CVE-2026-89842",
+      "published": "2026-09-16T11:16:51.040",
+      "lastModified": "2026-09-16T11:16:51.040",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Skip NVMe LS reject IOCB when FW not started\n\nqla_nvme_xmt_ls_rsp() bails out to the out: label when firmware is not\nstarted (!ha->flags.fw_started), but the out: path unconditionally calls\nqla_nvme_ls_reject_iocb(), which ends in qla2x00_start_iocbs() and an\nunconditional doorbell write to the request queue in-pointer register.\nThis rings the firmware doorbell and queues an IOCB that stopped or\nresetting firmware cannot consume, and touches MMIO during the reset/EEH\nwindow where fw_started is also clear.\n\nOnly emit the LS reject IOCB (and ring the doorbell) when fw_started is\nset; otherwise just clean up and return. The post-allocation failure\ncases (SRB alloc / qla2x00_start_sp() failure) run with firmware started\nand still send the reject. Apply the same guard to the reject emission\nin qla2xxx_process_purls_pkt().",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89842"
+    },
+    {
+      "id": "CVE-2026-89841",
+      "published": "2026-09-16T11:16:50.937",
+      "lastModified": "2026-09-16T15:18:12.597",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nf2fs: only redirty pinned folios in redirty_blocks\n\nredirty_blocks() pins folios with read_cache_folio() and then walks the\nsame range again with filemap_lock_folio() to redirty them and drop the\nreferences it took.\n\nCommit 5951fee46bef (\"f2fs: Use a folio in redirty_blocks()\") changed\nthe second pass to a do/while loop. If read_cache_folio() fails before\nanything is pinned, page_idx does not advance but the cleanup loop still\nruns once.\n\nIf readahead has already populated the failed folio in page cache, that\nextra iteration finds it and folio_put_refs(folio, 2) drops one\nreference too many. Later drop_caches or reclaim can then report\n\"BUG: Bad page state\".\n\nOnly redirty the range that was pinned successfully.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89841"
+    },
+    {
+      "id": "CVE-2026-89840",
+      "published": "2026-09-16T11:16:50.837",
+      "lastModified": "2026-09-21T14:17:27.507",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nf2fs: validate MOVE_RANGE destination size\n\nF2FS_IOC_MOVE_RANGE checks the source range, but not the destination end\nbefore updating i_size. A source hole can expose this: __clone_blkaddrs()\nskips NULL_ADDR entries and returns success, so the caller can still extend\nthe destination inode with unchecked pos_out + len.\n\nReject destination overflow and use inode_newsize_ok() before extending\nthe destination inode.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89840"
+    },
+    {
+      "id": "CVE-2026-89839",
+      "published": "2026-09-16T11:16:50.727",
+      "lastModified": "2026-09-16T11:16:50.727",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nf2fs: use the mount idmap for the owner check in f2fs_xattr_advise_set()\n\nf2fs_xattr_advise_set() calls inode_owner_or_capable() with &nop_mnt_idmap\nbefore allowing the \"system.advise\" xattr to be set, instead of the idmap\nthat the VFS passes to the ->set() handler.\n\nf2fs supports idmapped mounts, so on such a mount this checks the caller's\nfsuid against the unmapped on-disk owner rather than the mapped owner: the\nactual owner can be wrongly denied with -EPERM and an unrelated caller\nwrongly allowed.  Pass the handler's idmap instead.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89839"
+    },
+    {
+      "id": "CVE-2026-89838",
+      "published": "2026-09-16T11:16:50.620",
+      "lastModified": "2026-09-21T14:17:27.383",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nf2fs: limit recovery filename logging to stored length\n\nF2FS stores recovery filenames as a length plus a fixed-size i_name\nbuffer.  The buffer is not NUL-terminated, but recover_inode() and\nrecover_dentry() print it with %s.\n\nFor a 255-byte filename, recovery logging can read past i_name into the\nfollowing raw inode fields.\n\nPrint the name with a precision bounded by i_namelen and F2FS_NAME_LEN.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89838"
+    },
+    {
+      "id": "CVE-2026-89837",
+      "published": "2026-09-16T11:16:50.513",
+      "lastModified": "2026-09-16T11:16:50.513",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nf2fs: fix dentry folio leak in find_in_level\n\nfind_in_level() gets a dentry folio with f2fs_find_data_folio() before\ncalling find_in_block().  If find_in_block() returns an error, the\nfunction stores the error in res_folio and breaks out of the loop without\ndropping the dentry folio.\n\nThis leaks the folio reference on the find_in_block() error path.  Drop\nthe dentry folio before returning the error to the caller.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89837"
+    },
+    {
+      "id": "CVE-2026-89836",
+      "published": "2026-09-16T11:16:50.400",
+      "lastModified": "2026-09-16T15:18:12.273",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nf2fs: fix folio_nr_pages() race after put in large folio invalidate\n\nOur v6.18 based Android system is continuely suffering livelock and bad\npage stat as shown in[1] which related to broken xarray slot status. By\ninvestigating big folio operations within f2fs, we find below races and\nfix it by get the nr_pages before drop the refcount and folio_lock.\n\nf2fs_get_read_data_folio() calls f2fs_folio_put() before\nfolio_nr_pages() when invalidating a large folio from the page cache.\nThat unlocks the folio and drops the caller reference, leaving a window\nwhere a concurrent truncate or folio split can shrink the compound folio\nor free it before the invalidate range is computed. An undersized range\nthen leaves split sub-folios in mapping->i_pages, which can later\ninteract badly with truncate and reclaim (stale xarray entries and bad\npage state when folio->mapping no longer matches the mapping being\ntruncated).\n\n[1]\nPID: 2594     TASK: ffffff8169b81580  CPU: 7    COMMAND: \"Thread-3\"\n #0 [ffffffc08ef2b8a0] xas_load at ffffffe52d1f42a4\n #1 [ffffffc08ef2b900] find_get_entries at ffffffe52c185798\n #2 [ffffffc08ef2bb60] truncate_inode_pages_range at ffffffe52c19e83c\n #3 [ffffffc08ef2bbc0] truncate_inode_pages_final at ffffffe52c19ec2c\n #4 [ffffffc08ef2bc20] f2fs_evict_inode at ffffffe52c4c8400\n #5 [ffffffc08ef2bcc0] evict at ffffffe52c2de9f4\n #6 [ffffffc08ef2bd00] iput at ffffffe52c2db1b4\n #7 [ffffffc08ef2bd30] dentry_unlink_inode at ffffffe52c2d7204\n #8 [ffffffc08ef2bd50] __dentry_kill at ffffffe52c2d3dcc\n #9 [ffffffc08ef2bd80] dput at ffffffe52c2d3c3c\n #10 [ffffffc08ef2bda0] __fput at ffffffe52c2b0a7c\n #11 [ffffffc08ef2bde0] ____fput at ffffffe52c2b1034\n #12 [ffffffc08ef2bdf0] task_work_run at ffffffe52beea200\n #13 [ffffffc08ef2be20] exit_to_user_mode_loop at ffffffe52bfbc17c\n #14 [ffffffc08ef2be80] el0_svc at ffffffe52d1f8e54\n #15 [ffffffc08ef2beb0] el0t_64_sync_handler at ffffffe52d1f8d10",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89836"
+    },
+    {
+      "id": "CVE-2026-89835",
+      "published": "2026-09-16T11:16:50.290",
+      "lastModified": "2026-09-16T11:16:50.290",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nf2fs: avoid NULL checkpoint thread access in sysfs\n\ncheckpoint_merge can be enabled even when no checkpoint merge thread is\nrunning. A read-only mount is one case: f2fs does not start\nf2fs_issue_ckpt there, but ckpt_thread_ioprio is still writable through\nsysfs.\n\nThe ckpt_thread_ioprio store path updates the saved ioprio value and,\nwhen checkpoint_merge is enabled, calls set_task_ioprio() for the\ncheckpoint thread. If cprc->f2fs_issue_ckpt is NULL, that dereferences a\nNULL task pointer.\n\nProtect ckpt_thread_ioprio sysfs writes with s_umount as well, so the\ncheckpoint thread cannot disappear under the store path while updating\nits ioprio.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89835"
+    },
+    {
+      "id": "CVE-2026-89834",
+      "published": "2026-09-16T11:16:50.180",
+      "lastModified": "2026-09-16T11:16:50.180",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nf2fs: fix to migrate all curseg types during free_segment_range\n\nIn free_segment_range(), the curseg evacuation loop only iterates up to\nNR_CURSEG_PERSIST_TYPE (0..5), missing non-persistent in-memory curseg\ntypes such as CURSEG_COLD_DATA_PINNED and CURSEG_ALL_DATA_ATGC.\n\nEven though these in-memory curseg types are not saved in the on-disk\ncheckpoint header, they still occupy active physical segments at runtime.\nIf an active in-memory curseg happens to be allocated within the segment\nrange being truncated during filesystem shrink, failing to evacuate it\nwill cause subsequent writes to the curseg attempting out-of-bounds I/O\non the truncated storage range.\n\nFix this by expanding the curseg evacuation loop upper bound to\nNR_CURSEG_TYPE to ensure all active curseg types are safely migrated\nout of the target range.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89834"
+    },
+    {
+      "id": "CVE-2026-89833",
+      "published": "2026-09-16T11:16:50.080",
+      "lastModified": "2026-09-16T11:16:50.080",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nf2fs: fix to avoid potential deadloop in f2fs_fsync_node_pages()\n\nThere is potential deadloop in race condition:\n\nThread A\t\t\t\tThread B\n- fsync\n - f2fs_do_sync_file\n  - f2fs_fsync_node_pages\n   - last_fsync_dnode\n    - folio_get(last_folio)\n\t\t\t\t\t- f2fs_setattr\n\t\t\t\t\t - f2fs_truncate\n\t\t\t\t\t  - f2fs_truncate_blocks\n\t\t\t\t\t   - f2fs_do_truncate_blocks\n\t\t\t\t\t    - f2fs_truncate_inode_blocks\n\t\t\t\t\t     - truncate_dnode\n\t\t\t\t\t      - truncate_node\n\t\t\t\t\t       - invalidate_mapping_pages\n\t\t\t\t\t        - folio->mapping = NULL\n   - is_node_folio alwasy return false\n   - atomic && !marked is always true,\n     then goto retry",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89833"
+    },
+    {
+      "id": "CVE-2026-89832",
+      "published": "2026-09-16T11:16:49.973",
+      "lastModified": "2026-09-16T15:18:12.070",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nf2fs: fix to clear dirty flag on folio in error path\n\nIf node block is corrupted due to chksum mismatch or inconsistent\nfooter info, it needs to drop clear flag of node folio, in order\nto persist inconsistent node data to storage.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89832"
+    },
+    {
+      "id": "CVE-2026-89831",
+      "published": "2026-09-16T11:16:49.870",
+      "lastModified": "2026-09-16T11:16:49.870",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nf2fs: protect critical_task_priority updates with s_umount\n\nThe sysfs store path already takes s_umount for GC thread control\nentries, and ckpt_thread_ioprio is covered as well.\n\ncritical_task_priority also updates checkpoint or GC kthread scheduling\nstate, but it is not covered by that serialization. It can race with\nremount or teardown paths that are stopping those threads.\n\nProtect critical_task_priority sysfs writes with s_umount too.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89831"
+    },
+    {
+      "id": "CVE-2026-89830",
+      "published": "2026-09-16T11:16:49.753",
+      "lastModified": "2026-09-16T11:16:49.753",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nf2fs: fix valid block count leak on data block allocation failure\n\nIn __allocate_data_block(), when allocating a new data block\n(dn->data_blkaddr == NULL_ADDR), inc_valid_block_count() is\ncalled first to increment total_valid_block_count and i_blocks.\nIf the subsequent f2fs_allocate_data_block() fails, the function\nreturns the error directly without rolling back the\nalready-incremented block counts, causing a permanent leak.\n\nFix this by calling dec_valid_block_count() to undo the\nincrement before returning the error. The condition\nold_blkaddr == NULL_ADDR precisely identifies the case where\ninc_valid_block_count() was called.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89830"
+    },
+    {
+      "id": "CVE-2026-89829",
+      "published": "2026-09-16T11:16:49.620",
+      "lastModified": "2026-09-16T15:18:11.667",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nf2fs: fix to pass folio->index to f2fs_sanity_check_node_footer()\n\nOtherwise in f2fs_sanity_check_node_footer(), it will check the\nsame nid incorrectly.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89829"
+    },
+    {
+      "id": "CVE-2026-89828",
+      "published": "2026-09-16T11:16:49.493",
+      "lastModified": "2026-09-16T11:16:49.493",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amdgpu: Fix init ordering in amdgpu_vram_mgr_init()\n\ndrmm_cgroup_register_region() is called before INIT_LIST_HEAD() and\ngpu_buddy_init() in amdgpu_vram_mgr_init(). If it fails, the function\nreturns early and bypasses those initializations.\n\nSince adev->mman.initialized is set to true before amdgpu_vram_mgr_init()\nis called, a failure triggers amdgpu_ttm_fini(), which calls\namdgpu_vram_mgr_fini(), which then:\n\n - Calls list_for_each_entry_safe() on reservations_pending and\n   reserved_pages, whose list_head::next pointers are zero-initialized\n   (NULL). The loop does not recognize them as empty and dereferences NULL.\n\n - Calls gpu_buddy_fini(), which iterates free_trees[] unconditionally\n   via for_each_free_tree(). Since mm->free_trees is NULL\n   (never allocated), this dereferences NULL.\n\nBoth result in a kernel panic on the module load error path.\n\nFix by moving drmm_cgroup_register_region() to after the list and buddy\nallocator are fully initialized, so the teardown path is safe to run.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89828"
+    },
+    {
+      "id": "CVE-2026-89827",
+      "published": "2026-09-16T11:16:49.380",
+      "lastModified": "2026-09-21T14:17:27.283",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/amdgpu: avoid force-completing uninitialized UVD rings\n\nuvd_v7_0_sw_init() does not initialize the UVD decode ring for an\nSR-IOV VF. However, amdgpu_uvd_resume() unconditionally force-completes\nthe decode ring when restoring its fence sequence.\n\nSkip fence completion when the fence driver is not initialized.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89827"
+    },
+    {
+      "id": "CVE-2026-89826",
+      "published": "2026-09-16T11:16:49.253",
+      "lastModified": "2026-09-16T15:18:11.553",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/panthor: harden firmware build-info bounds checks\n\npanthor_fw_read_build_info() checks whether the metadata range fits in the\nfirmware image with hdr.meta_start + hdr.meta_size. Both fields are u32, so\nthe addition can wrap and let an out-of-bounds range pass validation.\n\nThe function also reads the \"git_sha: \" prefix without first checking that\nthe metadata is long enough, and meta_size == 0 can underflow the NULL\nterminator index.\n\nUse subtraction-based bounds checking and reject metadata that is too short\nto contain the expected prefix and trailing NULL byte.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89826"
+    },
+    {
+      "id": "CVE-2026-89825",
+      "published": "2026-09-16T11:16:49.127",
+      "lastModified": "2026-09-16T15:18:11.433",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/panthor: fix firmware control interface bounds checks\n\npanthor_init_cs_iface() and panthor_init_csg_iface() validate firmware\ncontrol interface offsets with 32-bit arithmetic and the size of the host\nwrapper structures. The offsets are derived from firmware-provided strides,\nso the arithmetic can wrap before the bounds check, and the host wrapper\nsize is not the size of the firmware control interface being mapped.\n\nUse 64-bit arithmetic for the computed offsets and validate against the\nactual firmware control interface structure sizes with subtraction-based\nbounds checks. Also validate that the shared section is large enough for\nthe global control interface before using it.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89825"
+    },
+    {
+      "id": "CVE-2026-89824",
+      "published": "2026-09-16T11:16:48.993",
+      "lastModified": "2026-09-16T11:16:48.993",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/panel-edp: fix i2c adapter leak on probe failure\n\nMake sure to drop the i2c adapter reference on probe failure (e.g.\nprobe deferral) and on driver unbind also if a devicetree redundantly\nuses the 'ddc-i2c-bus' property to point to the aux ddc bus.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89824"
+    },
+    {
+      "id": "CVE-2026-89823",
+      "published": "2026-09-16T11:16:48.850",
+      "lastModified": "2026-09-16T15:18:11.300",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm: fix race between partial drm_dev_register() failure and ioctl\n\nIf drm_dev_register() fails after registering a minor (e.g. render minor\nregistered, primary minor fails), userspace could have opened the first\nminor and entered a drm_dev_enter() critical section. Since the\nunplugged flag was never set, the ioctl proceeds while the error path\ntears down device resources.\n\nFix this by introducing drm_dev_synchronize_unplug(), which sets the\nunplugged flag and waits for the SRCU barrier, ensuring all in-flight\ndrm_dev_enter() critical sections complete before cleanup proceeds; call\nit on the error path of drm_dev_register().",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89823"
+    },
+    {
+      "id": "CVE-2026-89822",
+      "published": "2026-09-16T11:16:47.640",
+      "lastModified": "2026-09-17T10:17:04.700",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/i915: Guard against NULL driver_data in i915_pci_probe()\n\npci_match_device() can return the dummy pci_device_id_any entry\nwhen a device is force-bound via sysfs driver_override, in which\ncase ->driver_data is unset (NULL). i915_pci_probe() casts it to\nstruct intel_device_info * unconditionally and dereferences\nintel_info->require_force_probe, causing a NULL-ptr-deref.\n\n(cherry picked from commit 2727922084672cc274ecea726ea00363c2893731)",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89822"
+    },
     {
       "id": "CVE-2026-89821",
       "published": "2026-09-16T11:16:47.503",
@@ -494,372 +828,6 @@
       "score": 7.7,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14917"
-    },
-    {
-      "id": "CVE-2026-92081",
-      "published": "2026-09-16T09:17:10.137",
-      "lastModified": "2026-09-16T19:40:00.317",
-      "description": "fastify is a fast and low-overhead web framework for Node.js. In versions before 5.12.5, when a route registers a response trailer via reply.trailer() and is served over HTTP/2, fastify unconditionally sets the Transfer-Encoding: chunked header, which is forbidden on HTTP/2, so Node.js throws while serializing the response headers. The exception is not caught and becomes an uncaughtException, so a single unauthenticated HTTP/2 request to any route that uses trailers crashes the server process and drops all in-flight requests, and it can be repeated on every restart. The issue is fixed in fastify 5.12.5, and users should upgrade to 5.12.5 or later. As a workaround, avoid registering response trailers with reply.trailer() on routes served over HTTP/2 until upgrading.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92081"
-    },
-    {
-      "id": "CVE-2026-89792",
-      "published": "2026-09-16T09:17:10.040",
-      "lastModified": "2026-09-21T14:17:26.597",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nksmbd: prevent out-of-bounds reads in share config responses\n\nValidate IPC share configuration payload sizes before consuming\nvariable-length fields. Bound veto list parsing and account for\nthe separator byte when deriving the path length.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89792"
-    },
-    {
-      "id": "CVE-2026-89791",
-      "published": "2026-09-16T09:17:09.930",
-      "lastModified": "2026-09-16T15:18:09.253",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nperf: Fix use-after-free when perf mmap() revival races with the last munmap()\n\nperf_mmap_close() drops rb->mmap_count *without* holding\nevent->mmap_mutex (the refcount_dec_and_test() right before the\nrefcount_dec_and_mutex_lock() of event->mmap_count). A concurrent\nperf_mmap_rb() can slot its entire \"revival\" path into that window\n(perf_mmap holds event->mmap_mutex for its whole duration, including\nrb_alloc):\n\n  munmap side (perf_mmap_close)          mmap side (perf_mmap_rb)\n  -----------------------------------    --------------------------------\n  rb->mmap_count 1 -> 0   (no lock)      (holds event->mmap_mutex)\n                                         inc_not_zero(rb->mmap_count) fails\n                                         ring_buffer_attach(event, NULL)\n                                         rb_alloc() + attach new rb\n                                         refcount_set(&event->mmap_count, 1)\n  lock; event->mmap_count 1 -> 0\n  ring_buffer_attach(event, NULL)\n  ring_buffer_put() -> frees the *new* rb\n\nThe revival's refcount_set(&event->mmap_count, 1) is an invisible\n1 -> 1 write: the close frees the just-revived buffer although the\nother process still has it mapped -- a page-level use-after-free\nallowing local privilege escalation to root by any unprivileged user\n(default kernel.perf_event_paranoid=2).\n\nSwap the order of the two counter updates: event->mmap_count is\ndropped first via refcount_dec_and_mutex_lock(), so its 1 -> 0\ntransition and the ring_buffer_attach() stay serialized with\nperf_mmap(). rb->mmap_count == 0 then implies every event using the\nbuffer is detached already, so the result of the rb->mmap_count drop\ncan gate the remaining teardown directly and detach_rest is no longer\nneeded.\n\nAn earlier fix for this race from Kyle Zeng and David Lee takes\nevent->mmap_mutex around both counter updates [0]; here the not-last\nclose stays lockless.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89791"
-    },
-    {
-      "id": "CVE-2026-89790",
-      "published": "2026-09-16T09:17:09.827",
-      "lastModified": "2026-09-16T09:17:09.827",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nipv6: avoid divide by zero in rt6_multipath_rebalance\n\nrt6_multipath_rebalance() calculates the total eligible nexthop weight\nin one pass and programs upper bounds in a second pass. Since\nRTM_NEWROUTE is RTNL-free, a concurrent\nignore_routes_with_linkdown update can make the first pass return zero\nwhile the second sees an eligible nexthop, causing\nrt6_upper_bound_set() to divide by zero.\n\nUBSAN: division-overflow in net/ipv6/route.c:4845:17\nOops: divide error: 0000 [#1] SMP KASAN NOPTI\n  rt6_upper_bound_set() net/ipv6/route.c:4845\n  rt6_multipath_rebalance()\n  fib6_add_rt2node()\n  ip6_route_multipath_add()\n  inet6_rtm_newroute()\n\nSkip upper-bound calculation when the first pass reports a zero total.\nThis respects the lock-free performance considerations here and solves\ninsecure scenarios.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89790"
-    },
-    {
-      "id": "CVE-2026-89789",
-      "published": "2026-09-16T09:17:09.697",
-      "lastModified": "2026-09-16T15:18:09.107",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ngtp: add synchronize_net() in gtp_newlink() error path to prevent use-after-free\n\ngtp_newlink()'s error path frees tid_hash and addr_hash without\nwaiting for an RCU grace period after clearing sk_user_data. A\nconcurrent gtp_encap_recv() in softirq may still hold the gtp_dev\npointer obtained via rcu_dereference_sk_user_data() and access the\nfreed memory.\n\n  BUG: KASAN: slab-use-after-free in gtp0_pdp_find+0x1f6/0x200 (gtp.c:152)\n  Call Trace:\n   <IRQ>\n   gtp0_pdp_find+0x1f6/0x200\n   gtp_encap_recv+0x527/0x24b0\n   udp_queue_rcv_one_skb+0x75f/0xc10\n\nAdd synchronize_net() before the kfree calls in out_hashtable, which\ncovers all error paths from both gtp_encap_enable() and\ngtp_create_sockets().",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89789"
-    },
-    {
-      "id": "CVE-2026-89788",
-      "published": "2026-09-16T09:17:09.590",
-      "lastModified": "2026-09-16T15:18:09.007",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nksmbd: fix tree connection use-after-free in smb2_tree_connect()\n\nksmbd_tree_conn_connect() publishes a new tree connection in\nsess->tree_conns with a single reference and returns its pointer to\nsmb2_tree_connect(). The handler continues to initialize the object and\nbuild the response after publication. A concurrent session logoff can\nerase the connection and drop that reference, freeing the object while\nthe handler still uses it.\n\nBUG: KASAN: slab-use-after-free in smb2_tree_connect+0xe3d/0xf90\n  smb2_tree_connect (fs/smb/server/smb2pdu.c:2872)\n  handle_ksmbd_work\n  process_one_work\n  worker_thread\n  kthread\n\nAfter xa_store() succeeds, take a second reference before releasing\ntree_conns_lock. The original reference belongs to the xarray entry and\nthe second belongs to the creating smb2_tree_connect() handler.\n\nKeep the references balanced in every path:\n\n- On normal exit or an error after publication, smb2_tree_connect()\n  drops its creator reference. Error cleanup also calls\n  ksmbd_tree_conn_disconnect(), which drops the xarray reference only if\n  it removes the exact entry.\n- SMB2 TREE_DISCONNECT uses the same helper to remove the entry and drop\n  its xarray reference. The request's existing lookup reference remains\n  owned by the request and is released by the existing cleanup.\n- Session LOGOFF removes each entry and drops its xarray reference. If\n  it wins the race, later cleanup sees that the entry is gone and does\n  not drop that reference again.\n\nTo enforce this ownership, claim the disconnected state and erase the\nexact entry atomically under tree_conns_lock. This guarantees one drop\nfor the xarray reference and one drop by each in-flight user, regardless\nof which teardown path wins. If logoff removes the entry before\ninitialization completes, fail the connect instead of marking the\ndetached object TREE_CONNECTED.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89788"
-    },
-    {
-      "id": "CVE-2026-89787",
-      "published": "2026-09-16T09:17:09.460",
-      "lastModified": "2026-09-16T09:17:09.460",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\next4: check dir entry fits before reading the hash trailer in ext4_search_dir()\n\nFor casefolded encrypted directories ext4 stores an 8-byte hash trailer\nafter the name (EXT4_DIRENT_HASHES()), at an offset derived from\nde->name_len.  On the sb_no_casefold_compat_fallback() path ext4_match()\nreads that trailer, but ext4_search_dir()'s by-hand pre-check only tests\nde->name + de->name_len <= dlimit, which proves the name fits, not the\nrounded trailer.  A crafted entry whose name ends at the block boundary\npasses the check while EXT4_DIRENT_HASHES(de) lands past the block end,\nso ext4_match() reads out of bounds on an ordinary lookup.  KASAN reports\nit as a use-after-free when the page after the directory block holds a\nfreed object:\n\n  BUG: KASAN: use-after-free in ext4_match (fs/ext4/namei.c:1435)\n  Read of size 4 at addr ffff888010458000 by task exploit\n  Call Trace:\n   ext4_match (fs/ext4/namei.c:1435)\n   ext4_search_dir (fs/ext4/namei.c:1470)\n   __ext4_find_entry (fs/ext4/namei.c:1268 fs/ext4/namei.c:1632)\n   ext4_lookup (fs/ext4/namei.c:1703 fs/ext4/namei.c:1769)\n   ...\n   filename_lookup (fs/namei.c:2842)\n   vfs_statx (fs/stat.c:353)\n   __do_sys_newfstatat (fs/stat.c:538)\n   do_syscall_64 (arch/x86/entry/syscall_64.c:94)\n   entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:121)\n\nRequire, for hash-in-dirent directories, that the whole entry including\nthe rounded trailer fits before calling ext4_match().  This is the same\nbound ext4_check_dir_entry() already enforces via ext4_dir_rec_len(), so\nno well-formed entry is rejected.  The other caller, ext4_find_dest_de(),\nruns ext4_check_dir_entry() first and is unaffected.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89787"
-    },
-    {
-      "id": "CVE-2026-89786",
-      "published": "2026-09-16T09:17:09.330",
-      "lastModified": "2026-09-16T15:18:08.860",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\next4: fix out-of-bounds read in ext4_read_inline_dir()\n\next4_read_inline_dir() can read a dirent header past the end of its inline\nbuffer, triggering a slab-out-of-bounds read during getdents64():\n\n  BUG: KASAN: slab-out-of-bounds in __ext4_check_dir_entry\n  Read of size 2 at addr ffff88800f3dd23c by task exploit/148\n   ...\n   __ext4_check_dir_entry\n   ext4_read_inline_dir\n   iterate_dir\n\nThe dirent payload lives in a buffer of exactly inline_size bytes:\n\n\tdir_buf = kmalloc(inline_size, GFP_NOFS);\n\nbut iteration runs in a position space extra_offset bytes larger\n(extra_size = extra_offset + inline_size) so the synthetic \".\" and \"..\"\nland at their block-dir offsets. A dirent is formed at \"dir_buf + pos -\nextra_offset\", yet the ext4_check_dir_entry() length argument uses the\nlarger extra_size. A position whose dirent header would extend past\nextra_size is therefore accepted, and the rescan loop's rec_len probe and\next4_check_dir_entry() dereference de->rec_len before the entry is rejected.\n\nReject a position whose minimum-size dirent header would not fit within\nextra_size before forming de, in both the rescan and main loops, and pass\ninline_size rather than extra_size to ext4_check_dir_entry() so the length\ncheck matches the physical buffer.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89786"
-    },
-    {
-      "id": "CVE-2026-89785",
-      "published": "2026-09-16T09:17:09.203",
-      "lastModified": "2026-09-16T09:17:09.203",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfs/ntfs3: fix out-of-bounds read of INDEX_ROOT in reparse/objid init\n\nntfs_reparse_init() and ntfs_objid_init() parse the index root of the\n$Extend/$Reparse and $Extend/$ObjId metafiles (the INDEX_ROOT attributes\nnamed $R and $O). They read its type and rule fields through\nresident_data(), which does not check that the resident attribute is\nlarge enough to hold them.\n\nmi_enum_attr() accepts a resident attribute with data_off == asize and\ndata_size == 0. For such an attribute placed last in its MFT record,\nresident_data() returns a pointer to the end of the record_size buffer,\nso reading root->type / root->rule reads past the allocation.\n\nUse resident_data_ex(attr, sizeof(struct INDEX_ROOT)) and bail out when\nit returns NULL, as ntfs_security_init() already does for $SDH / $SII.\n\nThe attribute is only parsed while mounting a crafted image, so this\nneeds CAP_SYS_ADMIN.\n\n BUG: KASAN: slab-out-of-bounds in ntfs_reparse_init (fs/ntfs3/fsntfs.c:2306)\n Read of size 4 at addr ffff88801219dc00 by task mount\n  ntfs_reparse_init (fs/ntfs3/fsntfs.c:2306)\n  ntfs_fill_super (fs/ntfs3/super.c:1604)\n  get_tree_bdev_flags (fs/super.c:1703)\n  vfs_get_tree (fs/super.c:1758)\n  path_mount (fs/namespace.c:4131)\n  __x64_sys_mount (fs/namespace.c:4360)",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89785"
-    },
-    {
-      "id": "CVE-2026-89784",
-      "published": "2026-09-16T09:17:09.060",
-      "lastModified": "2026-09-16T09:17:09.060",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nSUNRPC: check rpc_sockaddr2uaddr() return value in rpcb_register_inet4/6\n\nrpcb_register_inet4() and rpcb_register_inet6() store the result of\nrpc_sockaddr2uaddr() into map->r_addr without checking it for NULL.\nrpc_sockaddr2uaddr() returns NULL when its final kstrdup() fails, and\nthe unchecked NULL is then carried into the synchronous RPCBPROC_SET\nencode path: rpcb_register_call() -> rpc_call_sync() ->\nrpcb_enc_getaddr() -> encode_rpcb_string(), whose first statement is\nstrlen(string), dereferencing NULL and oopsing the kernel.\n\nThe crash reproduces under failslab on v6.12; with KASAN the NULL\ndereference surfaces as a fault on the shadow of address zero:\n\n Oops: general protection fault, probably for non-canonical address\n       0xdffffc0000000000 [#1] PREEMPT SMP KASAN\n RIP: 0010:strlen (lib/string.c:409)\n Call Trace:\n  encode_rpcb_string (net/sunrpc/rpcb_clnt.c:890)\n  rpcb_enc_getaddr (net/sunrpc/rpcb_clnt.c:910)\n  rpcauth_wrap_req_encode (net/sunrpc/auth.c:745)\n  call_encode (net/sunrpc/clnt.c:1966)\n  __rpc_execute (net/sunrpc/sched.c:952)\n  rpc_run_task (net/sunrpc/clnt.c:1243)\n  rpc_call_sync (net/sunrpc/clnt.c:1272)\n  rpcb_v4_register (net/sunrpc/rpcb_clnt.c:500)\n  svc_generic_rpcbind_set\n  nfsd_rpcbind_set\n  svc_register\n  svc_setup_socket\n  svc_addsock\n  write_ports\n  nfsctl_transaction_write\n  vfs_write\n\nThe crash is reachable when an in-kernel RPC service (nfsd, lockd,\nnfs-callback) registers with the local rpcbind under enough memory\npressure for the small GFP_KERNEL kstrdup() in rpc_sockaddr2uaddr() to\nfail. The asynchronous getport path already handles this exact failure\nmode by returning -ENOMEM; only the two register helpers omit the check.\n\nMirror that handling: bail out with -ENOMEM when rpc_sockaddr2uaddr()\nreturns NULL, before the address is fed into the encoder.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89784"
-    },
-    {
-      "id": "CVE-2026-89783",
-      "published": "2026-09-16T09:17:08.930",
-      "lastModified": "2026-09-16T15:18:08.720",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfrm6: fix out-of-bounds write in xfrm6_input_addr() when secpath is full\n\nThe depth check in xfrm6_input_addr() is off by one:\n\n  if (1 + sp->len == XFRM_MAX_DEPTH)\n          goto drop;\n  ...\n  sp->xvec[sp->len++] = x;\n\nxfrm_input() can leave sp->len == XFRM_MAX_DEPTH, and the transport-mode\nreceive path re-enters IPv6 input via xfrm_trans_reinject() with that\nsecpath preserved. If the inner packet carries a destination-options HAO\noption or a type-2 routing header, xfrm6_input_addr() is called with\nsp->len == XFRM_MAX_DEPTH; the check (1 + 6 == 6) is false, so\nsp->xvec[sp->len++] writes one slot past the 6-element xvec[]. The write\nstays within the sec_path allocation (invisible to KASAN); UBSAN_BOUNDS\nflags it and panics under panic_on_warn.\n\nUse \"sp->len >= XFRM_MAX_DEPTH\", matching xfrm_input(). This also\nrestores one chain level the old check rejected at sp->len == 5.\n\n  UBSAN: array-index-out-of-bounds in net/ipv6/xfrm6_input.c:309:10\n  index 6 is out of range for type 'xfrm_state *[6]'",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89783"
-    },
-    {
-      "id": "CVE-2026-89782",
-      "published": "2026-09-16T09:17:08.800",
-      "lastModified": "2026-09-16T15:18:08.577",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfs/ntfs3: reject restart table growth beyond U16_MAX entries\n\nDuring $LogFile replay, log_replay() indexes the transaction table by the\ntransact_id taken from the log record header.  check_log_rec() only\nverifies that transact_id is non-zero and properly aligned, not its\nmagnitude, so a crafted image can request an arbitrarily large index.\n\nalloc_rsttbl_from_idx() grows the table to cover that index via\nextend_rsttbl(), which passes the new entry count to init_rsttbl():\n\n\trt = init_rsttbl(esize, used + add);\n\nused + add is computed as u32 but init_rsttbl() takes a u16, and the\ncount is stored in struct RESTART_TABLE as a __le16.  When used + add\nexceeds U16_MAX it is truncated, init_rsttbl() allocates a table far\nsmaller than the index requires, and alloc_rsttbl_from_idx() then\ndereferences and writes at the original, untruncated offset -- an\nout-of-bounds access past the allocation, reachable by mounting a\ncrafted NTFS image.\n\n BUG: KASAN: use-after-free in alloc_rsttbl_from_idx (fs/ntfs3/fslog.c:950)\n Read of size 4 at addr ffff8880327ffff8 by task exploit\n  alloc_rsttbl_from_idx (fs/ntfs3/fslog.c:950)\n  log_replay (fs/ntfs3/fslog.c:4562)\n  ntfs_loadlog_and_replay (fs/ntfs3/fsntfs.c:324)\n  ntfs_fill_super (fs/ntfs3/super.c:1393)\n  get_tree_bdev_flags\n  vfs_get_tree\n  path_mount\n  __x64_sys_mount\n\nA restart table is limited to U16_MAX entries by its __le16 count, so a\nlarger growth request is invalid input.  Reject it in extend_rsttbl();\nall callers already handle a NULL return.",
-      "score": 8.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89782"
-    },
-    {
-      "id": "CVE-2026-89781",
-      "published": "2026-09-16T09:17:08.667",
-      "lastModified": "2026-09-16T15:18:07.470",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfs/ntfs3: fix out-of-bounds read in read_log_rec_buf()\n\nread_log_rec_buf() copies a log record into a caller buffer starting at\n\n\tu32 off = lsn_to_page_off(log, lsn) + log->record_header_len;\n\nlog->record_header_len (and log->data_off, used for the following pages)\ncomes verbatim from the on-disk restart area and is only checked for\n8-byte alignment in is_rst_area_valid(), so off can exceed\nlog->page_size. \"tail = log->page_size - off\" then underflows and\nmemcpy() reads past the page_size-sized buffer returned by\nread_log_page(), spilling adjacent slab memory into the replay buffer.\n\nThis is reachable by mounting a crafted NTFS image:\n\n BUG: KASAN: slab-out-of-bounds in read_log_rec_buf+0x216/0x580\n Read of size 64 at addr ffff88800a877ff8 by task exploit/127\n  read_log_rec_buf fs/ntfs3/fslog.c:2299\n  log_replay fs/ntfs3/fslog.c:4216\n  ntfs_loadlog_and_replay fs/ntfs3/fsntfs.c:324\n  ntfs_fill_super fs/ntfs3/super.c:1392\n  get_tree_bdev_flags fs/super.c:1694\n  __x64_sys_mount fs/namespace.c:4360\n The buggy address is located 4088 bytes to the right of\n the 4096-byte region [ffff88800a876000, ffff88800a877000)\n\nReject an in-page offset outside the current page before the copy.\n\n[almaz.alexandrovich@paragon-software.com: replaced the >= sign with >]",
-      "score": 8.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89781"
-    },
-    {
-      "id": "CVE-2026-89780",
-      "published": "2026-09-16T09:17:08.520",
-      "lastModified": "2026-09-16T09:17:08.520",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: qualcomm: rmnet: restore skb->dev on deaggregated frames\n\nrmnet_map_deaggregate() allocates each sub-frame with alloc_skb() and\nleaves skb->dev NULL. __rmnet_map_ingress_handler() assigns\nskb->dev = ep->egress_dev only on the data path, but a MAP command frame\nis dispatched to rmnet_map_command() before that, so rmnet_map_send_ack()\nruns netif_tx_lock(skb->dev) on a NULL device. An unprivileged user\nreaches this by unsharing a user+net namespace, creating an rmnet link\nover a tap device with INGRESS_DEAGGREGATION and INGRESS_MAP_COMMANDS,\nand writing an aggregated frame carrying a flow-control command to the\ntap fd.\n\nRestore the assignment dropped by 378e25357ac7, so every skb leaving\nrmnet_map_deaggregate() has a valid device.\n\n  BUG: KASAN: null-ptr-deref in _raw_spin_lock (kernel/locking/spinlock.c:158)\n  Write of size 4 at addr 00000000000004b4 by task exploit/144\n  Call Trace:\n   _raw_spin_lock (kernel/locking/spinlock.c:158)\n   netif_tx_lock (net/sched/sch_generic.c:497)\n   rmnet_map_command (drivers/net/ethernet/qualcomm/rmnet/rmnet_map_command.c:67)\n   rmnet_rx_handler (drivers/net/ethernet/qualcomm/rmnet/rmnet_handlers.c:125)\n   __netif_receive_skb_core.constprop.0 (net/core/dev.c:6103)\n   ...\n   __netif_receive_skb_one_core (net/core/dev.c:6214)\n   netif_receive_skb (net/core/dev.c:6474)\n   tun_get_user (drivers/net/tun.c:1966)\n   tun_chr_write_iter (drivers/net/tun.c:2012)\n   vfs_write (fs/read_write.c:687)\n   ksys_write (fs/read_write.c:739)\n   do_syscall_64 (arch/x86/entry/syscall_64.c:94)\n   entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:121)\n  Kernel panic - not syncing: Fatal exception in interrupt",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89780"
-    },
-    {
-      "id": "CVE-2026-89779",
-      "published": "2026-09-16T09:17:08.387",
-      "lastModified": "2026-09-16T15:18:07.320",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfs/ntfs3: validate ef->size covers the record's name and value\n\nWhen an EA record has a non-zero ef->size, ntfs_read_ea() only checks\nthat the record fits in the remaining buffer (ea_size > bytes), not that\nef->size is large enough to hold the record's own name_len + 1 + elength.\n\nA crafted image can pass validation with, e.g., ef->size = 24 but\nelength = 0xffff. ntfs_get_ea() then trusts elength and copies it out of\nthe undersized record, reading past the kmalloc(info->size) allocation\nand leaking heap memory to userspace via getxattr():\n\n BUG: KASAN: slab-out-of-bounds in ntfs_get_ea (fs/ntfs3/xattr.c:302)\n Read of size 65535 at addr ffff888100794550 by task exploit\n  __asan_memcpy (mm/kasan/shadow.c:105)\n  ntfs_get_ea (fs/ntfs3/xattr.c:302)\n  ntfs_getxattr (fs/ntfs3/xattr.c:848)\n  __vfs_getxattr (fs/xattr.c:441)\n  vfs_getxattr (fs/xattr.c:474)\n  do_getxattr (fs/xattr.c:800)\n  path_getxattrat (fs/xattr.c:868)\n  do_syscall_64 (arch/x86/entry/syscall_64.c:94)\n\n The buggy address is located 80 bytes inside of\n  allocated 84-byte region in cache kmalloc-96\n\nCompute the size the record needs and require ef->size to cover it.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89779"
-    },
-    {
-      "id": "CVE-2026-89778",
-      "published": "2026-09-16T09:17:08.253",
-      "lastModified": "2026-09-16T15:18:07.167",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nisofs: fix out-of-bounds page array access on empty zisofs block\n\nzisofs_uncompress_block()'s empty-block fast path returns\npcount << PAGE_SHIFT, ignoring the incoming poffset, unlike the\ndecompression path which returns bytes produced relative to poffset.\nzisofs_fill_pages() uses that return to advance its page cursor, so when\nthe zisofs block size is below PAGE_SIZE and a sub-page block leaves\npoffset partway into a page, a following empty block over-counts and\nadvances pages[] one element past its end, after which\n\"if (poffset && *pages)\" reads pages[1] out of bounds.  rock.c only\nrejects a block-size shift > 17, so a crafted \"ZF\" Rock Ridge record can\nset it below PAGE_SHIFT; the bug is reached by an ordinary read() of a\ncompressed file on such a mounted ISO9660 image.\n\nReturn the byte count relative to poffset and zero only\n[poffset, PAGE_SIZE) of the first page, matching the decompression path.\nThe page-aligned case (poffset == 0) is unaffected.\n\n  BUG: KASAN: slab-out-of-bounds in zisofs_read_folio (fs/isofs/compress.c:290)\n  Read of size 8 at addr ffff88800f5eac48 by task exploit/142\n   zisofs_read_folio (fs/isofs/compress.c:290)\n   read_pages (mm/readahead.c:184)\n   ...\n   filemap_read (mm/filemap.c:2814)\n   vfs_read (fs/read_write.c:574)\n   __x64_sys_pread64 (fs/read_write.c:769)\n   do_syscall_64 (arch/x86/entry/syscall_64.c:94)\n   entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:121)\n  The buggy address is located 0 bytes to the right of the\n  allocated 8-byte region in the kmalloc-8 cache",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89778"
-    },
-    {
-      "id": "CVE-2026-89777",
-      "published": "2026-09-16T09:17:08.073",
-      "lastModified": "2026-09-16T15:18:06.997",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nvfio/pci: clear vdev->msi_perm after freeing it on init failure\n\nvfio_msi_cap_len() lazily allocates the per-device MSI permission table:\n\n\tvdev->msi_perm = kmalloc_obj(struct perm_bits, GFP_KERNEL_ACCOUNT);\n\tif (!vdev->msi_perm)\n\t\treturn -ENOMEM;\n\n\tret = init_pci_cap_msi_perm(vdev->msi_perm, len, flags);\n\tif (ret) {\n\t\tkfree(vdev->msi_perm);\n\t\treturn ret;\t\t/* vdev->msi_perm left dangling */\n\t}\n\nWhen init_pci_cap_msi_perm() -> alloc_perm_bits() fails with -ENOMEM, the\nerror path frees vdev->msi_perm but leaves the freed pointer stored in\nit. vdev->msi_perm is not re-zeroed later because struct\nvfio_pci_core_device is per-device and persists across open/close cycles,\nand the vfio_config_init() error path returns without calling\nvfio_config_free(). So the dangling pointer outlives the failed open.\n\nThat leads to two use-after-frees on the same device:\n\n1. Reuse. The next vfio_config_init() sees the stale pointer at\n   \"if (vdev->msi_perm) return len;\" and reuses the freed object. MSI\n   config accesses in vfio_pci_config_rw_single() then dereference and\n   call the freed perm->readfn / perm->writefn function pointers.\n\n2. Double free. A later vfio_config_free() runs free_perm_bits() and\n   kfree() on the already-freed object.\n\nFix it by NULLing vdev->msi_perm after the kfree(), matching the\nNULL-after-free discipline already used in free_perm_bits() and\nvfio_config_free().\n\n  BUG: KASAN: slab-use-after-free in vfio_pci_config_rw_single (drivers/vfio/pci/vfio_pci_config.c:1961)\n  Read of size 8 at addr ffff88800fcc88d0 by task exploit/143\n  Call Trace:\n   ...\n   kasan_report (mm/kasan/report.c:595)\n   vfio_pci_config_rw_single (drivers/vfio/pci/vfio_pci_config.c:1961)\n   vfio_pci_config_rw (drivers/vfio/pci/vfio_pci_config.c:1986)\n   vfio_pci_rw (drivers/vfio/pci/vfio_pci_core.c:1599)\n   vfs_read (fs/read_write.c:572)\n   __x64_sys_pread64 (fs/read_write.c:764)\n   do_syscall_64 (arch/x86/entry/syscall_64.c:94)\n   ...\n\nFollowed on device close by a double free of the same object:\n\n  Oops: general protection fault, probably for non-canonical address\n    0x1f63e0e8000008: 0000 [#1] SMP KASAN NOPTI\n  RIP: 0010:kfree (mm/slub.c:6711)\n  Call Trace:\n   vfio_config_free (drivers/vfio/pci/vfio_pci_config.c:1861)\n   vfio_pci_core_disable (drivers/vfio/pci/vfio_pci_core.c:685)\n   vfio_pci_core_close_device (drivers/vfio/pci/vfio_pci_core.c:777)\n   vfio_df_close (drivers/vfio/vfio_main.c:602)\n   vfio_device_fops_release (drivers/vfio/vfio_main.c:648)\n   __fput (fs/file_table.c:512)\n   __x64_sys_close (fs/open.c:1496)\n   do_syscall_64 (arch/x86/entry/syscall_64.c:94)\n   ...\n  Kernel panic - not syncing: Fatal exception",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89777"
-    },
-    {
-      "id": "CVE-2026-89776",
-      "published": "2026-09-16T09:17:07.950",
-      "lastModified": "2026-09-16T09:17:07.950",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nvxlan: vnifilter: enforce exact length of GROUP/GROUP6 attributes\n\nThe VXLAN VNI filter entry policy declares the GROUP/GROUP6 address\nattributes as NLA_BINARY with only a maximum length, so validate_nla()\naccepts a payload shorter than the address. The GROUP consumer reads it\nwith nla_get_in_addr(), an unconditional 4-byte load, so a short\nattribute over-reads up to 3 bytes of uninitialised slab data, which are\nstored into remote_ip and echoed back via RTM_GETTUNNEL, disclosing\nkernel memory.\n\nSwitch both entries to NLA_POLICY_EXACT_LEN() so the validator rejects\nany GROUP/GROUP6 that is not exactly 4 / 16 bytes; a valid address is\nalways sent at full width.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89776"
-    },
-    {
-      "id": "CVE-2026-89775",
-      "published": "2026-09-16T09:17:07.850",
-      "lastModified": "2026-09-16T18:17:19.027",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nKVM: arm64: Handle negative S1 walk levels in VNCR TLB size evaluation\n\nComputing the effects of a TLB invalidation involves looking at\nthe size of the mapping cached by the TLB. For S1 mappings such as\nVNCR, this is deducted from the combination of the base granule size\nand the mapping level.\n\nHowever, this implies that the S1 MMU is *on*. When the MMU is off,\nwe indicate this with the level being set to a \"creative\" value of\n-127 (S1_MMU_DISABLED).\n\nThis ends-up being misinterpreted by pgshift_level_to_ttl() as it\ndoesn't handle negative levels at all (the level is immediately cast\nto a u8 and only the bottom two bits considered), leading to an\ninvalidation size of 0. Not helpful.\n\nTidy-up pgshift_level_to_ttl() to handle these negative levels, and\nttl_to_size() to always return SZ_1G when no valid TTL is present.\nThis allows the removal of open-coded checks for similar situations.\n\nNote that the check for a negative value not explicitely checking for\nS1_MMU_DISABLED is deliberate, so that actual negative levels introduced\nwith LVA2 and D128 can take the same path if we ever support them.",
-      "score": 9.3,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89775"
-    },
-    {
-      "id": "CVE-2026-89774",
-      "published": "2026-09-16T09:17:07.717",
-      "lastModified": "2026-09-16T15:18:06.747",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nBluetooth: SCO: hold sk properly in sco_conn_ready\n\nsk deref in sco_conn_ready must be done either under conn->lock, or\nholding a refcount, to avoid concurrent close. conn->sk and parent sk is\ncurrently accessed without either, and without checking parent->sk_state:\n\n    [Task 1]            [Task 2]\n                        sco_sock_release\n    sco_conn_ready\n      sk = conn->sk\n                          lock_sock(sk)\n                            conn->sk = NULL\n      lock_sock(sk)\n                          release_sock(sk)\n                          sco_sock_kill(sk)\n       UAF on sk deref\n\nand similarly for access to sco_get_sock_listen() return value.\n\nFix possible UAF by holding sk refcount in sco_conn_ready() and making\nsco_get_sock_listen() increase refcount. Also recheck after lock_sock\nthat the socket is still valid.  Adjust conn->sk locking so it's\nprotected also by lock_sock() of the associated socket if any.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89774"
-    },
-    {
-      "id": "CVE-2026-89186",
-      "published": "2026-09-16T09:17:07.527",
-      "lastModified": "2026-09-16T20:38:33.883",
-      "description": "Use of Cache Containing Sensitive Information in ZenHive mpp allows a shared HTTP cache to store a paid response and serve it to clients that never paid.\n\nMPP.Plug.verify_credential in lib/mpp/plug.ex sets payment-receipt and cache-control: private on the connection before the wrapped application runs, and registers no register_before_send/2 callback. Plug.Conn.put_resp_header/3 replaces an existing header, so a mounting application that sets its own cache-control on the paid resource (for example public, max-age=3600) silently overrides the private the library relies on, and a CDN or reverse proxy can then store the paid 200 together with its Payment-Receipt and serve both to unpaid clients. The library-level guarantee is therefore defeatable by the application it protects. For the same reason a downstream non-2xx response still carried Payment-Receipt, issuing a receipt for a response that delivered no resource.\n\nThis issue affects mpp: from 0.1.0 before 0.16.2.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89186"
-    },
-    {
-      "id": "CVE-2026-88255",
-      "published": "2026-09-16T09:17:07.333",
-      "lastModified": "2026-09-16T20:38:33.883",
-      "description": "Improper Validation of Unsafe Equivalence in Input in ZenHive mpp allows an unauthenticated remote client to pass the Tempo duplicate-submission gate twice with one signed transaction.\n\nMPP.Methods.Tempo reserves the pre-broadcast dedup slot on the caller-supplied hex in reserve_hash_atomic/2, keyed through store_key/1 on tx.raw rather than on a canonical form of the transaction. The deserializer stores the caller's hex verbatim and accepts both recovery-id encodings, so one signed transaction submitted once with v=27 and once with v=0 yields two distinct reserve keys, and both pass the reserve and reach the broadcast path. The plug-level credential replay store is deliberately carved out for tempo in lib/mpp/replay.ex, leaving this reserve as the only gate, and the post-broadcast mark writes the canonical hash key that the raw-keyed reserve never reads.\n\nWhat the duplicate submission yields depends on the node: a nonce-reuse rejection fails closed, while a node that answers with the canonical hash for an already-known transaction returns a second valid Payment-Receipt for a single on-chain payment.\n\nThis issue affects mpp: from 0.2.0 before 0.16.2.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88255"
-    },
-    {
-      "id": "CVE-2026-86465",
-      "published": "2026-09-16T09:17:07.197",
-      "lastModified": "2026-09-17T20:18:50.343",
-      "description": "Apache Airflow Akeyless provider: the Akeyless secrets backend's team-scope guard can be bypassed with a user-controlled key. In a multi-team deployment, a Dag author scoped to one team can supply a Variable key containing a path separator that causes the backend to resolve a secret belonging to a different team, because the lookup path is concatenated from an unvalidated key after the team-scoped lookup misses. The Execution API Variables route accepts a path-shaped key, so this is reachable from ordinary Dag code.\n\nAffects multi-team deployments using the Akeyless secrets backend. Single-team deployments are not affected, as there is no cross-team boundary to cross. This is the same class as CVE-2026-68870, CVE-2026-68871 and CVE-2026-68872 in the Azure Key Vault, Yandex Lockbox and Amazon secrets backends.\n\nUsers of apache-airflow-providers-akeyless are recommended to upgrade to version 0.3.1 or later, which fixes the issue.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86465"
-    },
-    {
-      "id": "CVE-2026-86462",
-      "published": "2026-09-16T09:17:07.090",
-      "lastModified": "2026-09-18T14:29:11.393",
-      "description": "Apache Airflow FAB provider: changing a user's password through the Admin user-edit PATCH endpoint does not invalidate that user's existing database-backed sessions. An attacker who already holds a copy of the victim's session cookie keeps full access as that user after the password change, so the password reset does not evict them. Affects deployments using the FAB auth manager with database-backed sessions; an administrator (or the user themselves) performing a routine password change is the trigger, and no attacker interaction with the endpoint is needed.\n\nThis is a second, independent route to the outcome addressed by CVE-2026-82311, which corrected an identifier comparison in the session-invalidation helper. That fix does not repair this endpoint, because the PATCH path never calls the helper at all. Deployments that applied the CVE-2026-82311 fix must also upgrade for this one.\n\nUsers of apache-airflow-providers-fab are recommended to upgrade to version 3.9.0 or later, which fixes the issue.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86462"
-    },
-    {
-      "id": "CVE-2026-86338",
-      "published": "2026-09-16T09:17:06.897",
-      "lastModified": "2026-09-16T20:38:33.883",
-      "description": "Ash field_policies are documented to protect against filter-based information disclosure: when a field the actor may not see is referenced in a filter, it is replaced with an expression that evaluates to nil, so a filter cannot be used as a yes/no oracle to read a value the actor cannot see.\n\nThis nilling was applied to attributes but not to calculations or aggregates. A user-supplied filter reference to a calculation or aggregate carries an Ash.Query.Calculation / Ash.Query.Aggregate struct, which the authorizer's reference replacement did not match (it only matched the Ash.Resource.* structs), so the filter ran against the real value.\n\nAs a result, an actor whose field policies forbid a calculation or aggregate can still filter by it (for example filter(secret_calc == \"x\") or filter(comment_count == n)) and learn the value from whether rows match — an oracle that recovers field-policy-protected values one probe at a time. Filtering is commonly exposed to lower-privileged actors (for example via AshGraphql or AshJsonApi filter arguments), which is exactly the surface field policies are meant to protect.\n\nThe fix routes filter references to calculations and aggregates through the same field-policy nilling as attributes.\n\nThis issue affects ash: from 2.11.0-rc.0 before 3.33.4.",
-      "score": 6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86338"
-    },
-    {
-      "id": "CVE-2026-85501",
-      "published": "2026-09-16T09:17:06.783",
-      "lastModified": "2026-09-16T19:41:10.423",
-      "description": "Novel vulnerabilities to launch algorithmic complexity attacks on DNSSEC have been researched under the term 'ReTrap'. These result in degradation of service when malicious zones are used to serve the algorithmic complexity vulnerabilities. NLnet Labs Unbound up to and including 1.26.0 is vulnerable to some of them. TagTrap, where  the triple(Zone, Algo, KeyTag) matching mechanism introduces a significant attack vector when resolvers handle malicious responses containing numerous mismatched DNSKEY, RRSIG, and DS record. DelegationTrap, where constructing the chain-of-trust requires iterative validation of DNSKEY and DS records from the root zone downward. For deeply nested domains, this results in significant computational overhead. NsecTrap, where  responses with excessive invalid NSEC records compel the resolver to validate each one. AdditionalTrap, where Unbound by default would try to DNSSEC validate the ADDITIONAL section as well. This can be exploited to waste validation resources by malicious users.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85501"
-    },
-    {
-      "id": "CVE-2026-82720",
-      "published": "2026-09-16T09:17:06.677",
-      "lastModified": "2026-09-16T19:41:10.423",
-      "description": "NLnet Labs Unbound 1.12.0 up to and including 1.26.0 has a use-after-free vulnerability when compiled for DNS-over-HTTPs support with '--with-libnghttp2'. During failure code paths (i.e., RPZ drop query, jostle due to heavy traffic), a dropped DoH stream brings down the whole DoH session and does not account properly for other DoH streams in the same session. This leads to use-after-free in those code paths. If the prerequisites are satisfied (possible RPZ drop or heavy client traffic), a malicious actor can trigger the vulnerability with a single DoH connection and the appropriate traffic. Impact is limited as the reads are not user controlled and the use-after-free leads to early returns. However, a hardened allocator can catch the use-after-free and controllably terminate the process resulting to denial of service.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82720"
-    },
-    {
-      "id": "CVE-2026-82717",
-      "published": "2026-09-16T09:17:06.550",
-      "lastModified": "2026-09-16T19:41:10.423",
-      "description": "In NLnet Labs Unbound up to and including 1.26.0, a vulnerability was found in that can progressively corrupt heap memory and under certain systems and compilation options could lead to remote code execution. The vulnerability starts when CNAME synthesis during an upstream response needs to enforce(rewrite) a max TTL value in the packet buffer. Coupled with a compression pointer that points to the overwritten value and invalidates the domain name, it leads to an error path that does not properly move the buffer position and allows for the heap buffer overflow. Since this is heavily reliant on heap memory layout, results are memory corruption that eventually leads to a crash and under specific systems and compilation options remote code execution.",
-      "score": 8.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82717"
-    },
-    {
-      "id": "CVE-2026-82311",
-      "published": "2026-09-16T09:17:06.430",
-      "lastModified": "2026-09-18T14:28:43.283",
-      "description": "Apache Airflow FAB provider: resetting a user's password does not delete that user's existing database-backed sessions, despite documented behaviour that it does. The cleanup compares the string identifier Flask-Login stores in the session against the user's integer database identifier, so the comparison never matches and no session is removed. An attacker who already holds a copy of the victim's session cookie keeps access as that user after the password change, so the reset does not evict them.\n\nAffects deployments using the FAB auth manager with `[fab] session_backend=database`. The trigger is an administrator (or the user) running the supported password-reset command as a containment action after a session cookie has been compromised; the secure-cookie backend is out of scope, as it documents that it cannot centrally delete sessions.\n\napache-airflow-providers-fab 3.9.0 also fixes CVE-2026-86462, a second, independent route to the same outcome via the Admin user-edit endpoint; a single upgrade closes both.\n\nUsers of apache-airflow-providers-fab are recommended to upgrade to version 3.9.0 or later, which compares the identifiers consistently.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82311"
-    },
-    {
-      "id": "CVE-2026-81642",
-      "published": "2026-09-16T09:17:06.320",
-      "lastModified": "2026-09-22T18:59:21.953",
-      "description": "In NLnet Labs Unbound up to and including 1.26.0, a vulnerability was found in the DNSSEC validator that enables denial of service and possible remote code execution as a result of digesting DNSKEYs. A DNSKEY with an owner compression pointer to its own RDATA can overflow the digest buffer. Remote code execution is possible through attacker controlled data. An adversary can exploit the vulnerability by controlling a malicious zone and querying a vulnerable Unbound.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81642"
-    },
-    {
-      "id": "CVE-2026-81634",
-      "published": "2026-09-16T09:17:06.210",
-      "lastModified": "2026-09-16T19:41:10.423",
-      "description": "In NLnet Labs Unbound up to and including 1.26.0, a 255 length query name with a large TCP response can lead to a heap buffer overflow during the RRSet canonicalisation routine. This is caused by missing to add the first owner name into the buffer length check. A malicious actor operating a malicious name server or tampering with an incoming response to Unbound (canonicalisation happens before DNSSEC validation), can trigger the vulnerability.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81634"
-    },
-    {
-      "id": "CVE-2026-80225",
-      "published": "2026-09-16T09:17:06.100",
-      "lastModified": "2026-09-16T19:41:10.423",
-      "description": "In NLnetLabs Unbound up to and including 1.26.0, a degradation of service vulnerability is present in the TCP/DoT reading procedure where there is no limit on consecutive reads. A malicious actor that can stream and sustain a rate of distinct uncached names over the TCP/DoT connection, monopolizes a single worker's entire event loop for as long as its writes stay ahead of the drain.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80225"
-    },
-    {
-      "id": "CVE-2026-78227",
-      "published": "2026-09-16T09:17:05.987",
-      "lastModified": "2026-09-16T19:41:10.423",
-      "description": "NLnet Labs Unbound 1.22.0 up to and including 1.26.1, has a use-after-free vulnerability when compiled for DNS-over-QUIC support with '--with-libngtcp2'. Each DoQ stream owns an output buffer that holds the DNS response. ngtcp2's retransmission buffer keeps a shallow pointer into the output buffer for as long as a STREAM frame may be resent. On a client RESET_STREAM, the output buffer is freed but ngtcp2 still holds the matching retransmission entries. The next PTO timeout makes ngtcp2 re-encode the STREAM frame and copy from the freed buffer. A malicious actor that can query Unbound over DoQ and that withholds ACKs, sends RESET_STREAM, and waits for PTO, reaches this use-after-free with no privilege. This leads to retransmissions against freed memory and eventually an abnormal server exit under a 20-query spray.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78227"
-    },
-    {
-      "id": "CVE-2026-77955",
-      "published": "2026-09-16T09:17:05.780",
-      "lastModified": "2026-09-16T19:41:10.423",
-      "description": "In NLnet Labs Unbound 1.13.2 up to and including 1.26.1, a vulnerability in ZONEMD configured zones (zonemd-check: yes) which are located below (but not at) a trust anchor allow for an attack window where (tampered with) zone contents are served (or stored to disk) prior to the ZONEMD integrity check. This is caused by the needed DS/DNSKEY asynchronous resolution that needs to happen before the ZONEMD check completes. If a zonefile is written to disk (zonefile: option) while the ZONEMD check failed, the tampered data are reloaded on startup and available until ZONEMD verification concludes again. If verification fails, the data is not served any more but still persists on disk for future reloads.",
-      "score": 4.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77955"
-    },
-    {
-      "id": "CVE-2026-77860",
-      "published": "2026-09-16T09:17:05.623",
-      "lastModified": "2026-09-16T19:41:10.423",
-      "description": "In NLnetLabs Unbound 1.20.0 up to and including 1.26.0, a vulnerability on the 'serve-expired' code path can cause a double decrement on the 'wait-limit' counter per client IP essentially bypassing one of the counter measures that was introduced for DNSBomb (CVE-2024-33655). A malicious actor can exploit this by controlling an authoritative zone with short TTL, so cached entries expire quickly. Each 'slow' query, one the attacker's authoritative never answers, is followed by one query for an expired cached name, which is answered immediately via the 'serve-expired' path and decrements the counter twice. This second query was named 'pump'. By alternating slow queries and pumps, the attacker keeps the per-client counter at or below the configured 'wait-limit' indefinitely, and can hold an arbitrary number of pending queries from a single source IP, up to the global mesh quota (num-queries-per-thread); eventually bypassing one of the counter measures introduced for DNSBomb (CVE-2024-33655). This vulnerability is present on the 'serve-expired' code path.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77860"
-    },
-    {
-      "id": "CVE-2026-73464",
-      "published": "2026-09-16T09:17:05.463",
-      "lastModified": "2026-09-17T04:18:00.663",
-      "description": "On affected platforms running Arista EOS with gRPC Network Management Interface (gNMI) enabled, a specially crafted request could allow a malicious authenticated client with gRPC Network Management Interface (gNMI) access to execute arbitrary code with root privileges on the switch.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73464"
-    },
-    {
-      "id": "CVE-2026-73463",
-      "published": "2026-09-16T09:17:05.300",
-      "lastModified": "2026-09-16T19:08:50.420",
-      "description": "On affected platforms running Arista EOS, when multiple gRPC Network Security Interface (gNSI) transports are configured, a race condition in the gNSI Authz service may cause a policy rotation to fail silently. An authenticated user whose access was revoked by the new policy may retain unauthorized access to gRPC interfaces. This does not affect Bootz.\n\nThis issue was discovered internally by Arista, and the company is not aware of any malicious exploitation of this vulnerability in customer networks.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73463"
-    },
-    {
-      "id": "CVE-2026-73461",
-      "published": "2026-09-16T09:17:05.147",
-      "lastModified": "2026-09-17T04:18:00.483",
-      "description": "On affected EOS platforms with AAA-based gRPC authorization enabled for OpenConfig, gRPC requests of an authenticated user to OpenConfig may use the wrong privilege level, resulting in an authorization using the wrong AAA method list. This does not impact non-gRPC OpenConfig requests such as NETCONF.",
-      "score": 8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73461"
-    },
-    {
-      "id": "CVE-2026-73454",
-      "published": "2026-09-16T09:17:05.020",
-      "lastModified": "2026-09-17T04:18:00.073",
-      "description": "On affected platforms running Arista EOS with gRPC Network Security Interface (gNSI) Credentialz configured, a specially crafted request can cause unintended modifications to the target account's properties. This may result in the account being assigned elevated privileges or access beyond what an administrator intended.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73454"
-    },
-    {
-      "id": "CVE-2026-73445",
-      "published": "2026-09-16T09:17:04.853",
-      "lastModified": "2026-09-16T19:09:28.447",
-      "description": "On affected platforms running Arista EOS, an issue with the gRPC Network Security Interface (gNSI) Authz Rotate RPC may cause an incorrect Authz policy which was uploaded in the ongoing RPC stream to become active. This does not affect Bootz.\n\nThis issue was discovered internally by Arista and the company is not aware of any malicious uses of this issue in customer networks.",
-      "score": 4.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73445"
-    },
-    {
-      "id": "CVE-2026-73439",
-      "published": "2026-09-16T09:17:04.687",
-      "lastModified": "2026-09-17T04:17:59.307",
-      "description": "On affected platforms running Arista EOS, if OpenConfig is configured and running a gNMI server on the system, and if gNSI Pathz is configured and a gNSI Pathz policy is present on the system, then gNMI may fail to correctly enforce the rules in this policy if both a group rule and a user rule for the same path is present in the policy. Under certain conditions, this can lead to an authenticated user gaining unauthorized permission to read or write gNMI paths that the Pathz policy is intended to restrict.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73439"
-    },
-    {
-      "id": "CVE-2026-2380",
-      "published": "2026-09-16T09:17:04.483",
-      "lastModified": "2026-09-16T19:09:28.447",
-      "description": "On affected platforms running Arista EOS with OpenConfig-related services (i.e., gNMI, gNSI, RESTCONF and NETCONF), sensitive requests and responses may be unintentionally logged. These may be stored on the local EOS device or recorded on remote accounting servers. Note that gRPC-based streaming via Streaming Telemetry Agent to CloudVision is not affected by this vulnerability.\n\nExamples of sensitive information include:\n- Sensitive CLI commands (e.g., \"username bob secret myPass\")\n- Sensitive OpenConfig YANG leafs (e.g., \"system/aaa/global/tacacs/config/secret-key\")\n\nThis issue was discovered internally by Arista, and the company is not aware of any malicious exploitation of this vulnerability in customer networks.",
-      "score": 7.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-2380"
     }
   ]
 }
