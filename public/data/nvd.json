@@ -1,6 +1,281 @@
 {
-  "syncedAt": "2026-09-23T21:43:56.920Z",
+  "syncedAt": "2026-09-23T22:18:38.923Z",
   "items": [
+    {
+      "id": "CVE-2026-92916",
+      "published": "2026-09-17T12:18:30.710",
+      "lastModified": "2026-09-18T20:17:30.443",
+      "description": "Grav is a flat-file CMS. In Grav 1.7.0 through 1.7.53.2 and 2.0.0 through 2.0.21, when the debugger is enabled (system.debugger.enabled: true, which is not the default), the Clockwork profiler endpoint is exposed without authentication: InitializeProcessor::handleDebuggerRequest() intercepts any path containing /__clockwork/ during bootstrap and passes it to Debugger::debuggerRequest(), which performs no user lookup, IP restriction, or Clockwork authenticator check, and also supports anonymous pagination over the entire stored history. With the shipped censored: false default, each stored record contains raw request cookies (including Grav's session cookie, whose value is the PHP session id, allowing an attacker to resume another user's session, including an authenticated admin's), the full parsed request body (Grav's login form posts data[username]/data[password], so passwords are stored in plaintext because Clockwork's password filter only inspects top-level keys), and the site's entire system and plugin configuration, including operator-saved secrets such as SMTP credentials, third-party API keys, and licence keys. Authorization and X-API-Token headers are stored even when censored: true. On Grav 2.0, setting provider: debugbar does not avoid the issue because Grav forces the Clockwork provider for requests preferring a JSON response. The issue is fixed in 1.7.53.4 and 2.0.22, which restrict /__clockwork/ to server-local requests or requests presenting the new system.debugger.token secret and strip cookies and credential headers from stored records. Workarounds include setting debugger.enabled: false or blocking /__clockwork/ at the web server or CDN.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92916"
+    },
+    {
+      "id": "CVE-2026-92915",
+      "published": "2026-09-17T12:18:30.573",
+      "lastModified": "2026-09-22T20:43:58.793",
+      "description": "WWBN AVideo through commit e01e41ecc (no patched version available) contains a broken access control flaw in objects/userVerifyEmail.php. The script disables the login requirement ($global['ignoreUserMustBeLoggedIn'] = 1), takes users_id directly from the query string, and calls User::sendVerificationLink() with no session requirement, no CSRF/global token, no relationship check between caller and target, and no enforceRateLimit() call. The only intended throttle is keyed to the caller's own session, so cookie-less requests are never limited. An unauthenticated remote attacker can therefore cause an arbitrary number of verification emails to be sent to any account ID, and can enumerate accounts and their verification status from the three distinct JSON responses (\"Verification Sent\", \"Already verified\", \"Unknown error\"). In addition, createVerificationCode() invokes $user->setRecoverPass() and saves the user, so each anonymous request writes a live password-recovery token onto the targeted account; that token is embedded in base64 in the verification link emailed to the account owner and is accepted by objects/userRecoverPassSave.json.php as the credential for setting a new password.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92915"
+    },
+    {
+      "id": "CVE-2026-92914",
+      "published": "2026-09-17T12:18:30.440",
+      "lastModified": "2026-09-22T20:43:58.793",
+      "description": "AVideo LoginControl contains an authentication bypass vulnerability in the PGP second factor verification that compares challenge responses using loose equality against an uninitialized session variable. Attackers with a victim's password can bypass the second factor by sending a parameter-less GET request to verifyChallenge.json.php, which evaluates null == null and marks authentication complete.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92914"
+    },
+    {
+      "id": "CVE-2026-92913",
+      "published": "2026-09-17T12:18:30.290",
+      "lastModified": "2026-09-22T20:43:58.793",
+      "description": "AVideo through commit c3edcc274c389816d434acadac07ee78eaf330c1 uses a cryptographically weak pseudo-random number generator when creating account activation / login pairing codes. getRandomCode() in objects/functions.php derives the code entirely from uniqid() (sprintf('%08x%05x', seconds, microseconds)) with a single non-CSPRNG rand() character used only as padding, reducing the code space to roughly 36 x 10^6 (~2^25) values for a known generation second. Because plugin/API/set.json.php?APIName=login_code can be called without authentication, it also serves as an oracle for the server's exact microtime. An unauthenticated remote attacker who guesses a valid, unexpired code (codes expire after 10 minutes) can redeem it at plugin/API/get.json.php?APIName=login_code to obtain the target account's email address and a User::getUserHash(users_id, '+1 year') value, a credential accepted in place of the account password for one year, resulting in account takeover. No patched version is available.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92913"
+    },
+    {
+      "id": "CVE-2026-92912",
+      "published": "2026-09-17T12:18:30.123",
+      "lastModified": "2026-09-22T20:43:58.793",
+      "description": "AVideo through c3edcc274c389816d434acadac07ee78eaf330c1 uses cryptographically weak uniqid() values for RTMP publish keys in LiveTransmition, reducing key entropy to approximately one million possibilities per creation second. Attackers who know the channel creation time can brute-force the five-digit microsecond component to forge valid stream keys and broadcast content as the channel owner.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92912"
+    },
+    {
+      "id": "CVE-2026-92860",
+      "published": "2026-09-17T12:18:29.927",
+      "lastModified": "2026-09-19T03:17:17.877",
+      "description": "A security flaw has been discovered in rcourtman Pulse up to 6.0.4/6.1.0-rc.4. Affected by this issue is the function fmt.Sprintf of the file /api/security/quick-setup of the component Quick Security Setup Handler. The manipulation of the argument Username results in improper input validation. The attack may be performed from remote. Upgrading the affected component is advised.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92860"
+    },
+    {
+      "id": "CVE-2026-90823",
+      "published": "2026-09-17T12:18:28.843",
+      "lastModified": "2026-09-18T19:25:29.923",
+      "description": "FatPipe MPVPN, WARP, and IPVPN appliances running the end-of-life firmware version 10.1.2r60p100 contain a stack-based buffer overflow in /usr/sbin/auth_user_pass. An unauthenticated remote attacker with access to the affected management interface can submit a crafted authentication request that reaches an unchecked copy into a fixed-size stack buffer, potentially allowing arbitrary code execution as root.\n\nThe affected management interface is disabled by default and must be affirmatively enabled by the customer before the endpoint becomes reachable. FatPipe recommends restricting management access to trusted administrative networks and using WAN access control lists to limit access to trusted sources.\n\nCustomers running the affected end-of-life firmware can contact FatPipe Support for help confirming their firmware version and upgrading to a current supported release at https://www.fatpipeinc.com/support/support, support@fatpipeinc.com, or +1 800-724-8521 (option 3).",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90823"
+    },
+    {
+      "id": "CVE-2026-90822",
+      "published": "2026-09-17T12:18:28.713",
+      "lastModified": "2026-09-18T19:25:29.923",
+      "description": "FatPipe MPVPN, WARP, and IPVPN appliances running the end-of-life firmware version 10.1.2r60p100 contain an OS command injection vulnerability in the xtremed daemon. An unauthenticated remote attacker with access to the affected management interface can submit crafted input to the AuthFormServlet endpoint, causing authentication data to be processed by a shell and allowing arbitrary commands to execute as root.\n\nThe affected management interface is disabled by default and must be affirmatively enabled by the customer before the endpoint becomes reachable. FatPipe recommends restricting management access to trusted administrative networks and using WAN access control lists to limit access to trusted sources.\n\nCustomers running the affected end-of-life firmware can contact FatPipe Support for help confirming their firmware version and upgrading to a current supported release at https://www.fatpipeinc.com/support/support, support@fatpipeinc.com, or +1 800-724-8521 (option 3).",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90822"
+    },
+    {
+      "id": "CVE-2026-81480",
+      "published": "2026-09-17T12:18:28.080",
+      "lastModified": "2026-09-18T18:13:20.457",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains a Stack-based Buffer Overflow vulnerability. A high privileged attacker with remote access could potentially exploit this vulnerability, leading to Code execution.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81480"
+    },
+    {
+      "id": "CVE-2026-81479",
+      "published": "2026-09-17T12:18:27.950",
+      "lastModified": "2026-09-18T17:55:19.340",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains a Partial String Comparison vulnerability. A low privileged attacker with local access could potentially exploit this vulnerability, leading to Denial of service.",
+      "score": 5.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81479"
+    },
+    {
+      "id": "CVE-2026-81478",
+      "published": "2026-09-17T12:18:27.830",
+      "lastModified": "2026-09-18T18:13:20.457",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains a Use of Hard-coded Cryptographic Key vulnerability. An unauthenticated attacker with remote access could potentially exploit this vulnerability, leading to Unauthorized access.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81478"
+    },
+    {
+      "id": "CVE-2026-81477",
+      "published": "2026-09-17T12:18:27.710",
+      "lastModified": "2026-09-18T18:13:20.457",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains a Heap-based Buffer Overflow vulnerability. A high privileged attacker with remote access could potentially exploit this vulnerability, leading to Code execution.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81477"
+    },
+    {
+      "id": "CVE-2026-81476",
+      "published": "2026-09-17T12:18:27.580",
+      "lastModified": "2026-09-18T18:13:20.457",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains an Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability. An unauthenticated attacker with remote access could potentially exploit this vulnerability, leading to Remote execution.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81476"
+    },
+    {
+      "id": "CVE-2026-81475",
+      "published": "2026-09-17T12:18:27.457",
+      "lastModified": "2026-09-18T18:13:20.457",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains a Missing Authentication for Critical Function vulnerability. An unauthenticated attacker with remote access could potentially exploit this vulnerability, leading to Remote execution.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81475"
+    },
+    {
+      "id": "CVE-2026-81441",
+      "published": "2026-09-17T12:18:27.337",
+      "lastModified": "2026-09-18T17:55:19.340",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains a Missing Authentication for Critical Function vulnerability. An unauthenticated attacker with local access could potentially exploit this vulnerability, leading to Denial of service.",
+      "score": 4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81441"
+    },
+    {
+      "id": "CVE-2026-81440",
+      "published": "2026-09-17T12:18:27.210",
+      "lastModified": "2026-09-18T17:55:19.340",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains a Use of Hard-coded Credentials vulnerability. An unauthenticated attacker with remote access could potentially exploit this vulnerability, leading to Unauthorized access.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81440"
+    },
+    {
+      "id": "CVE-2026-78296",
+      "published": "2026-09-17T12:18:26.853",
+      "lastModified": "2026-09-19T15:17:02.303",
+      "description": "Insufficient Verification of Data Authenticity vulnerability in WP ManageNinja LLC FluentAuth allows Identity Spoofing.\n\nThis issue affects FluentAuth: from n/a through 2.1.2.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78296"
+    },
+    {
+      "id": "CVE-2026-53679",
+      "published": "2026-09-17T12:18:24.717",
+      "lastModified": "2026-09-17T12:18:24.717",
+      "description": "Rejected reason: Red Hat Product Security has come to the conclusion that this CVE is not needed.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53679"
+    },
+    {
+      "id": "CVE-2026-11874",
+      "published": "2026-09-17T12:17:23.893",
+      "lastModified": "2026-09-17T12:17:23.893",
+      "description": "Rejected reason: Red Hat Product Security has come to the conclusion that this CVE is not needed.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-11874"
+    },
+    {
+      "id": "CVE-2026-92903",
+      "published": "2026-09-17T11:17:03.460",
+      "lastModified": "2026-09-18T19:07:38.320",
+      "description": "Improper input validation in Snowflake CLI versions prior to 3.27.0 allowed unsanitized user-controlled values to be interpolated into SQL strings that are executed as multi-statement queries. An attacker who is able to supply a malicious project configuration file or craft command-line input can cause Snowflake CLI to execute attacker-controlled SQL statements in the context of the victim's Snowflake session and active role. Successful exploitation requires either write or pull-request access to a project repository whose CI/CD pipeline runs Snowflake CLI under an elevated service account role, or the ability to supply untrusted input to CLI-wrapping automation. Impact is limited by the privileges held by the configured Snowflake role at execution time. The fix is available in Snowflake CLI version 3.27.0, which also addresses several additional security findings. Users must manually upgrade.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92903"
+    },
+    {
+      "id": "CVE-2026-92893",
+      "published": "2026-09-17T11:17:03.337",
+      "lastModified": "2026-09-18T19:06:08.407",
+      "description": "A flaw was found in the foreman_ansible plugin's Ansible inventory API. The controller builds its host query using an unscoped Host.where call that does not enforce the search filter associated with the caller's view_hosts permission. An authenticated user whose host visibility is restricted by a permission filter can supply arbitrary host IDs within their organization and receive the full Ansible inventory for those hosts, including parameter values marked as hidden.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92893"
+    },
+    {
+      "id": "CVE-2026-92611",
+      "published": "2026-09-17T11:17:03.210",
+      "lastModified": "2026-09-18T19:34:36.657",
+      "description": "In Eclipse Ankaios versions 0.6.0 to before 1.0.4, `LogRule::matches` in the agent control-interface authorizer stops at the first wildcard pattern in a single rule instead of evaluating later entries, which can cause deny `LogRule` entries to be skipped and allow unauthorized access to another workload's logs.",
+      "score": 4.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92611"
+    },
+    {
+      "id": "CVE-2026-81474",
+      "published": "2026-09-17T11:17:03.077",
+      "lastModified": "2026-09-18T17:55:19.340",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains a Heap-based Buffer Overflow vulnerability. A low privileged attacker with local access could potentially exploit this vulnerability, leading to Elevation of privileges.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81474"
+    },
+    {
+      "id": "CVE-2026-81439",
+      "published": "2026-09-17T11:17:02.957",
+      "lastModified": "2026-09-18T17:55:19.340",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains an Incorrect Authorization vulnerability. A low privileged attacker with remote access could potentially exploit this vulnerability, leading to Protection mechanism bypass.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81439"
+    },
+    {
+      "id": "CVE-2026-81438",
+      "published": "2026-09-17T11:17:02.833",
+      "lastModified": "2026-09-18T17:55:19.340",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains Use of a Broken or Risky Cryptographic Algorithm vulnerability. An unauthenticated attacker with remote access could potentially exploit this vulnerability, leading to Information disclosure.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81438"
+    },
+    {
+      "id": "CVE-2026-66269",
+      "published": "2026-09-17T11:17:02.693",
+      "lastModified": "2026-09-18T17:55:19.340",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains a Use of Externally-Controlled Input to Select Classes or Code ('Unsafe Reflection') vulnerability. An unauthenticated attacker with remote access could potentially exploit this vulnerability, leading to Protection mechanism bypass.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66269"
+    },
+    {
+      "id": "CVE-2026-92894",
+      "published": "2026-09-17T10:17:06.423",
+      "lastModified": "2026-09-18T19:06:08.407",
+      "description": "A flaw was found in the foreman_ansible plugin's Ansible override values API. The destroy action resolves the target LookupValue record by ID without verifying it belongs to an AnsibleVariable the caller is authorized to edit. An authenticated user with the edit_ansible_variables permission can delete any LookupValue by ID, including override values for Ansible variables outside their permission filter scope and override values belonging to Puppet smart class parameters.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92894"
+    },
+    {
+      "id": "CVE-2026-78428",
+      "published": "2026-09-17T10:17:03.760",
+      "lastModified": "2026-09-18T19:07:38.320",
+      "description": "For users authenticated through SAML or OpenID Connect (OIDC), this vulnerability can result in one user receiving another user's authenticated session when multiple SSO login attempts occur concurrently",
+      "score": 8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78428"
+    },
+    {
+      "id": "CVE-2026-78427",
+      "published": "2026-09-17T10:17:03.637",
+      "lastModified": "2026-09-18T19:07:38.320",
+      "description": "The NeuVector admission webhook silently excludes containers from policy evaluation when their image path matches one of three hardcoded service mesh sidecar images. Since the image path is entirely controlled by the workload author, any user capable of deploying workloads can evade admission deny rules simply by naming their image path after one of these sidecar images.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78427"
+    },
+    {
+      "id": "CVE-2026-78426",
+      "published": "2026-09-17T10:17:03.520",
+      "lastModified": "2026-09-18T19:07:38.320",
+      "description": "The NeuVector JWT verifier accepts noncanonical Base64URL encodings of the same RSA signature field. An attacker holding a valid JWT that has not expired, but was logged out of NeuVector, can continue using the non-expired token with equivalent spelling of the RSA signature field until the token validity expires.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78426"
+    },
+    {
+      "id": "CVE-2026-78425",
+      "published": "2026-09-17T10:17:02.427",
+      "lastModified": "2026-09-18T19:07:38.320",
+      "description": "Authorised users of outside applications behind the same corporate identity provider (IdP), for example, a wiki, a ticketing system, an expenses tool, or anything they legitimately hold an account on can log into their system via SAML SSO. The IdP issues an assertion to them. If that assertion is presented to NeuVector, NeuVector accepts it because the only thing distinguishing \"an assertion for NeuVector\" from \"an assertion for the wiki\" is the element, and the `NotInAudience` warning that reports the mismatch is never read.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78425"
+    },
     {
       "id": "CVE-2026-50610",
       "published": "2026-09-17T09:16:41.487",
@@ -619,285 +894,6 @@
       "score": 6.5,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61588"
-    },
-    {
-      "id": "CVE-2026-92599",
-      "published": "2026-09-16T22:18:30.980",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "joi (npm package `joi`, hapi.js) versions >=17.2.0 <17.13.7 and >=18.0.0 <18.2.6 are vulnerable to regular expression denial of service in the `Joi.string().isoDate()` validation rule. One of the regular expressions the rule applies to the input is unanchored, so a valid ISO date followed by a long run of fractional-second digits causes the regex engine to restart its search from every position in the string, yielding time proportional to the square of the input length (about 1.4 s for 64 KB of digits and about 22 s for 256 KB). A remote attacker who can supply a string to an isoDate validation can stall the application with a single request. Fixed in 17.13.7 and 18.2.6; as a workaround, cap the length of the string before it reaches joi.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92599"
-    },
-    {
-      "id": "CVE-2026-92598",
-      "published": "2026-09-16T22:18:30.840",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "Nodemailer before 9.1.0 fails to apply UTS-46 normalization when encoding international domain names, causing the domain resolver to compute a different Punycode A-label than standards-compliant parsers. Attackers can craft recipient addresses with invisible characters or compatibility mappings that pass domain allow-list checks but are delivered to attacker-controlled domains via SMTP.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92598"
-    },
-    {
-      "id": "CVE-2026-92597",
-      "published": "2026-09-16T22:18:30.700",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "Nodemailer versions >= 6.9.16 and < 9.1.0 mis-parse RFC 5322 comments in email addresses: in lib/addressparser, a comment closed immediately before a non-break character causes the tokenizer to concatenate the atoms surrounding the comment instead of treating the comment as folding whitespace that terminates the domain. A recipient address such as user@good-corp.com(x)evil.com is therefore read by Nodemailer as the single domain good-corp.comevil.com (registrable domain comevil.com, which an attacker can register) and used for both the SMTP envelope (RCPT TO) and the emitted To:/From: headers, while a conformant RFC 5322 parser terminates the domain at the comment and reads good-corp.com. An application that validates the recipient domain with a strict RFC 5322 parser (without inspecting parse defects) or a naive prefix/substring allow-list and then hands the raw address to Nodemailer can be induced to deliver mail to a domain the attacker controls. Fixed in 9.1.0.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92597"
-    },
-    {
-      "id": "CVE-2026-92596",
-      "published": "2026-09-16T22:18:30.557",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "Nodemailer before 9.1.0 contains a quadratic time complexity vulnerability in the addressparser component that allows remote attackers to cause denial of service by supplying a crafted comma-separated address list. Attackers can send a single email with a large number of addresses to block the Node.js event loop for extended periods, consuming 100% CPU and freezing the process.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92596"
-    },
-    {
-      "id": "CVE-2026-92595",
-      "published": "2026-09-16T22:18:30.417",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "Nodemailer (npm package `nodemailer`) versions 9.1.0 and earlier do not honor the `disableFileAccess` and `disableUrlAccess` sandbox options when message content is resolved through the public plugin API `MailMessage.resolveContent()` using the documented legacy three-argument signature `resolveContent(data, key, callback)`. Because `shared.resolveContent()` normalizes the missing `options` argument to an empty object, the message-level flags copied into `mail.data` by the MailMessage constructor are discarded, and `resolveContentValue()` skips both access-control checks, reaching `nmfetch(url)` or `fs.createReadStream(path)`. As a result, plugin or application code that resolves untrusted message content (html, text, attachment `path` or `href`) via this API can be induced to read arbitrary local files or issue outbound HTTP(S) requests (server-side request forgery), bypassing the sandbox the application enabled. The internal paths used by `transporter.sendMail()` (`resolveAll()`, `_convertDataImages()`, and the MIME streaming path) are not affected. Fixed in version 9.1.1.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92595"
-    },
-    {
-      "id": "CVE-2026-92594",
-      "published": "2026-09-16T22:18:30.283",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "Craft CMS 5.0.0-RC1 through versions before 5.11.0 incorrectly authorize the GraphQL draftCreator and revisionCreator fields: instead of requiring the user-data scope enforced by Gql::canQueryUsers() (usergroups.*:read), these fields are gated only on the elements.drafts:read / elements.revisions:read scopes, and their resolver returns a raw User element whose email, username, fullName, and addresses fields have no per-field authorization. A client holding only the drafts or revisions scope — including an unauthenticated client when the operator has enabled the public GraphQL schema with those scopes — can therefore harvest the email addresses, usernames, full names, and postal addresses of all draft/revision creators (typically site editors and administrators). The issue is fixed in 5.11.0.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92594"
-    },
-    {
-      "id": "CVE-2026-92593",
-      "published": "2026-09-16T22:18:30.150",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "Craft CMS versions 5.10.0 through 5.10.12 contain an incomplete fix for CVE-2026-55794: the Controller::getPostedRedirectUrl() -> View::renderObjectTemplate() sink remained unsandboxed, and the same fix commit added a self-signing oracle in Cp::elementLabelHtml(). Because Craft/Yii HMAC tokens are not bound to a parameter name, an authenticated low-privilege control panel user with edit rights on a single element type can mint a token over attacker-controlled Twig for the returnUrl parameter and replay it as the redirect POST parameter, reaching the unsandboxed sink and achieving server-side template injection that executes arbitrary PHP code (full server compromise). The issue is fixed in 5.10.13.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92593"
-    },
-    {
-      "id": "CVE-2026-92592",
-      "published": "2026-09-16T22:18:30.013",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "Craft CMS 4.8.0 through 4.18.5 and 5.0.0 through 5.10.12 sign an authenticated user's attacker-controlled license-shun cookie with the same key and format used to validate signed redirect parameters, because the HMAC signature is not bound to its purpose (Yii's cookieValidationKey is derived from the same Craft securityKey used for signed request parameters). An authenticated, non-administrator user (Control Panel access is not required) can set the cookie via the license-shun endpoint and transplant the signed envelope into the redirect parameter; on a successful login, Craft validates the signature and renders the authenticated bytes as an unsandboxed Twig template, where Twig's map filter accepts a string callback and allows PHP system() to execute arbitrary operating-system commands as the web-server user. Exploitation requires an account using password authentication without active 2FA, the default request configuration, and availability of PHP system(). The issue is fixed in 4.18.6 and 5.10.13.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92592"
-    },
-    {
-      "id": "CVE-2026-92591",
-      "published": "2026-09-16T22:18:29.873",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "Craft CMS 5.0.0 through 5.10.12 treats a database connection failure as meaning that Craft is not installed, which makes anonymous installer actions — including install/validate-site — reachable on an installed production site whenever PHP remains available but the configured MySQL endpoint does not. The action accepts a site name, serializes it through Site::getName(), and expands ${NAME} expressions using App::env(). An unauthenticated attacker who obtained a guest session cookie and matching CSRF token before the outage and whose session remains valid during it can submit a predictable variable name (for example Craft's conventional CRAFT_SECURITY_KEY) and receive its value, disclosing Craft secrets, process environment variables, $_SERVER entries, or PHP constants such as the security key, database credentials, or API keys. The issue requires an independently occurring database outage; the vulnerability itself provides no way to induce it. Fixed in 5.10.13.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92591"
-    },
-    {
-      "id": "CVE-2026-92590",
-      "published": "2026-09-16T22:18:29.730",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "Craft CMS versions from 5.7.0 before 5.10.13 contain a stored cross-site scripting vulnerability in the Generated Fields feature that disables Twig autoescaping and fails to encode cached values. Content editors can inject malicious JavaScript through editable fields that executes in authenticated Control Panel sessions of higher-privileged users viewing element indexes.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92590"
-    },
-    {
-      "id": "CVE-2026-92589",
-      "published": "2026-09-16T22:18:29.583",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "Craft CMS 5.0.0 through 5.10.12 (fixed in 5.10.13) contains a broken access control flaw in the nested-elements reorder endpoint. When an authenticated control panel user with viewEntries and viewPeerEntries (but without savePeerEntries) opens another author's entry in read-only mode, Craft unconditionally grants that session a `manageNestedElements::<ownerId>::field:<handle>` authorization flag for the entry's Matrix/Address fields. Unlike the corresponding delete endpoint, actions/nested-elements/reorder trusts this session flag alone and never rechecks the caller's save permission for the owner element. As a result, a view-only user can POST to actions/nested-elements/reorder using the ownerElementType, ownerId, ownerSiteId, attribute, elementIds, and offset parameters present in the read-only page source and rewrite the sort order of Matrix blocks or Addresses belonging to content they are explicitly denied save access to.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92589"
-    },
-    {
-      "id": "CVE-2026-92588",
-      "published": "2026-09-16T22:18:29.447",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "n8n is a workflow automation platform. In n8n versions before 1.123.76, 2.37.7, and 2.38.2, the source control push endpoint derived the set of files to push from the file paths and status supplied in the client request payload instead of from the server-side status computed for the requesting user. An authenticated project-scoped user (e.g., a project admin) could therefore reference files belonging to projects they have no access to and push a deletion of those projects' workflows and credentials, resulting in cross-project data destruction. Exploitation requires the Source Control (Environments) enterprise feature to be licensed, enabled, and connected to a remote repository. The issue is fixed in 1.123.76, 2.37.7, and 2.38.2.",
-      "score": 4.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92588"
-    },
-    {
-      "id": "CVE-2026-92587",
-      "published": "2026-09-16T22:18:29.293",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "n8n is a workflow automation platform. In versions before 1.123.76, 2.37.7, and 2.38.2, the Git node validated a relative remote URL against the configured repositoryPath but then invoked git with that path as its working directory; git walked up to the enclosing repository's top level and resolved the same relative URL from there. An authenticated user (member) who nested the repository one level below the configured path could therefore make an identical URL string pass the file-access check while git resolved it outside the sandbox. A subsequent fetch or pull read a git repository outside N8N_RESTRICT_FILE_ACCESS_TO and merged its objects into the user's own repository, where their contents could be read back. The issue is fixed in n8n 1.123.76, 2.37.7, and 2.38.2, which resolve the remote reference from the directory git actually operates in before applying the sandbox check. As a workaround, the Git node can be disabled by adding n8n-nodes-base.git to NODES_EXCLUDE.",
-      "score": 5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92587"
-    },
-    {
-      "id": "CVE-2026-92586",
-      "published": "2026-09-16T22:18:29.157",
-      "lastModified": "2026-09-22T20:43:58.793",
-      "description": "AVideo through 29.0 (commit c3edcc274c389816d434acadac07ee78eaf330c1) fails to verify video access permissions in the set_api_comment function, allowing authenticated users to post comments on password-protected and group-restricted videos. Attackers can submit POST requests to the comment API endpoint with arbitrary video IDs to write comments on videos they cannot watch.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92586"
-    },
-    {
-      "id": "CVE-2026-92585",
-      "published": "2026-09-16T22:18:29.027",
-      "lastModified": "2026-09-22T20:43:58.793",
-      "description": "AVideo through 29.0 (commit c3edcc274c389816d434acadac07ee78eaf330c1) fails to validate video access permissions in the API like endpoint, allowing logged-in users to vote on password-protected and group-restricted videos. Attackers can submit like and dislike requests to increment vote counters on videos they cannot watch by calling the set.json.php endpoint with APIName parameters.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92585"
-    },
-    {
-      "id": "CVE-2026-92584",
-      "published": "2026-09-16T22:18:28.890",
-      "lastModified": "2026-09-22T20:43:58.793",
-      "description": "AVideo through 29.0 (current revision e01e41ecc) contains a stored cross-site scripting vulnerability. The unauthenticated view-counter endpoint objects/videoAddViewCount.json.php reaches VideoStatistic::save(), which writes the caller's User-Agent (via getUserAgentInfo(), which returns unrecognized agent strings verbatim) directly into the `app` column of the videos_statistics table without invoking the sanitizing setter setApp(); normalizeApp() only truncates the value to 45 characters. The video owner's and administrator's statistics page (view/videoViewsInfo.php) renders this field in a DataTables 1.12.1 column with an unescaped renderer, and DataTables assigns cell content using innerHTML, so attacker-supplied HTML is parsed and executed in the privileged user's authenticated session when the statistics page is viewed. No patched version was available at the time of the advisory.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92584"
-    },
-    {
-      "id": "CVE-2026-92583",
-      "published": "2026-09-16T22:18:28.747",
-      "lastModified": "2026-09-22T20:43:58.793",
-      "description": "AVideo through 29.0 contains a race condition in the enforceRateLimit() function that fails to atomically increment rate limit counters, allowing attackers to bypass all rate limits including login brute-force protection by issuing concurrent requests. Attackers can submit parallel credential attempts to exceed the documented 30-attempts-per-5-minutes login limit by an arbitrary factor determined only by their connection concurrency.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92583"
-    },
-    {
-      "id": "CVE-2026-92582",
-      "published": "2026-09-16T22:18:28.600",
-      "lastModified": "2026-09-22T20:43:58.793",
-      "description": "AVideo (WWBN/AVideo) through 29.0 (commit e01e41ecc) is vulnerable to cross-site request forgery. objects/videoAddNew.json.php disables AVideo's automatic CSRF guard ($global['skipAutoCSRFCheck']) and the untrusted-request check ($global['bypassSameDomainCheck']) merely because 'user' and 'pass' parameters are present in the request; the values are never validated and are read from $_REQUEST, so an attacker can supply them in the query string of a cross-site request. Because User::loginFromRequestIfNotLogged() returns immediately when a session already exists, a victim who is authenticated by cookie satisfies the check while the attacker-supplied credentials are discarded. An attacker who lures an authenticated user with upload rights to visit a crafted page can therefore submit cross-origin requests that modify video records — including ownership transfer (setUsers_id), deletion of user-group access restrictions, can_download, can_share, only_for_paid, video_password, rating, status, creation date, and view count. For a victim with administrator or Permissions::canAdminVideos() rights, any video on the site can be altered, including removing group restrictions from private content. No patched version was available at the time of the advisory.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92582"
-    },
-    {
-      "id": "CVE-2026-92581",
-      "published": "2026-09-16T22:18:28.470",
-      "lastModified": "2026-09-22T20:43:58.793",
-      "description": "In AVideo through 29.0, Like::__construct() performs counter arithmetic on raw request values before validation, allowing array-typed parameters to desynchronize stored votes from counters. Authenticated attackers can send array-typed like parameters followed by ordinary requests to drive video like counts arbitrarily negative, with the corruption persisting in the denormalized counter until manual repair.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92581"
-    },
-    {
-      "id": "CVE-2026-92580",
-      "published": "2026-09-16T22:18:28.333",
-      "lastModified": "2026-09-22T20:43:58.793",
-      "description": "In AVideo through 29.0, the CloneSite plugin is vulnerable to stored OS command injection. In plugin/CloneSite/cloneClient.json.php (line ~270) the stored SSH password is substituted into the command string `sshpass -p '{password}' rsync ...` with a plain str_replace and no escaping, so a single quote in the password breaks out of the quoted word and injects arbitrary shell. The password is written through the admin-only endpoint objects/pluginAddDataObject.json.php, whose only CSRF defense (isUntrustedRequest()/forbidIfIsUntrustedRequest()) is a no-op when the request source appears to be loopback — as happens behind a same-host TLS-terminating reverse proxy with $global['trustedProxies'] unset — or when an attacker-controlled application is co-hosted on the same hostname; on HTTPS the session cookie is issued with SameSite=None, so a cross-site POST carries it. An unauthenticated remote attacker can therefore lure an authenticated administrator into planting a malicious password (and an attacker-controlled cloneSiteURL), after which the plugin's documented crontab entry executes the injected command with no further administrator action, as the crontab owner (commonly root or www-data). Exploitation requires the CloneSite plugin to be enabled with the documented crontab installed and one of the above CSRF channels; default single-process Apache deployments are reported as not CSRF-exploitable. This is a residual sink of CVE-2026-41304. The issue is confirmed at master HEAD (8963b6a1); no patched version is available.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92580"
-    },
-    {
-      "id": "CVE-2026-92579",
-      "published": "2026-09-16T22:18:28.193",
-      "lastModified": "2026-09-22T20:43:58.793",
-      "description": "In AVideo through 29.0, the autoCSRFGuard() function maintains a hardcoded allowlist of exempt basenames tested without directory context, allowing plugin files matching core filenames to inherit CSRF exemptions. The LoginWordPress plugin file login.json.php inherits an exemption and unconditionally logs out authenticated users on cross-site POST requests before validating credentials.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92579"
-    },
-    {
-      "id": "CVE-2026-92578",
-      "published": "2026-09-16T22:18:28.053",
-      "lastModified": "2026-09-22T20:43:58.793",
-      "description": "WWBN AVideo through 29.0 contains an authentication bypass vulnerability where the stored password hash is accepted as a valid login credential through two independent code paths in loginFromRequest() and encryptPasswordVerify(). Attackers who obtain the stored users.password hash value can authenticate as any user by submitting the hash directly to login endpoints, completely bypassing password verification.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92578"
-    },
-    {
-      "id": "CVE-2026-92577",
-      "published": "2026-09-16T22:18:27.910",
-      "lastModified": "2026-09-22T20:43:58.793",
-      "description": "In AVideo through 29.0, the API get_api_video endpoint contains a broken access control vulnerability in the clean_title branch that returns user-group-restricted videos with owner PII to anonymous callers. Attackers can query videos by their public slug to bypass group restrictions and retrieve sensitive user fields including email, phone, address, birth date, and administrator status.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92577"
-    },
-    {
-      "id": "CVE-2026-92576",
-      "published": "2026-09-16T22:18:27.757",
-      "lastModified": "2026-09-17T14:17:54.510",
-      "description": "HKUDS nanobot before 0.3.0 contains a server-side request forgery vulnerability in the WebFetchTool component where the _validate_url() function fails to block internal IP ranges and private addresses. Attackers can send messages instructing the bot to fetch cloud metadata endpoints, localhost services, and RFC 1918 addresses to extract IAM credentials and internal service data.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92576"
-    },
-    {
-      "id": "CVE-2026-89034",
-      "published": "2026-09-16T22:18:27.613",
-      "lastModified": "2026-09-22T20:43:58.793",
-      "description": "TCH QRing smart ring model R20_B006 running firmware RT09R20_1.00.00_250318 contains an unauthenticated Bluetooth Low Energy access vulnerability that allows any nearby attacker to connect to the device without pairing, authentication, or user approval by exploiting the exposed Nordic UART Service which enforces no client authentication or command authorization. Attackers within Bluetooth Low Energy range can connect directly to the ring, bypassing the official application and cloud authentication, to read battery levels, activate live heart rate monitoring, and retrieve stored historical heart rate and blood oxygen records.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89034"
-    },
-    {
-      "id": "CVE-2026-85469",
-      "published": "2026-09-16T22:18:27.037",
-      "lastModified": "2026-09-18T19:06:08.407",
-      "description": "A flaw was found in quay-builder-qemu. A remote attacker could exploit this by compromising the upstream `Noelware/docker-manifest-action` used in the release workflow, which is pinned to a mutable branch. This allows the attacker to inject arbitrary code, leading to the exfiltration of sensitive registry credentials or the publication of malicious images. The workflow also exposes the default GitHub token, increasing the severity of the compromise.",
-      "score": 8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85469"
-    },
-    {
-      "id": "CVE-2026-64684",
-      "published": "2026-09-16T22:17:04.577",
-      "lastModified": "2026-09-23T18:12:04.247",
-      "description": "RMCP is an official Rust SDK for the Model Context Protocol. Prior to 2.1.0, the rmcp crate's StreamableHttpClientTransport in crates/rmcp/src/transport/common/reqwest/streamable_http_client.rs builds its default_http_client with reqwest's automatic redirect policy and applies caller-supplied values from StreamableHttpClientTransportConfig.custom_headers without marking them as sensitive. When a malicious or compromised MCP endpoint returns a cross-origin 307 or 308 redirect, reqwest follows the redirect and apply_custom_headers causes custom API keys or authentication tokens to be replayed to the new origin, where an attacker can capture and reuse them. The separate auth_header path is not affected because it uses the standard Authorization header, which reqwest strips on cross-origin redirects. This issue is fixed in version 2.1.0.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-64684"
-    },
-    {
-      "id": "CVE-2026-61597",
-      "published": "2026-09-16T22:17:03.187",
-      "lastModified": "2026-09-17T16:17:33.180",
-      "description": "djust provides Phoenix LiveView-style reactive server-side rendering for Django with Rust-powered performance. Prior to version 1.0.7, many djust built-in component template tags (`djust.components.templatetags.*`) render a developer/user-supplied URL into an `href` / `action` attribute, HTML-escaping it with `conditional_escape` but never validating the URL scheme. HTML escaping prevents attribute breakout but does not neutralize a `javascript:` URI (which needs no escapable characters), so a URL value of `javascript:alert(document.cookie)` lands verbatim in `<a href=\"javascript:alert(document.cookie)\">` and executes in the victim's session on click. Version 1.0.7 contains a fix. As a workaround, do not pass user-controllable URLs to the affected built-in component tags; pre-validate URL schemes in application code before binding them to component arguments.",
-      "score": 5.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61597"
-    },
-    {
-      "id": "CVE-2026-61594",
-      "published": "2026-09-16T22:17:03.047",
-      "lastModified": "2026-09-17T15:16:48.730",
-      "description": "djust provides Phoenix LiveView-style reactive server-side rendering for Django with Rust-powered performance. Prior to version 1.0.7, the live (WebSocket) transport authorizes a mount via `check_view_auth`, not Django's `View.dispatch()` chain. As a result, standard Django authorization — `LoginRequiredMixin`, `PermissionRequiredMixin`, `UserPassesTestMixin`, `@method_decorator(login_required, name=\"dispatch\")`, and custom `dispatch()` guards — and the djust admin extension's staff gate (applied only in the HTTP `as_view` wrapper) were enforced on the initial HTTP GET but silently bypassed over WebSocket, where all events and state flow. An anonymous or under-privileged client could open a WebSocket and mount such a view — including admin list/create/change/delete — and dispatch its handlers. This is fixed in djust 1.0.7. `check_view_auth` now honors the Django `AccessMixin` family on every transport; a new system check S004 fails loud at startup on auth patterns the runtime cannot safely replay (decorator/overridden-`dispatch` forms); and the admin base mixin declares `login_required = True` + an active-staff `check_permissions` gate. As a workaround, gate views using djust's `login_required` / `permission_required` / `check_permissions` attributes (honored on all transports) rather than HTTP-only mixins/decorators.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61594"
-    },
-    {
-      "id": "CVE-2026-61592",
-      "published": "2026-09-16T22:17:02.900",
-      "lastModified": "2026-09-17T20:16:54.393",
-      "description": "djust provides Phoenix LiveView-style reactive server-side rendering for Django with Rust-powered performance. Prior to version 1.0.7, SSE sessions were keyed solely by a client-chosen `session_id` with no binding to the authenticated user — a control the WebSocket transport has but that was dropped on SSE. An attacker who learns (or a victim who leaks) a `session_id` could connect to the message endpoint and dispatch event handlers that execute with the victim's identity and state. This is fixed in djust 1.0.7. Each SSE session is bound to its owning principal at creation and cross-principal access is rejected; SSE session creation is additionally capped per principal. As a workaround, disable the SSE transport.",
-      "score": 7.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61592"
-    },
-    {
-      "id": "CVE-2026-61591",
-      "published": "2026-09-16T22:17:02.763",
-      "lastModified": "2026-09-17T14:17:14.740",
-      "description": "djust provides Phoenix LiveView-style reactive server-side rendering for Django with Rust-powered performance. Prior to version 1.0.7, for views that opt into state snapshots, the snapshot `state_json` embedded in the client page was restored on reconnect as trusted view state with no integrity check. A client could edit the unsigned `state_json` in their page and return it in the reconnect mount frame to inject arbitrary view attributes — e.g. flip `is_admin` to `True`, or change `account_id` / `balance` — escalating privilege or tampering with business state held in public view attributes (the normal djust pattern). This issue is fixed in djust 1.0.7. State snapshots are signed; unsigned or forged snapshots are rejected on the back-navigation restore path. As a workaround, do not enable state snapshots; do not hold authorization/ownership state in public view attributes.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61591"
     }
   ]
 }
