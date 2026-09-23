@@ -1,6 +1,208 @@
 {
-  "syncedAt": "2026-09-23T09:46:06.295Z",
+  "syncedAt": "2026-09-23T10:19:51.262Z",
   "items": [
+    {
+      "id": "CVE-2026-89889",
+      "published": "2026-09-16T11:16:57.473",
+      "lastModified": "2026-09-16T11:16:57.473",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: i2c: imx415: Release runtime PM reference on VBLANK error\n\nThe VBLANK path returned immediately when programming VMAX failed after\npm_runtime_get_if_in_use() had taken a runtime PM reference. Break out of\nthe switch instead so the common pm_runtime_put() path is used.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89889"
+    },
+    {
+      "id": "CVE-2026-89888",
+      "published": "2026-09-16T11:16:57.347",
+      "lastModified": "2026-09-16T15:18:15.367",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: i2c: ov02a10: fix endpoint parsing use-after-free\n\nThe ov02a10_check_hwcfg() function calls fwnode_handle_put(ep)\nimmediately after allocating and parsing the endpoint. However, it\nsubsequently calls fwnode_property_read_u32() using the same 'ep'\nhandle, leading to a potential use-after-free.\n\nAdditionally, reading the optional 'ovti,mipi-clock-voltage' property\nused to overwrite the 'ret' variable. If the property was missing,\n'ret' would become negative, and this failure code would be incorrectly\nreturned at the end of the function, causing probe to fail entirely.\n\nFix the use-after-free by moving fwnode_property_read_u32() before\nthe endpoint is parsed and freed. Avoid the error leak by not\nassigning the result of fwnode_property_read_u32() to 'ret'.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89888"
+    },
+    {
+      "id": "CVE-2026-89887",
+      "published": "2026-09-16T11:16:57.210",
+      "lastModified": "2026-09-16T15:18:15.230",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: i2c: ov7740: fix use-after-destroy in remove\n\nThe ov7740_remove() function had a severe teardown order bug where it\ndestroyed the driver's mutex before freeing the V4L2 control handler\nwhich relies on that mutex, leading to a use-after-destroy kernel panic.\nFurthermore, the driver explicitly called v4l2_ctrl_handler_free() and\nmutex_destroy() sequentially, but then called ov7740_free_controls()\nwhich invokes both of them a second time, resulting in a double-free.\n\nThis patch fixes the issue by unregistering the subdevice first, and\nrelying exclusively on ov7740_free_controls() to safely tear down the\nmutex and control handler in the correct order.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89887"
+    },
+    {
+      "id": "CVE-2026-89886",
+      "published": "2026-09-16T11:16:57.100",
+      "lastModified": "2026-09-16T11:16:57.100",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: intel/ipu6: fix async notifier cleanup leak on parse error\n\nisys_notifier_init() calls v4l2_async_nf_init() and then adds fwnode\nremote subdevs in a loop with v4l2_async_nf_add_fwnode_remote(). If an\nendpoint parse or add fails partway through the loop, it jumps to\nerr_parse and returns without calling v4l2_async_nf_cleanup(), leaking\nevery v4l2_async_connection already added to the notifier's waiting\nlist.\n\nThe register-failure path just below already cleans up correctly, and\nthe caller only tears the notifier down (isys_notifier_cleanup()) once\nisys_notifier_init() has returned success. Clean up the notifier on the\nparse error path too.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89886"
+    },
+    {
+      "id": "CVE-2026-89885",
+      "published": "2026-09-16T11:16:56.983",
+      "lastModified": "2026-09-16T15:18:15.090",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: platform: mtk-mdp3: Fix SCP device refcounting\n\nmdp_probe() first tries to get the SCP handle with scp_get(). When that\nfails, it falls back to looking up the SCP platform device with\n__get_pdev_by_id() and then reads its driver data.\n\nThe fallback lookup returns the platform device with a reference, just\nlike scp_get() does. However, the fallback path currently drops that\nreference immediately after platform_get_drvdata(). The driver later\nstill calls scp_put(mdp->scp) unconditionally from the probe error path\nand from mdp_video_device_release(), which drops the SCP device\nreference again.\n\nKeep the fallback reference until the existing scp_put() call, so that\nthe fallback path follows the same ownership rules as the scp_get()\npath.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89885"
+    },
+    {
+      "id": "CVE-2026-89884",
+      "published": "2026-09-16T11:16:56.877",
+      "lastModified": "2026-09-16T11:16:56.877",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: platform: mtk-mdp3: fix NULL deref on failed SCP lookup\n\nAdd the missing sanity check after looking up the SCP to avoid\ndereferencing a NULL-pointer in case its driver has not yet been bound.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89884"
+    },
+    {
+      "id": "CVE-2026-89883",
+      "published": "2026-09-16T11:16:56.753",
+      "lastModified": "2026-09-16T15:18:14.963",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: rc: sunxi-cir: Unregister rc device on probe failure\n\nAfter rc_register_device() succeeds, later probe failures must undo the\nregistration with rc_unregister_device(). The current error path jumps to\nthe allocation cleanup label and only calls rc_free_device(), leaving the\nrc device registration and resources created by rc_register_device()\nbehind.\n\nAdd a registered-device unwind label for the IRQ lookup, IRQ request, and\nhardware initialization failure paths. Keep rc_free_device() for failures\nbefore rc_register_device() succeeds.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89883"
+    },
+    {
+      "id": "CVE-2026-89882",
+      "published": "2026-09-16T11:16:56.647",
+      "lastModified": "2026-09-16T15:18:14.850",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: rkvdec: hevc: guard INTER_REF_PIC_SET_PRED index underflow\n\nst_ref_pic_set_prediction() computes the reference RPS index as\nst_rps_idx - (delta_idx_minus1 + 1) per HEVC spec equation 7-59.\nBoth operands are u8, so when delta_idx_minus1 + 1 exceeds the\ncurrent index the subtraction wraps and the subsequent array access\nat calculated_rps_st_sets[ref_rps_idx] reads far out of bounds.\n\nA userspace V4L2 client that can open the RKVDEC m2m decoder can\nsubmit an EXT_SPS_ST_RPS control with INTER_REF_PIC_SET_PRED set\nand delta_idx_minus1 crafted to trigger the underflow.\n\nReject the entry early when the reference index would underflow.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89882"
+    },
+    {
+      "id": "CVE-2026-89881",
+      "published": "2026-09-16T11:16:56.503",
+      "lastModified": "2026-09-16T11:16:56.503",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: rtl2832_sdr: use vb2_video_unregister_device() on remove to fix DMA leak\n\nrtl2832_sdr_remove() runs on USB disconnect and clears dev->udev to\nNULL before any pending streaming teardown has run. When user space\nlater closes its file descriptor, vb2 calls rtl2832_sdr_stop_streaming()\nwhich in turn calls rtl2832_sdr_free_stream_bufs(). That helper releases\neach coherent buffer with:\n\n    usb_free_coherent(dev->udev, dev->buf_size,\n                      dev->buf_list[dev->buf_num],\n                      dev->dma_addr[dev->buf_num]);\n\nusb_free_coherent() returns immediately when its dev argument is NULL,\nso every DMA stream buffer that was live at disconnect is silently\nleaked. The URBs allocated in rtl2832_sdr_alloc_urbs() outlive the\ndevice for the same reason.\n\nThe rtl2832_sdr driver uses vb2_fop_release() in its file_operations,\nso replace video_unregister_device(&dev->vdev) with\nvb2_video_unregister_device(&dev->vdev) and move it before clearing\ndev->udev. vb2_video_unregister_device() releases the vb2 queue, which\nsynchronously runs rtl2832_sdr_stop_streaming() if streaming is active,\nso URBs and coherent DMA stream buffers are freed while dev->udev is\nstill valid.\n\nvb2_video_unregister_device() locks vdev->queue->lock (vb_queue_lock)\ninternally, and stop_streaming() locks v4l2_lock, so the previous outer\nmutex_lock(&dev->vb_queue_lock) / mutex_lock(&dev->v4l2_lock) pair\naround the unregister sequence would self-deadlock and has been removed.\nA short v4l2_lock critical section around dev->udev = NULL remains so\nany ioctl path that still holds the file descriptor sees coherent state.\n\nIssue identified by automated review of the INV-003 series at\nhttps://sashiko.dev/",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89881"
+    },
+    {
+      "id": "CVE-2026-89880",
+      "published": "2026-09-16T11:16:56.363",
+      "lastModified": "2026-09-16T15:18:14.700",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: rtl2832_sdr: release URBs and stream buffers on start_streaming() failure\n\nrtl2832_sdr_start_streaming() calls rtl2832_sdr_alloc_stream_bufs(),\nrtl2832_sdr_alloc_urbs() and rtl2832_sdr_submit_urbs() in sequence and\nshares a single err: label that only unlocks the mutex and returns.\nWhen alloc_urbs() succeeds but submit_urbs() fails, or when alloc_urbs()\nitself returns -ENOMEM after alloc_stream_bufs() has already succeeded,\nthe URBs and/or the coherent DMA stream buffers stay allocated while\nstreaming reports failure to vb2. Two latent defects follow on the next\nVIDIOC_STREAMON:\n\n1) rtl2832_sdr_alloc_stream_bufs() unconditionally resets dev->buf_num\n   to 0 and overwrites dev->buf_list[]/dev->dma_addr[], permanently\n   leaking the coherent DMA memory allocated by the previous attempt.\n\n2) rtl2832_sdr_alloc_urbs() never resets dev->urbs_initialized and only\n   increments it. After a second successful pass urbs_initialized can\n   exceed MAX_BULK_BUFS, so the subsequent rtl2832_sdr_free_urbs() walks\n   from urbs_initialized - 1 down to 0 and reads past the end of\n   dev->urb_list[], passing garbage pointers to usb_free_urb().\n\nMirror the teardown that stop_streaming() already performs: on the error\npath call rtl2832_sdr_free_urbs() and rtl2832_sdr_free_stream_bufs()\nbefore unlocking. Both helpers are idempotent (free_urbs kills and zeros\nurbs_initialized; free_stream_bufs is gated on URB_BUF and clears the\nbuf_num counter), so partial-failure paths and the no-allocation paths\nremain safe.\n\nIssue identified by automated review of the INV-003 series at\nhttps://sashiko.dev/",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89880"
+    },
+    {
+      "id": "CVE-2026-89879",
+      "published": "2026-09-16T11:16:56.230",
+      "lastModified": "2026-09-16T11:16:56.230",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: s2255: bound JPEG frame size before copying into the buffer\n\ns2255_fillbuff() memcpy()s vc->jpg_size bytes of a captured JPEG/MJPEG\nframe into the vb2 plane.  vc->jpg_size is taken verbatim from the\nS2255_MARKER_FRAME header the device sends (pdword[4] in save_frame())\nand, unlike the frame payload length just above it, is never bounded:\n\n\tpayload = le32_to_cpu(pdword[3]);\n\tif (payload > vc->req_image_size)\t/* payload is checked ... */\n\t\treturn -EINVAL;\n\tvc->pkt_size = payload;\n\tvc->jpg_size = le32_to_cpu(pdword[4]);\t/* ... jpg_size is not */\n\nA malicious or malfunctioning device can therefore report a jpg_size\nlarger than the destination vb2 plane, and the memcpy() writes past it.\njpg_size is a signed int, so a value with the top bit set also turns\ninto a huge length.\n\nReject a frame whose jpg_size is negative or exceeds the plane size\nbefore copying it.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89879"
+    },
+    {
+      "id": "CVE-2026-89878",
+      "published": "2026-09-16T11:16:56.100",
+      "lastModified": "2026-09-16T11:16:56.100",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: s2255: check firmware size before reading trailing marker\n\ns2255_probe() reads a 4-byte marker and version from the last 8 bytes\nof the firmware blob (fw->data[fw_size - 8] and [fw_size - 4]). If the\nfirmware file is shorter than 8 bytes, fw_size - 8 underflows and the\naccess reads out of bounds. Validate the firmware size before indexing.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89878"
+    },
+    {
+      "id": "CVE-2026-89877",
+      "published": "2026-09-16T11:16:55.987",
+      "lastModified": "2026-09-16T15:18:14.570",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: saa7164: fix cleanup on resource allocation failure\n\nsaa7164_dev_setup() adds the device to the global saa7164_devlist before\nrequesting the PCI BAR memory regions.\n\nIf get_resources() fails, saa7164_dev_setup() decrements the device count\nand returns an error, but leaves the device on saa7164_devlist. The probe\nerror path then frees the device, leaving a dangling entry on the global\nlist.\n\nReuse the existing MMIO mapping error path to remove the device from\nsaa7164_devlist and decrement the device count before returning.\n\nAlso release BAR0 if it was successfully requested but the BAR2 request\nfails.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89877"
+    },
+    {
+      "id": "CVE-2026-89876",
+      "published": "2026-09-16T11:16:55.867",
+      "lastModified": "2026-09-16T11:16:55.867",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: tda18250: fix possible integer overflow\n\nInteger overflow may occur, when variable exp equals to zero. Result\nof shift 1 << (exp - 1) may then leads to undefined behavior.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89876"
+    },
+    {
+      "id": "CVE-2026-89875",
+      "published": "2026-09-16T11:16:55.757",
+      "lastModified": "2026-09-16T15:18:14.437",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: ti: vpe: quiesce overflow recovery before freeing streams\n\nThe VIP overflow recovery worker is armed from the hardirq handler when a\nFIFO overflow is detected, and the list-complete path looks the stream up\nthrough the VPDMA list private pointer. Both keep touching stream, port\nand device state; the recovery worker also resets the parser and VPDMA,\nrepopulates the descriptor list, and re-enables the per-list IRQs.\n\nvip_stop_streaming() masks and clears the per-list IRQs, but it neither\nsynchronizes the hardirq handler nor disables recovery_work. An overflow\nIRQ that has already queued recovery_work, or a list-complete IRQ in\nflight when the stream is torn down, can therefore still dereference the\nstream after its resources are released: the descriptor list is freed by\nvip_release_stream() on file release, and the stream itself by\nfree_stream() on unbind/remove.\n\nDrain the recovery worker and the IRQ handler at both teardown points\nthrough a shared vip_quiesce_stream() helper, before any stream-owned\nresource is released. disable_work_sync() cancels pending recovery_work,\ndrains a running instance, and raises its disable depth, so a subsequent\nschedule_work() issued by a racing IRQ handler is rejected at the\nworkqueue scheduler: recovery_work cannot be requeued after\ndisable_work_sync() takes effect. The worker may still re-enable the\nper-list IRQs before disable_work_sync() returns; disable_irqs() then\nmasks those sources and synchronize_irq() waits for any in-flight handler\nthat still dereferences stream state. In vip_stop_streaming() the helper\nruns before the parser is stopped, since a worker drained by\ndisable_work_sync() may re-enable the parser before exiting and would\notherwise undo the stop. recovery_work is created disabled and enabled in\nvip_start_streaming() before IRQs, pairing the enable with the teardown\ndisable across the streaming lifecycle.\n\nThis issue was found by an in-house static analysis tool and confirmed\nby manual code review.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89875"
+    },
+    {
+      "id": "CVE-2026-89874",
+      "published": "2026-09-16T11:16:55.643",
+      "lastModified": "2026-09-16T11:16:55.643",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: v4l2-async: avoid deleting unlinked ASC entry on link error\n\nv4l2_async_match_notify() creates ancillary media links before adding\nasc->asc_subdev_entry to sd->asc_list.\n\nIf ancillary link creation fails, the function jumps to\nerr_call_unbind while asc_subdev_entry has not been linked yet. Async\nconnections are zero-allocated, so the list entry still has NULL next\nand prev pointers on this path. Calling list_del() on it can therefore\ndereference NULL instead of returning the original link creation error.\n\nDo not delete asc_subdev_entry from err_call_unbind. There is no list\ninsertion to undo on this path; the bound callback and sub-device\nregistration are the operations that need to be rolled back.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89874"
+    },
+    {
+      "id": "CVE-2026-89873",
+      "published": "2026-09-16T11:16:55.540",
+      "lastModified": "2026-09-16T15:18:14.330",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: v4l2-ctrls: validate HEVC EXT SPS RPS counts\n\nThe HEVC SPS control carries the short-term and long-term RPS counts\nthat decoder drivers use to walk the matching EXT SPS dynamic arrays.\nReject SPS values that exceed the HEVC limits of 64 short-term sets and\n32 long-term references so drivers cannot later index beyond those\ncontrols.\n\nAlso reject EXT SPS ST RPS entries whose negative or positive picture\ncounts exceed the 16-entry arrays, or whose combined delta-POC count\nexceeds the HEVC DPB maximum.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89873"
+    },
+    {
+      "id": "CVE-2026-89872",
+      "published": "2026-09-16T11:16:55.417",
+      "lastModified": "2026-09-16T11:16:55.417",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: v4l2-fwnode: Fix fwnode leak in v4l2_fwnode_parse_link\n\nIn v4l2_fwnode_parse_link(), the remote endpoint fwnode reference is\nacquired using fwnode_graph_get_remote_endpoint(). This reference is\nproperly released in the error paths, but it is leaked on the success\npath.\n\nAdd the missing fwnode_handle_put() before returning 0 to prevent the\nreference leak.\n\n[Sakari Ailus: Fix subject prefix and coding style a little.]",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89872"
+    },
+    {
+      "id": "CVE-2026-89871",
+      "published": "2026-09-16T11:16:55.287",
+      "lastModified": "2026-09-16T11:16:55.287",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: video-i2c: fix kthread error pointer left in kthread_vid_cap on failure\n\nkthread_run() returns an ERR_PTR on failure, not NULL.\nWhen start_streaming() fails, data->kthread_vid_cap is left holding\nthis error pointer instead of being cleared.\n\nThis causes two subsequent bugs:\n1. A future call to start_streaming() sees a non-NULL kthread_vid_cap\n   and returns 0 (success) immediately, without actually starting the\n   capture thread.\n2. A call to stop_streaming() checks 'kthread_vid_cap == NULL' which\n   is false for an error pointer, and proceeds to call kthread_stop()\n   on the error pointer, leading to a kernel crash.\n\nFix this by resetting kthread_vid_cap to NULL on failure before\njumping to the error path.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89871"
+    },
+    {
+      "id": "CVE-2026-89870",
+      "published": "2026-09-16T11:16:55.153",
+      "lastModified": "2026-09-16T15:18:14.187",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: zoran: Avoid freeing a registered video_device twice\n\nzoran_init_video_device() installs zoran_vdev_release() as the\nvideo_device release callback through zoran_template. After\nvideo_register_device() succeeds, video_unregister_device() drops the\nregistered video_device reference and the V4L2 core eventually invokes\nthat release callback, which kfree()s the video_device.\n\nzoran_exit_video_devices() called video_unregister_device() and then\nkfree(zr->video_dev), so device teardown could free the same\nvideo_device twice.\n\nRemove the direct kfree() and clear the cached pointer after\nunregistering. The pre-registration failure path keeps its manual free\nbecause the video_device was not registered there.\n\nThis issue was found by a static analysis checker and confirmed by\nmanual source review.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89870"
+    },
+    {
+      "id": "CVE-2026-89869",
+      "published": "2026-09-16T11:16:55.050",
+      "lastModified": "2026-09-16T11:16:55.050",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: qcom: iris: use disable_irq() during power-off\n\nThe IRQ is registered as a threaded IRQ.\n\nUsing disable_irq_nosync() in iris_vpu_power_off() does not wait\nfor an already queued threaded IRQ handler to complete before\nreturning.\n\nAs a result, a threaded IRQ handler may still run after the VPU has\nbeen powered down and access hardware registers after power-off.\n\nReplace disable_irq_nosync() with disable_irq() so the power-off path\nwaits for any in-flight threaded IRQ handler to complete before\nreturning.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89869"
+    },
+    {
+      "id": "CVE-2026-89868",
+      "published": "2026-09-16T11:16:54.950",
+      "lastModified": "2026-09-21T14:17:27.733",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: chips-media: wave5: Add timeout while stop_streaming\n\nWhen stop_streaming is called, an infinite loop may occur in some cases.\nAdd a bounded poll of the queue status: loop until the queues drain,\nsleeping briefly between polls, and bail out once VPU_DEC_STOP_TIMEOUT\nelapses.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89868"
+    },
+    {
+      "id": "CVE-2026-89867",
+      "published": "2026-09-16T11:16:54.843",
+      "lastModified": "2026-09-16T11:16:54.843",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: chips-media: wave5: Defer job_finish() only when a DEC_PIC was queued\n\nDecoder instances sharing a VPU also share one v4l2_m2m job slot, released\nwhen the running context calls v4l2_m2m_job_finish(). While draining,\ndevice_run() defers job_finish() once EOS is sent (sent_eos), expecting a\nlater finish_decode() (from a DEC_PIC completion IRQ) to release the slot.\n\nBut the m2m core checks job_ready() only when a job is queued, not when it\nis dispatched. A job queued while draining can run after finish_decode()\nhas already moved the instance to STOP and sent EOS. device_run() then runs\nin STOP, issues no DEC_PIC, yet still skips job_finish() - so no IRQ, no\nfinish_decode(), and the shared slot is leaked, stalling every instance.\nWith several v4l2h264dec instances in parallel, GStreamer hangs at EOS.\n\nTrack whether the run actually queued a DEC_PIC (cmd_issued) and defer\njob_finish() only then. Otherwise finish the job immediately",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89867"
+    },
+    {
+      "id": "CVE-2026-89866",
+      "published": "2026-09-16T11:16:54.743",
+      "lastModified": "2026-09-16T11:16:54.743",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: chips-media: wave5: Resume device before setting EOS flag\n\nSetting the EOS flag talks to the firmware via send_firmware_command(),\nwhich accesses VPU registers. Both the STREAMOFF path\n(wave5_vpu_dec_job_abort()) and the V4L2_DEC_CMD_STOP path\n(wave5_vpu_dec_stop()) can run while the device is runtime suspended, so\nthose register accesses hit powered-down hardware and the SoC raises an\nasynchronous SError, panicking the kernel:\n\n  SError Interrupt on CPU3, code 0x00000000bf000000 -- SError\n   send_firmware_command+0x2c/0x160 [wave5]\n   wave5_vpu_dec_set_bitstream_flag+0x6c/0x80 [wave5]\n   wave5_vpu_dec_update_bitstream_buffer+0x80/0xec [wave5]\n   wave5_vpu_dec_job_abort+0x44/0xa0 [wave5]\n   v4l2_m2m_cancel_job+0x110/0x19c [v4l2_mem2mem]\n   v4l2_m2m_streamoff+0x24/0x140 [v4l2_mem2mem]\n\nResume the device with pm_runtime_resume_and_get() around the EOS\nfirmware command and release it with pm_runtime_put_autosuspend(),\nmatching the runtime PM handling already done in\nwave5_vpu_dec_device_run().",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89866"
+    },
+    {
+      "id": "CVE-2026-89865",
+      "published": "2026-09-16T11:16:54.610",
+      "lastModified": "2026-09-16T11:16:54.610",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Zero SFP DMA buffer in FRU/I2C bsg handlers\n\nThe FRU and I2C bsg handlers stage their transfer in a DMA_POOL_SIZE\n(256-byte) bounce buffer obtained from dma_pool_alloc(), which does not\nzero the allocation. They initialize only a few leading bytes before\nhanding the buffer to qla2x00_write_sfp().\n\nqla2x00_write_sfp() can override the transfer length with a user-supplied\nvalue:\n\n\tif (len == 1)\n\t\topt |= BIT_0;\n\tif (opt & BIT_0)\n\t\tlen = *sfp;\n\n*sfp is the first byte of the (user-controlled) payload, so len can grow\nup to 255. The device then DMA-reads len bytes from the 256-byte pool\nbuffer. Since only a small prefix was written\n(e.g. MAX_FRU_SIZE == 36 bytes for a FRU version, one byte for a FRU\nstatus register), the hardware reads past the initialized region and\nwrites up to ~219 bytes of stale DMA-pool heap memory to the device\nflash.\n\nAllocate the buffer with dma_pool_zalloc() in all five FRU/I2C handlers\nso any bytes beyond the initialized data are zero rather than stale heap\ncontents.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89865"
+    },
+    {
+      "id": "CVE-2026-89864",
+      "published": "2026-09-16T11:16:54.480",
+      "lastModified": "2026-09-16T11:16:54.480",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Bound i2c->length in I2C bsg handlers\n\nstruct qla_i2c_access carries a 16-bit length field alongside a fixed\n64-byte buffer:\n\n\tstruct qla_i2c_access {\n\t\tuint16_t device, offset, option, length;\n\t\tuint8_t  buffer[0x40];\n\t} __packed;\n\nqla2x00_write_i2c() and qla2x00_read_i2c() use the user-supplied\ni2c->length without any bounds check. i2c is overlaid on a 256-byte\non-stack buffer and sfp is a 256-byte DMA-pool buffer, so a length up to\n65535 overruns both:\n\n  - write: memcpy(sfp, i2c->buffer, i2c->length) over-reads the stack and\n    over-writes the sfp heap buffer, and qla2x00_write_sfp() then DMAs\n    i2c->length bytes out of the 256-byte buffer.\n  - read: qla2x00_read_sfp() DMAs i2c->length bytes into the 256-byte sfp,\n    then memcpy(i2c->buffer, sfp, i2c->length) overflows the 64-byte\n    buffer inside the on-stack array.\n\nA caller holding CAP_SYS_RAWIO can use this to corrupt the heap and the\nkernel stack. Reject requests whose length exceeds the buffer before any\ncopy or DMA transfer in both handlers.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89864"
+    },
     {
       "id": "CVE-2026-89863",
       "published": "2026-09-16T11:16:54.353",
@@ -594,240 +796,6 @@
       "score": 7.7,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14916"
-    },
-    {
-      "id": "CVE-2026-89793",
-      "published": "2026-09-16T10:16:55.173",
-      "lastModified": "2026-09-16T15:18:09.510",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nublk: clear VM_MAYWRITE on read-only ublk char device mmap\n\nublk_ch_mmap() rejects mmap requests with VM_WRITE set, but never\nclears VM_MAYWRITE on the resulting read-only mapping. This allows\na userspace daemon to mmap the per-queue command buffer PROT_READ,\nthen upgrade it to PROT_WRITE via mprotect(), since VM_MAYWRITE was\nnever cleared.\n\nThe command buffer holds struct ublksrv_io_desc entries that are\nkernel-written ABI; a writable mapping lets an unprivileged daemon\nprocess corrupt fields such as addr, op_flags, nr_sectors, and\nstart_sector.\n\nSame bug class as the drm/panthor and drm/vc4 VM_MAYWRITE fixes, and\nthe 2026-08-13 ptp/vmclock fix (a5edadbae57e).\n\nVerified via mprotect() PoC: before the fix, a PROT_READ mapping can\nbe upgraded to PROT_READ|PROT_WRITE and a write into the command\nbuffer corrupts io_desc fields (confirmed under KASAN). After the\nfix, mprotect() returns -EACCES.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89793"
-    },
-    {
-      "id": "CVE-2026-86792",
-      "published": "2026-09-16T10:16:55.060",
-      "lastModified": "2026-09-18T14:30:06.090",
-      "description": "Apache Airflow Apache Kafka provider versions 1.15.0 before 2.0.0 resolve dotted-path strings found in a Kafka connection's `extra` field into Python callables via `import_string`, with no allowlist, and hand them to the confluent-kafka client which invokes them. Deployments that have enabled the Kafka event producer — `dag_run_events_enabled` or `task_instance_events_enabled`, both disabled by default — build that client inside the scheduler process, so a user whose only privilege is editing Airflow connections gains arbitrary code execution in the control plane; the Airflow security model limits connection-configuration users to code execution on workers, not the scheduler. Deployments using Google Managed Kafka are not affected, because that code path overwrites any user-supplied `oauth_cb`; plain brokers and Amazon MSK are exposed. Users are recommended to upgrade to apache-airflow-providers-apache-kafka 2.0.0 or later, which adds an allowlist configuration option for connection-string callbacks.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86792"
-    },
-    {
-      "id": "CVE-2026-86474",
-      "published": "2026-09-16T10:16:54.947",
-      "lastModified": "2026-09-18T19:44:10.957",
-      "description": "The lack of TLS certificate validation when downloading firmware updates in VEO and VEO-XS Wi-Fi monitors, in versions prior to 01.48.001, allows an attacker to perform man-in-the-middle attacks on the update channel.",
-      "score": 7.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86474"
-    },
-    {
-      "id": "CVE-2026-86466",
-      "published": "2026-09-16T10:16:54.837",
-      "lastModified": "2026-09-18T14:29:43.570",
-      "description": "Apache Airflow FAB provider: the Authentik OAuth path in the FAB auth manager does not validate the issuer or audience claims of the id_token it accepts. An attacker holding a token that the same Authentik identity provider minted for a different client application can present it to Airflow and be authenticated as the user it names, because the audience claim is never checked. Affects deployments using the FAB auth manager with Authentik OAuth where the same Authentik instance also serves other applications; the attacker needs a valid token for any of those other applications, not for Airflow.\n\nCVE-2026-75156 corrected the same missing validation on the Azure AD path in this file; the Authentik path was left unchanged and is fixed here. Deployments that applied the CVE-2026-75156 fix and use Authentik must also upgrade for this one.\n\nUsers of apache-airflow-providers-fab are recommended to upgrade to version 3.9.0 or later, which fixes the issue.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86466"
-    },
-    {
-      "id": "CVE-2026-86443",
-      "published": "2026-09-16T10:16:54.707",
-      "lastModified": "2026-09-18T19:44:10.957",
-      "description": "Cleartext storage of sensitive information in the DuoxMe application for Android, in versions prior to 4.3.4, allows an attacker with local access to the device to retrieve the credentials stored by the application and impersonate the user account.",
-      "score": 6.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86443"
-    },
-    {
-      "id": "CVE-2026-85628",
-      "published": "2026-09-16T10:16:53.670",
-      "lastModified": "2026-09-18T19:44:10.957",
-      "description": "Transmission of the home Wi-Fi credentials without encryption during the pairing process between the DuoxMe application and VEO and VEO-XS Wi-Fi monitors, in versions prior to 4.3.4 of the application and 01.50.001 of the monitor firmware, allows an attacker on the Wi-Fi Direct network to intercept the network password.",
-      "score": 7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85628"
-    },
-    {
-      "id": "CVE-2026-84501",
-      "published": "2026-09-16T10:16:53.557",
-      "lastModified": "2026-09-18T14:36:51.747",
-      "description": "An unauthenticated attacker can inject arbitrary fake log lines into Apache ZooKeeper's operational log by sending a crafted add_auth(\"ensemble\", ...) request containing newline characters (\\n). When the ensemble name doesn't match, EnsembleAuthenticationProvider.handleAuthentication() logs the raw, unsanitized name via LOG.warn(). Because SLF4J's {} placeholder preserves embedded newlines, the attacker can forge complete log entries — with arbitrary timestamps, log levels, class names, and messages — that are visually indistinguishable from genuine ZooKeeper log output.\n\nThis issue affects Apache ZooKeeper: from 3.9.0 through 3.9.5, from 3.8.0 through 3.8.6.\n\nUsers are recommended to upgrade to version 3.8.7 or 3.9.6, which fixes the issue.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84501"
-    },
-    {
-      "id": "CVE-2026-84439",
-      "published": "2026-09-16T10:16:53.433",
-      "lastModified": "2026-09-18T14:37:30.650",
-      "description": "When audit logging is enabled (zookeeper.audit.enable=true), an unauthenticated attacker can inject arbitrary fields into Apache ZooKeeper's audit log by sending a digest authentication request with tab characters (\\t) embedded in the username. Because the audit log uses tab-separated key=value format, the injected tabs are parsed as legitimate field separators, allowing the attacker to spoof audit results (e.g., injecting result=success), forge operation types, and corrupt forensic evidence.\n\nA log injection vulnerability in Apache ZooKeeper allows a client that can call setACL to inject forged key-value fields into zookeeper_audit.log. When audit logging is enabled, the server serializes attacker-controlled digest ACL ids into the acl= audit field without escaping tab characters. Because audit events are emitted as tab-separated key=value records, a crafted ACL id can make one successful setAcl event appear to contain forged fields such as operation=delete and znode=/forged. This undermines the integrity of downstream audit parsing, alerting, and incident response.\n\nThis issue affects Apache ZooKeeper: from 3.9.0 through 3.9.5, from 3.8.0 through 3.8.6.\n\nUsers are recommended to upgrade to version 3.9.6 or 3.8.7, which fixes the issue.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84439"
-    },
-    {
-      "id": "CVE-2026-82310",
-      "published": "2026-09-16T10:16:53.307",
-      "lastModified": "2026-09-18T14:28:10.570",
-      "description": "Apache Airflow FAB provider: deactivating a user account does not stop tokens issued to that account before deactivation. Password authentication correctly rejects the disabled account, but the Core API continues to accept an existing, unexpired token naming it, and lets that token mint a replacement — so the account keeps its role-scoped access indefinitely after an administrator has disabled it. The user replays their own legitimate credential; no signature forgery or privilege escalation is involved, and the access stays within the roles the account already held.\n\nAffects deployments using Airflow 3 with the FAB auth manager and Core API token authentication, where an administrator deactivates an account whose row remains in the database and whose previously issued token has not expired. The trigger is administrative deactivation as a containment action, which silently fails to contain.\n\nUsers of apache-airflow-providers-fab are recommended to upgrade to version 3.9.0 or later, which rejects tokens naming a deactivated account.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82310"
-    },
-    {
-      "id": "CVE-2026-79993",
-      "published": "2026-09-16T10:16:53.190",
-      "lastModified": "2026-09-18T14:37:21.703",
-      "description": "The `deleteContainer` opcode (0x14/20) is processed without verifying the caller's ACL permissions, allowing any authenticated client to delete specific znodes in the data tree regardless of the ACL restrictions on the znode or its parent. This opcode is considered internal-only and the official client doesn't have API for it, but a client that can open a plain TCP session on the ZooKeeper client port (2181 by default) - with NO authentication and NO ACL permissions - can delete any empty persistent znode (including regular persistent nodes, container nodes, and TTL nodes) by issuing the raw protocol OpCode deleteContainer (20). The deleteContainer request path completely skips both the session check and the DELETE ACL check that are enforced by the regular delete (OpCode 2) path. This is an authorization bypass / ACL enforcement bug.\n\nThis issue affects Apache ZooKeeper: from 3.9.0 through 3.9.5, from 3.8.0 through 3.8.6.\n\nUsers are recommended to upgrade to version 3.9.6 or 3.8.7, which fixes the issue.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79993"
-    },
-    {
-      "id": "CVE-2026-77190",
-      "published": "2026-09-16T10:16:53.030",
-      "lastModified": "2026-09-16T19:08:50.420",
-      "description": "On affected platforms running Arista EOS, an unauthenticated attacker who is network-adjacent to the switch and able to connect to a device with PIM Sparse Mode and MLAG configured, can send malformed messages that cause the Pimsm agent to terminate unexpectedly. The Pimsm agent is automatically restarted, but repeated attacks can cause the agent to restart continuously, resulting in a sustained denial of service.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77190"
-    },
-    {
-      "id": "CVE-2026-76187",
-      "published": "2026-09-16T10:16:52.910",
-      "lastModified": "2026-09-18T14:27:16.527",
-      "description": "Apache Airflow Keycloak provider: the unauthenticated token endpoint accepts a client-credentials grant for any confidential client registered in the Keycloak realm, not only the client configured for Airflow. No allowlist restricts which client ids may authenticate, so the credentials of an unrelated application that happens to share the realm are valid Airflow login credentials, and Airflow mints a signed session token for that application's service account. The endpoint also answers unauthenticated credential guesses against Keycloak under Airflow's identity.\n\nAffects deployments using the Keycloak auth manager whose realm is shared with other confidential clients. The attacker needs valid credentials for any one of those clients, not for Airflow. Resource authorization is still evaluated per subject, so the access gained is whatever that service account holds, plus any endpoint gated only on being authenticated.\n\nUsers of apache-airflow-providers-keycloak are recommended to upgrade to version 0.10.0 or later, which accepts only the configured client on that grant.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76187"
-    },
-    {
-      "id": "CVE-2026-76186",
-      "published": "2026-09-16T10:16:52.793",
-      "lastModified": "2026-09-18T14:26:45.073",
-      "description": "Apache Airflow Keycloak provider: from Airflow 3.3 the Keycloak auth manager takes a user's identity from the signed Airflow session token but takes the Keycloak access and refresh tokens used for every authorization decision from separate, unauthenticated cookies, and never checks that the two describe the same subject. A user who holds any valid Airflow login of their own, together with another subject's Keycloak access or refresh token obtained out of band, can pair the two: Airflow then authorizes requests with the foreign token's privileges while the session identity, audit log and cache keys continue to name the attacker's own account. The refresh path re-issues an Airflow session token for the original identity carrying the foreign tokens, so the mismatched pairing survives across sessions.\n\nAffects deployments running Airflow 3.3 or later with the Keycloak auth manager. Earlier versions carried the Keycloak tokens inside the signed session token, so the binding existed and was lost when they moved into separate cookies.\n\nUsers of apache-airflow-providers-keycloak are recommended to upgrade to version 0.10.0 or later, which binds the cookie-supplied tokens to the session identity.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76186"
-    },
-    {
-      "id": "CVE-2026-76151",
-      "published": "2026-09-16T10:16:52.660",
-      "lastModified": "2026-09-18T19:21:34.307",
-      "description": "Out-of-bounds read (buffer over-read) in the HTTP Cache-Control response header parsing in the QtNetwork module in Qt Group Qt 6.0.0 through 6.8.8, and 6.9.0 through 6.11.1, allows remote attackers to cause a denial of service (application crash) via an excessively large Cache-Control header value returned by an untrusted or compromised HTTP server to an application using QNetworkAccessManager. Only the client side of the connection is affected and 32-bit builds are not affected; the out-of-bounds access is read-only, with no information disclosure and no code execution.",
-      "score": 4.6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76151"
-    },
-    {
-      "id": "CVE-2026-73469",
-      "published": "2026-09-16T10:16:52.510",
-      "lastModified": "2026-09-16T19:08:50.420",
-      "description": "When specific platforms are using Arista EOS with a loose Unicast Reverse Path Forwarding (uRPF) configuration, certain traffic may not be subjected to the intended verification drop. Consequently, traffic that should be dropped based on these routes could still be processed and forwarded by the device.\n\nThis issue was discovered internally by Arista and the company is not aware of any malicious uses of this issue in customer networks.",
-      "score": 5.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73469"
-    },
-    {
-      "id": "CVE-2026-73468",
-      "published": "2026-09-16T10:16:52.383",
-      "lastModified": "2026-09-16T19:08:50.420",
-      "description": "A specially crafted packet can cause the premature expiry of multicast forwarding state on affected interfaces, potentially resulting in temporary multicast traffic loss during the affected period.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73468"
-    },
-    {
-      "id": "CVE-2026-73455",
-      "published": "2026-09-16T10:16:52.243",
-      "lastModified": "2026-09-16T19:09:28.447",
-      "description": "On affected platforms running Arista EOS with Open Shortest Path First version 3 (OSPFv3) configured, a specially crafted packet can cause the OSPFv3 agent to restart unexpectedly.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73455"
-    },
-    {
-      "id": "CVE-2026-73453",
-      "published": "2026-09-16T10:16:52.043",
-      "lastModified": "2026-09-17T04:17:59.823",
-      "description": "An unauthenticated P4Runtime (Programming Protocol-Independent Packet Processors Runtime) client can achieve arbitrary code execution under certain conditions on affected platforms running Arista EOS configured with P4Runtime. P4Runtime is disabled by default in Arista EOS. By crafting a malicious packet during the initiation of a P4Runtime session, an attacker can obtain complete administrative control over the compromised switch.\n\nThis issue was discovered internally by Arista, and the company is not aware of any malicious exploitation of this vulnerability in customer networks.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73453"
-    },
-    {
-      "id": "CVE-2026-73440",
-      "published": "2026-09-16T10:16:51.870",
-      "lastModified": "2026-09-16T19:08:50.420",
-      "description": "On affected platforms running Arista EOS with Simple Network Management Protocol (SNMP) configured, SNMPv3 local or remote user credentials may be exposed as a one-way hashed, localized key value within the device's running and sanitized configurations. An authenticated user who gains access to this sensitive information could leverage it to perform unauthorized read operations on SNMP tables or to send fraudulent trap notifications to the Network Management System (NMS).\n\nThis issue was discovered internally by Arista, and the company is not aware of any malicious exploitation of this vulnerability in customer networks.",
-      "score": 4.2,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73440"
-    },
-    {
-      "id": "CVE-2026-73438",
-      "published": "2026-09-16T10:16:51.690",
-      "lastModified": "2026-09-16T19:17:30.513",
-      "description": "On affected platforms running Arista EOS with Open Shortest Path First version 3 (OSPFv3) configured, an unauthenticated attacker on the same OSPFv3 broadcast domain can send a specially crafted set of packets that can cause the Ospf3 agent to restart unexpectedly. The crash results in the loss of all OSPFv3 adjacencies on the affected device and may disrupt routing across the broader OSPF domain until the agent recovers.\n\nThis issue was reported externally by Dravanet Inc., and Arista is not aware of any malicious exploitation of this vulnerability in customer networks.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73438"
-    },
-    {
-      "id": "CVE-2026-73436",
-      "published": "2026-09-16T10:16:51.550",
-      "lastModified": "2026-09-16T19:08:50.420",
-      "description": "On affected platforms running Arista EOS with OSPFv2 and OSPFv2 segment routing configured, a specially crafted OSPFv2 packet from an adjacent OSPF neighbor may cause OSPF to restart unexpectedly.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73436"
-    },
-    {
-      "id": "CVE-2026-73435",
-      "published": "2026-09-16T10:16:51.363",
-      "lastModified": "2026-09-16T19:09:28.447",
-      "description": "On affected platforms running Arista EOS with Open Shortest Path First version 2 (OSPFv2) configured, a specially crafted OSPFv2 packet from an unauthenticated attacker on the same broadcast segment, with OSPFv2 authentication configured can cause adjacency flapping and packet loss. The disruption can affect routing across the broader OSPF domain.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73435"
-    },
-    {
-      "id": "CVE-2026-59969",
-      "published": "2026-09-16T10:16:51.220",
-      "lastModified": "2026-09-18T14:31:23.357",
-      "description": "Apache ZooKeeper quorum TLS fails to enforce peer hostname verification in FIPS-mode deployments. When sslQuorum=true, zookeeper.fips-mode=true, ssl.quorum.hostnameVerification=true, and ssl.quorum.clientHostnameVerification=true are enabled, the Java SSLSocket quorum path accepts a CA-trusted peer certificate whose SAN does not match the connected host. A malicious or misissued peer certificate can therefore join quorum traffic, participate in leader election, and enter replication flows.\n\n\n\nUsers are recommended to upgrade to version 3.8.7 or 3.9.6, which fixes the issue.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59969"
-    },
-    {
-      "id": "CVE-2026-59739",
-      "published": "2026-09-16T10:16:51.097",
-      "lastModified": "2026-09-18T14:37:10.223",
-      "description": "Information disclosure via SetWatches reconnect replay in Apache ZooKeeper due to missing ACL check. An attacker can discover ACL-restricted paths by registering exists-watches on non-existent paths, then reconnecting after the paths are created with restricted ACLs. Issue is caused by incomplete fix for CVE-2024-23944 (ZOOKEEPER-4799). The fix added ACL checking to WatchManager.triggerWatch(). However, DataTree.setWatches() — the SetWatches/SetWatches2 reconnect replay handler — still calls watcher.process(event) with null ACL, bypassing the check entirely. It's important to note that only the path is exposed by this vulnerability, not the data of znode, but since znode path can contain sensitive information like user name or login ID, this issue is potentially critical.\n\nUsers are recommended to upgrade to version 3.9.6, 3.8.7 which fixes the issue.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59739"
-    },
-    {
-      "id": "CVE-2026-19640",
-      "published": "2026-09-16T10:16:50.943",
-      "lastModified": "2026-09-16T19:08:50.420",
-      "description": "On affected platforms running Arista EOS, an authenticated user with access to the gNMI (gRPC Network Management Interface) may receive incorrect authorization results, potentially allowing access beyond their currently assigned permissions.\n\nThis issue was discovered internally by Arista and the company is not aware of any malicious uses of this issue in customer networks.",
-      "score": 4.2,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19640"
-    },
-    {
-      "id": "CVE-2026-14917",
-      "published": "2026-09-16T10:16:48.373",
-      "lastModified": "2026-09-18T19:07:38.320",
-      "description": "A SAML authentication bypass vulnerability affects the Kong SAML plugin when the validate_assertion_signature option is explicitly set to false. This option is enabled by default. When disabled, the plugin may extract the SAML identity from an unsigned assertion and authenticate the user without verifying a valid cryptographic signature.\n\n\n\nAs a result, an unauthenticated remote attacker may be able to submit a crafted SAML response and impersonate arbitrary users, including administrators",
-      "score": 7.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14917"
     }
   ]
 }
