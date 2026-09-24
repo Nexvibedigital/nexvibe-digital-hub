@@ -1,6 +1,222 @@
 {
-  "syncedAt": "2026-09-24T05:45:31.545Z",
+  "syncedAt": "2026-09-24T06:25:07.373Z",
   "items": [
+    {
+      "id": "CVE-2026-82685",
+      "published": "2026-09-17T14:17:32.717",
+      "lastModified": "2026-09-18T18:16:18.527",
+      "description": "Authorization Bypass Through User-Controlled Key vulnerability in team-alembic AshAuthentication allows an authenticated attacker to overwrite and confirm another user's email address, and so take over that account. A confirmation token issued to one user is accepted on any other user's record.\n\nAshAuthentication.AddOn.Confirmation.ConfirmChange verifies the token's signature and its act claim, then applies the changes stored against that token to whichever record the changeset targets, never comparing the sub claim against changeset.data. An attacker who registers an account and changes their own email replays the resulting token against a victim's record id, writing in their own address with force_change_attributes/2 and stamping confirmed_at, after which an ordinary password reset yields the account. The library's own confirmation flow is unaffected, because AshAuthentication.AddOn.Confirmation.Actions.confirm/3 resolves sub to a user and targets that record.\n\nThis issue affects ash_authentication: from 0.5.0 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82685"
+    },
+    {
+      "id": "CVE-2026-81829",
+      "published": "2026-09-17T14:17:32.323",
+      "lastModified": "2026-09-21T18:17:11.057",
+      "description": "A flaw was found in SmallRye JWT's AwsAlbKeyResolver, which is used by applications to verify JSON Web Tokens signed by AWS Application Load Balancers. When the AWS_ALB key provider is configured, the resolver constructs the key-fetch URL by directly concatenating the attacker-controlled kid header value from an inbound JWT without sanitizing path traversal characters or query-string separators. This allows an unauthenticated remote attacker to force the application server to issue GET requests to arbitrary paths on the same origin as the configured key endpoint. As a result, non-public endpoints or internal data reachable on that origin may be read by the attacker before JWT signature verification takes place.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81829"
+    },
+    {
+      "id": "CVE-2026-81637",
+      "published": "2026-09-17T14:17:32.140",
+      "lastModified": "2026-09-18T18:16:18.527",
+      "description": "Insufficient Session Expiration vulnerability in team-alembic AshAuthentication allows an attacker who obtains a victim's OAuth2 state value to replay the callback and sign that victim into an attacker-controlled account.\n\nAshAuthentication.Strategy.OAuth2.Plug.callback/2 clears the stored session_params through a rebinding step inside its with chain, conn <- delete_session(conn, session_key). Elixir evaluates the else block in the scope enclosing the with, so every failure path (the provider returning ?error=access_denied, an invalid code, a token-exchange error, or a registration or sign-in failure) reaches store_authentication_result/2 holding the original connection and the session entry is never removed. The value the module's own comment describes as protection against a CSRF-related attack is therefore consumed only when authentication succeeds, and survives a cancelled or failed attempt until the next request phase or session expiry.\n\nThis issue affects ash_authentication: from 0.6.0 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
+      "score": 2.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81637"
+    },
+    {
+      "id": "CVE-2026-81632",
+      "published": "2026-09-17T14:17:31.953",
+      "lastModified": "2026-09-18T18:16:18.527",
+      "description": "Use of HTTP Request With Sensitive Query String vulnerability in team-alembic AshAuthenticationPhoenix allows someone able to read access logs, proxy logs or browser history to recover a single-use sign-in token and authenticate as its owner.\n\nAfter a successful password sign-in, AshAuthentication.Phoenix.Components.Password.SignInForm builds the sign_in_with_token path with the freshly issued user.__metadata__.token as a query parameter and redirects the browser to it with a GET. The token therefore travels in the request line, where web servers, reverse proxies, request telemetry and the browser's own history record it, all of which outlive the request and are ordinarily less protected than session storage. The redirect destination is restricted to a local path, so this is not an open redirect; the exposure is the retention of a live credential.\n\nThis issue affects ash_authentication_phoenix: from 1.7.0 before 2.17.4 and from 3.0.0-rc.0 before 3.0.0-rc.11; ash_authentication: from 3.10.5 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81632"
+    },
+    {
+      "id": "CVE-2026-81453",
+      "published": "2026-09-17T14:17:31.367",
+      "lastModified": "2026-09-18T17:55:19.340",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains an Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal') vulnerability. A low privileged attacker with remote access could potentially exploit this vulnerability, leading to Filesystem access for attacker.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81453"
+    },
+    {
+      "id": "CVE-2026-81443",
+      "published": "2026-09-17T14:17:31.243",
+      "lastModified": "2026-09-19T15:17:02.960",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains a Server-Side Request Forgery (SSRF) vulnerability. A low privileged attacker with remote access could potentially exploit this vulnerability, leading to Server-side request forgery.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81443"
+    },
+    {
+      "id": "CVE-2026-81442",
+      "published": "2026-09-17T14:17:31.120",
+      "lastModified": "2026-09-18T17:55:19.340",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains an Improper Privilege Management vulnerability. A low privileged attacker with remote access could potentially exploit this vulnerability, leading to Information tampering and Unauthorized access.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81442"
+    },
+    {
+      "id": "CVE-2026-80355",
+      "published": "2026-09-17T14:17:30.997",
+      "lastModified": "2026-09-18T18:13:20.457",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains a Cross-Site Request Forgery (CSRF) vulnerability. An unauthenticated attacker with remote access could potentially exploit this vulnerability, leading to Remote execution.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80355"
+    },
+    {
+      "id": "CVE-2026-80218",
+      "published": "2026-09-17T14:17:30.743",
+      "lastModified": "2026-09-18T18:16:18.527",
+      "description": "Improper Authentication vulnerability in team-alembic AshAuthentication allows an attacker holding a sign-in token for one authenticated resource to be signed in as a user of a different resource.\n\nAshAuthentication.Strategy.Password.SignInWithTokenPreparation.extract_primary_keys_from_subject/2 parses the JWT sub claim (for example user?id=1) with URI.parse/1 and keeps only its query string, discarding the path segment that names the subject the token was issued for. Nothing else restores that binding: AshAuthentication.Jwt.verify/3 checks the signature, exp, nbf, jti and the library-version claims, the purpose check only requires sign_in, and the remaining comparison is over primary-key field names, which are identical across resources. The WebAuthn sign-in and remember-me preparations carry copies of the same helper and drop the path in the same way. The magic link sign-in path pins the subject name against the resource and is not affected.\n\nThis issue affects ash_authentication: from 3.10.5 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80218"
+    },
+    {
+      "id": "CVE-2026-78528",
+      "published": "2026-09-17T14:17:30.440",
+      "lastModified": "2026-09-19T03:17:15.443",
+      "description": "Unauthenticated Broken Access Control in BerqWP <= 4.1.15 versions.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78528"
+    },
+    {
+      "id": "CVE-2026-78295",
+      "published": "2026-09-17T14:17:30.303",
+      "lastModified": "2026-09-17T21:12:30.593",
+      "description": "Unauthenticated Cross Site Request Forgery (CSRF) in Xagio SEO <= 7.1.0.43 versions.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78295"
+    },
+    {
+      "id": "CVE-2026-78294",
+      "published": "2026-09-17T14:17:30.167",
+      "lastModified": "2026-09-19T15:17:02.180",
+      "description": "Contributor Cross Site Scripting (XSS) in  Geo Mashup <= 1.13.21 versions.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78294"
+    },
+    {
+      "id": "CVE-2026-78223",
+      "published": "2026-09-17T14:17:29.987",
+      "lastModified": "2026-09-18T18:16:18.527",
+      "description": "Improper Verification of Cryptographic Signature vulnerability in team-alembic AshAuthentication allows a caller of the token revocation action to neutralise a revocation or write arbitrary rows into the token resource.\n\nAshAuthentication.TokenResource.RevokeTokenChange.change/3 reads the :token argument and decodes it with AshAuthentication.Jwt.peek/1, which delegates to Joken.peek_claims/1 and performs no signature check, unlike Jwt.verify/4. The jti, exp and sub claims it returns are written straight onto the revocation record, guarded only by byte_size(token) > 0. Because expires_at derives from the attacker-chosen exp, a forged copy of a genuine token that keeps the real jti but backdates exp yields a revocation row that is already expired: expunge_expired removes it and the genuine token passes revoked? again. Arbitrary jti and sub values can be inserted the same way.\n\nThis issue affects ash_authentication: from 0.2.0 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
+      "score": 6.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78223"
+    },
+    {
+      "id": "CVE-2026-74017",
+      "published": "2026-09-17T14:17:23.467",
+      "lastModified": "2026-09-17T21:12:30.593",
+      "description": "Unauthenticated Broken Access Control in User Registration <= 5.2.7 versions.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74017"
+    },
+    {
+      "id": "CVE-2026-74005",
+      "published": "2026-09-17T14:17:23.333",
+      "lastModified": "2026-09-17T21:12:30.593",
+      "description": "Unauthenticated Cross Site Request Forgery (CSRF) in PublishPress Series <= 3.1.3 versions.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74005"
+    },
+    {
+      "id": "CVE-2026-74002",
+      "published": "2026-09-17T14:17:23.200",
+      "lastModified": "2026-09-19T03:17:15.320",
+      "description": "Unauthenticated Broken Access Control in Booking Calendar <= 11.7 versions.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74002"
+    },
+    {
+      "id": "CVE-2026-74000",
+      "published": "2026-09-17T14:17:22.660",
+      "lastModified": "2026-09-17T21:12:30.593",
+      "description": "Contributor Broken Access Control in Simple Membership <= 4.8.2 versions.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74000"
+    },
+    {
+      "id": "CVE-2026-73999",
+      "published": "2026-09-17T14:17:22.527",
+      "lastModified": "2026-09-19T15:17:00.757",
+      "description": "Contributor Insecure Direct Object References (IDOR) in Cooked <= 1.16.0 versions.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73999"
+    },
+    {
+      "id": "CVE-2026-71568",
+      "published": "2026-09-17T14:17:21.013",
+      "lastModified": "2026-09-18T19:06:08.407",
+      "description": "In BMCtest, Ironic is started without authentication and TLS for the duration of the test. Exploiting the problem requires winning the race with bmctest itself, which reduces the attack window and significantly increases its complexity.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71568"
+    },
+    {
+      "id": "CVE-2026-66676",
+      "published": "2026-09-17T14:17:20.250",
+      "lastModified": "2026-09-17T21:12:30.593",
+      "description": "Unauthenticated Broken Access Control in Easy Invoice <= 2.3.8 versions.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66676"
+    },
+    {
+      "id": "CVE-2026-66631",
+      "published": "2026-09-17T14:17:20.113",
+      "lastModified": "2026-09-17T21:12:30.593",
+      "description": "Administrator SQL Injection in MC Woocommerce Wishlist <= 1.9.21 versions.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66631"
+    },
+    {
+      "id": "CVE-2026-66630",
+      "published": "2026-09-17T14:17:19.983",
+      "lastModified": "2026-09-19T03:17:15.197",
+      "description": "Administrator SQL Injection in PublishPress Series <= 3.1.3 versions.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66630"
+    },
+    {
+      "id": "CVE-2026-66628",
+      "published": "2026-09-17T14:17:19.363",
+      "lastModified": "2026-09-17T21:12:30.593",
+      "description": "Shop manager SQL Injection in WP-Lister Lite for eBay <= 3.8.11 versions.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66628"
+    },
+    {
+      "id": "CVE-2026-66626",
+      "published": "2026-09-17T14:17:19.230",
+      "lastModified": "2026-09-19T15:17:00.637",
+      "description": "Editor SQL Injection in SKT Addons for Elementor <= 4.0 versions.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66626"
+    },
     {
       "id": "CVE-2026-66625",
       "published": "2026-09-17T14:17:19.107",
@@ -678,222 +894,6 @@
       "score": 5.7,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-44940"
-    },
-    {
-      "id": "CVE-2026-91019",
-      "published": "2026-09-17T06:16:53.310",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Event Booking Manager for WooCommerce  WordPress plugin before 5.6.0 does not restrict who can view its stored payment gateway configuration, allowing users with Contributor-level access and above to read the site's PayPal and Stripe credentials, including their secret keys.",
-      "score": 4.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91019"
-    },
-    {
-      "id": "CVE-2026-91016",
-      "published": "2026-09-17T06:16:53.203",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Motors  WordPress plugin before 1.4.121 does not verify that a request is authorized to view a user's non-published listings before returning them, allowing unauthenticated attackers to read any author's draft, pending and private car listings - including titles, prices, media URLs and seller notes - by supplying only the target's numeric user id.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91016"
-    },
-    {
-      "id": "CVE-2026-91015",
-      "published": "2026-09-17T06:16:53.090",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Master Addons for Elementor  WordPress plugin before 3.1.9 does not perform an authorization check on the AJAX action that deactivates its Popup Builder popups, relying only on a nonce that is publicly output to every visitor, allowing unauthenticated attackers to permanently disable any popup on the site.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91015"
-    },
-    {
-      "id": "CVE-2026-91014",
-      "published": "2026-09-17T06:16:52.977",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Realtyna Organic IDX plugin + WPL Real Estate WordPress plugin before 5.4.2 does not sanitise and escape some of its parameters before reflecting them back in the page, allowing unauthenticated attackers to run arbitrary web scripts in a visitor's browser if they can trick the visitor into following a crafted link (reflected XSS).",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91014"
-    },
-    {
-      "id": "CVE-2026-91011",
-      "published": "2026-09-17T06:16:52.857",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The EWWW Image Optimizer WordPress plugin before 8.7.7 does not properly escape image attribute values when it rewrites page output, allowing authenticated users with author-level access and above to inject arbitrary JavaScript that is stored in published content and executes in the browser of any user who later views the affected page.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91011"
-    },
-    {
-      "id": "CVE-2026-91010",
-      "published": "2026-09-17T06:16:52.750",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Invisible Anti-Spam & CAPTCHA — reCAPTCHA Alternative for All Forms WordPress plugin before 5.1.1 does not check the user's capabilities in its message deletion AJAX action, and only tests that a nonce parameter is present rather than validating it, allowing any authenticated user, such as a subscriber, to permanently delete every form submission the Invisible Anti-Spam & CAPTCHA — reCAPTCHA Alternative for All Forms WordPress plugin before 5.1.1 has stored.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91010"
-    },
-    {
-      "id": "CVE-2026-91009",
-      "published": "2026-09-17T06:16:52.640",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Active Woot Products Tables for WooCommerce. 100% FREE  WordPress plugin before 2.1.3 does not have authorisation and CSRF checks in some of its AJAX actions, allowing any authenticated users, such as subscriber, to change the title of arbitrary posts, pages and products.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91009"
-    },
-    {
-      "id": "CVE-2026-91008",
-      "published": "2026-09-17T06:16:52.537",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Event Booking Manager for WooCommerce  WordPress plugin before 5.3.8 does not perform an ownership or authorization check before rendering booking confirmation details, allowing unauthenticated attackers to retrieve registered attendees' personal information (full name, email address, phone number, and custom registration fields) by supplying an enumerable booking reference. Exploitation is limited to sites configured to use the Event Booking Manager for WooCommerce  WordPress plugin before 5.3.8's native (non-WooCommerce) checkout, which is not the default.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91008"
-    },
-    {
-      "id": "CVE-2026-90923",
-      "published": "2026-09-17T06:16:52.423",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Autopay WordPress plugin before 5.0.1 does not enforce the signature on one of its payment callbacks, allowing unauthenticated users to disclose and delete the stored payment parameters of other customers' orders.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90923"
-    },
-    {
-      "id": "CVE-2026-90922",
-      "published": "2026-09-17T06:16:52.320",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Paid Membership Subscriptions  WordPress plugin before 3.0.9 does not verify that the amount and currency reported by the payment provider match the pending payment before completing it, allowing unauthenticated users to obtain a paid membership by paying an arbitrary lower amount.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90922"
-    },
-    {
-      "id": "CVE-2026-88904",
-      "published": "2026-09-17T06:16:52.203",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The PuppyFW WordPress plugin through 0.4.4 does not have proper authorisation on one of its REST routes, which tests the caller against a capability taken from the request itself, allowing any authenticated user, including subscribers, to add, modify and delete arbitrary blog options and thereby escalate their privileges.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88904"
-    },
-    {
-      "id": "CVE-2026-88795",
-      "published": "2026-09-17T06:16:52.097",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The wpShopGermany IT-RECHT KANZLEI WordPress plugin before 2.4 does not generate its API authentication token securely, deriving it from data the requester controls and creating it as a side effect of the check that is supposed to validate it, allowing unauthenticated attackers to predict the token and use the access it grants to write arbitrary files, leading to remote code execution.",
-      "score": 9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88795"
-    },
-    {
-      "id": "CVE-2026-88792",
-      "published": "2026-09-17T06:16:51.990",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Dictionary WordPress plugin through 1.0 does not have authorisation, sanitisation or escaping in place when adding or updating dictionary entries, allowing unauthenticated users to store arbitrary web scripts which will execute when a user views an affected entry.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88792"
-    },
-    {
-      "id": "CVE-2026-87836",
-      "published": "2026-09-17T06:16:51.880",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Comments Import & Export WordPress plugin before 2.5.4 does not restrict its comment export to users able to moderate comments, nor scope the export to content owned by the requesting user, allowing users with the Author role and above to retrieve every comment on the site, including commenter email addresses, IP addresses, unapproved comment content and comment meta.",
-      "score": 2.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87836"
-    },
-    {
-      "id": "CVE-2026-87786",
-      "published": "2026-09-17T06:16:51.773",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Dewa Kirim  WordPress plugin through 1.0.0 does not escape delivery coordinates submitted at checkout before outputting them inside an inline script, allowing unauthenticated users to store JavaScript that runs in the session of an administrator who later opens the order.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87786"
-    },
-    {
-      "id": "CVE-2026-86824",
-      "published": "2026-09-17T06:16:51.663",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Newsletter  WordPress plugin before 9.3.8 does not generate its email tracking signing key with sufficient entropy and signs its tracking links with an unkeyed hash, allowing an unauthenticated attacker who recovers that key offline to forge tracking links, obtain any subscriber's session token, and read and modify that subscriber's stored personal data.",
-      "score": 4.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86824"
-    },
-    {
-      "id": "CVE-2026-86788",
-      "published": "2026-09-17T06:16:51.550",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The HT Mega Addons for Elementor  WordPress plugin before 3.2.6 does not restrict the HTML tag name used to render the section headline in several of its widgets and blocks to a safe allowlist, allowing users with contributor-level access and above to store a crafted tag name that executes arbitrary JavaScript when the content is viewed, including by higher-privileged users who review or publish it.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86788"
-    },
-    {
-      "id": "CVE-2026-86710",
-      "published": "2026-09-17T06:16:51.437",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Login with QR WordPress plugin through 1.0.0 does not verify that the code used to log a user in is one it issued, matching any stored user metadata value instead, which allows unauthenticated attackers to log in as any user, including administrators.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86710"
-    },
-    {
-      "id": "CVE-2026-86709",
-      "published": "2026-09-17T06:16:51.327",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Pressengine WordPress plugin through 1.0 does not stop its login handler from issuing a session when authentication fails, allowing unauthenticated attackers to log in as any user, including administrators.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86709"
-    },
-    {
-      "id": "CVE-2026-86707",
-      "published": "2026-09-17T06:16:51.213",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Private Feed Key WordPress plugin through 0.1 does not verify that the key used to authenticate a feed request is one it issued, matching any stored user metadata value instead, which allows unauthenticated attackers to log in as any user, including administrators.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86707"
-    },
-    {
-      "id": "CVE-2026-86446",
-      "published": "2026-09-17T06:16:51.103",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The LearnPress  WordPress plugin before 4.4.7 does not restrict the correctness flags it returns when a quiz answer is checked, allowing unauthenticated attackers to obtain the correct answer to every option of a question, along with the instructor's explanation, on courses configured to be taken without enrolling.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86446"
-    },
-    {
-      "id": "CVE-2026-85130",
-      "published": "2026-09-17T06:16:50.990",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The WPLP Cookie Consent  WordPress plugin before 4.4.4 does not escape a value submitted through a public endpoint for the JavaScript context it is later output in on an administrative screen, allowing unauthenticated users to run arbitrary JavaScript in the session of an administrator who interacts with the logged entry. Only multisite installations are affected.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85130"
-    },
-    {
-      "id": "CVE-2026-85128",
-      "published": "2026-09-17T06:16:50.863",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Choose User Role at Registration WordPress plugin before 1.3.3 does not validate the role requested at registration against the roles an administrator chose to offer, allowing unauthenticated users to request any role, including administrator, and to be granted it once the request is approved. Exploitation requires the Choose User Role at Registration WordPress plugin before 1.3.3's role selection feature and public account registration to both be enabled.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85128"
-    },
-    {
-      "id": "CVE-2025-15697",
-      "published": "2026-09-17T06:16:50.053",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Dictionary WordPress plugin through 1.0 does not escape user input before reflecting it back in the responses of several directly accessible scripts, allowing unauthenticated attackers to perform Reflected Cross-Site Scripting attacks against anyone they can induce to submit a crafted request.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-15697"
     }
   ]
 }
