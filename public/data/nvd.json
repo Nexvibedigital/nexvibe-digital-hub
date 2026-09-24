@@ -1,6 +1,177 @@
 {
-  "syncedAt": "2026-09-24T18:47:46.904Z",
+  "syncedAt": "2026-09-24T19:18:05.074Z",
   "items": [
+    {
+      "id": "CVE-2026-54644",
+      "published": "2026-09-17T22:17:02.283",
+      "lastModified": "2026-09-23T18:12:04.247",
+      "description": "CubeCart is an ecommerce software solution. Prior to 6.7.5, the _errorMessage method in classes/gui.class.php uses strip_tags to permit anchor elements in error, information, and warning messages while retaining unsafe href values and onclick event handlers. Attacker-controlled search or input data that reaches a GUI message can carry a javascript: URI or event handler through the filter, and viewing or interacting with the rendered anchor executes JavaScript in the victim's browser session, enabling session exposure or unauthorized application actions. This issue is fixed in version 6.7.5.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54644"
+    },
+    {
+      "id": "CVE-2026-54643",
+      "published": "2026-09-17T22:17:02.147",
+      "lastModified": "2026-09-23T19:43:31.933",
+      "description": "CubeCart is an ecommerce software solution. Prior to 6.7.5, the delete-note handler in admin/sources/orders.index.inc.php verifies only the presence of order_id and delete-note parameters before deleting records from CubeCart_order_notes, without requiring CC_PERM_DELETE for orders. An authenticated administrator lacking order modification privileges can directly invoke the handler with valid identifiers and delete order-history notes, removing operational records and audit-trail data. This issue is fixed in version 6.7.5.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54643"
+    },
+    {
+      "id": "CVE-2026-54642",
+      "published": "2026-09-17T22:17:01.997",
+      "lastModified": "2026-09-23T19:43:31.933",
+      "description": "CubeCart is an ecommerce software solution. Prior to 6.7.5, the reset_id download-counter action and delete_card stored-payment-card action in admin/sources/orders.index.inc.php use state-changing GET requests and are omitted from the protection map in admin/skins/default/csrf.inc.php. A remote attacker can induce an authenticated administrator to issue one of these requests without a validated session token, causing unintended resets of electronic download usage counters or deletion of stored customer payment-card tokens. This issue is fixed in version 6.7.5.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54642"
+    },
+    {
+      "id": "CVE-2026-54634",
+      "published": "2026-09-17T22:17:01.840",
+      "lastModified": "2026-09-18T15:17:09.453",
+      "description": "Hamlib is a ham radio control library for radios, rotators, and amplifiers. Prior to 4.7.2, the unauthenticated rigctld send_raw command on TCP port 4532 reaches rigctl_send_raw() in tests/rigctl_parse.c, which writes a NUL byte at buf[buf_len + 1] outside its 200-byte stack buffer, and rig_send_raw() in src/rig.c, which copies reply_len - 1 bytes instead of the actual nbytes received. A remote client can send the CR terminator with a short payload to trigger both flaws in one command under the default no-password configuration. The out-of-bounds write can crash the daemon or corrupt adjacent stack memory, while the oversized copy can return up to 198 bytes of uninitialized stack data to the client. This issue is fixed in version 4.7.2.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54634"
+    },
+    {
+      "id": "CVE-2026-54633",
+      "published": "2026-09-17T22:17:01.693",
+      "lastModified": "2026-09-22T02:16:32.327",
+      "description": "PoDoFo is a C++17 PDF manipulation library. From version 1.0.0 until 1.1.1, processing a crafted PDF with an Indexed color-space image can cause a heap out-of-bounds read in PdfColorSpaceFilterIndexed::FetchScanLine in src/podofo/main/PdfColorSpaceFilter.cpp. PODOFO_INVARIANT does not perform a runtime check, so a pixel index greater than or equal to m_MapSize can address beyond m_lookup. PdfColorSpaceFilterFactory::TryCreateFromObject also validates hival with an incorrect conjunction and no upper bound, allowing malformed Indexed color-space metadata outside the expected range. The resulting read can disclose adjacent heap data or crash the processing application. This issue is fixed in version 1.1.1.",
+      "score": 6.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54633"
+    },
+    {
+      "id": "CVE-2026-54613",
+      "published": "2026-09-17T22:17:01.533",
+      "lastModified": "2026-09-22T02:16:32.197",
+      "description": "Vvveb is a powerful and easy to use CMS with page builder to build websites, blogs or ecommerce stores. Prior to 1.0.8.5, getThemeFolder() in admin/controller/editor/revisions.php returns the attacker-controlled theme parameter without sanitization, and backupFolder() concatenates it beneath DIR_THEMES before editor/revisions/load or editor/revisions/delete operates on a named .html file. sanitizeBackupFileName() strips traversal characters only from the separate file parameter and does not protect the theme directory component. An authenticated user with the default Editor role and editor/* permission can submit traversal sequences that redirect file_get_contents() or unlink() to a reachable backup subdirectory outside the web root. A valid admin session and CSRF token are required, the read is limited to .html files in backup directories, and deletion additionally requires filesystem write permission. This can disclose sensitive exported site content or remove backup data. This issue is fixed in version 1.0.8.5.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54613"
+    },
+    {
+      "id": "CVE-2026-54612",
+      "published": "2026-09-17T22:17:01.377",
+      "lastModified": "2026-09-18T20:17:16.897",
+      "description": "Vvveb is a powerful and easy to use CMS with page builder to build websites, blogs or ecommerce stores. From 1.0.0 until 1.0.8.5, saveGlobalElements() in admin/controller/editor/global-trait.php concatenates the attacker-controlled file portion of data-v-save-global to the active theme directory before loadHTMLFile() and file_put_contents() operate on it. An authenticated user with the default Editor role and editor/* permission can submit crafted HTML to module=editor/editor&action=save and traverse to an existing writable PHP file outside the theme directory. If the target is web-accessible, editor-controlled PHP content executes in the web server context; a shipped public/vadmin/index.php entrypoint can be used as an execution trampoline rather than requiring a test-only file. This can permit persistent webshell placement and compromise application confidentiality, integrity, and availability. This issue is fixed in version 1.0.8.5.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54612"
+    },
+    {
+      "id": "CVE-2026-54608",
+      "published": "2026-09-17T22:17:01.233",
+      "lastModified": "2026-09-23T19:43:31.933",
+      "description": "MythicalDash is a Pterodactyl client area. In 3.5.4-aurora and earlier, GET /api/stripe/process in backend/app/Api/System/Gateways/Stripe.php creates a pending row in mythicaldash_stripe_payments before Stripe checkout succeeds and embeds the payment code in the success redirect, while GET /api/stripe/processed accepts that code without constructing a Session, checking ownership, or retrieving the Stripe Checkout Session to require payment_status to be paid and amount_total to match the expected charge. An ordinary authenticated user can request an attacker-selected coins amount, abandon or fail payment, and submit the pending code directly to the unauthenticated processed endpoint. StripeDB::isPending() then permits User::addCreditsAtomic() to grant the unpaid amount and mark the row processed even though Stripe has not confirmed payment. This permits arbitrary free virtual-currency top-ups and direct financial loss through consumption of hosting resources. No fixed version is available as of this review.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54608"
+    },
+    {
+      "id": "CVE-2026-54520",
+      "published": "2026-09-17T22:17:01.090",
+      "lastModified": "2026-09-18T19:16:42.680",
+      "description": "AI Agent Automation is a modular AI agent workflow automation platform with schedulers, tools, and observability. Prior to 0.9.1, the executeStep file-step implementation in backend/src/agents/executor.js passes the user-controlled step.path value through path.resolve with process.cwd() and then uses the resulting path for read or write operations without checking that it remains in an approved workflow directory. An authenticated user who can create or modify workflow file steps can supply traversal segments to escape the intended workspace and read sensitive files or write and overwrite files accessible to the backend process, including application-adjacent files when process permissions allow. This issue is fixed in version 0.9.1.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54520"
+    },
+    {
+      "id": "CVE-2026-54519",
+      "published": "2026-09-17T22:17:00.930",
+      "lastModified": "2026-09-22T02:16:32.073",
+      "description": "AI Agent Automation is a modular AI agent workflow automation platform with schedulers, tools, and observability. Prior to 0.9.1, backend/src/controllers/memory.controller.js authenticates requests but listMemories, deleteMemory, and clearAgentMemory use a caller-supplied agentId or memory _id without verifying through the related Agent that the record belongs to req.user. An authenticated attacker who knows or obtains another user's identifiers can read victim AgentMemory content, including conversation history, agent context, task data, embeddings, and metadata, delete an individual victim memory, or clear all memory belonging to a victim agent. This breaks tenant isolation and causes unauthorized disclosure and data loss. This issue is fixed in version 0.9.1.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54519"
+    },
+    {
+      "id": "CVE-2026-54507",
+      "published": "2026-09-17T22:17:00.750",
+      "lastModified": "2026-09-18T15:17:09.047",
+      "description": "Vvveb is a powerful and easy to use CMS with page builder to build websites, blogs or ecommerce stores. Prior to 1.0.8.5, the oEmbedProxy() handler in admin/controller/editor/editor.php accepts an attacker-controlled url parameter and passes it to getUrl(), while validateUrl() in system/functions.php checks only the hostname string and does not validate its resolved addresses. An authenticated admin-panel user with editor/* permission can invoke GET /admin/index.php?module=editor/editor&action=oEmbedProxy with a dotted hostname or normalized loopback form that resolves to a private, loopback, link-local, or reserved address, causing the server to issue an HTTP or HTTPS request and return the response body. Storefront users and anonymous visitors cannot invoke the endpoint, but no CSRF token is required because the action uses GET. This can disclose internal service responses or cloud instance metadata and associated credentials. This issue is fixed in version 1.0.8.5.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54507"
+    },
+    {
+      "id": "CVE-2026-54506",
+      "published": "2026-09-17T22:17:00.537",
+      "lastModified": "2026-09-23T20:17:11.123",
+      "description": "Vvveb is a powerful and easy to use CMS with page builder to build websites, blogs or ecommerce stores. Prior to 1.0.8.5, app/controller/user/profile.php accepts the user[bio] field and passes stored content through sanitizeHTML() in system/functions.php, whose on* event-handler regular expression omits the forward-slash delimiter and whose do-while condition compares the string to itself, so forbidden nested tags are removed only once. An Author-role or higher user can submit solidus-prefixed event-handler markup or nested forbidden tags that survive sanitization. The stored bio is rendered without sufficient output encoding on /author/{username}, in the admin user-management view, and potentially in comment displays, causing attacker-controlled JavaScript to execute when unauthenticated visitors, administrators, or other users view the content. This can expose browser-session data and permit victim-context account actions, defacement, or phishing. This issue is fixed in version 1.0.8.5.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54506"
+    },
+    {
+      "id": "CVE-2026-54343",
+      "published": "2026-09-17T22:17:00.390",
+      "lastModified": "2026-09-23T18:12:04.247",
+      "description": "Frappe Learning Management System (LMS) is a learning system that helps users structure their content. Prior to version 2.52.1, a remote attacker can request a traversal path handled by SCORMRenderer.render in lms/page_renderers.py. The renderer constructs and opens a server-side path without first confirming that its real path remains within public/scorm, allowing files outside the SCORM directory to be read when they are accessible to the server process. This issue is fixed in version 2.52.1.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54343"
+    },
+    {
+      "id": "CVE-2026-53557",
+      "published": "2026-09-17T22:17:00.243",
+      "lastModified": "2026-09-23T17:17:49.530",
+      "description": "SQLBot is an intelligent Text-to-SQL system based on large language models and RAG. Prior to 1.9.0, an authenticated user can supply a crafted sheet[\"tableName\"] value in the Excel datasource configuration submitted through POST /api/v1/datasource/, and SQLBot stores that value without safe identifier handling. When the same datasource is later removed through DELETE /api/v1/datasource/{id}, the stored value is interpolated into datasource cleanup SQL and executed by PostgreSQL. This second-order SQL injection can invoke PostgreSQL COPY TO PROGRAM and execute arbitrary operating-system commands with the privileges of the postgres process inside the SQLBot container. This issue is fixed in version 1.9.0.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53557"
+    },
+    {
+      "id": "CVE-2026-53556",
+      "published": "2026-09-17T22:17:00.073",
+      "lastModified": "2026-09-23T17:17:49.503",
+      "description": "SQLBot is an intelligent Text-to-SQL system based on large language models and RAG. Prior to 1.9.0, the POST /api/v1/datasource/previewData endpoint in backend/apps/datasource/crud/datasource.py incorporates the client-controlled table_name value into generated SQL without safe identifier handling. An authenticated user can configure a datasource for SQLBot's internal PostgreSQL service and submit a crafted table_name that remains a SELECT operation under the read-only policy while invoking pg_read_file(), pg_read_binary_file(), or pg_ls_dir(). In the default tested trusted loopback authentication configuration, the internal connection accepts invalid credentials and executes with PostgreSQL superuser privileges, allowing filesystem content such as /etc/hosts and /etc/passwd to be returned in the previewData API response and potentially exposing configuration, credentials, authentication secrets, and source code. This issue is fixed in version 1.9.0.",
+      "score": 6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53556"
+    },
+    {
+      "id": "CVE-2026-53555",
+      "published": "2026-09-17T22:16:59.917",
+      "lastModified": "2026-09-23T17:17:49.950",
+      "description": "SQLBot is an intelligent Text-to-SQL system based on large language models and RAG. Prior to 1.9.0, an authenticated uploader can submit an image/svg+xml assistant UI logo through PATCH /api/v1/system/assistant/ui, and SQLBot stores the SVG without sanitizing or validating embedded active content. SQLBot later serves the file inline from the same application origin through GET /api/v1/system/assistant/picture/{filename}. When another user loads that generated resource, JavaScript embedded in the SVG executes in the SQLBot web application context, resulting in stored cross-site scripting with access to data and actions available to the victim's session. This issue is fixed in version 1.9.0.",
+      "score": 5.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53555"
+    },
+    {
+      "id": "CVE-2026-53554",
+      "published": "2026-09-17T22:16:59.770",
+      "lastModified": "2026-09-23T17:17:49.923",
+      "description": "SQLBot is an intelligent Text-to-SQL system based on large language models and RAG. Prior to 1.9.0, the POST /api/v1/datasource/parseExcel endpoint in backend/apps/datasource/api/datasource.py uses attacker-controlled multipart filename data when selecting where uploaded content is stored, writes the content before spreadsheet parsing and validation finish, and can transform a double-extension filename into a Python source file. An attacker able to submit a crafted multipart upload can use these behaviors to place attacker-controlled content in /opt/sqlbot/app/alembic/versions/ even when a spreadsheet parsing failure after the file write causes the endpoint to return an error. The planted file remains on disk, and subsequent SQLBot startup or migration processing causes Alembic to import the module and execute its module-level statements in the SQLBot application runtime. This issue is fixed in version 1.9.0.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53554"
+    },
+    {
+      "id": "CVE-2026-53534",
+      "published": "2026-09-17T22:16:59.617",
+      "lastModified": "2026-09-17T22:16:59.617",
+      "description": "JabRef is a desktop application for managing BibTeX and BibLaTeX libraries. Prior to 6.0-alpha.6, when jabsrv or JabRef's built-in HTTP server is enabled, the GET /better-bibtex/cayw endpoint accepts an external command query parameter and CAYWQueryParams.getCommand() passes it through CAYWResource.getCitation() into PushToSublimeText.getCommandLine(). On Unix-like systems, PushToSublimeText combines this untrusted cite-command prefix and citation keys into a string executed through sh -c by ProcessBuilder without shell escaping. A client that can cause a localhost request with application=sublime can inject shell metacharacters and execute operating-system commands as the JabRef user when a valid Sublime Text command path is configured and the victim completes the CAYW selection dialog. The built-in server is disabled by default, so exploitation requires the victim to enable it or run jabsrv. This issue is fixed in version 6.0-alpha.6.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53534"
+    },
+    {
+      "id": "CVE-2026-50291",
+      "published": "2026-09-17T22:16:59.450",
+      "lastModified": "2026-09-23T18:19:19.803",
+      "description": "OpenImageIO is a toolset for reading, writing, and manipulating image files of any image file format relevant to VFX / animation. Prior to versions 3.0.16.0 and 3.1.11.0, processing a crafted BMP file through oiiotool or an application linked to OpenImageIO can reach BMP palette handling in src/bmp.imageio/bmpinput.cpp with an empty color table. BmpInput::read_native_scanline then performs an invalid palette read while decoding an RLE-compressed scanline, causing a process crash and denial of service. This issue is fixed in versions 3.0.16.0 and 3.1.11.0.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-50291"
+    },
     {
       "id": "CVE-2026-50158",
       "published": "2026-09-17T22:16:59.297",
@@ -715,177 +886,6 @@
       "score": 7,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-45720"
-    },
-    {
-      "id": "CVE-2026-92992",
-      "published": "2026-09-17T19:17:07.430",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "A security vulnerability has been detected in Dromara mayfly-go up to 1.11.5. The affected element is an unknown function of the file server/internal/ai/api/ai.go of the component AI Assistant. The manipulation leads to missing authorization. Remote exploitation of the attack is possible. The exploit has been disclosed publicly and may be used. The identifier of the patch is 74bcb926eb4f5f94e7681144d7bf2168a0ec7cde. Applying a patch is the recommended action to fix this issue. The whitelist bypass is one-token wide. Any compound command containing curl, wget or sed auto-runs without approval; approval is granted by the same session user (self-approval). This issue got fixed with a silent patch.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92992"
-    },
-    {
-      "id": "CVE-2026-92230",
-      "published": "2026-09-17T19:17:06.897",
-      "lastModified": "2026-09-18T17:48:19.003",
-      "description": "Apache Karaf's XmlUtils cached XML parser/transformer factories in static ThreadLocal fields on long-lived container threads. Because a ThreadLocal value outlives the OSGi bundle that created it, repeated bundle or feature install, update, or refresh operations can leave successive bundle ClassLoader's pinned in memory and unreachable for garbage collection, leading to unbounded Metaspace growth and eventual denial of service of the Karaf instance.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92230"
-    },
-    {
-      "id": "CVE-2026-90997",
-      "published": "2026-09-17T19:17:06.740",
-      "lastModified": "2026-09-22T19:16:56.183",
-      "description": "A flaw was found in Keycloak. When deployed in stateless mode with MySQL or MariaDB, a mismatch in row-count semantics between the database driver and Keycloak's application logic allows an attacker to bypass replay protection. This vulnerability enables an attacker who intercepts single-use security artifacts, such as JWT client assertions, DPoP proofs, or one-time password (TOTP) codes, to replay them. Successful exploitation grants unauthorized access to the token endpoint or login flow.",
-      "score": 7.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90997"
-    },
-    {
-      "id": "CVE-2026-55062",
-      "published": "2026-09-17T19:16:51.510",
-      "lastModified": "2026-09-23T20:17:11.433",
-      "description": "uniget is a universal installer and updater for (container) tools. Prior to 0.27.6, the hooks edit command in cmd/uniget/hooks.go concatenates an unvalidated hook filename with the selected hooks directory, allowing parent-directory components to escape that directory. The resulting path is passed to the configured editor, which can access or modify files outside the hooks directory with the privileges of the uniget process account. This issue is fixed in version 0.27.6.",
-      "score": 8.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55062"
-    },
-    {
-      "id": "CVE-2026-55061",
-      "published": "2026-09-17T19:16:51.333",
-      "lastModified": "2026-09-18T15:17:09.807",
-      "description": "uniget is a universal installer and updater for (container) tools. Prior to 0.27.6, the hooks edit command in cmd/uniget/hooks.go parses UNIGET_EDITOR or EDITOR with strings.Split(editor, \" \") and passes every space-delimited suffix as an argument to the selected editor executable. An attacker who can influence the editor environment and cause hook editing can supply unexpected editor arguments, potentially causing unintended actions with the privileges of the uniget process account. Go os/exec does not evaluate shell operators in these arguments, so the advisory's wrapper demonstration establishes argument delivery but does not establish shell command interpretation. This issue is fixed in version 0.27.6.",
-      "score": 1,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55061"
-    },
-    {
-      "id": "CVE-2026-54649",
-      "published": "2026-09-17T19:16:51.163",
-      "lastModified": "2026-09-17T19:16:51.163",
-      "description": "punchin-email is a Cloudflare Email Worker that provides two-way role aliases while relaying mail to a private inbox. Prior to 1.5.0, handleInbound delivers inbound alias mail with message.forward(), which silently drops the added Reply-To header intended to route responses through the relay. When a correspondent sends mail to an alias and the operator replies, the mail client can send directly to the correspondent from the private FORWARD_TO inbox address, exposing that address. The disclosure is limited to the operator's own email address and does not expose third-party data or provide code execution or authentication bypass. This issue is fixed in version 1.5.0.",
-      "score": 2.1,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54649"
-    },
-    {
-      "id": "CVE-2026-54617",
-      "published": "2026-09-17T19:16:51.003",
-      "lastModified": "2026-09-18T19:16:43.177",
-      "description": "GravitLauncher is an open-source Minecraft launcher based on sashok724's v3. Prior to 5.7.12, an unauthenticated remote actor can send a raw HTTP request target without a leading slash to the default LaunchServer file server on port 9274. FileServerHandler.channelRead0 in components/launchserver/src/main/java/pro/gravit/launchserver/socket/handlers/fileserver/FileServerHandler.java strips the first request-target character and resolves the remaining path against updatesDir without re-normalizing and verifying containment. This leaves parent-directory components in a no-leading-slash request and allows reading any file accessible to the LaunchServer process, including .keys/ecdsa_id, .keys/legacySalt, and LaunchServer.json. Disclosure of those files can expose signing keys, refresh-token material, and database credentials, enabling forged administrative access tokens and full authentication bypass. A normalizing L7 proxy may block the primary request form, but direct exposure and L4/TCP proxies remain affected, and netty.fileServerEnabled is enabled by default. This issue is fixed in 5.7.12.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54617"
-    },
-    {
-      "id": "CVE-2026-54571",
-      "published": "2026-09-17T19:16:50.843",
-      "lastModified": "2026-09-21T21:17:04.560",
-      "description": "ESPAsyncWebServer is an asynchronous HTTP and WebSocket server library for ESP32, ESP8266, RP2040 and RP2350. Prior to 3.11.1, the multipart/form-data parser in src/WebRequest.cpp stores _boundaryPosition as an 8-bit value while _parseMultipartPostByte processes the boundary. A remote request containing an exactly 256-byte multipart boundary wraps _boundaryPosition from 255 to zero, prevents the boundary parsing loop from terminating, consumes excessive CPU, and triggers a FreeRTOS watchdog reset on affected ESP32 or ESP8266 devices. This issue is fixed in version 3.11.1.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54571"
-    },
-    {
-      "id": "CVE-2026-54524",
-      "published": "2026-09-17T19:16:50.673",
-      "lastModified": "2026-09-17T19:16:50.673",
-      "description": "Frappe HR is an open-source human resources management solution (HRMS). Prior to 16.7.0, an authenticated user with the HR User role can inject SQL through filters in the Salary Payments Based on Payment Mode report. In hrms/payroll/report/salary_payments_based_on_payment_mode/salary_payments_based_on_payment_mode.py, get_conditions constructs filter clauses from user-controlled values and get_data incorporates those clauses into a string-formatted SQL query, allowing extraction of arbitrary database data. This issue is fixed in 16.7.0.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54524"
-    },
-    {
-      "id": "CVE-2026-54504",
-      "published": "2026-09-17T19:16:50.517",
-      "lastModified": "2026-09-17T20:16:51.120",
-      "description": "MCP Documentation Server is a local-first document management and semantic search server for AI coding agents. From 1.13.0 until 1.13.1, the automatically started Web UI in src/server.ts calls startWebServer in src/web-server.ts with START_WEB_UI enabled by default and WEB_PORT set to 3080. startWebServer uses app.listen(PORT) without a host, which binds the unauthenticated document-management API to all interfaces rather than localhost. A network-reachable client can invoke GET /api/documents, GET /api/documents/:id, POST /api/documents, POST /api/search-all, DELETE /api/documents/:id, and GET /api/config without credentials to enumerate and read documents, search the corpus, insert or delete documents, and tamper with the MCP assistant's knowledge base. The service must be reachable from the attacker's LAN, VM network, container bridge, VPN, or another routed network, and the issue does not provide remote code execution. This issue is fixed in 1.13.1.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54504"
-    },
-    {
-      "id": "CVE-2026-54451",
-      "published": "2026-09-17T19:16:50.360",
-      "lastModified": "2026-09-21T21:17:04.303",
-      "description": "Elixir protobuf is a pure Elixir implementation of Google Protobuf. From 0.8.0 until 0.16.1, services that decode attacker-controlled protobuf bytes with Protobuf.Decoder can be taken offline when the schema contains a self-referential or cyclic message type. In lib/protobuf/decoder.ex, Protobuf.Decoder.value_for_field/3 handles an embedded?: true field by recursively entering the decode / build_message / handle_value / value_for_field call chain without enforcing a nesting-depth limit. Deeply nested embedded fields retain non-tail recursive frames, allowing a comparatively small request to consume substantial CPU and memory, pin a BEAM scheduler, and exhaust the node. This issue is fixed in version 0.16.1.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54451"
-    },
-    {
-      "id": "CVE-2026-54253",
-      "published": "2026-09-17T19:16:50.203",
-      "lastModified": "2026-09-23T20:17:10.987",
-      "description": "TS3 Manager is modern web interface for maintaining Teamspeak3 servers. Prior to 2.2.6, the /api/download handler in packages/server/routes/api.js passes the attacker-controlled port query parameter to socket.connect(port, host) and returns the resulting error.message through res.status(400).send(error.message) as text/html without a Content Security Policy. When a logged-in operator follows a crafted top-level link, the reflected value executes in the manager origin. The token cookie set in packages/ui/src/store/modules/query.js lacks HttpOnly, Secure, and an explicit SameSite attribute, allowing the script to read the token and call the autofillform event in packages/server/socket.js. autofillform returns the decoded JWT, including the cleartext ServerQuery password, enabling operator-session hijacking and control of the managed TeamSpeak server when the operator uses administrative ServerQuery credentials. A valid operator session and user interaction are required. This issue is fixed in 2.2.6.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54253"
-    },
-    {
-      "id": "CVE-2026-54239",
-      "published": "2026-09-17T19:16:50.047",
-      "lastModified": "2026-09-18T19:16:42.137",
-      "description": "Faust.js is a headless WordPress toolkit. Prior to 1.8.11, the FaustWP WordPress plugin authenticates only the ciphertext in its token envelope and excludes the 16-byte initialization vector from the HMAC in WPE\\FaustWP\\Auth\\encrypt() and WPE\\FaustWP\\Auth\\decrypt() in plugins/faustwp/includes/auth/functions.php. A logged-in non-administrator who obtains an authorization code from GET /generate can modify the unauthenticated initialization vector so that CBC decryption changes the token type and user identifier while the HMAC remains valid. This can produce an access token for an Administrator and permit full WordPress REST API access, administrator-account creation, plugin installation, and arbitrary code execution. This issue is fixed in repository version 1.8.11.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54239"
-    },
-    {
-      "id": "CVE-2026-52852",
-      "published": "2026-09-17T19:16:49.827",
-      "lastModified": "2026-09-21T21:17:04.167",
-      "description": "Traccar is an open source GPS tracking system. Prior to 6.14.0, an authenticated user with permission to manage groups and request reports can create a cyclic group-parent hierarchy and request a trips or stops report for a device in that hierarchy. org.traccar.api.resource.GroupResource permits the parent cycle, while org.traccar.helper.model.AttributeUtil.lookup follows group parents without cycle detection, a visited set, or a depth limit. The storage-backed lookup reached through TripsConfig. and ReportUtils.slowTripsAndStops never terminates, pins a Jetty worker at high CPU after the client disconnects, and can exhaust the web/API worker pool when requests are repeated. The position-ingestion cache-backed path is not part of the confirmed affected scope. This issue is fixed in 6.14.0.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-52852"
-    },
-    {
-      "id": "CVE-2026-52851",
-      "published": "2026-09-17T19:16:49.680",
-      "lastModified": "2026-09-17T20:16:50.710",
-      "description": "Traccar is an open source GPS tracking system. Prior to 6.14.0, an authenticated, non-readonly user with access to an object usable in a permission pair can submit DELETE /api/permissions with an extra attacker-controlled JSON key. Permission(LinkedHashMap<String, Long>) in src/main/java/org/traccar/model/Permission.java validates only the first two keys, but DatabaseStorage.removePermission() in src/main/java/org/traccar/storage/DatabaseStorage.java concatenates every map key into the SQL WHERE clause as a column identifier. The extra key therefore becomes attacker-controlled SQL and provides a blind boolean or error oracle that can extract arbitrary database values, including administrator email, password hashes, and salts, or conditionally delete permission rows. Unauthenticated requests are rejected. This issue is fixed in 6.14.0.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-52851"
-    },
-    {
-      "id": "CVE-2026-52727",
-      "published": "2026-09-17T19:16:49.530",
-      "lastModified": "2026-09-17T20:16:50.567",
-      "description": "lxc-ci contains continuous integration and image-build scripts for LXC. Prior to the 2026-05-28 Arch Linux image publication, images built from images/archlinux.yaml retain the same pacman local-signing private key in /etc/pacman.d/gnupg and redistribute it to every container or virtual machine created from that image. An attacker who controls an HTTP package mirror or can intercept mirror traffic can use the shared pacman signing private key to sign modified packages that affected clients accept as trusted. Installing those packages permits arbitrary code execution as root on the client system. This issue is fixed in Arch Linux images published on or after 2026-05-28.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-52727"
-    },
-    {
-      "id": "CVE-2026-49292",
-      "published": "2026-09-17T19:16:48.960",
-      "lastModified": "2026-09-17T20:16:50.007",
-      "description": "Kiwi TCMS is an open source test management system. Prior to 16.0, the unauthenticated /init-db/ page handled by InitDBView in tcms/core/views.py remains reachable after initial setup and proxies repeated requests to Kiwi/manage.py migrate. The migration command is reentrant, so repeated access reports that no migrations are available and does not cause data loss, alter application state, reveal confidential information, or produce a documented availability impact. This issue is fixed in version 16.0.",
-      "score": 0,
-      "severity": "NONE",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-49292"
-    },
-    {
-      "id": "CVE-2026-47252",
-      "published": "2026-09-17T19:16:48.083",
-      "lastModified": "2026-09-17T20:16:49.803",
-      "description": "Anyquery is an SQL query engine built on top of SQLite. Prior to 0.4.5, authenticated users with INSERT or UPDATE access to affected macOS virtual tables can execute operating-system commands because the Chrome plugin and equivalent Brave, Edge, and Safari variants interpolate a SQL-controlled URL into AppleScript or JXA source passed to osascript. In plugins/chrome/tabs.go, tabsTable.Insert() passes the URL through fmt.Sprintf(newTabScript, url), and tabsTable.Update() uses fmt.Sprintf(setURLScript, pk, url). A URL containing quote and newline characters can break out of the intended string or property record and append script statements, resulting in arbitrary command execution with the privileges of the anyquery process on the macOS host. This issue is fixed in version 0.4.5.",
-      "score": 9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-47252"
-    },
-    {
-      "id": "CVE-2026-19477",
-      "published": "2026-09-17T19:16:41.430",
-      "lastModified": "2026-09-18T19:32:26.093",
-      "description": "There\nis stack-based buffer overflow vulnerability recently discovered in MCC Universal Library for Linux (uldaq).  This may result in information disclosure or arbitrary code\nexecution. This vulnerability affects MCC Universal Library for Linux (uldaq) v1.2.1\nand prior versions.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19477"
     }
   ]
 }
