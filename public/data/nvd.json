@@ -1,6 +1,51 @@
 {
-  "syncedAt": "2026-09-24T06:50:23.434Z",
+  "syncedAt": "2026-09-24T07:20:47.556Z",
   "items": [
+    {
+      "id": "CVE-2026-85500",
+      "published": "2026-09-17T14:17:46.050",
+      "lastModified": "2026-09-18T18:16:18.527",
+      "description": "Authentication Bypass by Primary Weakness vulnerability in team-alembic AshAuthentication allows an unconfirmed user to obtain a session, defeating a mandatory email confirmation requirement.\n\nAshAuthentication.Strategy.Password.Actions.check_user/2 decides whether the attribute named by require_confirmed_with is set using a bare is_nil(Map.get(user, value)). When that attribute is not selected on the loaded record Map.get/2 returns %Ash.NotLoaded{}, and when a field policy denies it for the current actor it returns %Ash.ForbiddenField{}. Neither is nil, so the rejection branch is skipped and sign-i\n\nrequire_confirmed_with is enforced in two places, and neither holds in every configuration. sign_in_with_token and register are checked only inside AshAuthentication.Strategy.Password.Actions, not on the action itself, so any caller that invokes the action directly skips the check. An API layer such as AshGraphql or AshJsonApi invokes the action directly, so this applies to the default configuration. Where a check does run it compares the confirmation attribute against nil. That attribute holds %Ash.NotLoaded{} or %Ash.ForbiddenField{} when it sets select_by_default?: false, when an API layer narrows the read's select, or when a field policy hides it from the sign-in actor. Neither struct is nil, so those configurations read every user as confirmed.\n\nThis issue affects ash_authentication: from 4.3.8 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85500"
+    },
+    {
+      "id": "CVE-2026-82761",
+      "published": "2026-09-17T14:17:33.423",
+      "lastModified": "2026-09-18T18:16:18.527",
+      "description": "Time-of-check Time-of-use (TOCTOU) Race Condition vulnerability in team-alembic AshAuthentication allows an attacker holding a leaked magic link to replay its single-use token and authenticate as the target subject. A magic link configured with single_use_token?, which is the default, is meant to be redeemable exactly once, but nothing serialises the token's validity check against its consumption, so concurrent redemptions of one token all succeed and each yields a full user token.\n\nSign-in verifies the JWT with Jwt.verify/4 and revokes it only afterwards: AshAuthentication.Strategy.MagicLink.SignInPreparation revokes in a Query.after_action callback, and AshAuthentication.Strategy.MagicLink.SignInChange in an after_transaction hook that runs once the sign-in has already committed. AshAuthentication.TokenResource.Actions.revoke/3 writes the revocation as an upsert, so a concurrent duplicate revocation silently succeeds instead of conflicting and no request ever loses the race.\n\nThis issue affects ash_authentication: from 3.9.0 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82761"
+    },
+    {
+      "id": "CVE-2026-82760",
+      "published": "2026-09-17T14:17:33.237",
+      "lastModified": "2026-09-18T18:16:18.527",
+      "description": "Inefficient Algorithmic Complexity vulnerability in team-alembic AshAuthentication allows an unauthenticated attacker to exhaust CPU and memory via an oversized base62 segment in a submitted API key.\n\nAshAuthentication.Base.decode62/1 in lib/ash_authentication/base.ex splits its argument into one binary per character and folds it with charval62/2, which recomputes Integer.pow(62, index) at every position instead of accumulating by Horner's method, so cost grows roughly cubically in the input length. bindecode62/1 in the same module is quadratic through Integer.undigits/2 and Integer.digits/2. Neither function caps byte_size/1, and AshAuthentication.Strategy.ApiKey.SignInPreparation passes the underscore-separated segments of the submitted key straight into both, before any key lookup and without prior authentication. The surrounding rescue clauses catch exceptions, not CPU or memory exhaustion.\n\nThis issue affects ash_authentication: from 4.8.0 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82760"
+    },
+    {
+      "id": "CVE-2026-82759",
+      "published": "2026-09-17T14:17:33.030",
+      "lastModified": "2026-09-18T18:16:18.527",
+      "description": "Use of a One-Way Hash with a Predictable Salt vulnerability in team-alembic AshAuthentication allows readers of the audit store to recover the client IP addresses that the audit log add-on's :hash privacy mode is meant to pseudonymise.\n\nAshAuthentication.AddOn.AuditLog.IpPrivacy.hash_ip/1 computes a single unkeyed :crypto.hash(:sha256, salt <> ip) and truncates the result to 16 hexadecimal characters. The salt is read from the :audit_log_ip_salt or :secret application config keys, and falls back to the constant \"default-salt-change-in-production\" published in the library source when neither is set, with nothing warning that the default is in use. The IPv4 space is only 2^32 values and SHA-256 is fast, so the whole hash table is precomputable and every stored value maps back to its source address. Truncating to 16 characters does not help, and even a configured salt leaves the hash cheap enough to enumerate once it leaks.\n\nThis issue affects ash_authentication: from 4.12.0 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
+      "score": 1.8,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82759"
+    },
+    {
+      "id": "CVE-2026-82723",
+      "published": "2026-09-17T14:17:32.863",
+      "lastModified": "2026-09-18T18:16:18.527",
+      "description": "Insertion of Sensitive Information into Log File vulnerability in team-alembic AshAuthentication allows disclosure of user password digests to readers of the audit store.\n\nThe audit_log add-on builds each entry's extra_data in AshAuthentication.AddOn.AuditLog.Auditor.build_extra_data/4, which takes :actor from the action callback context verbatim. Any audited action invoked with actor: set to a user record therefore deposits that record, including its hashed_password attribute, into the audit entry. The same module already collapses the audited identity to an opaque string via AshAuthentication.user_to_subject/1 and filters params against the strategy's configured allow-list, so the actor is the only stored value that reaches the audit store unfiltered. Marking the attribute sensitive?: true does not help, because that redacts inspect/1 output rather than JSON encoding or raw-term storage.\n\nThere is no attacker-controlled trigger and no network disclosure path: entries accumulate from ordinary authenticated activity, and an attacker's own requests deposit only their own digest. Exploitation requires independent read access to the audit store, such as database credentials, an audit role, a backup, or a log shipper, at which point the digests support offline password attack against every active account. Whether the material persists depends on the data layer, since raw-term stores keep it verbatim while a SQL store raises Protocol.UndefinedError and drops the entry unless the user resource derives Jason.Encoder.\n\nThis issue affects ash_authentication: from 4.12.0 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.2.",
+      "score": 1.8,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82723"
+    },
     {
       "id": "CVE-2026-82685",
       "published": "2026-09-17T14:17:32.717",
@@ -849,51 +894,6 @@
       "score": 7.4,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-50605"
-    },
-    {
-      "id": "CVE-2026-91017",
-      "published": "2026-09-17T07:16:28.773",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The Robokassa payment gateway for Woocommerce WordPress plugin before 1.8.9 does not verify the authenticity of incoming payment notifications when its non-default deferred-payment feature is enabled, allowing unauthenticated attackers to forge a notification and mark arbitrary WooCommerce orders as paid or on-hold without payment or a valid signature.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91017"
-    },
-    {
-      "id": "CVE-2026-90982",
-      "published": "2026-09-17T07:16:28.647",
-      "lastModified": "2026-09-18T19:07:38.320",
-      "description": "@fastify/static is a Fastify plugin that serves static files from a configured root directory. In versions before 10.1.4, on a case-insensitive filesystem such as Windows or the default macOS volume, a route guard or allowedPath restriction can be bypassed by altering the letter case of a path segment. The route matcher is case-sensitive while the filesystem is not, so a request that changes the case of a protected segment does not match the guarded route and falls through to the static handler, yet the filesystem resolves it to the same protected file. As a result, an unauthenticated request can read a file that a route guard or allowedPath was configured to protect. The issue does not affect case-sensitive filesystems and is not a directory traversal, since nothing is served from outside the configured root. The issue is fixed in @fastify/static 10.1.4, which validates the requested path against its actual on-disk spelling and rejects case-aliased paths before authorization. As a workaround, serve static files from a case-sensitive filesystem, or ensure route guards and allowedPath rules account for every letter-case variant of the protected paths.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90982"
-    },
-    {
-      "id": "CVE-2026-87963",
-      "published": "2026-09-17T07:16:28.533",
-      "lastModified": "2026-09-20T14:16:59.507",
-      "description": "The Yo WordPress plugin from 1.1 through 1.3.1 does not sanitize or parameterize the username request parameter before using it in a SQL query, and reads it before WordPress applies its request escaping, allowing unauthenticated attackers to perform SQL injection and read arbitrary database contents including administrator password hashes.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87963"
-    },
-    {
-      "id": "CVE-2026-86801",
-      "published": "2026-09-17T07:16:28.413",
-      "lastModified": "2026-09-18T19:08:32.830",
-      "description": "The To Do List Member WordPress plugin from 1.4 through 1.6 ships a file upload endpoint that does not load WordPress and therefore applies no authentication, capability or nonce check of any kind, and validates only the name of an uploaded file rather than its content, allowing unauthenticated users to store active content served from the site's own origin, and to list and delete the files already staged there.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86801"
-    },
-    {
-      "id": "CVE-2026-44940",
-      "published": "2026-09-17T07:16:28.167",
-      "lastModified": "2026-09-18T19:07:38.320",
-      "description": "The rancher-extension-stackstate extension in SUSE Observability exposes service tokens in plain configuration or insecure locations rather than managing them securely. An attacker with minimal access could obtain the token to gain unauthorized access or escalate privileges within the observability environment.",
-      "score": 5.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-44940"
     }
   ]
 }
