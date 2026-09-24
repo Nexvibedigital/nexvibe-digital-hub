@@ -1,6 +1,51 @@
 {
-  "syncedAt": "2026-09-24T09:46:18.815Z",
+  "syncedAt": "2026-09-24T10:19:54.410Z",
   "items": [
+    {
+      "id": "CVE-2026-92941",
+      "published": "2026-09-17T14:17:59.310",
+      "lastModified": "2026-09-17T16:18:34.520",
+      "description": "vm2 versions from 3.11.3 before 3.11.7 expose the host tls module to NodeVM sandbox code, allowing attackers to call tls.setDefaultCACertificates() and replace process-wide certificate authorities. Attackers with access to allowed tls and url builtins can use URLSearchParams to create host-realm arrays and manipulate the TLS trust store, enabling subsequent host HTTPS clients to accept attacker-controlled certificates.",
+      "score": 10,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92941"
+    },
+    {
+      "id": "CVE-2026-92940",
+      "published": "2026-09-17T14:17:59.143",
+      "lastModified": "2026-09-17T20:18:59.213",
+      "description": "vm2 versions 3.11.3 through 3.11.6 expose the host process's real https.globalAgent to sandboxed code when a NodeVM is explicitly configured to allow require('https'). The builtin loader wraps host modules in a read-only proxy, but method calls such as Agent.prototype.on() are forwarded to the underlying host object, so sandbox code can register a listener for the agent's 'free' event. When an unrelated host HTTPS request releases a pooled connection, the listener receives the live host request options and the host TLSSocket, allowing sandboxed code to read the host's Authorization header and private destination host/port, attach a data listener to the released socket and read subsequent host response bodies in plaintext, and issue attacker-chosen authenticated requests using the stolen credentials. The issue is fixed in 3.11.7.",
+      "score": 10,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92940"
+    },
+    {
+      "id": "CVE-2026-92939",
+      "published": "2026-09-17T14:17:58.970",
+      "lastModified": "2026-09-17T15:17:00.650",
+      "description": "vm2 3.11.3 through 3.11.6 exposes the host Node.js crypto module to a NodeVM sandbox when the crypto builtin is allowed. The module is presented via a recursive read-only proxy, but its callable exports still execute with host-process authority. Sandboxed JavaScript can therefore call crypto.setEngine() with a filesystem path to an attacker-supplied native library (for example, one bundled in an untrusted plugin package already written to disk); OpenSSL asks the operating-system dynamic loader to load the file, and the library's constructor executes native code in the host process before engine-symbol validation rejects it. Exploitation requires only the crypto builtin and does not require fs, process, module, child_process, worker_threads, vm, or inspector access, resulting in a sandbox escape and arbitrary native code execution. Fixed in 3.11.7.",
+      "score": 9.9,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92939"
+    },
+    {
+      "id": "CVE-2026-92938",
+      "published": "2026-09-17T14:17:58.750",
+      "lastModified": "2026-09-19T03:17:18.443",
+      "description": "vm2 versions 3.11.3 through 3.11.6 expose Node.js's host node:sqlite module to code running in NodeVM when that builtin is permitted, either explicitly or through builtin: ['*']. The module is wrapped with vm.readonly(), which prevents property assignment but leaves host-authority callables reachable; in addition, the resolver treats any request starting with 'node:' as a core-module request and the runtime strips only one 'node:' prefix, so a sandbox request for 'node:node:sqlite' resolves to the configured node:sqlite entry. Sandboxed code can therefore create an in-memory DatabaseSync with extension loading enabled and call DatabaseSync.loadExtension() on a native library bundled in the untrusted plugin package (path derived from __dirname). SQLite loads the library into the Node.js host process and invokes its native entry point, giving the sandboxed plugin arbitrary native code execution outside the sandbox with the host process's privileges. The issue is fixed in vm2 3.11.7.",
+      "score": 9.9,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92938"
+    },
+    {
+      "id": "CVE-2026-92937",
+      "published": "2026-09-17T14:17:58.517",
+      "lastModified": "2026-09-18T20:17:30.707",
+      "description": "vm2 3.11.6 is vulnerable to a sandbox escape leading to remote code execution in the host Node.js process. The fix for GHSA-m283-3h24-438v is incomplete: the bridge gate at lib/bridge.js:1624 identity-checks only the direct call target when deciding whether to rebuild/sanitise a rejected host Promise value. Registering the rejection handler through Function.prototype.call or .apply indirection (e.g., p.then.call(p, undefined, cb)) makes the intercepted target host Function.prototype.call, so the sanitiser never runs and the raw host error reaches sandbox code with its own properties intact. If an embedder exposes a host-realm Promise to the sandbox (an async host function bridged via the sandbox option, or a NodeVM external module's async method) and that Promise rejects with an Error carrying a non-primitive own property referencing a host object (for example err.detail = process), untrusted code in the sandbox obtains a fully functional proxy to that host object and can execute arbitrary commands with the privileges of the host process (e.g., e.detail.mainModule.require('child_process').execSync(...)). The direct p.then(undefined, cb), bind, and Reflect.apply forms are correctly sanitised. Fixed in vm2 3.11.7.",
+      "score": 10,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92937"
+    },
     {
       "id": "CVE-2026-92936",
       "published": "2026-09-17T14:17:58.320",
@@ -849,51 +894,6 @@
       "score": 7.3,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66269"
-    },
-    {
-      "id": "CVE-2026-92894",
-      "published": "2026-09-17T10:17:06.423",
-      "lastModified": "2026-09-18T19:06:08.407",
-      "description": "A flaw was found in the foreman_ansible plugin's Ansible override values API. The destroy action resolves the target LookupValue record by ID without verifying it belongs to an AnsibleVariable the caller is authorized to edit. An authenticated user with the edit_ansible_variables permission can delete any LookupValue by ID, including override values for Ansible variables outside their permission filter scope and override values belonging to Puppet smart class parameters.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92894"
-    },
-    {
-      "id": "CVE-2026-78428",
-      "published": "2026-09-17T10:17:03.760",
-      "lastModified": "2026-09-18T19:07:38.320",
-      "description": "For users authenticated through SAML or OpenID Connect (OIDC), this vulnerability can result in one user receiving another user's authenticated session when multiple SSO login attempts occur concurrently",
-      "score": 8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78428"
-    },
-    {
-      "id": "CVE-2026-78427",
-      "published": "2026-09-17T10:17:03.637",
-      "lastModified": "2026-09-18T19:07:38.320",
-      "description": "The NeuVector admission webhook silently excludes containers from policy evaluation when their image path matches one of three hardcoded service mesh sidecar images. Since the image path is entirely controlled by the workload author, any user capable of deploying workloads can evade admission deny rules simply by naming their image path after one of these sidecar images.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78427"
-    },
-    {
-      "id": "CVE-2026-78426",
-      "published": "2026-09-17T10:17:03.520",
-      "lastModified": "2026-09-18T19:07:38.320",
-      "description": "The NeuVector JWT verifier accepts noncanonical Base64URL encodings of the same RSA signature field. An attacker holding a valid JWT that has not expired, but was logged out of NeuVector, can continue using the non-expired token with equivalent spelling of the RSA signature field until the token validity expires.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78426"
-    },
-    {
-      "id": "CVE-2026-78425",
-      "published": "2026-09-17T10:17:02.427",
-      "lastModified": "2026-09-18T19:07:38.320",
-      "description": "Authorised users of outside applications behind the same corporate identity provider (IdP), for example, a wiki, a ticketing system, an expenses tool, or anything they legitimately hold an account on can log into their system via SAML SSO. The IdP issues an assertion to them. If that assertion is presented to NeuVector, NeuVector accepts it because the only thing distinguishing \"an assertion for NeuVector\" from \"an assertion for the wiki\" is the element, and the `NotInAudience` warning that reports the mismatch is never read.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78425"
     }
   ]
 }
