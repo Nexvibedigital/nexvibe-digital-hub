@@ -1,6 +1,42 @@
 {
-  "syncedAt": "2026-09-24T08:47:02.718Z",
+  "syncedAt": "2026-09-24T09:20:53.639Z",
   "items": [
+    {
+      "id": "CVE-2026-92936",
+      "published": "2026-09-17T14:17:58.320",
+      "lastModified": "2026-09-17T16:18:34.377",
+      "description": "vm2 versions 3.11.0 through 3.11.6 leak absolute host filesystem paths to sandboxed code through error stack formatting. Attacker-supplied code can force the host-realm source transformer to throw a SyntaxError (for example by calling eval with malformed source) and then read the error's .stack property; the bridge forwards the .stack read to the host-realm formatter, bypassing the sandbox-side host-path redaction introduced for GHSA-v27g-jcqj-v8rw. The returned stack string discloses absolute paths from vm2, Node.js internals, and the embedding application's own source tree, along with host function names. Default new VM() and new NodeVM() configurations are affected without any special options, and the issue persists when string eval is disabled because the host-side transformer throws before eval is handled. The impact is information disclosure only; no code execution results. Fixed in vm2 3.11.7.",
+      "score": 5.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92936"
+    },
+    {
+      "id": "CVE-2026-92935",
+      "published": "2026-09-17T14:17:57.810",
+      "lastModified": "2026-09-17T20:18:59.093",
+      "description": "vm2 is a sandbox for running untrusted Node.js code. In versions >= 3.11.4 and <= 3.11.6, the NodeVM constructor computes `hasRealRequireConfig` with `typeof requireOpts === 'object' && requireOpts !== null`, so an array-shaped `require` value (for example `require: []`) satisfies the guard that is meant to reject nesting without an explicit require configuration. `makeResolverFromLegacyOptions()` then destructures the array into undefined option fields and returns a resolver containing only `NESTING_OVERRIDE.vm2`. As a result, an attacker who can supply JavaScript executed by a NodeVM configured with truthy `nesting` and an array-shaped `require` (e.g. `new NodeVM({nesting: true, require: []})`) can require the host `vm2` module, create an inner NodeVM with an attacker-chosen builtin allowlist (such as `child_process`), and execute arbitrary commands with the privileges of the host Node.js process, escaping the sandbox. Outer builtin restrictions do not constrain the attacker-created inner NodeVM. This issue is fixed in vm2 3.11.7.",
+      "score": 9,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92935"
+    },
+    {
+      "id": "CVE-2026-92934",
+      "published": "2026-09-17T14:17:57.513",
+      "lastModified": "2026-09-17T15:17:00.520",
+      "description": "vm2 before 3.11.8 contains an incomplete fix for Error.cause sanitization that allows sandbox escape when revisited host-wrapped AggregateError objects are caught within a single exception handler traversal. Attackers can exploit cycle detection bypass in handleException to access unsanitized host proxies embedded in the errors array, enabling full remote code execution and process information disclosure from the sandbox.",
+      "score": 9,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92934"
+    },
+    {
+      "id": "CVE-2026-92933",
+      "published": "2026-09-17T14:17:57.337",
+      "lastModified": "2026-09-19T03:17:18.310",
+      "description": "vm2 is a sandbox for running untrusted Node.js code. In versions <= 3.11.7, NodeVM exposes the host `util` module to the sandbox as an unfiltered shallow copy (`Object.assign({}, util)` in `defaultBuiltinLoaderUtil`), and the deprecated `sys` builtin (an alias of host `util`) is exposed through the generic builtin loader. On Node.js >= 22.9 this hands sandboxed code `util.getCallSites()`, a programmatic stack-introspection API that returns the host process's full call stack, including absolute file paths, function names, and line numbers for vm2 bridge internals and the embedding application's entrypoint. This bypasses the host-frame redaction introduced for GHSA-v27g-jcqj-v8rw, which only applies to the `Error.prepareStackTrace` formatting channel. The issue is fixed in vm2 3.11.8.",
+      "score": 5.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92933"
+    },
     {
       "id": "CVE-2026-92879",
       "published": "2026-09-17T14:17:57.003",
@@ -858,42 +894,6 @@
       "score": 7.6,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78425"
-    },
-    {
-      "id": "CVE-2026-50610",
-      "published": "2026-09-17T09:16:41.487",
-      "lastModified": "2026-09-18T16:25:08.493",
-      "description": "A vulnerability has been identified in the Acer System Monitoring component included with NitroSense and PredatorSense due to insufficient access controls in a privileged service. An authenticated local user may be able to access the service and perform unauthorized registry modifications, potentially resulting in local privilege escalation.",
-      "score": 7.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-50610"
-    },
-    {
-      "id": "CVE-2026-50609",
-      "published": "2026-09-17T09:16:41.370",
-      "lastModified": "2026-09-18T16:25:08.493",
-      "description": "A vulnerability has been identified in the Acer System Monitoring component included with NitroSense and PredatorSense. Insufficient access controls within a privileged Named Pipe service may allow an authenticated local user to perform unauthorized registry operations. In certain situations, this could lead to privilege escalation or compromise of the affected system.",
-      "score": 7.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-50609"
-    },
-    {
-      "id": "CVE-2026-50608",
-      "published": "2026-09-17T09:16:41.253",
-      "lastModified": "2026-09-18T16:25:08.493",
-      "description": "A vulnerability has been identified in the Acer System Monitoring component included with NitroSense and PredatorSense. The WebSocket handshake process does not properly require authentication before allowing connections to the service. Under certain circumstances, unauthorized access to service functionality may be possible.",
-      "score": 1.2,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-50608"
-    },
-    {
-      "id": "CVE-2026-15688",
-      "published": "2026-09-17T09:16:39.240",
-      "lastModified": "2026-09-18T19:29:56.010",
-      "description": "Incorrect Implementation of Authentication Algorithm Vulnerability in Mitsubishi Electric GX Works3 and Motion Control Setting allows a local attacker to successfully authenticate even with an invalid block password by executing the affected product and modifying part of the executable module in memory, and thereby may be able to view, tamper with, destroy, or delete control programs.",
-      "score": 9.2,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15688"
     }
   ]
 }
