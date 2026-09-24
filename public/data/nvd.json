@@ -1,6 +1,69 @@
 {
-  "syncedAt": "2026-09-24T10:46:22.689Z",
+  "syncedAt": "2026-09-24T11:19:16.706Z",
   "items": [
+    {
+      "id": "CVE-2026-92949",
+      "published": "2026-09-17T14:18:00.463",
+      "lastModified": "2026-09-21T18:17:15.850",
+      "description": "vm2 versions from 3.9.6 before 3.11.7 fail to properly restrict access to accessor properties on frozen objects, allowing sandboxed scripts to bypass vm.freeze() and vm.readonly() protections. Attackers can use Object.getOwnPropertyDescriptor() or __lookupSetter__() to extract and invoke host object setters directly, mutating properties the embedder explicitly marked read-only.",
+      "score": 4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92949"
+    },
+    {
+      "id": "CVE-2026-92948",
+      "published": "2026-09-17T14:18:00.310",
+      "lastModified": "2026-09-18T20:17:30.980",
+      "description": "vm2 versions >= 3.9.6 and <= 3.11.6 are affected by a NodeVM builtin allowlist bypass that permits a sandbox escape on Node.js 24 and newer when the embedder explicitly allows the node:test builtin (e.g. require: { builtin: ['node:test'] }). On Node.js 24+, module.builtinModules exposes the scheme-only key node:test, which is not covered by vm2's family-based DANGEROUS_BUILTINS protection, so it is stored in the generic host-passthrough loader. Because requireImpl() in lib/setup-node-sandbox.js strips a single 'node:' prefix before the builtin lookup, sandbox code calling require('node:node:test') resolves to the stored node:test key and receives a readonly proxy to the host module. Calls to node:test.run() are forwarded to the host implementation, which spawns a separate Node process for process-isolated test execution and passes through attacker-controlled execArgv values; supplying --eval=<JavaScript> therefore executes arbitrary JavaScript in an unrestricted host Node process outside the NodeVM sandbox. Fixed in vm2 3.11.7.",
+      "score": 9.9,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92948"
+    },
+    {
+      "id": "CVE-2026-92947",
+      "published": "2026-09-17T14:18:00.140",
+      "lastModified": "2026-09-17T16:18:34.667",
+      "description": "vm2 before 3.11.7 exposes Node's shared Buffer pool to sandboxed code, allowing disclosure of host memory used by Buffer.from, Buffer.concat, and related allocations. Sandboxed code can read and write to host-realm buffers by acquiring ArrayBuffers from small allocations, leading to sensitive data exposure and potential denial-of-service.",
+      "score": 10,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92947"
+    },
+    {
+      "id": "CVE-2026-92946",
+      "published": "2026-09-17T14:17:59.963",
+      "lastModified": "2026-09-17T20:18:59.483",
+      "description": "vm2 before 3.11.7 contains a remote code execution vulnerability when require.external is enabled without an explicit require.root that excludes node_modules. Sandboxed code can require vm2's own package, instantiate an unrestricted NodeVM instance, and execute arbitrary host OS commands via child_process.",
+      "score": 10,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92946"
+    },
+    {
+      "id": "CVE-2026-92945",
+      "published": "2026-09-17T14:17:59.807",
+      "lastModified": "2026-09-17T15:17:00.783",
+      "description": "vm2 before 3.11.7 contains a module allowlist bypass vulnerability in isPathAllowedForModule that uses raw string prefix matching instead of boundary-anchored comparison. Attackers can reach non-allowlisted packages sharing a prefix with allowlisted modules by performing relative requires from allowlisted packages when transitive loading is disabled.",
+      "score": 4.2,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92945"
+    },
+    {
+      "id": "CVE-2026-92944",
+      "published": "2026-09-17T14:17:59.623",
+      "lastModified": "2026-09-19T03:17:18.580",
+      "description": "vm2 versions 3.10.2 through 3.11.6 contain a sandbox escape vulnerability on Node.js 26 where Promise.prototype.finally() bypasses vm2's wrapper protections due to a stale PromiseThenLookupChain protector in V8 14.6. Attackers can exploit this by creating an async function that returns a Promise with an attacker-controlled constructor Symbol.species, allowing them to reach the host Function constructor and process object for arbitrary code execution.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92944"
+    },
+    {
+      "id": "CVE-2026-92942",
+      "published": "2026-09-17T14:17:59.467",
+      "lastModified": "2026-09-18T20:17:30.843",
+      "description": "vm2 before 3.11.7 (affected versions <= 3.11.6) does not enforce the VM({ timeout }) option on code executed outside the synchronous VM#run() call. The timeout only wraps the single call to _runScript() via doWithTimeout() in lib/vm.js, and FinalizationRegistry and WeakRef are exposed to sandboxed code unmodified (they are not among the hardened globals in lib/setup-sandbox.js). Sandboxed code can register a FinalizationRegistry cleanup callback against an object and then drop the only strong reference to it; vm.run() returns within the configured timeout, but when the V8 garbage collector later reclaims the object it invokes the sandboxed cleanup callback outside any vm2 timeout accounting. A busy loop in that callback blocks the host event loop for an unbounded period, resulting in denial of service. The time of invocation depends on the garbage collector (e.g. under memory pressure or with --expose-gc).",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92942"
+    },
     {
       "id": "CVE-2026-92941",
       "published": "2026-09-17T14:17:59.310",
@@ -831,69 +894,6 @@
       "lastModified": "2026-09-17T12:17:23.893",
       "description": "Rejected reason: Red Hat Product Security has come to the conclusion that this CVE is not needed.",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-11874"
-    },
-    {
-      "id": "CVE-2026-92903",
-      "published": "2026-09-17T11:17:03.460",
-      "lastModified": "2026-09-18T19:07:38.320",
-      "description": "Improper input validation in Snowflake CLI versions prior to 3.27.0 allowed unsanitized user-controlled values to be interpolated into SQL strings that are executed as multi-statement queries. An attacker who is able to supply a malicious project configuration file or craft command-line input can cause Snowflake CLI to execute attacker-controlled SQL statements in the context of the victim's Snowflake session and active role. Successful exploitation requires either write or pull-request access to a project repository whose CI/CD pipeline runs Snowflake CLI under an elevated service account role, or the ability to supply untrusted input to CLI-wrapping automation. Impact is limited by the privileges held by the configured Snowflake role at execution time. The fix is available in Snowflake CLI version 3.27.0, which also addresses several additional security findings. Users must manually upgrade.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92903"
-    },
-    {
-      "id": "CVE-2026-92893",
-      "published": "2026-09-17T11:17:03.337",
-      "lastModified": "2026-09-18T19:06:08.407",
-      "description": "A flaw was found in the foreman_ansible plugin's Ansible inventory API. The controller builds its host query using an unscoped Host.where call that does not enforce the search filter associated with the caller's view_hosts permission. An authenticated user whose host visibility is restricted by a permission filter can supply arbitrary host IDs within their organization and receive the full Ansible inventory for those hosts, including parameter values marked as hidden.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92893"
-    },
-    {
-      "id": "CVE-2026-92611",
-      "published": "2026-09-17T11:17:03.210",
-      "lastModified": "2026-09-18T19:34:36.657",
-      "description": "In Eclipse Ankaios versions 0.6.0 to before 1.0.4, `LogRule::matches` in the agent control-interface authorizer stops at the first wildcard pattern in a single rule instead of evaluating later entries, which can cause deny `LogRule` entries to be skipped and allow unauthorized access to another workload's logs.",
-      "score": 4.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92611"
-    },
-    {
-      "id": "CVE-2026-81474",
-      "published": "2026-09-17T11:17:03.077",
-      "lastModified": "2026-09-18T17:55:19.340",
-      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains a Heap-based Buffer Overflow vulnerability. A low privileged attacker with local access could potentially exploit this vulnerability, leading to Elevation of privileges.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81474"
-    },
-    {
-      "id": "CVE-2026-81439",
-      "published": "2026-09-17T11:17:02.957",
-      "lastModified": "2026-09-18T17:55:19.340",
-      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains an Incorrect Authorization vulnerability. A low privileged attacker with remote access could potentially exploit this vulnerability, leading to Protection mechanism bypass.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81439"
-    },
-    {
-      "id": "CVE-2026-81438",
-      "published": "2026-09-17T11:17:02.833",
-      "lastModified": "2026-09-18T17:55:19.340",
-      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains Use of a Broken or Risky Cryptographic Algorithm vulnerability. An unauthenticated attacker with remote access could potentially exploit this vulnerability, leading to Information disclosure.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81438"
-    },
-    {
-      "id": "CVE-2026-66269",
-      "published": "2026-09-17T11:17:02.693",
-      "lastModified": "2026-09-18T17:55:19.340",
-      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains a Use of Externally-Controlled Input to Select Classes or Code ('Unsafe Reflection') vulnerability. An unauthenticated attacker with remote access could potentially exploit this vulnerability, leading to Protection mechanism bypass.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66269"
     }
   ]
 }
