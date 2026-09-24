@@ -1,6 +1,765 @@
 {
-  "syncedAt": "2026-09-24T13:47:48.938Z",
+  "syncedAt": "2026-09-24T14:20:58.233Z",
   "items": [
+    {
+      "id": "CVE-2026-90078",
+      "published": "2026-09-17T17:16:57.057",
+      "lastModified": "2026-09-17T17:16:57.057",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/sched: act_skbmod: fix length calculations and avoid invalid header warnings\n\nsyzbot reported a warning in skb_network_header_len() triggered\nby tcf_skbmod_act():\n\n  !skb_transport_header_was_set(skb)\n  WARNING: CPU: 0 PID: 14949 at include/linux/skbuff.h:3243 skb_network_header_len include/linux/skbuff.h:3243 [inline]\n  WARNING: CPU: 0 PID: 14949 at net/sched/act_skbmod.c:55 tcf_skbmod_act+0xfe8/0x1810 net/sched/act_skbmod.c:55\n\nThere are a few issues in tcf_skbmod_act():\n\n1. Calling skb_network_header_len() assumes skb->transport_header is set,\n   which is not guaranteed when tcf_skbmod_act() runs at TC ingress.\n2. Unconditionally calling skb_mac_header_len() at the beginning of\n   tcf_skbmod_act() triggers a warning on L3 devices (e.g. TUN) where the\n   MAC header is unset, evaluating to an underflowed garbage length.\n3. On TC ingress, skb->data points to the network header. Adding the MAC\n   header length to the IP header length causes skb_ensure_writable() to\n   request more bytes than the actual IP packet length, dropping valid\n   short packets (e.g. 28-byte UDP/IPv4 packets).\n\nFix these by:\n- Using skb_network_offset(skb) + sizeof(struct iphdr/ipv6hdr) for\n  SKBMOD_F_ECN so that the required length is correctly calculated on\n  both ingress (offset == 0) and egress (offset == mac_len).\n- Setting max_edit_len to ETH_HLEN for Ethernet header modifications\n  after validating ARPHRD_ETHER.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90078"
+    },
+    {
+      "id": "CVE-2026-90077",
+      "published": "2026-09-17T17:16:56.930",
+      "lastModified": "2026-09-17T17:16:56.930",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: fix a resource leak in copy_net_ns() error handling path\n\nCurrently, preinit_net() does two things:\n\n  (1) call ns_common_init() which might fail\n  (2) initialize resources which does not fail\n\nHowever, preinit_net() is returning early when (1) fails, and copy_net_ns()\nis jumping to the dec_ucounts: label. As a result, resources allocated by\nnet_alloc() are leaking. We need to call key_remove_domain() and\nnet_passive_dec() in order to release resources allocated by net_alloc().\n\nWe cannot simply jump to the put_userns: label when preinit_net() failed,\nfor (2) is not yet done. But we can reorder (1) and (2), for there is no\ndependency between (1) and (2). Therefore, this patch decouples (1) from\npreinit_net() and changes preinit_net() back to a void function, and calls\nns_common_init() after preinit_net() succeeded. Then, we can jump to\nimmediately after ns_common_free() of the put_userns: label.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90077"
+    },
+    {
+      "id": "CVE-2026-90076",
+      "published": "2026-09-17T17:16:56.820",
+      "lastModified": "2026-09-17T17:16:56.820",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/sched: fq: add overflow bounds to quantum and initial quantum\n\nfq_init() computes quantum = 2 * psched_mtu() and initial_quantum = 10 *\npsched_mtu() with no overflow check. A device with a huge MTU (e.g. dummy\nwith max_mtu == 0 accepting MTU 2147483634) makes psched_mtu() return\n0x80000000; the 2 * and 10 * multiplications wrap to 0 in 32-bit\narithmetic, so q->quantum == 0. Then in fq_dequeue() the credit-refill\nloop adds 0 to f->credit (which stays <= 0) and goto begin loops\nforever under the qdisc lock, creating a soft lockup.\n\nClamp psched_mtu() to [1, 1 << 20] before multiplying so the product\ncannot wrap, then cap the result at 1 << 20, matching the bound already\nenforced on TCA_FQ_QUANTUM in fq_change().\n\nConditions to recreate the bug: a device whose MTU (plus\nhard_header_len) is large enough that 2 * psched_mtu() wraps (e.g. a\ndummy device with max_mtu == 0 accepting MTU 2147483634). Requires\nCAP_NET_ADMIN in a user namespace.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90076"
+    },
+    {
+      "id": "CVE-2026-90075",
+      "published": "2026-09-17T17:16:56.670",
+      "lastModified": "2026-09-17T17:16:56.670",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/sched: fq_codel: clamp default quantum and mtu\n\nfq_codel_init() sets q->quantum = psched_mtu(qdisc_dev(sch)) without\nclamping. A device with a huge MTU (e.g. dummy with max_mtu == 0\naccepting MTU 2147483634) makes psched_mtu() return 0x80000000, which\noverflows the signed flow->deficit to INT_MIN in fq_codel_dequeue(),\ncausing an infinite loop and soft lockup. Emulate fq_codel_change()\nand constrain to [256, FQ_CODEL_QUANTUM_MAX].\n\nThe same unclamped psched_mtu() is assigned to q->cparams.mtu a bit\nbelow, and fq_codel_change() never updates it. codel_should_drop()\ntests \"*backlog <= params->mtu\"; with mtu == 0x80000000 (~2 GiB) and\nthe default 32 MiB memory_limit, the test is always true, so CoDel is\nsilently and completely disabled (no drops, no ECN). Declare a single\nclamped mtu and assign both q->quantum and q->cparams.mtu from it,\nwhich also removes the double psched_mtu() call.\n\nConditions to recreate the bug: a device whose MTU (plus\nhard_header_len) wraps psched_mtu() into the sign bit (e.g. a dummy\ndevice with max_mtu == 0 accepting MTU 2147483634). Requires\nCAP_NET_ADMIN in a user namespace.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90075"
+    },
+    {
+      "id": "CVE-2026-90074",
+      "published": "2026-09-17T17:16:56.530",
+      "lastModified": "2026-09-17T17:16:56.530",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/sched: fq_pie: clamp default quantum to avoid signed overflow\n\nfq_pie_init() sets q->quantum = psched_mtu(qdisc_dev(sch)) without\nclamping. A device with a huge MTU (e.g. dummy with max_mtu == 0\naccepting MTU 2147483634) makes psched_mtu() return 0x80000000, which\noverflows the signed flow->deficit to INT_MIN in fq_pie_qdisc_dequeue(),\ncausing an infinite loop and soft lockup. Emulate fq_pie_policy which\nis already bounded to [1, 1 << 20]; clamp the default to [256, 1 << 20].\n256 matches fq_codel's floor and is a sane minimum for a DRR quantum.\n\nConditions to recreate the bug: a device whose MTU (plus\nhard_header_len) wraps psched_mtu() into the sign bit (e.g. a dummy\ndevice with max_mtu == 0 accepting MTU 2147483634). Requires\nCAP_NET_ADMIN in a user namespace.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90074"
+    },
+    {
+      "id": "CVE-2026-90073",
+      "published": "2026-09-17T17:16:56.387",
+      "lastModified": "2026-09-17T17:16:56.387",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/sched: hhf: clamp quantum before hhf_change() to avoid overflow\n\nhhf_init() sets q->quantum = psched_mtu(qdisc_dev(sch)) with no overflow\ncheck. A device with a huge MTU (e.g. dummy with max_mtu == 0 accepting\nMTU 2147483634) makes weight * quantum overflow the signed deficit in\nhhf_dequeue(), spinning forever.\n\nClamp q->quantum before hhf_change() so both the opt and !opt paths see\na sane quantum. Without this, bare \"tc qdisc add ... hhf\" succeeds with\na clamped quantum but \"tc qdisc add ... hhf limit 1000\" (any option\npresent) fails with -EINVAL because hhf_change() re-validates the\nunclamped default (sch_hhf.c:559). 256 matches fq_codel's floor and is\na sane minimum for a DRR quantum.\n\nConditions to recreate the bug: a device whose MTU (plus\nhard_header_len) wraps psched_mtu() into the sign bit (e.g. a dummy\ndevice with max_mtu == 0 accepting MTU 2147483634). Requires\nCAP_NET_ADMIN in a user namespace.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90073"
+    },
+    {
+      "id": "CVE-2026-90072",
+      "published": "2026-09-17T17:16:56.250",
+      "lastModified": "2026-09-17T17:16:56.250",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/sched: sfq: clamp quantum to avoid signed overflow soft lockup\n\nsfq_init() sets q->quantum = psched_mtu(qdisc_dev(sch)) (unsigned). A\ndevice with a huge MTU (e.g. dummy with max_mtu == 0 accepting MTU\n2147483634) makes psched_mtu() return 0x80000000, so slot->allot = INT_MIN\nand INT_MIN + INT_MIN toggles between INT_MIN and 0 forever, spinning\nsfq_dequeue() under the qdisc lock.\n\nClamp the quantum to [256, 1 << 20] so the refill loop terminates. The\nlower bound also covers q->quantum == 0 (psched_mtu() returning 0),\nwhich spins sfq_dequeue() identically. sfq_change() already rejects a\nnegative quantum, so only the init path was exposed.\n\nConditions to recreate the bug: a device whose MTU (plus\nhard_header_len) wraps psched_mtu() into the sign bit (e.g. a dummy\ndevice with max_mtu == 0 accepting MTU 2147483634). Requires\nCAP_NET_ADMIN in a user namespace.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90072"
+    },
+    {
+      "id": "CVE-2026-90071",
+      "published": "2026-09-17T17:16:56.073",
+      "lastModified": "2026-09-18T18:17:40.850",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/sched: sch_teql: restore skb->dev on the slave failure path\n\nteql_master_xmit() sets skb->dev = slave before calling the slave's\nndo_start_xmit(), but never restores it when that transmit fails. The\nskb then walks on to the next slave still pointing at the previous one.\n\nIf a later slave has no resolved neighbour, teql_resolve() hands the skb\nto neigh_event_send(), which queues it on that neighbour's arp_queue\nwith the stale skb->dev. skb->dev holds no reference, so deleting the\nprevious slave frees the net_device while the skb is still queued.\nWhatever runs next on that skb - arp_error_report() on timeout, or\nneigh_direct_output() -> dev_queue_xmit() once the neighbour resolves -\ncauses a UAF like the one below:\n\nBUG: KASAN: slab-use-after-free in __icmp_send (net/ipv4/icmp.c:914 (discriminator 2))\nRead of size 4 at addr ffff888106e100b0 by task flood_packet/527\nCPU: 0 UID: 0 PID: 527 Comm: flood_packet Not tainted 7.2.0-rc6-g594d90519502 #1 PREEMPT(lazy)\nHardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014\nCall Trace:\n<IRQ>\ndump_stack_lvl (lib/dump_stack.c:94 lib/dump_stack.c:120)\nprint_report (mm/kasan/report.c:378 mm/kasan/report.c:482)\n? __pfx__raw_spin_lock_irqsave (./include/asm-generic/qrwlock.h:122 (discriminator 4))\n? __icmp_send (net/ipv4/icmp.c:914 (discriminator 2))\nkasan_report (mm/kasan/report.c:595)\n? __icmp_send (net/ipv4/icmp.c:914 (discriminator 2))\n__icmp_send (net/ipv4/icmp.c:914 (discriminator 2))\n[...]\nipv4_link_failure (net/ipv4/route.c:1251 net/ipv4/route.c:1258)\n? __pfx_ipv4_link_failure (./include/linux/skbuff.h:4327)\n? _raw_write_lock (./include/linux/instrumented.h:55 ./include/linux/atomic/atomic-instrumented.h:1301 ./include/asm-generic/qrwlock.h:98 ./include/linux/rwlock_api_smp.h:230 kernel/locking/spinlock.c:304)\n? __pfx__raw_write_lock (kernel/locking/spinlock.c:175)\narp_error_report (./include/net/dst.h:438 net/ipv4/arp.c:296)\nneigh_invalidate (net/core/neighbour.c:1077)\nneigh_timer_handler (net/core/neighbour.c:1169)\n[...]\nAllocated by task 505:\nkasan_save_stack (mm/kasan/common.c:57)\nkasan_save_track (mm/kasan/common.c:78)\n__kasan_kmalloc (mm/kasan/common.c:398 mm/kasan/common.c:415)\n__kvmalloc_node_noprof (./include/linux/kasan.h:263 mm/slub.c:5334 mm/slub.c:6905)\nalloc_netdev_mqs (net/core/dev.c:12055 (discriminator 2))\nrtnl_create_link (net/core/rtnetlink.c:3721)\nrtnl_newlink (net/core/rtnetlink.c:3903 net/core/rtnetlink.c:4044 net/core/rtnetlink.c:4159)\nrtnetlink_rcv_msg (net/core/rtnetlink.c:7076)\n[...]\nFreed by task 536:\nkasan_save_stack (mm/kasan/common.c:57)\nkasan_save_track (mm/kasan/common.c:78)\nkasan_save_free_info (mm/kasan/generic.c:584)\n__kasan_slab_free (mm/kasan/common.c:253 mm/kasan/common.c:285)\nkfree (./include/linux/kasan.h:235 mm/slub.c:2677 mm/slub.c:6377 mm/slub.c:6692)\ndevice_release (drivers/base/core.c:2636)\nkobject_put (lib/kobject.c:689 lib/kobject.c:720 ./include/linux/kref.h:65 lib/kobject.c:737)\nnetdev_run_todo (net/core/dev.c:11756)\nrtnl_dellink (net/core/rtnetlink.c:157 ./include/linux/rtnetlink.h:135 net/core/rtnetlink.c:3651)\nrtnetlink_rcv_msg (net/core/rtnetlink.c:7076)\n[...]\n\nFix this by restoring skb->dev to the master at the end of each slave's\niteration.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90071"
+    },
+    {
+      "id": "CVE-2026-90070",
+      "published": "2026-09-17T17:16:55.940",
+      "lastModified": "2026-09-17T17:16:55.940",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ntpm: st33zp24: Return zero on status read failure\n\nst33zp24_status() ignores the result of the transport read and returns\ndata even when no byte was received. The I2C transport, for example,\nskips i2c_master_recv() when the register-select write is short or fails,\nleaving data uninitialized. The resulting stack value can be interpreted\nas TPM_STS flags and let status checks complete spuriously.\n\nThe status callback cannot propagate a transport error. Return zero\nunless recv() reports exactly one byte. With no status bits set, callers\nretry or take their existing timeout or error path instead of acting on\nan invalid status value.\n\nThis issue was found by a static analysis checker and confirmed by manual\nsource review.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90070"
+    },
+    {
+      "id": "CVE-2026-90069",
+      "published": "2026-09-17T17:16:55.830",
+      "lastModified": "2026-09-18T18:17:40.710",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ncrypto: acomp - allocate async request context when cloning\n\nACOMP_REQUEST_ON_STACK() reserves only enough storage for the\nsynchronous fallback. When an async implementation is selected, callers\nclone that stack request before retrying, but acomp_request_clone()\ncurrently copies only the stack-sized object. The clone therefore has no\nstorage for the async provider request context, and providers such as QAT\nwrite past the allocation through acomp_request_ctx(). KASAN does report\na slab OOB write.\n\nAllocate a zeroed clone large enough for the runtime acomp request size,\ncopy only the bytes present in the source object, and preserve the\nexisting fallback-on-allocation-failure behavior. Use the runtime reqsize\nbecause an implementation may adjust it during tfm initialization.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90069"
+    },
+    {
+      "id": "CVE-2026-90068",
+      "published": "2026-09-17T17:16:55.697",
+      "lastModified": "2026-09-17T17:16:55.697",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nASoC: dapm: Fix off-by-one check on the second enum channel\n\nThe snd_soc_dapm_put_enum_double() rejects item[0] once it reaches\ne->items, but it lets item[1] be equal to it.  Both go on to\nsnd_soc_enum_item_to_val(), which indexes e->values with no bound of\nits own, so an enum with a value table reads one element past the end.\n\nThe indexing arrived with the MUX consolidation, which relaxed the\nitem[1] check in the same hunk.  The value MUX handler it deleted used\n>= there, and the snd_soc_put_enum_double() in soc-ops.c still does.\n\nOnly adav80x pairs a value table with two shifts, and its second\nchannel looks accidental, but the control does report two values.\nWriting three into it reads off the end of adav80x_mux_values.  The\ncore catches that only under CONFIG_SND_CTL_INPUT_VALIDATION, which\ndefaults off.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90068"
+    },
+    {
+      "id": "CVE-2026-90067",
+      "published": "2026-09-17T17:16:55.553",
+      "lastModified": "2026-09-18T18:17:40.537",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nlibceph: validate banner payload length\n\nWhen parsing the Ceph messenger v2 protocol banner, the `payload_len` field\nis decoded from the banner prefix. If a client sends a banner with a\n`payload_len` of 0, the kernel sets up a 0-length socket read. This\nviolates an invariant in the state machine, triggering a warning in\n`populate_in_iter()`:\n\n------------[ cut here ]------------\n!iov_iter_count(&con->v2.in_iter)\nWARNING: net/ceph/messenger_v2.c:3129 at populate_in_iter\nnet/ceph/messenger_v2.c:3129 [inline], CPU#1: kworker/1:3/5070\nWARNING: net/ceph/messenger_v2.c:3129 at ceph_con_v2_try_read+0x6634/0x6810\nnet/ceph/messenger_v2.c:3159, CPU#1: kworker/1:3/5070\n...\nCall Trace:\n <TASK>\n ceph_con_workfn+0x1f5/0x14a0 net/ceph/messenger.c:1575\n process_one_work kernel/workqueue.c:3322 [inline]\n process_scheduled_works+0xa8e/0x14e0 kernel/workqueue.c:3405\n worker_thread+0xa47/0xfb0 kernel/workqueue.c:3486\n kthread+0x388/0x470 kernel/kthread.c:436\n ret_from_fork+0x514/0xb70 arch/x86/kernel/process.c:158\n ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245\n </TASK>\n\nAccording to the msgr2 protocol specification, the banner payload is\nexpected to contain at least two 64-bit integers (`server_feat` and\n`server_req_feat`). Therefore, `payload_len` must be at least 16 bytes.\n\nFix this by adding a check in `process_banner_prefix()` to reject a\n`payload_len` smaller than 16 bytes. This prevents the 0-length read and\ncorrectly aborts the connection with a protocol error.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90067"
+    },
+    {
+      "id": "CVE-2026-90066",
+      "published": "2026-09-17T17:16:55.437",
+      "lastModified": "2026-09-17T17:16:55.437",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsamples/ftrace: Fix kthread_stop() on ERR_PTR in ftrace-direct-multi-modify\n\nftrace_direct_multi_init() assigns kthread_run()'s return value to\nsimple_tsk without an IS_ERR() check. When kthread_run() fails it\nreturns ERR_PTR(-ENOMEM), but init still returns 0, so the module loads\nwith simple_tsk holding an error pointer. On unload,\nftrace_direct_multi_exit() then passes that ERR_PTR to kthread_stop(),\nleading to a null-pointer-dereference.\n\nCheck the return value of kthread_run() with IS_ERR(); on failure,\nunregister the ftrace direct call and propagate the error code.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90066"
+    },
+    {
+      "id": "CVE-2026-90065",
+      "published": "2026-09-17T17:16:55.327",
+      "lastModified": "2026-09-17T17:16:55.327",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/smc: release the internal TCP sock on IPPROTO_SMC socket creation failure\n\nIPPROTO_SMC sockets create an internal TCP sock (\"clcsock\") from the\nproto->init hook. When socket creation fails after proto->init has\nrun - e.g. a cgroup BPF program attached to BPF_CGROUP_INET_SOCK_CREATE\ndenies the socket - sk_common_release() only invokes sk_prot->destroy\nif it is set, but neither smc_inet_prot nor smc_inet6_prot defines it,\nand smc_destruct() returns early unless sk_state is SMC_CLOSED. As a\nresult, every failing socket(AF_INET, SOCK_STREAM, IPPROTO_SMC) call\nleaks one tcp_sock, so an unprivileged task able to attach a deny-all\nBPF_CGROUP_INET_SOCK_CREATE program to its own cgroup can grow kernel\nmemory unboundedly.\n\nAdd a .destroy hook to both protos that releases the clcsock via\nsmc_clcsock_release(). smc_sk_init() hashes the sock into the smc\nhashinfo before the clcsock is created, and smc_diag dumps walk that\nhash dereferencing smc->clcsock without taking clcsock_release_lock,\nwhile sk_common_release() calls .destroy before .unhash. Unhash the\nsock before releasing the clcsock, as __smc_release() does, so a\nconcurrent dump cannot observe the release; the second unhash in\nsk_common_release() is a no-op.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90065"
+    },
+    {
+      "id": "CVE-2026-90064",
+      "published": "2026-09-17T17:16:55.220",
+      "lastModified": "2026-09-17T17:16:55.220",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndrm/xe: Reject page faults from non-fault-mode scratch VMs\n\nHaving scratch enabled does not make a VM capable of handling recoverable\npage faults. Allowing scratch VMs through the ASID lookup also admits\ndma-fence mode VMs.\n\nIf such a VM faults on an already valid VMA, the handler reports success\nwithout fixing the fault, causing the GPU to retry indefinitely.\n\nOnly allow fault-mode VMs through the ASID lookup. Fault-mode VMs using\nscratch remain supported, while faults from 3D VMs are rejected.\n\n(cherry picked from commit bfb24a06405b652d37831f3fb66b71d33a6605de)",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90064"
+    },
+    {
+      "id": "CVE-2026-90063",
+      "published": "2026-09-17T17:16:55.080",
+      "lastModified": "2026-09-17T17:16:55.080",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nvirtio-net: Ensure that TCP packets don't overflow gso_segs\n\nThe user can specify any gso_size in a packet crafted with an AF_PACKET\nPACKET_VNET_HDR socket, even smaller than TCP_MIN_GSO_SIZE = 8. At the\nsame time, GSO_MAX_SIZE = 8 * GSO_MAX_SEGS = 8 * 65535. When the user\ncrafts a packet with gso_size < 8, there is a risk for partial GSO to\noverflow the 16-bit gso_segs field when dividing the SKB length by\ngso_size.\n\nAdjust gso_size of TCP packets to be at least TCP_MIN_GSO_SIZE = 8. Keep\ngso_size of UDP GSO packets, as gso_size=1 is valid and explicitly\ntested at tools/testing/selftests/net/tun.c:649.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90063"
+    },
+    {
+      "id": "CVE-2026-90062",
+      "published": "2026-09-17T17:16:54.943",
+      "lastModified": "2026-09-18T18:17:40.363",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: nf_tables: move hardware offload step after building the chain blob\n\nAllocate the chain blob before the ruleset offload to reduce chances of\nentering an inconsistent state where the offloaded ruleset in the nic\nand the software ruleset differ.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90062"
+    },
+    {
+      "id": "CVE-2026-90061",
+      "published": "2026-09-17T17:16:54.833",
+      "lastModified": "2026-09-17T17:16:54.833",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: nf_tables: skip double clone set expressions on element insert\n\nBoth the dynset and newsetelem path clone the existing set expressions\nwhen setting set element expressions if no override expressions are\nprovided. This results in a double clone, once to clone the template set\nexpressions then another clone on the new element. Add a flag to\nannotate if userspace provides a override expression (ie. expression of\nthe same type of the set but different configuration), otherwise borrow\nthe existing expression from the set. Add conditionals to release\nexpression iif they represent an override. Use this new override_exprs\nflag to dump the dynset expression override to userspace.\n\nThis simplifies the existing logic and it also fixes a bug with the\nconnlimit expression which results in a module refcount imbalance\nWARNING splat when resorting on the default set expressions.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90061"
+    },
+    {
+      "id": "CVE-2026-90060",
+      "published": "2026-09-17T17:16:54.723",
+      "lastModified": "2026-09-17T17:16:54.723",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nALSA: control: Don't add invalid kcontrols to LED layer\n\nThe kcontrol LED state layer tries to track the all associated\nkcontrol elements with naive assumptions that they are readable.\nBut one can create a write-only element that has no get callback (even\na user element can do it), and this may lead to a NULL dereference at\nthe call chain of snd_ctl_led_notify(), as found by syzkaller.\n\nFor avoiding the Oops, add a sanity check of the kcontrol's info and\nget callbacks, and just skip the invalid kcontrols before assigning\nthe kctl to the LED layer.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90060"
+    },
+    {
+      "id": "CVE-2026-90059",
+      "published": "2026-09-17T17:16:54.590",
+      "lastModified": "2026-09-18T18:17:40.213",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: stmmac: restore NET_IP_ALIGN in the RX DMA offset\n\nSince the RX path was converted to zero-copy, the page pool page is handed\nto the stack directly as the skb head, and the offset the DMA engine writes\nat is what determines the alignment of the packet headers.\n\nBefore the conversion the payload was copied into an skb obtained from\nnapi_alloc_skb(), which reserves NET_SKB_PAD + NET_IP_ALIGN. The\nconversion moved the headroom into stmmac_rx_offset() but did not carry\nover NET_IP_ALIGN, so on architectures where NET_IP_ALIGN is 2 the IP\nheader now lands misaligned:\n\n  64 (NET_SKB_PAD) + 14 (ethernet) + 20 (IP) = 98\n\nSame for the XDP branch:\n\n  256 (XDP_PACKET_HEADROOM) + 14 (ethernet) + 20 (IP) = 290\n\nOn ARM32 this is fatal, because ldm and ldrd trap on unaligned addresses\neven when CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS is set.\n\nAny received echo request panics the machine, e.g:\n\n  Unhandled fault: alignment exception (0x001) at 0x81873062\n  Internal error: : 1 [#1] SMP ARM\n  Hardware name: Altera SOCFPGA Arria10\n  PC is at icmp_echo+0x38/0xa8\n  LR is at icmp_rcv+0x22c/0x370\n  Call trace:\n   icmp_echo from icmp_rcv+0x22c/0x370\n   icmp_rcv from ip_protocol_deliver_rcu+0x2c/0x224\n   ip_protocol_deliver_rcu from ip_local_deliver+0xc8/0x1a0\n   ip_local_deliver from ip_sublist_rcv_finish+0x3c/0x50\n   ip_sublist_rcv_finish from ip_list_rcv_finish+0x110/0x118\n   ip_list_rcv_finish from ip_list_rcv+0xc8/0xdc\n   ip_list_rcv from __netif_receive_skb_list_core+0x170/0x1c0\n   ...\n   napi_complete_done from stmmac_napi_poll_rx+0xcb0/0x1030\n  Code: e24dd068 e59020a0 e28dc010 e0822001 (e8920003)\n  Kernel panic - not syncing: Fatal exception in interrupt\n\nThe faulting instruction is the ldm of *icmp_hdr(skb) in icmp_echo().\n\nFix by adding NET_IP_ALIGN back to the RX offset, which restores the\nalignment the stack used to get.\n\nNote that commit a955318fe67e (\"stmmac: align RX buffers\") made a similar\nchange in 2021 and was reverted by commit 12d125b4574b (\"stmmac: Revert\n\"stmmac: align RX buffers\"\") because it caused packet corruption. That\npatch raised the offset from 0 without adjusting the buffer size\naccounting, so the DMA engine could arguably write past the end of the RX\nbuffers, though this was never root caused.\nCommit df542f669307 (\"net: stmmac: Switch to zero-copy in non-XDP RX\npath\") since derives the page pool allocation from stmmac_rx_offset(), so\nthe extra bytes are accounted for.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90059"
+    },
+    {
+      "id": "CVE-2026-90058",
+      "published": "2026-09-17T17:16:54.440",
+      "lastModified": "2026-09-17T17:16:54.440",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/sched: bound qdisc_pkt_len to prevent qdisc soft lockup\n\nqdisc_get_stab() accepts a user-supplied size table, and\n__qdisc_calculate_pkt_len() amplifies qdisc_pkt_len() through the\noverhead, the size-table data (u16), and size_log (up to\nSTAB_SIZE_LOG_MAX). A crafted stab can therefore set qdisc_pkt_len()\nto ~1 GiB for an ordinary skb. Per-flow deficit schedulers such as\nDRR and ETS replenish one quantum per loop iteration; with a tiny\nquantum (1) they spin billions of times under the qdisc lock,\nproducing a soft lockup / RCU stall as illustrated by vega@nebusec.ai.\n\nCap the final qdisc_pkt_len() to QDISC_PKT_LEN_MAX so the size-table\namplification cannot drive deficit schedulers into an unbounded loop.\nA legitimate size table (e.g. qfq's overhead 999999999, which is\nhandled by dropping) is still accepted.\n\nIntroduce cap QDISC_PKT_LEN_MAX (1 << 20) = 1 MiB which is well above\nany legitimate single-skb wire length: the largest current skb->len\nis GSO_MAX_SIZE (524280), and an ATM-style size table (53/48 cell tax)\namplifies that to ~578 KB, both comfortably below 1 MiB. At the same\ntime, 1 MiB bounds the deficit refill loop to ~1M iterations per\npacket with quantum=1, which completes in a few milliseconds well\nunder the demonstrated softlockup threshold (~10^9 iterations).\n\nConditions to recreate the bug:\n- CONFIG_NET_SCHED=y, CONFIG_NET_SCH_DRR=y (or CONFIG_NET_SCH_ETS=y).\n- Attach a DRR (or ETS) root qdisc with a crafted TCA_STAB that\n  amplifies qdisc_pkt_len to ~1 GiB (e.g. size_log=15, data=[32768]).\n- Add a class with a tiny quantum of 1 and send one small packet; the\n  deficit loop spins billions of times under the qdisc lock and trips\n  the softlockup detector (panic with kernel.softlockup_panic=1).\n- Reachable as root or from an unprivileged user in a fresh user+net\n  namespace (unshare -Urn) with namespace-local CAP_NET_ADMIN.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90058"
+    },
+    {
+      "id": "CVE-2026-90057",
+      "published": "2026-09-17T17:16:54.310",
+      "lastModified": "2026-09-18T18:17:40.053",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nslip: remove slip_hangup() to fix use-after-free in slip_receive_buf()\n\nJaeyoung Chung and Eulgyu Kim reported a slab-use-after-free read\nin slip_receive_buf() when racing against tty hangup.\n\ntty_ldisc_hangup() calls ld->ops->hangup() while holding only\na read lock on tty->ldisc_sem (via tty_ldisc_ref()).\nBecause slip_hangup() simply called slip_close(), it ran concurrently\nwith reader functions such as slip_receive_buf().\n\nslip_close() unregisters and frees the net device and its private\nstruct slip, causing concurrent reader threads in slip_receive_buf()\nto dereference freed memory.\n\nLine discipline close() is already guaranteed to be called under\nthe write lock of tty->ldisc_sem during hangup processing\n(in tty_ldisc_reinit() or tty_ldisc_kill()).\n\nRemove slip_hangup() so teardown is serialized cleanly by slip_close().",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90057"
+    },
+    {
+      "id": "CVE-2026-90056",
+      "published": "2026-09-17T17:16:54.177",
+      "lastModified": "2026-09-17T17:16:54.177",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: fec: only stop PTP if it was initialized\n\nfec_ptp_init() is only called when fep->bufdesc_ex is available.\nHowever, fec_probe() unconditionally calls fec_ptp_stop() on the\nfailed_init path, and fec_drv_remove() unconditionally calls\nfec_ptp_stop() during device removal.\n\nCheck fep->bufdesc_ex before calling fec_ptp_stop() in both paths\nto avoid stopping PTP when it was not initialized.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90056"
+    },
+    {
+      "id": "CVE-2026-90055",
+      "published": "2026-09-17T17:16:54.020",
+      "lastModified": "2026-09-17T17:16:54.020",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nusb: atm: usbatm: fix invalid ci_range initialization\n\nsyzbot reported a shift-out-of-bounds in __vcc_connect():\n\n  UBSAN: shift-out-of-bounds in net/atm/common.c:382:32\n  shift exponent -1 is negative\n  CPU: 0 UID: 0 PID: 5987 Comm: syz.0.18 Not tainted syzkaller #0 PREEMPT(full)\n  Hardware name: Google Compute Engine/Google Compute Engine, BIOS Google 08/05/2026\n  Call Trace:\n   <TASK>\n   dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120\n   ubsan_epilogue+0xa/0x30 lib/ubsan.c:233\n   __ubsan_handle_shift_out_of_bounds+0x36d/0x400 lib/ubsan.c:494\n   __vcc_connect+0x14b4/0x19c0 net/atm/common.c:382\n   vcc_connect+0x328/0x8f0 net/atm/common.c:498\n   pvc_bind+0x272/0x380 net/atm/pvc.c:52\n   __sys_bind+0x2e3/0x410 net/socket.c:1976\n   __x64_sys_bind+0x7a/0x90 net/socket.c:1979\n   ...\n\nATM device ci_range fields (vpi_bits and vci_bits) represent the\nnumber of bits supported for VPI and VCI addressing on the device.\nnet/atm/common.c directly uses these fields as bit shift counts:\n  vpi >> dev->ci_range.vpi_bits\n  vci >> dev->ci_range.vci_bits\n  1 << vcc->dev->ci_range.vpi_bits\n  1 << vcc->dev->ci_range.vci_bits\n\nusbatm_atm_init() sets ci_range.vpi_bits and ci_range.vci_bits to\nATM_CI_MAX (-1), which is defined in <uapi/linux/atmdev.h> as a\nsentinel value for userspace ATM_SETCIRANGE requests, not a valid bit\ncount. Shifting by -1 is undefined behavior and triggers UBSAN\nwarnings.\n\nATM UNI cell headers allow up to 8 bits for VPI (0..255) and 16 bits\nfor VCI (0..65535). Initialize vpi_bits to 8 and vci_bits to 16, as\ndone by solos-pci.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90055"
+    },
+    {
+      "id": "CVE-2026-90054",
+      "published": "2026-09-17T17:16:53.873",
+      "lastModified": "2026-09-17T17:16:53.873",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ntcp: fix corruption of urgent data on multi-segment retransmit\n\nOn the normal xmit path, while in urgent mode we refuse to build a\nmulti-segment TSO packet, so every segment gets its own urg_ptr:\n\n\t/* tcp_write_xmit() */\n\tlimit = mss_now;\n\tif (tso_segs > 1 && !tcp_urg_mode(tp))\n\t\tlimit = tcp_mss_split_point(...);\n\nThe retransmit path has no such guard. __tcp_retransmit_skb() builds a\nsegs > 1 skb and hands it to the GSO layer, which only advances th->seq\nper segment and copies urg_ptr verbatim:\n\n\t/* __tcp_retransmit_skb() */\n\tlen = cur_mss * segs;\t\t/* segs > 1, no urg_mode check */\n\t...\n\t/* tcp_gso_segment(): bumps seq only, urg_ptr is copied */\n\nurg_ptr is an offset from the segment's own seq, so a copied value points\nat a different place on each segment. The receiver rebuilds the absolute\nurgent seq as seg.seq + urg_ptr, so it walks a moving urgent point instead\nof the one OOB byte:\n\n\tseg1  seq 1     urg_ptr 5001 -> urgent @ 5001   (ok)\n\tseg2  seq 1001  urg_ptr 5001 -> urgent @ 6001   (wrong, +MSS)\n\tseg3  seq 2001  urg_ptr 5001 -> urgent @ 7001   (wrong, +2*MSS)\n\nThe real OOB byte is never pointed at, so the receiver stops splicing it\nout and delivers it as normal in-band data, corrupting the stream.\n\nGuard the retransmit length like the xmit path: keep segs = 1 while in\nurgent mode.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90054"
+    },
+    {
+      "id": "CVE-2026-90053",
+      "published": "2026-09-17T17:16:53.723",
+      "lastModified": "2026-09-17T17:16:53.723",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/sched: sch_htb: limit htb_classify inner-class filter hops\n\nhtb_classify() follows each filter-selected inner class by switching\nto cl->filter_list, but never bounds the number of hops. A filter on\nan inner class can point back to itself or to another inner class that\npoints back, creating an infinite loop in the packet classification\npath with the qdisc lock held and BH disabled — a soft lockup / panic\nfrom a single packet.\n\nBound the traversal with a hop counter and drop the packet with a\nrate-limited warning once the bound is exceeded. The counter is\nincremented at the point the inner filter chain is picked up, after the\nTC_ACT_* switch has consumed the classifier verdict, so a terminal\nTC_ACT_QUEUED/STOLEN/TRAP on the last permitted chain still sets *qerr\nto __NET_XMIT_STOLEN and the packet is not charged as a drop by this\nqdisc or its parent.\n\nThe bound is TC_HTB_MAXDEPTH, taken from HTB's own parameters rather than\nfrom the qdisc hierarchy depth limit. Class levels run from 0 to\nTC_HTB_MAXDEPTH - 1, so a traversal that strictly descends in level can\ntake at most TC_HTB_MAXDEPTH hops. That descent is what a sane\nconfiguration does, but it is assumed here rather than enforced:\nhtb_find() resolves a classid against every class in the qdisc, so a\nfilter may equally select a sibling or an ancestor. The normal\nroot -> inner -> leaf path takes a single hop, so the bound does not\naffect legitimate classification.\n\nhtb_classify() can now return NULL irrespective of CONFIG_NET_CLS_ACT,\nwhereas previously every NULL return sat inside that ifdef. The NULL\nhandler in htb_enqueue() therefore cannot stay conditional either, so\ndrop the ifdef around it. This matches hfsc_enqueue(), which has always\nhandled a NULL class unconditionally. Without it, a kernel built\nwithout actions would dereference a NULL class instead of dropping.\n\nConditions to recreate the bug:\n- CONFIG_NET_SCHED, CONFIG_NET_SCH_HTB, CONFIG_NET_CLS_U32,\n  CONFIG_LOCKUP_DETECTOR.\n- Create an HTB qdisc on a device (e.g. lo), add an inner class\n  1:1 with a leaf child 1:10, install a root u32 filter selecting\n  1:1, and an inner-class u32 filter on 1:1 also selecting 1:1.\n- Send one packet (ping). On the unfixed kernel the classify loop\n  spins with the qdisc lock held; with softlockup_panic=1 it panics.\n- Reachable from unprivileged user via unshare -Urn (CAP_NET_ADMIN).",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90053"
+    },
+    {
+      "id": "CVE-2026-90052",
+      "published": "2026-09-17T17:16:53.610",
+      "lastModified": "2026-09-18T18:17:39.910",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndm-integrity: fix buffer overflow with keyed discard\n\nSince commit 68c5c42567bc (\"dm-integrity: replace forgeable discard\nfiller with a keyed sector marker\"), integrity_metadata computes a\nchecksum for every discarded block into the \"checksums\" buffer.\nintegrity_sector_checksum always writes the whole digest. So if the tag\nsize is smaller than the digest size, the checksum of the last block\nthat fits into the buffer is written past the end of it. For example,\nwith hmac(sha256) and tag size 16, a 4MiB discard writes 16 bytes past\nthe kmalloc'ed page.\n\nFix this by subtracting extra_space from the buffer size when computing\nmax_blocks, like we do for writes.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90052"
+    },
+    {
+      "id": "CVE-2026-90051",
+      "published": "2026-09-17T17:16:53.490",
+      "lastModified": "2026-09-18T18:17:39.777",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ntcp: reject non zerocopy devmem tx\n\nDevmem tcp tx doesn't work without zero-copy, however it's not currently\nenforced if NETIF_F_SG isn't present. In this case, tcp_sendmsg_locked()\nwill try the copy path and try to copy data from an iovec which consists\nof offsets into the dma-buf and would normally fail. Moreover,\nd9c56501c72fd (\"net: tcp: block mixing readable and unreadable frags\")\nrelies on that and assumes that the devmem binding is present IFF we're\nusing the zero-copy path, which can be used to mix net-iov and pages in\na single skb, and break invariants. Let's reject devmem tx without\nzero-copy.\n\nNote, the parameter check the patch is modifying is too loose, we can\ncreate an io_uring request with dmabuf_id and all ZC flags, but which\nwon't have the binding. We replace it with stricter validation.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90051"
+    },
+    {
+      "id": "CVE-2026-90050",
+      "published": "2026-09-17T17:16:53.363",
+      "lastModified": "2026-09-17T17:16:53.363",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet/sched: fq: clamp quantum and initial_quantum in change path\n\nThe fq change path accepts TCA_FQ_QUANTUM in [1, INT_MAX] and\nTCA_FQ_INITIAL_QUANTUM up to INT_MAX, while fq_init() already clamps to\n[1, 1<<20]. A user can override the init clamp via tc qdisc change,\nrestoring the small-quantum deficit spin that the init clamp prevents.\n\nNarrow iq_range.max to 1<<20 so TCA_FQ_INITIAL_QUANTUM is rejected at\nparse time. Clamp TCA_FQ_QUANTUM to [256, 1<<20] in fq_change() and\nfq_init() quantum to [256, 1<<20] for tiny-MTU devices.\n\nConditions to recreate the bug:\n  CONFIG_NET_SCH_FQ=y. Requires CAP_NET_ADMIN (namespace-local via\n  unshare -Urn suffices).\n\n  tc qdisc add dev dummy0 root fq\n  tc qdisc change dev dummy0 root fq quantum 1 stab data 32768 size_log 15 cell_log 0",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90050"
+    },
+    {
+      "id": "CVE-2026-8674",
+      "published": "2026-09-17T17:16:53.220",
+      "lastModified": "2026-09-18T18:17:47.257",
+      "description": "Initializing the DNS stub resolver from an /etc/resolv.conf file, or a LOCALDOMAIN environment variable, whose search list contains a domain of roughly 200 characters or more in the GNU C Library version 2.26 to 2.44 results in an assertion failure which aborts the process.\n\nThe resolver truncates the search list when copying it into the fixed-size _res.defdname buffer, then asserts that the copy is consistent with the full configuration.  The consistency check compared against the wrong size and did not handle a first entry that does not fit, so a correctly truncated list failed the assertion.  Any process that resolves names through the library is affected, including long-running processes that reload /etc/resolv.conf on the next query after it changes.  Search domains are commonly written to /etc/resolv.conf from data received over DHCP or from a VPN server, so an attacker on the local network may be able to trigger this without privileges on the target system, subject to validation by the network configuration software.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-8674"
+    },
+    {
+      "id": "CVE-2026-85720",
+      "published": "2026-09-17T17:16:51.200",
+      "lastModified": "2026-09-21T21:17:14.030",
+      "description": "The AsyncHttpClient (AHC) library allows Java applications to easily execute HTTP requests and asynchronously process HTTP responses. From 2.0.0 until 2.16.1 and 3.0.12, a request using an HTTP proxy to reach an HTTPS origin can expose preemptive origin credentials because NettyRequestFactory and NettyRequestSender.sendRequestWithNewChannel attach Authorization to the plaintext CONNECT request before the TLS tunnel exists. Basic or Digest credentials and per-connection NTLM, Kerberos, or SPNEGO tokens intended for the origin are therefore visible to the proxy and to observers on the client-to-proxy hop. The tunneled request still receives origin Authorization after the tunnel is established, while Proxy-Authorization remains on CONNECT for its intended proxy recipient. This issue is fixed in versions 2.16.1 and 3.0.12.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85720"
+    },
+    {
+      "id": "CVE-2026-85716",
+      "published": "2026-09-17T17:16:50.943",
+      "lastModified": "2026-09-18T15:17:14.460",
+      "description": "The AsyncHttpClient (AHC) library allows Java applications to easily execute HTTP requests and asynchronously process HTTP responses. From 3.0.8 until 3.0.12, processScramAuthenticationInfo and processAuthenticationInfo compute the SCRAM ServerSignature or Digest rspauth verification result but log a mismatch and still deliver the response as authenticated. On a non-TLS or compromised transport, a peer that has not proved knowledge of the shared secret can therefore be accepted as the server. The fix rejects a present invalid value and computes Digest rspauth from the Authorization parameters actually sent, but verification remains unenforced when the value is absent, the sent parameters cannot be recovered, or Digest uses qop=auth-int. This issue is fixed in version 3.0.12.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85716"
+    },
+    {
+      "id": "CVE-2026-54587",
+      "published": "2026-09-17T17:16:44.020",
+      "lastModified": "2026-09-17T21:15:06.427",
+      "description": "mport is the MidnightBSD Package Manager. Prior to 2.7.8, directory assets handled as ASSET_DIR or ASSET_DIR_OWNER_MODE in libmport/bundle_read_install_pkg.c used path-based mport_mkdirp(), ownership, and permission operations. A local attacker able to modify part of the target installation tree could use dot-dot traversal or substitute symlinks during privileged package installation, causing directory creation or attribute changes to affect attacker-selected paths outside the intended package directories. This issue is fixed in version 2.7.8.",
+      "score": 5.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54587"
+    },
+    {
+      "id": "CVE-2026-54586",
+      "published": "2026-09-17T17:16:43.883",
+      "lastModified": "2026-09-21T21:17:04.840",
+      "description": "mport is the MidnightBSD Package Manager. Prior to 2.7.8, the mport_fetch_index(), mport_fetch_bootstrap_index(), and mport_fetch_bundle() paths in libmport/fetch.c accepted non-HTTPS repository and package mirror URLs without a url_is_https() enforcement check. When a cleartext URL was configured or returned by mirror data, a network-positioned attacker could tamper with package index or package download traffic and compromise package selection or integrity. This issue is fixed in version 2.7.8.",
+      "score": 6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54586"
+    },
+    {
+      "id": "CVE-2026-54585",
+      "published": "2026-09-17T17:16:43.747",
+      "lastModified": "2026-09-17T21:15:06.427",
+      "description": "mport is the MidnightBSD Package Manager. Prior to 2.7.8, create_sample_file() in libmport/bundle_read_install_pkg.c did not constrain absolute source and destination paths from the sample-file manifest directive to mport->root. A malicious or malformed package manifest could therefore direct privileged sample-file handling to copy or write outside the configured installation root, compromising local filesystem integrity. This issue is fixed in version 2.7.8.",
+      "score": 6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54585"
+    },
+    {
+      "id": "CVE-2026-54583",
+      "published": "2026-09-17T17:16:43.593",
+      "lastModified": "2026-09-17T21:15:06.427",
+      "description": "mport is the MidnightBSD Package Manager. Prior to 2.7.8, libmport/fetch.c did not consistently reject empty, dot, dot-dot, or slash-containing bundle filenames before composing package download and write paths. Malicious package index data could place an unsafe value in indexEntry->bundlefile, and the missing is_valid_bundle_filename() checks allowed downloaded package data to be written outside the intended cache location or to an unsafe destination name. This issue is fixed in version 2.7.8.",
+      "score": 8.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54583"
+    },
+    {
+      "id": "CVE-2026-54582",
+      "published": "2026-09-17T17:16:43.440",
+      "lastModified": "2026-09-17T21:15:06.427",
+      "description": "mport is the MidnightBSD Package Manager. Prior to 2.7.8, package installation lacked a preflight check for incoming non-directory assets that already existed on disk. The affected logic across libmport/check_preconditions.c, libmport/install_primative.c, and libmport/mport_private.h did not apply MPORT_PRECHECK_FILE_CONFLICTS, so a crafted or conflicting package could overwrite a file owned by another package or unmanaged by mport. The check is bypassed only when the operator explicitly enables mport->force. Privileged installation without that override could compromise local filesystem integrity and package database consistency. This issue is fixed in version 2.7.8.",
+      "score": 6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54582"
+    },
+    {
+      "id": "CVE-2026-54581",
+      "published": "2026-09-17T17:16:43.290",
+      "lastModified": "2026-09-17T21:15:06.427",
+      "description": "mport is the MidnightBSD Package Manager. Prior to 2.7.8, the mport_fetch_bootstrap_index() function in libmport/fetch.c could return success when bootstrap index hash verification encountered a missing or invalid hash because the failure path did not preserve a fatal result. A network attacker or compromised mirror able to alter bootstrap index content or its transport path could therefore cause mport to proceed with an unverified or tampered bootstrap package index. This issue is fixed in version 2.7.8.",
+      "score": 8.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54581"
+    },
+    {
+      "id": "CVE-2026-54580",
+      "published": "2026-09-17T17:16:43.150",
+      "lastModified": "2026-09-17T21:15:06.427",
+      "description": "mport is the MidnightBSD Package Manager. Prior to 2.7.8, libmport/util.c did not make every truncated, corrupt, or failed zstd stream fatal in mport_decompress_zstd(), and libmport/fetch.c did not consistently propagate those failures to index-fetch callers. A malicious or faulty mirror could supply compressed package index data that caused ZSTD_decompressStream() or an output write to fail while leaving partial index output available for later use, resulting in package-index integrity loss or denial of service. This issue is fixed in version 2.7.8.",
+      "score": 8.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54580"
+    },
+    {
+      "id": "CVE-2026-54579",
+      "published": "2026-09-17T17:16:43.000",
+      "lastModified": "2026-09-17T21:15:06.427",
+      "description": "mport is the MidnightBSD Package Manager. Prior to 2.7.8, ping() in libmport/ping.c accepted ICMP replies without validating icmp_id or icmp_seq and parsed the reply using a fixed IP-header offset instead of ip_hl. A network attacker able to inject or spoof visible ICMP replies could influence mirror latency selection, while a malformed packet carrying IP options could shift the ICMP header and trigger an out-of-bounds read. This issue is fixed in version 2.7.8.",
+      "score": 2.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54579"
+    },
+    {
+      "id": "CVE-2026-54578",
+      "published": "2026-09-17T17:16:42.853",
+      "lastModified": "2026-09-18T15:17:09.320",
+      "description": "mport is the MidnightBSD Package Manager. Prior to 2.7.8, mport_verify_package() in libmport/verify.c could continue after MD5File() or SHA256_File() failed and compare an expected checksum with stale data in the hash buffer rather than a newly computed digest. An attacker able to influence an installed file or the conditions that make hashing fail could receive a misleading integrity result or hide a checksum failure. This issue is fixed in version 2.7.8.",
+      "score": 2,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54578"
+    },
+    {
+      "id": "CVE-2026-54577",
+      "published": "2026-09-17T17:16:42.710",
+      "lastModified": "2026-09-17T21:15:06.427",
+      "description": "mport is the MidnightBSD Package Manager. Prior to 2.7.8, the audit command in mport/mport.c computed option-adjusted local_argv and local_argc values but passed the original argument entry to audit_package(). When an operator or automation used an option such as -r before a package name, stale optind state and the unadjusted argument could cause mport to audit the option token instead of the requested package, producing a false-negative or useless result that could leave a vulnerable package unidentified. The corrected parsing resets optind and optreset before using the adjusted local arguments. This issue is fixed in version 2.7.8.",
+      "score": 2,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54577"
+    },
+    {
+      "id": "CVE-2026-54576",
+      "published": "2026-09-17T17:16:42.570",
+      "lastModified": "2026-09-18T15:17:09.180",
+      "description": "mport is the MidnightBSD Package Manager. Prior to 2.7.8, do_actual_install() in libmport/bundle_read_install_pkg.c used path-based lstat(), chown(), stat(), and chmod() operations while installing package files. A local attacker with write access to a target directory could replace a checked file with a symlink before privileged ownership or mode changes were applied, redirecting those changes to an attacker-selected path and compromising filesystem integrity or permissions. This issue is fixed in version 2.7.8.",
+      "score": 5.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54576"
+    },
+    {
+      "id": "CVE-2026-54575",
+      "published": "2026-09-17T17:16:42.420",
+      "lastModified": "2026-09-21T21:17:04.700",
+      "description": "mport is the MidnightBSD Package Manager. Prior to 2.7.8, privileged package fetch and cache-cleaning operations used race-prone path handling across libmport/fetch.c, libmport/clean.c, libmport/util.c, libmport/bundle_read_install_pkg.c, libmport/delete_primative.c, and libexec/mport.create/mport.create.c. A local attacker with write access to a participating package cache or staging path could race path checks and replacement operations to redirect package downloads, cleanup, or install-related side effects outside the intended cache. The affected lifecycle helper paths also used shell-form invocation, increasing command-line interpretation risk during privileged helper execution. This issue is fixed in version 2.7.8.",
+      "score": 5.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54575"
+    },
+    {
+      "id": "CVE-2026-28326",
+      "published": "2026-09-17T17:16:39.960",
+      "lastModified": "2026-09-18T19:07:38.320",
+      "description": "SolarWinds Access Rights Manager was reported to be affected by an unauthenticated remote code execution vulnerability. The issue stems from a hardcoded static key.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-28326"
+    },
+    {
+      "id": "CVE-2026-93015",
+      "published": "2026-09-17T16:18:35.847",
+      "lastModified": "2026-09-17T20:19:00.410",
+      "description": "BlueKitchen BTstack through 1.8.2 fails to validate the peer-reported endpoint count against table bounds in A2DP stream endpoint discovery. A bonded peer can send an AVDTP DISCOVER response with more endpoints than the fixed table holds, causing out-of-bounds writes that corrupt adjacent static objects and crash the process or sever event delivery.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93015"
+    },
+    {
+      "id": "CVE-2026-93014",
+      "published": "2026-09-17T16:18:35.670",
+      "lastModified": "2026-09-22T20:43:58.793",
+      "description": "RosarioSIS versions before 12.9 fail to validate the filename request parameter in Users and Students modules, allowing authenticated users to unlink allow-listed files via path traversal. Attackers can use parent-directory sequences to escape upload directories and delete CSS, XML, JSON resources and other users' documents throughout the installation.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93014"
+    },
+    {
+      "id": "CVE-2026-93013",
+      "published": "2026-09-17T16:18:35.483",
+      "lastModified": "2026-09-21T21:17:17.423",
+      "description": "RAGFlow through 0.27.2 contains a path traversal vulnerability in the dev_insert_chunks_from_file and dev_insert_metadata_from_file endpoints that allows authenticated attackers to read arbitrary files by supplying absolute file paths in the file_path parameter. Attackers with valid access tokens can exploit missing path validation to read any file accessible to the service, with disclosure limited to files matching expected JSON structures that are then written to datasets.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93013"
+    },
+    {
+      "id": "CVE-2026-92881",
+      "published": "2026-09-17T16:18:34.160",
+      "lastModified": "2026-09-23T17:17:19.480",
+      "description": "A security vulnerability has been detected in vgmstream. The affected element is the function init_vgmstream_awb_memory of the file src/meta/awb.c of the component AWB parser. Such manipulation leads to divide by zero. The attack can be executed remotely. The name of the patch is ae37662ad626254ddd96ad69ac263792d7a92024. A patch should be applied to remediate this issue.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92881"
+    },
+    {
+      "id": "CVE-2026-91039",
+      "published": "2026-09-17T16:18:28.700",
+      "lastModified": "2026-09-18T18:16:18.527",
+      "description": "Authentication Bypass by Spoofing vulnerability in team-alembic ash_authentication allows an attacker who operates one identity-provider connection of a dynamic_oidc strategy to be signed in as a local user established through a different connection.\n\nThe strategy is meant to keep each connection in its own identity namespace by writing every UserIdentity row's strategy field as \"<name>/<connection_id>\", but that namespacing never takes effect. __connection_id__ is populated only on the ephemeral runtime struct built per request in dynamic_oidc/plug.ex, and DynamicOidc.IdentityChange.change/3 re-fetches the strategy from the compile-time DSL through Info.strategy_for_action, yielding the persisted struct whose __connection_id__ is its defstruct default of nil. OAuth2.identity_strategy_name/1 therefore falls back to the bare strategy name for both the identity write and the reads in oauth2/user_resolver.ex and oauth2/sign_in_preparation.ex. Since the identity resource's unique key is (uid, strategy), one row exists per sub across every connection, and the identity-match branch runs before any email check. Neither strategy handles iss, so nothing else distinguishes the issuers: OpenID Connect Core section 5.7 makes sub unique only within an issuer, so two connections numbering subjects independently share one subject space.\n\nThis issue affects ash_authentication: from 5.0.0-rc.10 before 5.0.0-rc.14.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91039"
+    },
+    {
+      "id": "CVE-2026-89036",
+      "published": "2026-09-17T16:18:28.540",
+      "lastModified": "2026-09-22T20:25:55.870",
+      "description": "Appwrite before 2.0.0 contains an argument injection vulnerability that allows authenticated users with functions.write or sites.write permissions to execute arbitrary commands by injecting TAB characters into the providerRootDirectory parameter used to construct GNU tar commands. The application uses escapeshellcmd instead of escapeshellarg and fails to quote the parameter, allowing TAB characters to survive sanitization and be interpreted as argument separators, enabling injection of arbitrary GNU tar arguments such as --checkpoint-action=exec to achieve remote code execution as the builds worker process user.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89036"
+    },
+    {
+      "id": "CVE-2026-86864",
+      "published": "2026-09-17T16:18:18.010",
+      "lastModified": "2026-09-21T17:27:38.967",
+      "description": "pgAdmin 4's Backup tool appended the client-supplied 'database' field from the /backup/job/<sid>/object request to the pg_dump argument vector as a bare trailing positional argument, without validation. Because pg_dump parses its options with getopt_long, which permutes arguments, a value beginning with a dash was interpreted as an option rather than as a database name. A value such as --file=/absolute/path therefore overrode the storage-confined --file that pgAdmin had constructed earlier, causing pg_dump to write its output anywhere the pgAdmin process could write, outside the user's File Manager storage directory. This yields arbitrary file creation and overwrite as the operating-system account running pgAdmin, which can destroy pgAdmin's own configuration database and, depending on the target chosen, be escalated further.\n\nThe same field additionally permitted connection-string injection. libpq expands a database name containing an equals sign into a full connection string, and keywords embedded there override the --host and --port that pgAdmin passes, so a value such as 'host=attacker.example port=5432 dbname=x' redirected pg_dump to a server of the attacker's choosing. Because pgAdmin exports the decrypted stored database password in the PGPASSWORD environment variable before executing the utility, the redirected connection carries that credential to the attacker-nominated endpoint. Both behaviours are reachable by any authenticated user holding the tools_backup permission, which is granted to the default User role.\n\nThe fix stops passing the database name through the argument vector altogether and supplies it in the PGDATABASE environment variable, which libpq treats as a literal database name and never expands as a connection string. This matches the approach already used by the Import/Export tool. Regression tests assert that the database name is absent from the constructed argument vector and that PGDATABASE carries the exact requested value.\n\nThis issue affects pgAdmin 4: from the introduction of the trailing positional database argument in the Backup tool before 9.18.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86864"
+    },
+    {
+      "id": "CVE-2026-86863",
+      "published": "2026-09-17T16:18:17.863",
+      "lastModified": "2026-09-21T17:27:28.303",
+      "description": "pgAdmin 4's Webserver authentication source is intended to accept an identity asserted by the web server or reverse proxy in front of pgAdmin, delivered through the WSGI/CGI environment. WebserverAuthentication.get_user() read config.WEBSERVER_REMOTE_USER from request.environ and, when that returned nothing, fell back to reading the same name directly from the inbound HTTP request headers via request.headers.get(). An inbound HTTP header is written by whoever sends the request, so any client able to reach pgAdmin could supply that header itself and be authenticated as any username it named, including an existing Administrator, without presenting a password or any other credential. The environment lookup could also be satisfied by a client-supplied header whenever WEBSERVER_REMOTE_USER was configured to an HTTP_-prefixed or hyphenated name such as HTTP_X_FORWARDED_USER or X-Forwarded-User, since WSGI servers place inbound headers into the environment under exactly those names. Deployments are affected only when 'webserver' is enabled in AUTHENTICATION_SOURCES.\n\nThe fix distinguishes a genuine CGI/WSGI variable from a header-derived one and implicitly trusts only the former. A header-asserted identity is now accepted only when the operator explicitly opts in via WEBSERVER_REMOTE_USER_FROM_HEADER, the request arrives from a peer listed in WEBSERVER_TRUSTED_PROXIES, and, when configured, a shared secret supplied in WEBSERVER_SHARED_SECRET_HEADER matches WEBSERVER_SHARED_SECRET under a constant-time comparison. The trusted-peer check deliberately reads the real socket peer address rather than request.remote_addr, because ProxyFix rewrites the latter from the client-controlled X-Forwarded-For header and would otherwise allow an attacker to claim to be the trusted proxy. As defence in depth, login() now refuses any account whose auth_source is not 'webserver', so a misconfigured trust gate cannot be used to assume an internal or LDAP account.\n\nThis issue affects pgAdmin 4: from 6.2 before 9.18.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86863"
+    },
+    {
+      "id": "CVE-2026-86862",
+      "published": "2026-09-17T16:18:17.717",
+      "lastModified": "2026-09-21T17:27:19.973",
+      "description": "pgAdmin 4's Restore and Maintenance tools passed the client-supplied 'database' field directly as the value of the --dbname option given to pg_restore and psql. libpq expands a database name containing an equals sign into a full connection string, and connection keywords embedded in that value take precedence over the --host and --port arguments that pgAdmin supplies. A value such as 'host=attacker.example port=5432 dbname=x' therefore redirected the utility to a server chosen by the requesting user rather than the server the operation was invoked against. Because pgAdmin exports the decrypted stored database password in the PGPASSWORD environment variable before executing the utility, the redirected connection presents that credential to the attacker-nominated endpoint, which may capture it. The redirection additionally permits outbound connections from the pgAdmin host to arbitrary network addresses, including hosts not otherwise reachable by the requesting user.\n\nThe behaviour is reachable by any authenticated user holding the tools_restore or tools_maintenance permission, both of which the default User role grants. The Maintenance tool was not affected in the earliest releases, where the value was wrapped by a quoting helper that incidentally prevented expansion; it became affected when that wrapper was removed.\n\nThe fix supplies the target database in the PGDATABASE environment variable, which libpq treats as a literal database name and never expands as a connection string. Where pg_restore requires a --dbname argument to be present, an empty value is passed, which contains no equals sign and is therefore not expanded, while the real name is taken from the environment.\n\nThis issue affects pgAdmin 4: from the introduction of the --dbname argument in the Restore and Maintenance tools before 9.18.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86862"
+    },
+    {
+      "id": "CVE-2026-86861",
+      "published": "2026-09-17T16:18:17.533",
+      "lastModified": "2026-09-21T17:26:49.647",
+      "description": "pgAdmin 4's File Manager save_file endpoint, which backs saving from the Query Tool and ERD, validated the requested path with Filemanager.check_access_permission() and then opened the file for writing with a plain open() call. CVE-2026-7819 had previously hardened the separate file upload path by opening its target with O_NOFOLLOW, so that the kernel refuses to follow a symbolic link at the final path component, but save_file was left on an unprotected open(). A symbolic link already present when the check ran was rejected by the check itself; the remaining exposure was a link substituted at the final path component in the interval between the check and the write, at which point the write followed the link and landed outside the user's storage directory, creating or overwriting an arbitrary file as the operating-system account running pgAdmin.\n\nExploitation requires the ability to create or replace a symbolic link inside the requesting user's storage directory. pgAdmin exposes no interface that creates symbolic links, so this requires filesystem access to the pgAdmin host or to a shared or network-mounted storage backend, together with winning the timing window. The reporter did not achieve a write against a released version, having attempted approximately 63,000 racing requests without success; the reported defect is the uncovered write path rather than a demonstrated sandbox escape.\n\nThe fix routes save_file's write through the same O_NOFOLLOW-protected helper already used by the upload path, so both File Manager write sinks carry identical kernel-enforced protection, and reports a symbolic-link refusal explicitly instead of surfacing the underlying system error text. Note that files created by save_file are now given mode 0600, inheriting the behaviour introduced for uploads. The protection covers the final path component; substitution of an intermediate directory component is not addressed by this change.\n\nThis issue affects pgAdmin 4: from the introduction of the containment check in the File Manager save path before 9.18.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86861"
+    },
+    {
+      "id": "CVE-2026-86040",
+      "published": "2026-09-17T16:18:17.250",
+      "lastModified": "2026-09-17T20:18:49.740",
+      "description": "libp2p is a JavaScript implementation of the libp2p networking stack. Prior to 11.0.26, @libp2p/floodsub accepts unauthenticated RPC frames on /floodsub/1.0.0 through PeerStreams.attachInboundStream in packages/floodsub/src/peer-streams.ts without protobuf element limits, then processRpc and processRpcSubOpt in packages/floodsub/src/floodsub.ts synchronously process the subscriptions array without a per-frame cap. A single bounded-size frame can decode into millions of empty subscription entries that block the event loop, while hundreds of thousands of unique-topic SUBSCRIBE entries allocate PeerSet objects in this.topics that are not removed after peer removal or stop. Empty entries cause CPU exhaustion but do not grow this.topics; persistent memory growth requires unique topics. The subscription path bypasses message signature validation and the message-only processing queue, allowing a remote peer to cause sustained CPU denial of service, memory exhaustion, out-of-memory termination, and node unavailability. The issue is fixed in version 11.0.26.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86040"
+    },
+    {
+      "id": "CVE-2026-86039",
+      "published": "2026-09-17T16:18:17.090",
+      "lastModified": "2026-09-21T21:17:14.150",
+      "description": "libp2p is a JavaScript implementation of the libp2p networking stack. From 8.0.0 until 12.0.24, @libp2p/peer-store in packages/peer-store/src/index.ts uses consumePeerRecord to verify a RecordEnvelope signature but does not require PeerRecord.peerId in the signed payload to equal the signer peer ID derived by RecordEnvelope.openAndCertify. The expectedPeer option checks only the envelope signer, and the gossipsub Peer Exchange path can provide the attacker's own peer ID as expectedPeer. An attacker can therefore sign a record with the attacker's key, place a victim peer ID and attacker-controlled multiaddrs in the payload, and have certified addresses stored for the victim. The poisoned addresses can cause address-book corruption, dial redirection or failure, routing manipulation, and reachability disruption, although the connection upgrade still verifies remote peer identity and prevents a complete identity takeover. The issue is fixed in version 12.0.24.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86039"
+    },
+    {
+      "id": "CVE-2026-86038",
+      "published": "2026-09-17T16:18:16.927",
+      "lastModified": "2026-09-17T18:17:12.203",
+      "description": "libp2p is a JavaScript implementation of the libp2p networking stack. From 15.0.0 until 16.0.5, @libp2p/gossipsub uses the default StrictSign policy in packages/gossipsub/src/utils/buildRawMessage.ts, where validateToRawMessage verifies a signature with attacker-controlled msg.key but skips binding that key to msg.from when the claimed author is an RSA peer ID that does not inline a public key. An unauthenticated attacker can place a victim RSA peer ID in msg.from, sign the message with the attacker's private key, and supply the attacker's public key in msg.key, causing the message to be accepted and propagated as authored by the victim. Applications that trust message.from for validators, authorization, accounting, moderation, reputation, or audit logging can process attacker-controlled data under false origin attribution. The issue is fixed in version 16.0.5.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86038"
+    },
+    {
+      "id": "CVE-2026-86000",
+      "published": "2026-09-17T16:18:16.757",
+      "lastModified": "2026-09-17T16:18:16.757",
+      "description": "Soup Sieve is a CSS selector library designed to be used with Beautiful Soup 4. Prior to 2.9, the selector parser in src/soupsieve/css_parser.py defines IDENTIFIER with adjacent quantified groups over overlapping character classes, and VALUE embeds IDENTIFIER for attribute selectors. When an attacker-controlled selector contains a long identifier or unquoted attribute-value run followed by input that makes the overall match fail, the regular expression engine explores quadratically many splits between the overlapping groups. User-controlled selectors can reach this path through soupsieve.compile(), soupsieve.select(), or BeautifulSoup.select(), while applications using only hard-coded selectors are unaffected. The resulting CPU consumption can hold the Python GIL, exhaust application workers, and stall a service; successful plain identifier matches are linear, and the issue does not cause memory corruption or code execution. The issue is fixed in version 2.9.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86000"
+    },
+    {
+      "id": "CVE-2026-85999",
+      "published": "2026-09-17T16:18:16.590",
+      "lastModified": "2026-09-23T18:12:04.247",
+      "description": "Soup Sieve is a CSS selector library designed to be used with Beautiful Soup 4. Prior to 2.9, selector_iter in src/soupsieve/css_parser.py trims the raw selector with RE_WS_END, an end-anchored WSC whitespace-and-comment expression used with search(), so the regular expression engine retries a greedy scan at every starting offset. An attacker-controlled valid selector containing a long internal whitespace run, or a selector containing a long CSS comment run followed by another token, causes quadratic CPU work before tokenization. User-controlled selectors can reach the path through soupsieve.compile() and BeautifulSoup.select(), while applications using only hard-coded selectors are unaffected. This root cause is separate from the IDENTIFIER and VALUE backtracking vulnerability because the cost occurs in RE_WS_END.search during trimming rather than token matching. The resulting CPU consumption can hold the Python GIL, exhaust workers, and stall a service without causing memory corruption or code execution. The issue is fixed in version 2.9.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85999"
+    },
+    {
+      "id": "CVE-2026-85721",
+      "published": "2026-09-17T16:18:16.430",
+      "lastModified": "2026-09-17T18:17:12.087",
+      "description": "The AsyncHttpClient (AHC) library allows Java applications to easily execute HTTP requests and asynchronously process HTTP responses. From 2.0.0 until 2.16.1 and 3.0.12, automatic response decompression on the HTTP/1.1 path uses ChannelManager.newHttpContentDecompressor() to install Http1ContentDecompressor without a cumulative output-size limit. A hostile or compromised server, or an attacker who can alter a response in transit, can send a small gzip, deflate, or snappy response that expands across chunks until the client exhausts its heap and raises OutOfMemoryError; brotli and zstd are also affected when their optional codecs are present. In versions 3.0.8 through 3.0.10, the HTTP/2 decompressor is also unbounded, so switching protocols does not mitigate the issue on those releases. A limit applied to each decode call is insufficient because the response can be delivered as many small chunks, so the fixed implementation tracks total decompressed bytes for the whole response. This issue is fixed in versions 2.16.1 and 3.0.12.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85721"
+    },
+    {
+      "id": "CVE-2026-85719",
+      "published": "2026-09-17T16:18:16.273",
+      "lastModified": "2026-09-18T15:17:14.580",
+      "description": "The AsyncHttpClient (AHC) library allows Java applications to easily execute HTTP requests and asynchronously process HTTP responses. From 2.1.0 until 2.16.1 and 3.0.12, requests using an authenticated SOCKS proxy can expose the proxy's credentials to the origin because NettyRequestFactory and NettyRequestSender attach Proxy-Authorization without confirming that the request is being sent to an HTTP proxy. With preemptive proxy authentication, the header is attached to a plaintext HTTP request, exposing credentials such as directly reversible Basic credentials to the origin. With the default non-preemptive flow, a hostile origin can return a 407 response and ProxyUnauthorized407Interceptor sends the proxy credentials through the existing SOCKS tunnel, including NTLM, Kerberos, and SPNEGO credentials. Releases before 2.1.0 lack SOCKS proxy support. This issue is fixed in versions 2.16.1 and 3.0.12.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85719"
+    },
+    {
+      "id": "CVE-2026-85718",
+      "published": "2026-09-17T16:18:16.113",
+      "lastModified": "2026-09-17T17:16:51.093",
+      "description": "The AsyncHttpClient (AHC) library allows Java applications to easily execute HTTP requests and asynchronously process HTTP responses. From 3.0.8 until 3.0.12, a client with maxConnections or maxConnectionsPerHost set above zero leaks one connection permit whenever TLS connection establishment fails before the handshake completes. NettyConnectListener removes the partitionKeyLock permit from NettyResponseFuture before every failure path is bound to the channel closeFuture, so an abort can leave the permit unreleased. Repeated failures can permanently lock out one host under a per-host limit or drain the shared pool under a global limit, blocking later requests even when no connection remains open. The default unlimited connection setting is not affected. This issue is fixed in version 3.0.12.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85718"
+    },
+    {
+      "id": "CVE-2026-85717",
+      "published": "2026-09-17T16:18:15.960",
+      "lastModified": "2026-09-23T19:19:40.640",
+      "description": "The AsyncHttpClient (AHC) library allows Java applications to easily execute HTTP requests and asynchronously process HTTP responses. From 2.14.5 to 2.16.0 and from 3.0.9 to 3.0.11, a client configured with a client-wide Realm and redirect following can disclose credentials after a cross-origin redirect because the Interceptors authentication path falls back to the client configuration after redirect handling clears the per-exchange realm. If the attacker-controlled target returns 401, the client can send Basic or Digest credentials or a Negotiate or NTLM token to that origin. Per-request realms are stripped correctly, and this issue is a residual bypass of the earlier cross-origin credential-stripping fixes. This issue is fixed in versions 2.16.1 and 3.0.12.",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85717"
+    },
+    {
+      "id": "CVE-2026-85715",
+      "published": "2026-09-17T16:18:15.790",
+      "lastModified": "2026-09-17T16:18:15.790",
+      "description": "ExifReader is a JavaScript Exif information parser. Prior to 4.41.1, ExifReader parses attacker-controlled HEIC or AVIF ISO-BMFF files in getItems() within src/image-header-iso-bmff-iloc.js and trusts iloc itemCount and extentCount values while allocating an extent object for every nested-loop iteration. When offsetSize, lengthSize, baseOffsetSize, and indexSize are zero, the extent fields consume no input bytes and the buffer offset does not advance, but the parser can still allocate up to itemCount multiplied by extentCount objects without an allocation budget. A small malicious iloc box can therefore cause hundreds of megabytes of heap growth or exhaust system memory, terminating a Node.js process and denying service to web, desktop, or mobile applications that parse untrusted images. The zero field widths are valid ISO-BMFF values indicating absent fields, so the vulnerable parser must bound work rather than relying on offset advancement. The issue is fixed in version 4.41.1.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85715"
+    },
+    {
+      "id": "CVE-2026-81868",
+      "published": "2026-09-17T16:17:47.607",
+      "lastModified": "2026-09-23T19:19:33.167",
+      "description": "Steeltoe is an open source project that provides a collection of libraries that helps users build cloud-native applications. Prior to 4.3.0, Steeltoe.Security.Authorization.Certificate deployments using AddOrgAndSpacePolicies() and UseCertificateAuthorization() trust the public certificate supplied in the X-Client-Cert request header without proving possession of the corresponding private key. Common Cloud Foundry routers do not remove this header from inbound requests. When inbound requests are not restricted to a known trusted proxy source IP, an attacker who obtains the public certificate of an application instance in the target organization or space and can reach the application can spoof X-Client-Cert to bypass the SameOrg and SameSpace policies for the certificate validity period. This issue is fixed in version 4.3.0.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81868"
+    },
+    {
+      "id": "CVE-2026-81516",
+      "published": "2026-09-17T16:17:46.930",
+      "lastModified": "2026-09-17T20:18:40.493",
+      "description": "Steeltoe is an open source project that provides a collection of libraries that helps users build cloud-native applications. From 4.0.0 until 4.3.0, ConsulDiscoveryClient constructs ConsulServiceInstance objects by parsing each registration's secure metadata with a strict Boolean conversion. A principal that can register a Consul service can supply a secure value other than true or false, causing the exception from one instance to abort construction of the entire instance list and make the targeted service undiscoverable. When GetAllInstancesAsync enumerates all services, one malformed instance can abort enumeration across every service. The outage persists until the offending registration is removed. This issue is fixed in version 4.3.0.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81516"
+    },
+    {
+      "id": "CVE-2026-81515",
+      "published": "2026-09-17T16:17:46.780",
+      "lastModified": "2026-09-21T21:17:13.217",
+      "description": "Steeltoe is an open source project that provides a collection of libraries that helps users build cloud-native applications. From 4.0.0 until 4.3.0, EurekaDiscoveryClient deserializes the registry response as one unit, and an unrecognized actionType or status, a non-Boolean isCoordinatingDiscoveryServer, or a nonnumeric timestamp can abort the entire response. A principal that can register or update an instance can cause all connected Steeltoe clients to receive an empty or stale instance list until the malformed registration is removed. The JsonInstanceInfoConverter, BoolStringJsonConverter, and LongStringJsonConverter parsing paths are affected. This issue is distinct from the earlier DataCenterInfo.name parsing vulnerability. This issue is fixed in version 4.3.0.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81515"
+    },
+    {
+      "id": "CVE-2026-76834",
+      "published": "2026-09-17T16:17:42.270",
+      "lastModified": "2026-09-23T17:17:47.930",
+      "description": "b2evolution CMS versions 6.7.8 through 7.2.5 contain an incomplete fix for CVE-2016-8901 where the serialized-array object check in param_check_serialized_array() fails to reject payloads with negative integer array keys. Unauthenticated attackers can submit crafted serialized PHP objects via POST requests to htsrv/call_plugin.php that bypass validation and reach unserialize(), instantiating arbitrary PHP objects with attacker-chosen properties that may enable code execution if suitable POP gadget chains exist.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76834"
+    },
+    {
+      "id": "CVE-2026-76781",
+      "published": "2026-09-17T16:17:42.070",
+      "lastModified": "2026-09-24T12:17:12.793",
+      "description": "A flaw was found in libxml2. A local user or an attacker providing a specially crafted XML catalog can trigger a NULL pointer dereference during XML catalog parsing. This occurs when a `nextCatalog` element lacks its mandatory `catalog` attribute, leading to the application crashing and causing a Denial of Service (DoS).",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76781"
+    },
+    {
+      "id": "CVE-2026-75588",
+      "published": "2026-09-17T16:17:41.940",
+      "lastModified": "2026-09-18T13:46:33.503",
+      "description": "Mattermost Desktop App versions <=6.2 6.2.2.0 fail to validate the URL scheme when checking whether a target URL is internal to the connected server, which allows a network-positioned attacker to load a plugin popout window over an insecure connection via a link using a downgraded URL scheme. Mattermost Advisory ID: MMSA-2026-00717",
+      "score": 2.6,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75588"
+    },
+    {
+      "id": "CVE-2026-75523",
+      "published": "2026-09-17T16:17:41.773",
+      "lastModified": "2026-09-23T18:12:04.247",
+      "description": "Steeltoe is an open source project that provides a collection of libraries that helps users build cloud-native applications. Prior to 4.3.0, the Steeltoe.Management.Endpoint /actuator/httpexchanges endpoint passes recorded request URIs through MaskedUri, which masks URI user information but does not inspect query strings. When Management:Endpoints:HttpExchanges:IncludeQueryString is enabled, the HttpExchangeRequest response can disclose OAuth tokens, password-reset tokens, signed-URL signatures, API keys, and other query-string secrets from prior traffic to a caller that can reach the explicitly exposed endpoint. The Steeltoe.Management.Endpoint.Actuators.HttpExchanges DEBUG logger also records these URIs, creating a second disclosure channel for users with log access. This issue is fixed in version 4.3.0.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75523"
+    },
+    {
+      "id": "CVE-2026-69197",
+      "published": "2026-09-17T16:17:41.010",
+      "lastModified": "2026-09-17T18:17:05.090",
+      "description": "Umbraco is an ASP.NET CMS. Prior to 13.15.1, 17.5.3, and 18.0.2, the Content Delivery API applies member and Public Access checks to the directly requested node but not to referenced nodes serialized through Content Picker or Multi-Node Tree Picker properties, including pickers nested in Block List, Block Grid, or Rich Text Editor blocks. When DeliveryApi:PublicAccess is enabled, an anonymous caller can retrieve a protected node's name, route, and id through an unprotected referencing node and use ?expand to retrieve full property values. When the Delivery API is instead gated by the organization-wide API key, a key holder can still bypass per-node Public Access through the same expansion path. The same RequestContextOutputExpansionStrategyV2 and ElementOnlyOutputExpansionStrategy path also bypasses allowed or disallowed content-type alias restrictions for referenced content. Direct requests for the protected node still return 401, and no integrity or availability impact is established. This issue is fixed in versions 13.15.1, 17.5.3, and 18.0.2.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-69197"
+    },
+    {
+      "id": "CVE-2026-61700",
+      "published": "2026-09-17T16:17:33.723",
+      "lastModified": "2026-09-23T18:12:04.247",
+      "description": "MariaDB Connector/J is used to connect applications developed in Java to MariaDB and MySQL databases. Prior to 2.7.14, 3.3.5, 3.4.3, and 3.5.9, ClientMessage.readPacket processes a server-initiated LOCAL INFILE protocol packet 0xfb without enforcing allowLocalInfile=false. When an application sends a LOAD DATA LOCAL INFILE COM_QUERY, a rogue or man-in-the-middle server can echo the same filename and cause the connector to transmit that file despite the disabled option. The server cannot redirect the request to an arbitrary path and can receive only the exact file already selected by the application, so exploitation requires an application that actively loads sensitive data over an untrusted connection. This issue is fixed in versions 2.7.14, 3.3.5, 3.4.3, and 3.5.9.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61700"
+    },
+    {
+      "id": "CVE-2026-56795",
+      "published": "2026-09-17T16:17:31.893",
+      "lastModified": "2026-09-19T15:16:59.640",
+      "description": "Dell Server Update Utility, versions prior to 26.07.01, contains an Uncontrolled Search Path Element vulnerability. A low privileged attacker with local access could potentially exploit this vulnerability, leading to Code execution.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-56795"
+    },
+    {
+      "id": "CVE-2026-12284",
+      "published": "2026-09-17T16:17:21.993",
+      "lastModified": "2026-09-18T13:46:33.503",
+      "description": "Mattermost Desktop App versions <=6.2 6.2.2.0 fails to validate the IPC sender in the leaveCall handler which allows a malicious or compromised Mattermost server (or a user with script access to a connected server view) to disconnect an active call belonging to a different connected server via the desktopAPI.leaveCall IPC message. Mattermost Advisory ID: MMSA-2026-00699",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12284"
+    },
+    {
+      "id": "CVE-2026-92987",
+      "published": "2026-09-17T15:17:02.203",
+      "lastModified": "2026-09-22T20:43:58.793",
+      "description": "roxmltree through 0.21.1 performs quadratic-time attribute and namespace validation during XML parsing without limits on attribute count. Attackers can craft XML documents with tens of thousands of attributes on a single element to consume excessive CPU time and cause denial of service.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92987"
+    },
+    {
+      "id": "CVE-2026-92986",
+      "published": "2026-09-17T15:17:02.033",
+      "lastModified": "2026-09-17T20:18:59.970",
+      "description": "SiYuan before 3.8.4 renders document titles as HTML in the backlink dock tree without escaping markup characters. Attackers can set malicious titles through the rename API or crafted notebooks to execute scripts in the Electron renderer with access to child_process for command execution.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92986"
+    },
+    {
+      "id": "CVE-2026-92985",
+      "published": "2026-09-17T15:17:01.840",
+      "lastModified": "2026-09-17T16:18:35.200",
+      "description": "SiYuan versions before 3.8.4 fail to escape bookmark labels imported from notebook files when rendering them in the dock tree. Attackers can craft malicious .sy notebook files with unescaped HTML in bookmark attributes that execute scripts in the Electron renderer with access to child_process for command execution.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92985"
+    },
+    {
+      "id": "CVE-2026-92984",
+      "published": "2026-09-17T15:17:01.690",
+      "lastModified": "2026-09-22T20:53:07.383",
+      "description": "HUBzero CMS through 2.2.32 accepts session identifiers from query strings and request variables instead of cookies alone, allowing unauthenticated attackers to fixate victim sessions. Attackers can obtain a valid session identifier, send victims a crafted link containing it, and replay the identifier after the victim authenticates to hijack their account and access.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92984"
+    },
+    {
+      "id": "CVE-2026-92983",
+      "published": "2026-09-17T15:17:01.540",
+      "lastModified": "2026-09-22T20:53:07.383",
+      "description": "InternLM LMDeploy through 0.17.0 in DistServe prefill/decode disaggregation mode fails to release scheduler sessions because the proxy uses user-facing session IDs instead of internal scheduler keys. Unauthenticated attackers can send completion requests to the proxy endpoint that accumulate unreleased scheduler metadata and memory until the prefill worker is out-of-memory killed.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92983"
+    },
+    {
+      "id": "CVE-2026-92880",
+      "published": "2026-09-17T15:16:59.840",
+      "lastModified": "2026-09-22T16:18:12.553",
+      "description": "A weakness has been identified in vgmstream up to r2117. Impacted is the function vadpcm_read_coefs_be of the file src/coding/vadpcm_decoder.c of the component EA SCHl parser. This manipulation of the argument entry/entries causes out-of-bounds write. Remote exploitation of the attack is possible. Patch name: ae37662ad626254ddd96ad69ac263792d7a92024. It is suggested to install a patch to address this issue.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92880"
+    },
+    {
+      "id": "CVE-2026-88952",
+      "published": "2026-09-17T15:16:56.290",
+      "lastModified": "2026-09-18T18:16:18.527",
+      "description": "Improper Authentication vulnerability in team-alembic AshAuthentication allows an attacker to be signed in as another user by linking an OAuth2 identity to an account that is not theirs.\n\nAshAuthentication.Strategy.OAuth2.UserResolver.resolve/3 matches an existing account using the register action's upsert_identity keys, then gates linking the incoming provider identity to it on email_trusted?/2, which reads only the provider's email_verified boolean and never compares the provider's email value with the matched account's email. That gate assumes the account was matched by its email field, so under any other upsert_identity it is vacuous and an attacker presenting their own verified email is attached to, and issued a session for, an account matched on some other attribute. The same unguarded gate applies in OAuth2.SignInPreparation on the registration_enabled? false path, where the account is matched by the sign-in action's read filter instead. The upsert also rewrites the matched account's email to the attacker's address, so later account recovery reaches the attacker rather than the owner.\n\nThis issue affects ash_authentication: from 4.14.0 before 4.15.0 and from 5.0.0-rc.10 before 5.0.0-rc.14.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88952"
+    },
+    {
+      "id": "CVE-2026-87742",
+      "published": "2026-09-17T15:16:56.137",
+      "lastModified": "2026-09-22T16:18:06.833",
+      "description": "A flaw was found in quarkus-websockets-next. This vulnerability allows a remote attacker to cause a Denial of Service (DoS) by streaming messages over a single connection faster than the application can process them. Due to unbounded message buffering and a lack of read backpressure, this rapidly exhausts heap space, leading to a java.lang.OutOfMemoryError that crashes the Java Virtual Machine (JVM).",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87742"
+    },
+    {
+      "id": "CVE-2026-85078",
+      "published": "2026-09-17T15:16:55.153",
+      "lastModified": "2026-09-17T20:18:48.810",
+      "description": "Sanic is an opensource python web server/framework. In version 25.12.0, Sanic's core HTTP/1.1 chunked-body handling does not fully consume the trailer-part after the terminating zero chunk before reusing the keep-alive connection buffer. A remote unauthenticated client can place attacker-controlled bytes in that trailer region, causing Sanic to parse and route them as a hidden second request after the outer request. This breaks HTTP request-boundary integrity and can provide a request-smuggling primitive when Sanic is deployed behind intermediaries. This issue is fixed in version 25.12.1.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85078"
+    },
+    {
+      "id": "CVE-2026-85077",
+      "published": "2026-09-17T15:16:54.990",
+      "lastModified": "2026-09-21T21:17:13.910",
+      "description": "Sanic is an opensource python web server/framework. Prior to version 24.12.1, and in version 25.12.0, the HTTP/1.1 response pipeline in sanic/response/types.py serializes response header names and values without rejecting carriage-return or line-feed characters. Applications that place attacker-controlled data in response.headers, file(..., filename=...), or cookie path and domain attributes can therefore emit injected headers and may split responses. Depending on application and proxy behavior, this can enable session fixation through injected cookies, cache poisoning, or security-header corruption. This issue is fixed in versions 24.12.1 and 25.12.1.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85077"
+    },
+    {
+      "id": "CVE-2026-81447",
+      "published": "2026-09-17T15:16:52.697",
+      "lastModified": "2026-09-18T17:55:19.340",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains an Improper Certificate Validation vulnerability. An unauthenticated attacker with adjacent network access could potentially exploit this vulnerability, leading to Information disclosure and Information tampering.",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81447"
+    },
+    {
+      "id": "CVE-2026-81446",
+      "published": "2026-09-17T15:16:52.573",
+      "lastModified": "2026-09-19T15:17:03.110",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains a Server-Side Request Forgery (SSRF) vulnerability. An unauthenticated attacker with remote access could potentially exploit this vulnerability, leading to Server-side request forgery.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81446"
+    },
+    {
+      "id": "CVE-2026-81445",
+      "published": "2026-09-17T15:16:52.447",
+      "lastModified": "2026-09-18T17:55:19.340",
+      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains an Improper Privilege Management vulnerability. A high privileged attacker with remote access could potentially exploit this vulnerability, leading to Elevation of privileges.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81445"
+    },
     {
       "id": "CVE-2026-80356",
       "published": "2026-09-17T15:16:51.973",
@@ -99,807 +858,6 @@
       "score": 8.1,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-26950"
-    },
-    {
-      "id": "CVE-2026-92973",
-      "published": "2026-09-17T14:18:03.507",
-      "lastModified": "2026-09-23T17:17:44.907",
-      "description": "ansi2html versions 1.7.0a0 through 1.9.3 contain a cross-site scripting vulnerability in OSC 8 hyperlink handling that fails to validate or escape URL targets. Attackers controlling ANSI text input can inject javascript: schemes or terminate href attributes to execute arbitrary scripts in the context of pages displaying converted output.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92973"
-    },
-    {
-      "id": "CVE-2026-92972",
-      "published": "2026-09-17T14:18:03.347",
-      "lastModified": "2026-09-22T20:43:58.793",
-      "description": "SGLang through 0.5.19 in prefill/decode disaggregation mode contains an unauthenticated PUT /route endpoint on the prefill bootstrap service that allows attackers to poison the KV transfer routing table. Attackers can supply arbitrary rank_ip and rank_port values to redirect decode workers to attacker-controlled endpoints, causing denial of service or disclosure of KV transfer metadata including session identifiers and tensor-parallel topology parameters.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92972"
-    },
-    {
-      "id": "CVE-2026-92971",
-      "published": "2026-09-17T14:18:03.190",
-      "lastModified": "2026-09-22T20:53:07.383",
-      "description": "InternLM LMDeploy through 0.17.0 contains a reachable assertion vulnerability in the DistServe decode migration loop that allows unauthenticated attackers to terminate the inference engine. Attackers can submit a migration_request with an empty remote_block_ids list to trigger an AssertionError that crashes the engine loop and causes subsequent inference requests to fail.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92971"
-    },
-    {
-      "id": "CVE-2026-92970",
-      "published": "2026-09-17T14:18:02.997",
-      "lastModified": "2026-09-22T20:53:07.383",
-      "description": "HUBzero CMS through 2.2.32 contains a path traversal vulnerability in project file upload handlers that allows authenticated project members to write arbitrary files outside the project repository. Attackers can supply traversal sequences in upload parameters to write files to attacker-chosen paths with web server privileges, potentially enabling code execution.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92970"
-    },
-    {
-      "id": "CVE-2026-92963",
-      "published": "2026-09-17T14:18:02.783",
-      "lastModified": "2026-09-18T20:17:31.370",
-      "description": "vm2 versions before 3.11.2 fail to properly restrict access to the VM2_INTERNAL_STATE_DO_NOT_USE_OR_PROGRAM_WILL_FAIL global variable. Attackers can access this internal state object through globalThis to retrieve sensitive sandbox internals.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92963"
-    },
-    {
-      "id": "CVE-2026-92962",
-      "published": "2026-09-17T14:18:02.610",
-      "lastModified": "2026-09-17T16:18:34.940",
-      "description": "vm2 is a sandbox for running untrusted JavaScript. In vm2 versions up to and including 3.11.3, the defaultSandboxPrepareStackTrace function in lib/setup-sandbox.js builds its output array using prototype-walking index assignment (lines[lines.length] = value) rather than a prototype-bypassing define-property primitive. Because this bridge-internal array is allocated in the sandbox realm, code inside the sandbox can install an accessor on Array.prototype for the relevant index; the accessor is then invoked whenever the sandbox reads error.stack (or otherwise triggers Error.prepareStackTrace), allowing sandbox code to observe and intercept each stack-trace line written by the bridge. The same pattern is used in the error-handling (catch) branch. The values written are formatted strings only, so the practical impact is limited to an information side channel and a violation of vm2's bridge-container defense invariant rather than a sandbox escape; the vendor rates the issue Low. The issue is fixed in vm2 3.11.4, which installs each entry as an own data property via Reflect.defineProperty.",
-      "score": 2.1,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92962"
-    },
-    {
-      "id": "CVE-2026-92961",
-      "published": "2026-09-17T14:18:02.447",
-      "lastModified": "2026-09-21T21:17:17.057",
-      "description": "vm2 before 3.11.6 fails to enforce bufferAllocLimit on ArrayBuffer, SharedArrayBuffer, and TypedArray constructors, allowing attackers to allocate arbitrary host memory. Attackers can bypass the buffer allocation cap by using these V8 intrinsics to exhaust host process memory and trigger out-of-memory conditions.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92961"
-    },
-    {
-      "id": "CVE-2026-92960",
-      "published": "2026-09-17T14:18:02.290",
-      "lastModified": "2026-09-17T15:17:01.170",
-      "description": "vm2 before 3.11.6 fails to restrict access to os and dns builtins under the builtin: ['*'] configuration, allowing sandbox code to read host process identity and network topology. Attackers can invoke dns.setServers() to hijack the host process DNS resolver globally, redirecting all subsequent host DNS queries through an attacker-controlled resolver.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92960"
-    },
-    {
-      "id": "CVE-2026-92959",
-      "published": "2026-09-17T14:18:02.130",
-      "lastModified": "2026-09-21T21:17:16.917",
-      "description": "vm2 before 3.11.8 does not fully enforce the allowAsync: false option in VM and NodeVM. While localPromise.prototype.then is replaced with a handler that throws 'Async not available', the sandbox's Promise static methods (Promise.resolve, Promise.all, Promise.race, Promise.any, and Promise.allSettled) still assimilate attacker-supplied thenables: native promise resolution performs PromiseResolveThenableJob and invokes the sandboxed code's then method in a microtask without passing through the patched then, so the async restriction is never applied. As a result, sandboxed script can schedule work that runs after VM.run() or NodeVM.run() has returned and outside the configured timeout, continuing to execute after the host believes execution is complete.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92959"
-    },
-    {
-      "id": "CVE-2026-92958",
-      "published": "2026-09-17T14:18:01.970",
-      "lastModified": "2026-09-18T20:17:31.243",
-      "description": "vm2 through 3.11.6 contains a builtin-module denylist bypass in NodeVM. When the embedder uses the builtin wildcard together with negative entries (e.g. require: { builtin: ['*', '-fs', '-child_process'] }), negative entries are matched by exact module name in lib/builtin.js, so -fs removes only the builtin named fs and does not remove builtin subpaths such as fs/promises. Sandboxed code can therefore call require('fs/promises') or require('node:fs/promises') and reach the promise-based filesystem API despite fs being denied; node: prefix handling is likewise inconsistent (a -node:fs/promises entry does not block require('fs/promises')). Host file creation and writing were confirmed via fsp.writeFile(), and other fs/promises operations (cp, mkdir, rename, rm, rmdir, truncate, read operations, etc.) are also reachable. This issue is fixed in vm2 3.11.7.",
-      "score": 8.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92958"
-    },
-    {
-      "id": "CVE-2026-92957",
-      "published": "2026-09-17T14:18:01.813",
-      "lastModified": "2026-09-17T18:17:15.430",
-      "description": "vm2 through 3.11.6 does not normalize `node:`-prefixed builtin specifiers when evaluating user-supplied negative (deny) entries in a NodeVM wildcard require policy. Although NodeVM strips the `node:` prefix during require() resolution, negative wildcard entries are matched by exact string comparison against the canonical builtin names, so a policy such as `new NodeVM({ require: { builtin: ['*', '-node:child_process'] } })` fails to deny the canonical `child_process` module. Sandboxed code can therefore obtain the host `child_process` builtin via `require('child_process')` or `require('node:child_process')`, gaining references to process-spawning APIs such as execSync and spawn, which is equivalent to host command-execution capability for untrusted sandbox code. Fixed in vm2 3.11.7. (Suggested title: \"vm2 before 3.11.7: NodeVM builtin deny-list bypass via node:-prefixed specifiers exposes child_process\")",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92957"
-    },
-    {
-      "id": "CVE-2026-92956",
-      "published": "2026-09-17T14:18:01.640",
-      "lastModified": "2026-09-17T20:18:59.730",
-      "description": "vm2 versions 3.10.1 through 3.11.6 contain a sandbox escape reachable from a default `new VM()` sandbox when running on Node.js 26. WebAssembly.compileStreaming and WebAssembly.instantiateStreaming can produce a raw host-realm Promise that rejects with a host-realm error object; by controlling Symbol.species via Promise.prototype.finally, sandbox code receives that raw host error, walks from the host error constructor to the host Function constructor, and recovers the real host `process` object, gaining host Node.js capabilities (e.g. access to host modules such as fs) in the context of the process running the sandbox. No NodeVM, require permission, host object injection, or otherwise unsafe configuration is required. This is a bypass of the fix for GHSA-6j2x-vhqr-qr7q, which removed the JSPI entry points WebAssembly.promising and WebAssembly.Suspending. The issue is fixed in 3.11.7.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92956"
-    },
-    {
-      "id": "CVE-2026-92955",
-      "published": "2026-09-17T14:18:01.480",
-      "lastModified": "2026-09-17T15:17:01.040",
-      "description": "vm2 before 3.11.8 contains a sandbox escape vulnerability in NodeVM that allows attackers to access the host __proto__ getter/setter through console._stdout and console._stderr. Attackers can overwrite EventEmitter.prototype.emit and trigger process events to execute code with process context, bypassing code generation restrictions.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92955"
-    },
-    {
-      "id": "CVE-2026-92954",
-      "published": "2026-09-17T14:18:01.320",
-      "lastModified": "2026-09-21T18:17:15.997",
-      "description": "vm2 is a sandbox library for running untrusted JavaScript in Node.js. In versions >= 3.10.0 and <= 3.11.7, Promises returned from the host realm into the sandbox are not marked as handled at the bridge boundary; only Promises created inside the sandbox are wrapped with a rejection-swallowing handler (lib/setup-sandbox.js), and the bridge only installs host-side rejection sanitizers when sandbox code calls .then/.catch/.finally. As a result, code running in the sandbox can invoke a host function that returns a rejected Promise (for example events.once() exposed via the NodeVM events builtin, or any embedder-provided Promise-returning API) and simply ignore the return value, leaving the host Promise unhandled so that Node.js's default unhandled-rejection behavior terminates the host process. This is an incomplete fix of GHSA-hw58-p9xv-2mjh. The issue is fixed in version 3.11.8.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92954"
-    },
-    {
-      "id": "CVE-2026-92953",
-      "published": "2026-09-17T14:18:01.160",
-      "lastModified": "2026-09-18T20:17:31.113",
-      "description": "vm2 versions from 3.11.0 before 3.11.8 fail to protect host TypedArray and ArrayBuffer prototypes from sandbox mutation. Attackers can use prototype-walking primitives to reach and modify host Uint8Array.prototype, %TypedArray%.prototype, and ArrayBuffer.prototype, causing host-created typed arrays to observe attacker-controlled properties after VM.run() returns.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92953"
-    },
-    {
-      "id": "CVE-2026-92952",
-      "published": "2026-09-17T14:18:00.987",
-      "lastModified": "2026-09-17T16:18:34.807",
-      "description": "vm2 versions 3.11.4 through 3.11.6 incompletely filter Node.js registered internal symbols across the sandbox boundary. The extraction filters in lib/setup-sandbox.js and the cross-realm symbol checks and write traps in lib/bridge.js use a fixed list of known dangerous registered symbols that omits nodejs.stream.disturbed and nodejs.stream.errored, which are exposed on host WebStream prototypes on newer Node.js releases (validated on Node.js v25.8.0). When the embedder exposes a host WebStream object and the host stream/web module to the sandbox, sandbox code can obtain the real host symbols via Object.getOwnPropertySymbols(streamWeb.ReadableStream.prototype) and use them as write keys on host stream objects, corrupting host-visible stream state — for example making stream.Readable.isDisturbed() return false for an already-consumed stream. This can bypass host logic that relies on Node's public stream-state helpers to enforce one-shot body consumption, reject errored streams, or decide whether a stream is safe to hand to another component. It is not a host code-execution primitive in the reported proof of vulnerability. This is an incomplete fix for the earlier nodejs.* symbol filtering issue. Fixed in vm2 3.11.7.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92952"
-    },
-    {
-      "id": "CVE-2026-92951",
-      "published": "2026-09-17T14:18:00.827",
-      "lastModified": "2026-09-17T20:18:59.610",
-      "description": "vm2 before 3.11.7 contains an incorrect authorization vulnerability in the external package allowlist check that uses non-exact substring matching instead of full package-name boundary validation. Attackers can bypass the allowlist by requiring a colliding package name that contains an allowlisted package substring, causing vm2 to load and execute unauthorized host packages in the host context.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92951"
-    },
-    {
-      "id": "CVE-2026-92950",
-      "published": "2026-09-17T14:18:00.637",
-      "lastModified": "2026-09-17T15:17:00.910",
-      "description": "vm2 before 3.11.7 contains a sandbox escape vulnerability in the CLI tool that allows attackers to execute arbitrary code in the host Node.js process. Attackers can supply a malicious script file to the vm2 CLI that uses require(__filename) to re-execute itself in the host realm, bypassing sandbox isolation and accessing host modules like fs and child_process.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92950"
-    },
-    {
-      "id": "CVE-2026-92949",
-      "published": "2026-09-17T14:18:00.463",
-      "lastModified": "2026-09-21T18:17:15.850",
-      "description": "vm2 versions from 3.9.6 before 3.11.7 fail to properly restrict access to accessor properties on frozen objects, allowing sandboxed scripts to bypass vm.freeze() and vm.readonly() protections. Attackers can use Object.getOwnPropertyDescriptor() or __lookupSetter__() to extract and invoke host object setters directly, mutating properties the embedder explicitly marked read-only.",
-      "score": 4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92949"
-    },
-    {
-      "id": "CVE-2026-92948",
-      "published": "2026-09-17T14:18:00.310",
-      "lastModified": "2026-09-18T20:17:30.980",
-      "description": "vm2 versions >= 3.9.6 and <= 3.11.6 are affected by a NodeVM builtin allowlist bypass that permits a sandbox escape on Node.js 24 and newer when the embedder explicitly allows the node:test builtin (e.g. require: { builtin: ['node:test'] }). On Node.js 24+, module.builtinModules exposes the scheme-only key node:test, which is not covered by vm2's family-based DANGEROUS_BUILTINS protection, so it is stored in the generic host-passthrough loader. Because requireImpl() in lib/setup-node-sandbox.js strips a single 'node:' prefix before the builtin lookup, sandbox code calling require('node:node:test') resolves to the stored node:test key and receives a readonly proxy to the host module. Calls to node:test.run() are forwarded to the host implementation, which spawns a separate Node process for process-isolated test execution and passes through attacker-controlled execArgv values; supplying --eval=<JavaScript> therefore executes arbitrary JavaScript in an unrestricted host Node process outside the NodeVM sandbox. Fixed in vm2 3.11.7.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92948"
-    },
-    {
-      "id": "CVE-2026-92947",
-      "published": "2026-09-17T14:18:00.140",
-      "lastModified": "2026-09-17T16:18:34.667",
-      "description": "vm2 before 3.11.7 exposes Node's shared Buffer pool to sandboxed code, allowing disclosure of host memory used by Buffer.from, Buffer.concat, and related allocations. Sandboxed code can read and write to host-realm buffers by acquiring ArrayBuffers from small allocations, leading to sensitive data exposure and potential denial-of-service.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92947"
-    },
-    {
-      "id": "CVE-2026-92946",
-      "published": "2026-09-17T14:17:59.963",
-      "lastModified": "2026-09-17T20:18:59.483",
-      "description": "vm2 before 3.11.7 contains a remote code execution vulnerability when require.external is enabled without an explicit require.root that excludes node_modules. Sandboxed code can require vm2's own package, instantiate an unrestricted NodeVM instance, and execute arbitrary host OS commands via child_process.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92946"
-    },
-    {
-      "id": "CVE-2026-92945",
-      "published": "2026-09-17T14:17:59.807",
-      "lastModified": "2026-09-17T15:17:00.783",
-      "description": "vm2 before 3.11.7 contains a module allowlist bypass vulnerability in isPathAllowedForModule that uses raw string prefix matching instead of boundary-anchored comparison. Attackers can reach non-allowlisted packages sharing a prefix with allowlisted modules by performing relative requires from allowlisted packages when transitive loading is disabled.",
-      "score": 4.2,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92945"
-    },
-    {
-      "id": "CVE-2026-92944",
-      "published": "2026-09-17T14:17:59.623",
-      "lastModified": "2026-09-19T03:17:18.580",
-      "description": "vm2 versions 3.10.2 through 3.11.6 contain a sandbox escape vulnerability on Node.js 26 where Promise.prototype.finally() bypasses vm2's wrapper protections due to a stale PromiseThenLookupChain protector in V8 14.6. Attackers can exploit this by creating an async function that returns a Promise with an attacker-controlled constructor Symbol.species, allowing them to reach the host Function constructor and process object for arbitrary code execution.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92944"
-    },
-    {
-      "id": "CVE-2026-92942",
-      "published": "2026-09-17T14:17:59.467",
-      "lastModified": "2026-09-18T20:17:30.843",
-      "description": "vm2 before 3.11.7 (affected versions <= 3.11.6) does not enforce the VM({ timeout }) option on code executed outside the synchronous VM#run() call. The timeout only wraps the single call to _runScript() via doWithTimeout() in lib/vm.js, and FinalizationRegistry and WeakRef are exposed to sandboxed code unmodified (they are not among the hardened globals in lib/setup-sandbox.js). Sandboxed code can register a FinalizationRegistry cleanup callback against an object and then drop the only strong reference to it; vm.run() returns within the configured timeout, but when the V8 garbage collector later reclaims the object it invokes the sandboxed cleanup callback outside any vm2 timeout accounting. A busy loop in that callback blocks the host event loop for an unbounded period, resulting in denial of service. The time of invocation depends on the garbage collector (e.g. under memory pressure or with --expose-gc).",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92942"
-    },
-    {
-      "id": "CVE-2026-92941",
-      "published": "2026-09-17T14:17:59.310",
-      "lastModified": "2026-09-17T16:18:34.520",
-      "description": "vm2 versions from 3.11.3 before 3.11.7 expose the host tls module to NodeVM sandbox code, allowing attackers to call tls.setDefaultCACertificates() and replace process-wide certificate authorities. Attackers with access to allowed tls and url builtins can use URLSearchParams to create host-realm arrays and manipulate the TLS trust store, enabling subsequent host HTTPS clients to accept attacker-controlled certificates.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92941"
-    },
-    {
-      "id": "CVE-2026-92940",
-      "published": "2026-09-17T14:17:59.143",
-      "lastModified": "2026-09-17T20:18:59.213",
-      "description": "vm2 versions 3.11.3 through 3.11.6 expose the host process's real https.globalAgent to sandboxed code when a NodeVM is explicitly configured to allow require('https'). The builtin loader wraps host modules in a read-only proxy, but method calls such as Agent.prototype.on() are forwarded to the underlying host object, so sandbox code can register a listener for the agent's 'free' event. When an unrelated host HTTPS request releases a pooled connection, the listener receives the live host request options and the host TLSSocket, allowing sandboxed code to read the host's Authorization header and private destination host/port, attach a data listener to the released socket and read subsequent host response bodies in plaintext, and issue attacker-chosen authenticated requests using the stolen credentials. The issue is fixed in 3.11.7.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92940"
-    },
-    {
-      "id": "CVE-2026-92939",
-      "published": "2026-09-17T14:17:58.970",
-      "lastModified": "2026-09-17T15:17:00.650",
-      "description": "vm2 3.11.3 through 3.11.6 exposes the host Node.js crypto module to a NodeVM sandbox when the crypto builtin is allowed. The module is presented via a recursive read-only proxy, but its callable exports still execute with host-process authority. Sandboxed JavaScript can therefore call crypto.setEngine() with a filesystem path to an attacker-supplied native library (for example, one bundled in an untrusted plugin package already written to disk); OpenSSL asks the operating-system dynamic loader to load the file, and the library's constructor executes native code in the host process before engine-symbol validation rejects it. Exploitation requires only the crypto builtin and does not require fs, process, module, child_process, worker_threads, vm, or inspector access, resulting in a sandbox escape and arbitrary native code execution. Fixed in 3.11.7.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92939"
-    },
-    {
-      "id": "CVE-2026-92938",
-      "published": "2026-09-17T14:17:58.750",
-      "lastModified": "2026-09-19T03:17:18.443",
-      "description": "vm2 versions 3.11.3 through 3.11.6 expose Node.js's host node:sqlite module to code running in NodeVM when that builtin is permitted, either explicitly or through builtin: ['*']. The module is wrapped with vm.readonly(), which prevents property assignment but leaves host-authority callables reachable; in addition, the resolver treats any request starting with 'node:' as a core-module request and the runtime strips only one 'node:' prefix, so a sandbox request for 'node:node:sqlite' resolves to the configured node:sqlite entry. Sandboxed code can therefore create an in-memory DatabaseSync with extension loading enabled and call DatabaseSync.loadExtension() on a native library bundled in the untrusted plugin package (path derived from __dirname). SQLite loads the library into the Node.js host process and invokes its native entry point, giving the sandboxed plugin arbitrary native code execution outside the sandbox with the host process's privileges. The issue is fixed in vm2 3.11.7.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92938"
-    },
-    {
-      "id": "CVE-2026-92937",
-      "published": "2026-09-17T14:17:58.517",
-      "lastModified": "2026-09-18T20:17:30.707",
-      "description": "vm2 3.11.6 is vulnerable to a sandbox escape leading to remote code execution in the host Node.js process. The fix for GHSA-m283-3h24-438v is incomplete: the bridge gate at lib/bridge.js:1624 identity-checks only the direct call target when deciding whether to rebuild/sanitise a rejected host Promise value. Registering the rejection handler through Function.prototype.call or .apply indirection (e.g., p.then.call(p, undefined, cb)) makes the intercepted target host Function.prototype.call, so the sanitiser never runs and the raw host error reaches sandbox code with its own properties intact. If an embedder exposes a host-realm Promise to the sandbox (an async host function bridged via the sandbox option, or a NodeVM external module's async method) and that Promise rejects with an Error carrying a non-primitive own property referencing a host object (for example err.detail = process), untrusted code in the sandbox obtains a fully functional proxy to that host object and can execute arbitrary commands with the privileges of the host process (e.g., e.detail.mainModule.require('child_process').execSync(...)). The direct p.then(undefined, cb), bind, and Reflect.apply forms are correctly sanitised. Fixed in vm2 3.11.7.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92937"
-    },
-    {
-      "id": "CVE-2026-92936",
-      "published": "2026-09-17T14:17:58.320",
-      "lastModified": "2026-09-17T16:18:34.377",
-      "description": "vm2 versions 3.11.0 through 3.11.6 leak absolute host filesystem paths to sandboxed code through error stack formatting. Attacker-supplied code can force the host-realm source transformer to throw a SyntaxError (for example by calling eval with malformed source) and then read the error's .stack property; the bridge forwards the .stack read to the host-realm formatter, bypassing the sandbox-side host-path redaction introduced for GHSA-v27g-jcqj-v8rw. The returned stack string discloses absolute paths from vm2, Node.js internals, and the embedding application's own source tree, along with host function names. Default new VM() and new NodeVM() configurations are affected without any special options, and the issue persists when string eval is disabled because the host-side transformer throws before eval is handled. The impact is information disclosure only; no code execution results. Fixed in vm2 3.11.7.",
-      "score": 5.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92936"
-    },
-    {
-      "id": "CVE-2026-92935",
-      "published": "2026-09-17T14:17:57.810",
-      "lastModified": "2026-09-17T20:18:59.093",
-      "description": "vm2 is a sandbox for running untrusted Node.js code. In versions >= 3.11.4 and <= 3.11.6, the NodeVM constructor computes `hasRealRequireConfig` with `typeof requireOpts === 'object' && requireOpts !== null`, so an array-shaped `require` value (for example `require: []`) satisfies the guard that is meant to reject nesting without an explicit require configuration. `makeResolverFromLegacyOptions()` then destructures the array into undefined option fields and returns a resolver containing only `NESTING_OVERRIDE.vm2`. As a result, an attacker who can supply JavaScript executed by a NodeVM configured with truthy `nesting` and an array-shaped `require` (e.g. `new NodeVM({nesting: true, require: []})`) can require the host `vm2` module, create an inner NodeVM with an attacker-chosen builtin allowlist (such as `child_process`), and execute arbitrary commands with the privileges of the host Node.js process, escaping the sandbox. Outer builtin restrictions do not constrain the attacker-created inner NodeVM. This issue is fixed in vm2 3.11.7.",
-      "score": 9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92935"
-    },
-    {
-      "id": "CVE-2026-92934",
-      "published": "2026-09-17T14:17:57.513",
-      "lastModified": "2026-09-17T15:17:00.520",
-      "description": "vm2 before 3.11.8 contains an incomplete fix for Error.cause sanitization that allows sandbox escape when revisited host-wrapped AggregateError objects are caught within a single exception handler traversal. Attackers can exploit cycle detection bypass in handleException to access unsanitized host proxies embedded in the errors array, enabling full remote code execution and process information disclosure from the sandbox.",
-      "score": 9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92934"
-    },
-    {
-      "id": "CVE-2026-92933",
-      "published": "2026-09-17T14:17:57.337",
-      "lastModified": "2026-09-19T03:17:18.310",
-      "description": "vm2 is a sandbox for running untrusted Node.js code. In versions <= 3.11.7, NodeVM exposes the host `util` module to the sandbox as an unfiltered shallow copy (`Object.assign({}, util)` in `defaultBuiltinLoaderUtil`), and the deprecated `sys` builtin (an alias of host `util`) is exposed through the generic builtin loader. On Node.js >= 22.9 this hands sandboxed code `util.getCallSites()`, a programmatic stack-introspection API that returns the host process's full call stack, including absolute file paths, function names, and line numbers for vm2 bridge internals and the embedding application's entrypoint. This bypasses the host-frame redaction introduced for GHSA-v27g-jcqj-v8rw, which only applies to the `Error.prepareStackTrace` formatting channel. The issue is fixed in vm2 3.11.8.",
-      "score": 5.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92933"
-    },
-    {
-      "id": "CVE-2026-92879",
-      "published": "2026-09-17T14:17:57.003",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "A security flaw has been discovered in vgmstream up to r2117. This issue affects the function parse_mus of the file src/meta/mus_acm.c. The manipulation results in resource consumption. The attack may be launched remotely. The patch is identified as ae37662ad626254ddd96ad69ac263792d7a92024. Applying a patch is advised to resolve this issue.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92879"
-    },
-    {
-      "id": "CVE-2026-90986",
-      "published": "2026-09-17T14:17:52.867",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Unauthenticated Cross Site Scripting (XSS) in Visitor Traffic Real Time Statistics Pro <= 11.21 versions.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90986"
-    },
-    {
-      "id": "CVE-2026-90887",
-      "published": "2026-09-17T14:17:52.733",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Unauthenticated Cross Site Scripting (XSS) in WP Inventory Manager <= 2.5.4 versions.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90887"
-    },
-    {
-      "id": "CVE-2026-89418",
-      "published": "2026-09-17T14:17:52.157",
-      "lastModified": "2026-09-18T13:45:29.270",
-      "description": "google-protobuf contains an unbounded recursion when parsing unknown protobuf group fields. An attacker can send a small crafted payload of deeply nested START_GROUP wire bytes to any Node.js service that calls the generated deserializeBinary() API, causing a RangeError: Maximum call stack size exceeded and crashing the process. No authentication or prior knowledge of the schema is required.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89418"
-    },
-    {
-      "id": "CVE-2026-86533",
-      "published": "2026-09-17T14:17:46.467",
-      "lastModified": "2026-09-18T18:16:18.527",
-      "description": "Insufficient Session Expiration vulnerability in team-alembic AshAuthentication and AshAuthentication Phoenix allows a revoked session to remain fully authenticated.\n\nA resource configured with session_identifier :jti and require_token_presence_for_authentication? disabled stores its session value as <jti>:<subject>. The jti is there so that signing out can revoke that one session. Neither reader consults it: AshAuthentication.Plug.Helpers.authenticate_resource_from_session/4 and AshAuthentication.Phoenix.LiveSession.on_mount/4 both split the value with split_identifier/2, discard the jti and pass the bare subject to AshAuthentication.subject_to_user/3, which reloads the record. The token-presence branch of each function does check its token, calling AshAuthentication.TokenResource.Actions.get_token/3 with the jti and the purpose user. Because the revocation record is never read, neither its revoked state nor its expiry constrains the session, so a session captured before sign-out keeps working.\n\nThis issue affects ash_authentication: from 4.9.1 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14; ash_authentication_phoenix: from 2.10.0 before 2.17.4 and from 3.0.0-rc.0 before 3.0.0-rc.11.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86533"
-    },
-    {
-      "id": "CVE-2026-86522",
-      "published": "2026-09-17T14:17:46.313",
-      "lastModified": "2026-09-18T18:16:18.527",
-      "description": "Improper Output Neutralization for Logs vulnerability in team-alembic AshAuthentication allows an unauthenticated attacker to forge application log entries by submitting a password reset identity containing newlines or control characters.\n\nAshAuthentication.Strategy.Password.RequestPasswordReset.run/3 interpolates the identity argument, the email or username taken straight from the reset request, into its Logger.warning/1 heredocs without escaping, truncating or type-restricting it. The resource logged beside it is passed through inspect/1, which would have neutralized the value. A newline in the identity therefore ends the log record, and everything after it is written as a line of its own, so an attacker chooses the severity tag and the content of entries that appear to have come from the application.\n\nThis issue affects ash_authentication: from 4.2.0 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86522"
-    },
-    {
-      "id": "CVE-2026-85500",
-      "published": "2026-09-17T14:17:46.050",
-      "lastModified": "2026-09-18T18:16:18.527",
-      "description": "Authentication Bypass by Primary Weakness vulnerability in team-alembic AshAuthentication allows an unconfirmed user to obtain a session, defeating a mandatory email confirmation requirement.\n\nAshAuthentication.Strategy.Password.Actions.check_user/2 decides whether the attribute named by require_confirmed_with is set using a bare is_nil(Map.get(user, value)). When that attribute is not selected on the loaded record Map.get/2 returns %Ash.NotLoaded{}, and when a field policy denies it for the current actor it returns %Ash.ForbiddenField{}. Neither is nil, so the rejection branch is skipped and sign-i\n\nrequire_confirmed_with is enforced in two places, and neither holds in every configuration. sign_in_with_token and register are checked only inside AshAuthentication.Strategy.Password.Actions, not on the action itself, so any caller that invokes the action directly skips the check. An API layer such as AshGraphql or AshJsonApi invokes the action directly, so this applies to the default configuration. Where a check does run it compares the confirmation attribute against nil. That attribute holds %Ash.NotLoaded{} or %Ash.ForbiddenField{} when it sets select_by_default?: false, when an API layer narrows the read's select, or when a field policy hides it from the sign-in actor. Neither struct is nil, so those configurations read every user as confirmed.\n\nThis issue affects ash_authentication: from 4.3.8 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85500"
-    },
-    {
-      "id": "CVE-2026-82761",
-      "published": "2026-09-17T14:17:33.423",
-      "lastModified": "2026-09-18T18:16:18.527",
-      "description": "Time-of-check Time-of-use (TOCTOU) Race Condition vulnerability in team-alembic AshAuthentication allows an attacker holding a leaked magic link to replay its single-use token and authenticate as the target subject. A magic link configured with single_use_token?, which is the default, is meant to be redeemable exactly once, but nothing serialises the token's validity check against its consumption, so concurrent redemptions of one token all succeed and each yields a full user token.\n\nSign-in verifies the JWT with Jwt.verify/4 and revokes it only afterwards: AshAuthentication.Strategy.MagicLink.SignInPreparation revokes in a Query.after_action callback, and AshAuthentication.Strategy.MagicLink.SignInChange in an after_transaction hook that runs once the sign-in has already committed. AshAuthentication.TokenResource.Actions.revoke/3 writes the revocation as an upsert, so a concurrent duplicate revocation silently succeeds instead of conflicting and no request ever loses the race.\n\nThis issue affects ash_authentication: from 3.9.0 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82761"
-    },
-    {
-      "id": "CVE-2026-82760",
-      "published": "2026-09-17T14:17:33.237",
-      "lastModified": "2026-09-18T18:16:18.527",
-      "description": "Inefficient Algorithmic Complexity vulnerability in team-alembic AshAuthentication allows an unauthenticated attacker to exhaust CPU and memory via an oversized base62 segment in a submitted API key.\n\nAshAuthentication.Base.decode62/1 in lib/ash_authentication/base.ex splits its argument into one binary per character and folds it with charval62/2, which recomputes Integer.pow(62, index) at every position instead of accumulating by Horner's method, so cost grows roughly cubically in the input length. bindecode62/1 in the same module is quadratic through Integer.undigits/2 and Integer.digits/2. Neither function caps byte_size/1, and AshAuthentication.Strategy.ApiKey.SignInPreparation passes the underscore-separated segments of the submitted key straight into both, before any key lookup and without prior authentication. The surrounding rescue clauses catch exceptions, not CPU or memory exhaustion.\n\nThis issue affects ash_authentication: from 4.8.0 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82760"
-    },
-    {
-      "id": "CVE-2026-82759",
-      "published": "2026-09-17T14:17:33.030",
-      "lastModified": "2026-09-18T18:16:18.527",
-      "description": "Use of a One-Way Hash with a Predictable Salt vulnerability in team-alembic AshAuthentication allows readers of the audit store to recover the client IP addresses that the audit log add-on's :hash privacy mode is meant to pseudonymise.\n\nAshAuthentication.AddOn.AuditLog.IpPrivacy.hash_ip/1 computes a single unkeyed :crypto.hash(:sha256, salt <> ip) and truncates the result to 16 hexadecimal characters. The salt is read from the :audit_log_ip_salt or :secret application config keys, and falls back to the constant \"default-salt-change-in-production\" published in the library source when neither is set, with nothing warning that the default is in use. The IPv4 space is only 2^32 values and SHA-256 is fast, so the whole hash table is precomputable and every stored value maps back to its source address. Truncating to 16 characters does not help, and even a configured salt leaves the hash cheap enough to enumerate once it leaks.\n\nThis issue affects ash_authentication: from 4.12.0 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
-      "score": 1.8,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82759"
-    },
-    {
-      "id": "CVE-2026-82723",
-      "published": "2026-09-17T14:17:32.863",
-      "lastModified": "2026-09-18T18:16:18.527",
-      "description": "Insertion of Sensitive Information into Log File vulnerability in team-alembic AshAuthentication allows disclosure of user password digests to readers of the audit store.\n\nThe audit_log add-on builds each entry's extra_data in AshAuthentication.AddOn.AuditLog.Auditor.build_extra_data/4, which takes :actor from the action callback context verbatim. Any audited action invoked with actor: set to a user record therefore deposits that record, including its hashed_password attribute, into the audit entry. The same module already collapses the audited identity to an opaque string via AshAuthentication.user_to_subject/1 and filters params against the strategy's configured allow-list, so the actor is the only stored value that reaches the audit store unfiltered. Marking the attribute sensitive?: true does not help, because that redacts inspect/1 output rather than JSON encoding or raw-term storage.\n\nThere is no attacker-controlled trigger and no network disclosure path: entries accumulate from ordinary authenticated activity, and an attacker's own requests deposit only their own digest. Exploitation requires independent read access to the audit store, such as database credentials, an audit role, a backup, or a log shipper, at which point the digests support offline password attack against every active account. Whether the material persists depends on the data layer, since raw-term stores keep it verbatim while a SQL store raises Protocol.UndefinedError and drops the entry unless the user resource derives Jason.Encoder.\n\nThis issue affects ash_authentication: from 4.12.0 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.2.",
-      "score": 1.8,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82723"
-    },
-    {
-      "id": "CVE-2026-82685",
-      "published": "2026-09-17T14:17:32.717",
-      "lastModified": "2026-09-18T18:16:18.527",
-      "description": "Authorization Bypass Through User-Controlled Key vulnerability in team-alembic AshAuthentication allows an authenticated attacker to overwrite and confirm another user's email address, and so take over that account. A confirmation token issued to one user is accepted on any other user's record.\n\nAshAuthentication.AddOn.Confirmation.ConfirmChange verifies the token's signature and its act claim, then applies the changes stored against that token to whichever record the changeset targets, never comparing the sub claim against changeset.data. An attacker who registers an account and changes their own email replays the resulting token against a victim's record id, writing in their own address with force_change_attributes/2 and stamping confirmed_at, after which an ordinary password reset yields the account. The library's own confirmation flow is unaffected, because AshAuthentication.AddOn.Confirmation.Actions.confirm/3 resolves sub to a user and targets that record.\n\nThis issue affects ash_authentication: from 0.5.0 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82685"
-    },
-    {
-      "id": "CVE-2026-81829",
-      "published": "2026-09-17T14:17:32.323",
-      "lastModified": "2026-09-21T18:17:11.057",
-      "description": "A flaw was found in SmallRye JWT's AwsAlbKeyResolver, which is used by applications to verify JSON Web Tokens signed by AWS Application Load Balancers. When the AWS_ALB key provider is configured, the resolver constructs the key-fetch URL by directly concatenating the attacker-controlled kid header value from an inbound JWT without sanitizing path traversal characters or query-string separators. This allows an unauthenticated remote attacker to force the application server to issue GET requests to arbitrary paths on the same origin as the configured key endpoint. As a result, non-public endpoints or internal data reachable on that origin may be read by the attacker before JWT signature verification takes place.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81829"
-    },
-    {
-      "id": "CVE-2026-81637",
-      "published": "2026-09-17T14:17:32.140",
-      "lastModified": "2026-09-18T18:16:18.527",
-      "description": "Insufficient Session Expiration vulnerability in team-alembic AshAuthentication allows an attacker who obtains a victim's OAuth2 state value to replay the callback and sign that victim into an attacker-controlled account.\n\nAshAuthentication.Strategy.OAuth2.Plug.callback/2 clears the stored session_params through a rebinding step inside its with chain, conn <- delete_session(conn, session_key). Elixir evaluates the else block in the scope enclosing the with, so every failure path (the provider returning ?error=access_denied, an invalid code, a token-exchange error, or a registration or sign-in failure) reaches store_authentication_result/2 holding the original connection and the session entry is never removed. The value the module's own comment describes as protection against a CSRF-related attack is therefore consumed only when authentication succeeds, and survives a cancelled or failed attempt until the next request phase or session expiry.\n\nThis issue affects ash_authentication: from 0.6.0 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
-      "score": 2.3,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81637"
-    },
-    {
-      "id": "CVE-2026-81632",
-      "published": "2026-09-17T14:17:31.953",
-      "lastModified": "2026-09-18T18:16:18.527",
-      "description": "Use of HTTP Request With Sensitive Query String vulnerability in team-alembic AshAuthenticationPhoenix allows someone able to read access logs, proxy logs or browser history to recover a single-use sign-in token and authenticate as its owner.\n\nAfter a successful password sign-in, AshAuthentication.Phoenix.Components.Password.SignInForm builds the sign_in_with_token path with the freshly issued user.__metadata__.token as a query parameter and redirects the browser to it with a GET. The token therefore travels in the request line, where web servers, reverse proxies, request telemetry and the browser's own history record it, all of which outlive the request and are ordinarily less protected than session storage. The redirect destination is restricted to a local path, so this is not an open redirect; the exposure is the retention of a live credential.\n\nThis issue affects ash_authentication_phoenix: from 1.7.0 before 2.17.4 and from 3.0.0-rc.0 before 3.0.0-rc.11; ash_authentication: from 3.10.5 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81632"
-    },
-    {
-      "id": "CVE-2026-81453",
-      "published": "2026-09-17T14:17:31.367",
-      "lastModified": "2026-09-18T17:55:19.340",
-      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains an Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal') vulnerability. A low privileged attacker with remote access could potentially exploit this vulnerability, leading to Filesystem access for attacker.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81453"
-    },
-    {
-      "id": "CVE-2026-81443",
-      "published": "2026-09-17T14:17:31.243",
-      "lastModified": "2026-09-19T15:17:02.960",
-      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains a Server-Side Request Forgery (SSRF) vulnerability. A low privileged attacker with remote access could potentially exploit this vulnerability, leading to Server-side request forgery.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81443"
-    },
-    {
-      "id": "CVE-2026-81442",
-      "published": "2026-09-17T14:17:31.120",
-      "lastModified": "2026-09-18T17:55:19.340",
-      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains an Improper Privilege Management vulnerability. A low privileged attacker with remote access could potentially exploit this vulnerability, leading to Information tampering and Unauthorized access.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81442"
-    },
-    {
-      "id": "CVE-2026-80355",
-      "published": "2026-09-17T14:17:30.997",
-      "lastModified": "2026-09-18T18:13:20.457",
-      "description": "Dell OpenManage Server Administrator, versions prior to 11.1.0.3, contains a Cross-Site Request Forgery (CSRF) vulnerability. An unauthenticated attacker with remote access could potentially exploit this vulnerability, leading to Remote execution.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80355"
-    },
-    {
-      "id": "CVE-2026-80218",
-      "published": "2026-09-17T14:17:30.743",
-      "lastModified": "2026-09-18T18:16:18.527",
-      "description": "Improper Authentication vulnerability in team-alembic AshAuthentication allows an attacker holding a sign-in token for one authenticated resource to be signed in as a user of a different resource.\n\nAshAuthentication.Strategy.Password.SignInWithTokenPreparation.extract_primary_keys_from_subject/2 parses the JWT sub claim (for example user?id=1) with URI.parse/1 and keeps only its query string, discarding the path segment that names the subject the token was issued for. Nothing else restores that binding: AshAuthentication.Jwt.verify/3 checks the signature, exp, nbf, jti and the library-version claims, the purpose check only requires sign_in, and the remaining comparison is over primary-key field names, which are identical across resources. The WebAuthn sign-in and remember-me preparations carry copies of the same helper and drop the path in the same way. The magic link sign-in path pins the subject name against the resource and is not affected.\n\nThis issue affects ash_authentication: from 3.10.5 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80218"
-    },
-    {
-      "id": "CVE-2026-78528",
-      "published": "2026-09-17T14:17:30.440",
-      "lastModified": "2026-09-19T03:17:15.443",
-      "description": "Unauthenticated Broken Access Control in BerqWP <= 4.1.15 versions.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78528"
-    },
-    {
-      "id": "CVE-2026-78295",
-      "published": "2026-09-17T14:17:30.303",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Unauthenticated Cross Site Request Forgery (CSRF) in Xagio SEO <= 7.1.0.43 versions.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78295"
-    },
-    {
-      "id": "CVE-2026-78294",
-      "published": "2026-09-17T14:17:30.167",
-      "lastModified": "2026-09-19T15:17:02.180",
-      "description": "Contributor Cross Site Scripting (XSS) in  Geo Mashup <= 1.13.21 versions.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78294"
-    },
-    {
-      "id": "CVE-2026-78223",
-      "published": "2026-09-17T14:17:29.987",
-      "lastModified": "2026-09-18T18:16:18.527",
-      "description": "Improper Verification of Cryptographic Signature vulnerability in team-alembic AshAuthentication allows a caller of the token revocation action to neutralise a revocation or write arbitrary rows into the token resource.\n\nAshAuthentication.TokenResource.RevokeTokenChange.change/3 reads the :token argument and decodes it with AshAuthentication.Jwt.peek/1, which delegates to Joken.peek_claims/1 and performs no signature check, unlike Jwt.verify/4. The jti, exp and sub claims it returns are written straight onto the revocation record, guarded only by byte_size(token) > 0. Because expires_at derives from the attacker-chosen exp, a forged copy of a genuine token that keeps the real jti but backdates exp yields a revocation row that is already expired: expunge_expired removes it and the genuine token passes revoked? again. Arbitrary jti and sub values can be inserted the same way.\n\nThis issue affects ash_authentication: from 0.2.0 before 4.15.0 and from 5.0.0-rc.0 before 5.0.0-rc.14.",
-      "score": 6.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78223"
-    },
-    {
-      "id": "CVE-2026-74017",
-      "published": "2026-09-17T14:17:23.467",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Unauthenticated Broken Access Control in User Registration <= 5.2.7 versions.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74017"
-    },
-    {
-      "id": "CVE-2026-74005",
-      "published": "2026-09-17T14:17:23.333",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Unauthenticated Cross Site Request Forgery (CSRF) in PublishPress Series <= 3.1.3 versions.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74005"
-    },
-    {
-      "id": "CVE-2026-74002",
-      "published": "2026-09-17T14:17:23.200",
-      "lastModified": "2026-09-19T03:17:15.320",
-      "description": "Unauthenticated Broken Access Control in Booking Calendar <= 11.7 versions.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74002"
-    },
-    {
-      "id": "CVE-2026-74000",
-      "published": "2026-09-17T14:17:22.660",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Contributor Broken Access Control in Simple Membership <= 4.8.2 versions.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-74000"
-    },
-    {
-      "id": "CVE-2026-73999",
-      "published": "2026-09-17T14:17:22.527",
-      "lastModified": "2026-09-19T15:17:00.757",
-      "description": "Contributor Insecure Direct Object References (IDOR) in Cooked <= 1.16.0 versions.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73999"
-    },
-    {
-      "id": "CVE-2026-71568",
-      "published": "2026-09-17T14:17:21.013",
-      "lastModified": "2026-09-18T19:06:08.407",
-      "description": "In BMCtest, Ironic is started without authentication and TLS for the duration of the test. Exploiting the problem requires winning the race with bmctest itself, which reduces the attack window and significantly increases its complexity.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71568"
-    },
-    {
-      "id": "CVE-2026-66676",
-      "published": "2026-09-17T14:17:20.250",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Unauthenticated Broken Access Control in Easy Invoice <= 2.3.8 versions.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66676"
-    },
-    {
-      "id": "CVE-2026-66631",
-      "published": "2026-09-17T14:17:20.113",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Administrator SQL Injection in MC Woocommerce Wishlist <= 1.9.21 versions.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66631"
-    },
-    {
-      "id": "CVE-2026-66630",
-      "published": "2026-09-17T14:17:19.983",
-      "lastModified": "2026-09-19T03:17:15.197",
-      "description": "Administrator SQL Injection in PublishPress Series <= 3.1.3 versions.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66630"
-    },
-    {
-      "id": "CVE-2026-66628",
-      "published": "2026-09-17T14:17:19.363",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Shop manager SQL Injection in WP-Lister Lite for eBay <= 3.8.11 versions.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66628"
-    },
-    {
-      "id": "CVE-2026-66626",
-      "published": "2026-09-17T14:17:19.230",
-      "lastModified": "2026-09-19T15:17:00.637",
-      "description": "Editor SQL Injection in SKT Addons for Elementor <= 4.0 versions.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66626"
-    },
-    {
-      "id": "CVE-2026-66625",
-      "published": "2026-09-17T14:17:19.107",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Administrator SQL Injection in WC Vendors Marketplace <= 2.7.2.1 versions.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66625"
-    },
-    {
-      "id": "CVE-2026-66624",
-      "published": "2026-09-17T14:17:18.970",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Administrator SQL Injection in WPMasterToolKit <= 2.22.0 versions.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66624"
-    },
-    {
-      "id": "CVE-2026-66619",
-      "published": "2026-09-17T14:17:17.893",
-      "lastModified": "2026-09-19T03:17:15.060",
-      "description": "Administrator SQL Injection in Newsletters <= 4.18 versions.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66619"
-    },
-    {
-      "id": "CVE-2026-66618",
-      "published": "2026-09-17T14:17:17.753",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Administrator SQL Injection in WP Maps <= 4.9.9 versions.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66618"
-    },
-    {
-      "id": "CVE-2026-66617",
-      "published": "2026-09-17T14:17:17.623",
-      "lastModified": "2026-09-19T15:17:00.513",
-      "description": "Contributor Cross Site Scripting (XSS) in PublishPress Series <= 3.1.3 versions.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66617"
-    },
-    {
-      "id": "CVE-2026-66608",
-      "published": "2026-09-17T14:17:17.493",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Contributor Server Side Request Forgery (SSRF) in Unlimited Elements For Elementor (Free Widgets, Addons, Templates) <= 2.0.19 versions.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66608"
-    },
-    {
-      "id": "CVE-2026-66580",
-      "published": "2026-09-17T14:17:16.920",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Contributor SQL Injection in Product Feed Manager <= 7.12.0 versions.",
-      "score": 8.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66580"
-    },
-    {
-      "id": "CVE-2026-66579",
-      "published": "2026-09-17T14:17:16.653",
-      "lastModified": "2026-09-19T03:17:14.923",
-      "description": "Contributor Cross Site Scripting (XSS) in JetElements For Elementor <= 2.9.2.1 versions.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66579"
-    },
-    {
-      "id": "CVE-2026-66578",
-      "published": "2026-09-17T14:17:16.470",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Contributor Cross Site Scripting (XSS) in PropertyHive <= 2.2.6 versions.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66578"
-    },
-    {
-      "id": "CVE-2026-66577",
-      "published": "2026-09-17T14:17:16.340",
-      "lastModified": "2026-09-19T15:17:00.393",
-      "description": "Contributor Cross Site Scripting (XSS) in JetSearch <= 3.6.3 versions.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66577"
-    },
-    {
-      "id": "CVE-2026-66576",
-      "published": "2026-09-17T14:17:16.213",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Contributor Cross Site Scripting (XSS) in JetBlocks For Elementor <= 1.5.2 versions.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66576"
-    },
-    {
-      "id": "CVE-2026-66575",
-      "published": "2026-09-17T14:17:16.083",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Unauthenticated Insecure Direct Object References (IDOR) in King Addons for Elementor <= 51.1.81 versions.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66575"
-    },
-    {
-      "id": "CVE-2026-66574",
-      "published": "2026-09-17T14:17:15.953",
-      "lastModified": "2026-09-19T03:17:14.793",
-      "description": "Contributor Cross Site Scripting (XSS) in Element Pack Elementor Addons <= 8.8.3 versions.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66574"
-    },
-    {
-      "id": "CVE-2026-66573",
-      "published": "2026-09-17T14:17:15.813",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Contributor Cross Site Scripting (XSS) in JetTabs <= 2.3.3.1 versions.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66573"
-    },
-    {
-      "id": "CVE-2026-66572",
-      "published": "2026-09-17T14:17:15.680",
-      "lastModified": "2026-09-19T15:17:00.263",
-      "description": "Contributor Cross Site Scripting (XSS) in JetBlog <= 2.4.10 versions.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66572"
-    },
-    {
-      "id": "CVE-2026-66571",
-      "published": "2026-09-17T14:17:15.547",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Unauthenticated Cross Site Request Forgery (CSRF) in Asset CleanUp: Page Speed Booster <= 1.4.0.5 versions.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66571"
-    },
-    {
-      "id": "CVE-2026-62108",
-      "published": "2026-09-17T14:17:15.263",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Unauthenticated Broken Authentication in Headless Single Sign On <= 1.7.0 versions.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62108"
-    },
-    {
-      "id": "CVE-2026-62104",
-      "published": "2026-09-17T14:17:15.130",
-      "lastModified": "2026-09-19T03:17:14.667",
-      "description": "Unauthenticated Remote Code Execution (RCE) in Migratico Lite <= 2.6.8 versions.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62104"
-    },
-    {
-      "id": "CVE-2026-62101",
-      "published": "2026-09-17T14:17:14.977",
-      "lastModified": "2026-09-17T21:12:30.593",
-      "description": "Unauthenticated Broken Authentication in EduAdmin Booking <= 5.4.2 versions.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62101"
-    },
-    {
-      "id": "CVE-2026-14850",
-      "published": "2026-09-17T14:17:12.117",
-      "lastModified": "2026-09-18T19:21:49.497",
-      "description": "The password reset funcionality is vulnerable to unauthorized account modification due to improper validation of the user_id parameter. An attacker can manipulate this predictable numeric identifier to reset passwords for arbitrary users without proving account ownership.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14850"
     }
   ]
 }
