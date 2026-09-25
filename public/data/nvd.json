@@ -1,6 +1,24 @@
 {
-  "syncedAt": "2026-09-25T12:50:35.096Z",
+  "syncedAt": "2026-09-25T13:21:30.001Z",
   "items": [
+    {
+      "id": "CVE-2026-63420",
+      "published": "2026-09-18T16:17:07.837",
+      "lastModified": "2026-09-23T18:25:00.707",
+      "description": "OpenImageIO is a toolset for reading, writing, and manipulating image files of any image file format relevant to VFX / animation. Prior to 3.0.21.0, 3.1.16.0, and 3.2.0.3-beta1, An indexed psd with transparency metadata creates fewer stored channel_buffers than the spec.nchannels value advertised by the rawcolor path. when oiio:rawcolor or psd:rawdata is enabled, psdinput::read_native_scanline() passes spec.nchannels to psdinput::interleave_row(), which indexes beyond channel_buffers, resulting in a heap out-of-bounds read and process crash. The affected implementation is identified by src/psd.imageio/psdinput.cpp, PSDInput::read_native_scanline(), PSDInput::interleave_row(), oiio:RawColor, psd:RawData, channel_buffers, and spec.nchannels, which define the relevant source path, functions, state, and trigger. This issue is fixed in versions 3.0.21.0, 3.1.16.0, and 3.2.0.3-beta1.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-63420"
+    },
+    {
+      "id": "CVE-2026-63419",
+      "published": "2026-09-18T16:17:07.687",
+      "lastModified": "2026-09-24T21:22:19.873",
+      "description": "OpenImageIO is a toolset for reading, writing, and manipulating image files of any image file format relevant to VFX / animation. Prior to 3.0.21.0, 3.1.16.0, and 3.2.0.3-beta1, A zbuffer-only tiled iff is exposed with a 16-bit public imagespec while the decoder retains a 32-bit internal pixel size. iffinput::read_native_tile() copies according to m_header.pixel_bytes() rather than imagespec::tile_bytes(true), and a failed read can leave m_buf nonempty so a later call copies partially initialized data into the undersized caller buffer, resulting in a heap out-of-bounds write and memory corruption. The affected implementation is identified by src/iff.imageio/iffinput.cpp, IffInput::read_native_tile(), ImageSpec::tile_bytes(true), m_header.pixel_bytes(), ZBUFFER, and m_buf, which define the relevant source path, functions, state, and trigger. This issue is fixed in versions 3.0.21.0, 3.1.16.0, and 3.2.0.3-beta1.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-63419"
+    },
     {
       "id": "CVE-2026-61682",
       "published": "2026-09-18T16:17:07.523",
@@ -880,24 +898,6 @@
       "score": 7.5,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2023-5778"
-    },
-    {
-      "id": "CVE-2026-93492",
-      "published": "2026-09-18T13:18:38.877",
-      "lastModified": "2026-09-24T10:17:38.287",
-      "description": "A flaw was found in Netty's HTTP/2 HpackEncoder. A remote attacker can exploit this by sending HTTP/2 SETTINGS frames with a very large MAX_HEADER_TABLE_SIZE. This causes the HpackEncoder to store an excessive number of unique headers, leading to increased CPU usage and memory consumption, ultimately resulting in a Denial of Service (DoS).",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93492"
-    },
-    {
-      "id": "CVE-2026-93491",
-      "published": "2026-09-18T13:18:38.723",
-      "lastModified": "2026-09-22T19:16:57.913",
-      "description": "A flaw was found in Netty's HttpServerCodec. A remote, unauthenticated attacker can exploit this vulnerability by pipelining HTTP/1.1 requests on a single connection and withholding reads. This action causes the methodOverflowQueue to grow without limit, leading to unbounded heap memory consumption and a denial of service due to memory exhaustion.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93491"
     }
   ]
 }
