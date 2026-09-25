@@ -1,6 +1,272 @@
 {
-  "syncedAt": "2026-09-25T13:47:10.258Z",
+  "syncedAt": "2026-09-25T14:21:20.314Z",
   "items": [
+    {
+      "id": "CVE-2026-86520",
+      "published": "2026-09-18T16:17:13.820",
+      "lastModified": "2026-09-18T19:03:28.367",
+      "description": "Bransys ELD is shipped with hardcoded MQTT credentials, which will grant read access to real-time data for every active device across a subset of carriers that were connected to the affected MQTT broker.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86520"
+    },
+    {
+      "id": "CVE-2026-84451",
+      "published": "2026-09-18T16:17:13.320",
+      "lastModified": "2026-09-24T21:18:55.527",
+      "description": "libheif is a HEIF and AVIF file format decoder and encoder. From 1.19.0 until 1.23.3, the no-icef full-item branch of unc_decoder::get_compressed_image_data_uncompressed() in libheif/codecs/uncompressed/unc_decoder.cc retains an addition-based range check that can wrap when a crafted uncompressed tile grid produces a large range_start_offset and range_size. The overflow makes the bounds comparison pass and allows heif_image_handle_decode_image_tile() to call memcpy() with an invalid source pointer and a very large length when decoding a valid high-index advertised tile. This incomplete remediation of CVE-2026-62292 can reliably crash tile-processing applications, while whole-image decoding is not claimed to reach the demonstrated path. This issue is fixed in version 1.23.3.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84451"
+    },
+    {
+      "id": "CVE-2026-84450",
+      "published": "2026-09-18T16:17:13.160",
+      "lastModified": "2026-09-21T21:17:13.800",
+      "description": "libheif is a HEIF and AVIF file format decoder and encoder. From 1.19.0 until 1.23.3, a crafted image item containing a clap property and an ispe width or height greater than INT32_MAX + 1 can reach crop calculations through heif_image_handle_get_image_tiling(). Box_clap::left_rounded() or Box_clap::top_rounded() passes the image dimension minus one to Fraction::Fraction(), whose uint32_t constructor uses an assertion as input validation, causing assert-enabled builds to abort. Release builds can instead compute invalid crop geometry, and the tiling API returns dimensions that the normal decode security limits reject. This issue is fixed in version 1.23.3.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84450"
+    },
+    {
+      "id": "CVE-2026-84449",
+      "published": "2026-09-18T16:17:12.997",
+      "lastModified": "2026-09-22T15:17:19.207",
+      "description": "libheif is a HEIF and AVIF file format decoder and encoder. Prior to 1.19.6, Op_RGB24_32_to_YCbCr::convert_colorspace() stores image-plane strides in an integer width that can overflow for extremely large RGB images created through heif_image_create() and heif_image_add_plane(). The resulting wrapped stride causes the conversion loop in libheif/color-conversion/rgb2yuv.cc to compute an invalid input pointer and read beyond the allocated interleaved plane while heif_context_encode_image() performs RGB-to-YCbCr conversion. This can crash the encoding process. This issue is fixed in version 1.19.6.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84449"
+    },
+    {
+      "id": "CVE-2026-84448",
+      "published": "2026-09-18T16:17:12.840",
+      "lastModified": "2026-09-24T21:18:55.407",
+      "description": "libheif is a HEIF and AVIF file format decoder and encoder. Prior to 1.23.2, the public heif_region_item_add_region_inline_mask_data() function in libheif/api/libheif/heif_regions.cc accepts mask_data_len without verifying that it equals the byte count required by width and height. A later heif_region_get_mask_image() call derives the read length from the region geometry, so an undersized stored buffer causes heif_region_get_inline_mask_image() to read beyond the heap allocation and copy adjacent bytes into the returned monochrome mask image. This can disclose heap data or crash an application that constructs region metadata through the writer API, while the file-parsing path is not affected because it validates the canonical mask size. This issue is fixed in version 1.23.2.",
+      "score": 4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84448"
+    },
+    {
+      "id": "CVE-2026-84447",
+      "published": "2026-09-18T16:17:12.677",
+      "lastModified": "2026-09-18T18:17:17.017",
+      "description": "libheif is a HEIF and AVIF file format decoder and encoder. In 1.23.1 and earlier, crafted grid, iovl, and iden reference graphs can repeatedly decode the same base image because processed_ids is copied per branch and ImageItem::decode_image() has no shared operation budget. This vulnerability is fixed in 1.23.2.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84447"
+    },
+    {
+      "id": "CVE-2026-84446",
+      "published": "2026-09-18T16:17:12.513",
+      "lastModified": "2026-09-21T21:17:13.683",
+      "description": "libheif is a HEIF and AVIF file format decoder and encoder. Prior to 1.23.2, crafted HEIF sequence timing and edit-list data can make Track::init_sample_timing_table() compute a logical m_num_output_samples value that exceeds the uint32_t counters used by Track_Visual::decode_next_image_sample() and Track::get_next_sample_raw_data(). The resulting comparison can never reach the oversized output count, causing non-terminating decode or raw-sample loops and bypassing max_sequence_frames. The same sequence path repeatedly calls Box_stts::get_sample_duration() and allocates Chunk::m_sample_ranges and Track::m_presentation_timeline outside MemoryHandle accounting, allowing severe CPU and memory exhaustion from a small file. This issue is fixed in version 1.23.2.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84446"
+    },
+    {
+      "id": "CVE-2026-84444",
+      "published": "2026-09-18T16:17:12.357",
+      "lastModified": "2026-09-22T15:17:19.093",
+      "description": "libheif is a HEIF and AVIF file format decoder and encoder. Prior to 1.23.2, when WITH_UNCOMPRESSED_CODEC is enabled, heif_context_add_image_tile() accepts an independently constructed tile whose component-plane dimensions do not match the tile geometry established by the prototype image. ImageItem_uncompressed::add_image_tile() passes that tile directly to unc_encoder::encode_tile(), which lacked the check_component_sizes() gate and sizes its output from the configured tile geometry while copying the tile's actual component-plane dimensions. An oversized component plane can therefore make unc_encoder_component_interleave::encode_tile() copy attacker-controlled data beyond the heap output buffer. This issue is fixed in version 1.23.2.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84444"
+    },
+    {
+      "id": "CVE-2026-84400",
+      "published": "2026-09-18T16:17:12.210",
+      "lastModified": "2026-09-19T15:17:05.983",
+      "description": "CareCam CM2507 IP cameras contain an insufficiently protected network maintenance mechanism that can activate a remote debugging service. An attacker on the same local network who satisfies certain device state conditions could make the service remotely accessible, increasing the risk of unauthorized administrative access.",
+      "score": 3.1,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84400"
+    },
+    {
+      "id": "CVE-2026-84398",
+      "published": "2026-09-18T16:17:12.057",
+      "lastModified": "2026-09-19T15:17:05.863",
+      "description": "CM2507 IP cameras accept an empty password for a privileged account exposed through its ONVIF management service. An attacker with network access to the affected device could access privileged management functions and obtain device, user, media-profile, and stream configuration information.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84398"
+    },
+    {
+      "id": "CVE-2026-84384",
+      "published": "2026-09-18T16:17:11.900",
+      "lastModified": "2026-09-18T18:17:16.907",
+      "description": "libheif is a HEIF and AVIF file format decoder and encoder. From 1.19.0 until 1.23.2, crafted HEIF or AVIF mime metadata and unci image data can cause decompress_brotli() and do_inflate() to grow accumulated output without an effective size limit or MemoryHandle accounting. The brotli path has no output bound, while the zlib path checks only a small temporary buffer in a branch that valid streams do not reach, and overlapping icef units can decompress the same payload repeatedly. HeifContext::interpret_heif_file_images() processes multiple compressed metadata items during file opening, allowing a small file to consume unbounded memory and terminate the process. This issue is fixed in version 1.23.2.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84384"
+    },
+    {
+      "id": "CVE-2026-84383",
+      "published": "2026-09-18T16:17:11.707",
+      "lastModified": "2026-09-18T16:17:11.853",
+      "description": "libheif is a HEIF and AVIF file format decoder and encoder. From 1.22.0 until 1.23.2, a crafted HEIF, HEIC, or AVIF item graph using nested iden and auxl references can make HeifPixelImage::transfer_channel_from_image_as() append duplicate Alpha planes with different bit depths to m_storage. HeifPixelImage::scale_nearest_neighbor() in libheif/image/pixelimage.cc allocates the destination Alpha plane using the first plane's 8-bit depth, then iterates a later 10-bit or 12-bit Alpha component and writes uint16_t samples into the same 8-bit allocation. The output geometry controls the overflow extent and the encoded sample values control the data written, allowing a remote file processed by heif_decode_image() to cause a heap out-of-bounds write. This issue is fixed in version 1.23.2.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84383"
+    },
+    {
+      "id": "CVE-2026-81946",
+      "published": "2026-09-18T16:17:11.560",
+      "lastModified": "2026-09-22T20:43:58.793",
+      "description": "PLANET IGS-5225-8P2T4S industrial managed switch V1 and V2 firmware versions before 1.2412b260707 and 2.2412b260519 use MD5-based password hashing, a cryptographic algorithm with known weaknesses. An attacker who obtains the device configuration file can recover the privileged-mode access password.",
+      "score": 4.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81946"
+    },
+    {
+      "id": "CVE-2026-81945",
+      "published": "2026-09-18T16:17:11.413",
+      "lastModified": "2026-09-22T20:43:58.793",
+      "description": "PLANET IGS-5225-8P2T4S industrial managed switch V1 and V2 firmware versions bfore 1.2412b260707 and 2.2412b260519 contain a stack-based buffer overflow in the web server. Insufficient bounds checking on data copied into a stack buffer allows a remote administrator to cause a denial of service or potentially execute arbitrary code on the underlying operating system.",
+      "score": 6.6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81945"
+    },
+    {
+      "id": "CVE-2026-81944",
+      "published": "2026-09-18T16:17:11.270",
+      "lastModified": "2026-09-22T20:43:58.793",
+      "description": "PLANET IGS-5225-8P2T4S industrial managed switch V1 and V2 firmware versions before 1.2412b260707 and 2.2412b260519 contain a stack-based buffer overflow in the web server. Insufficient bounds checking on data copied into a stack buffer allows a remote authenticated attacker to cause a denial of service or potentially execute arbitrary code on the underlying operating system.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81944"
+    },
+    {
+      "id": "CVE-2026-81943",
+      "published": "2026-09-18T16:17:10.577",
+      "lastModified": "2026-09-22T20:43:58.793",
+      "description": "PLANET IGS-5225-8P2T4S industrial managed switch V1 and V2 firmware versions before 1.2412b260707 and 2.2412b260519 contain active debug functionality in the embedded software. An attacker with privileged access to the device can enable this debug mode to execute arbitrary code on the underlying operating system and gain root-level access.",
+      "score": 6.7,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81943"
+    },
+    {
+      "id": "CVE-2026-81942",
+      "published": "2026-09-18T16:17:10.383",
+      "lastModified": "2026-09-22T20:43:58.793",
+      "description": "PLANET IGS-5225-8P2T4S industrial managed switch V1 and V2 firmware versions before 1.2412b260707 and 2.2412b260519 contain an OS command injection vulnerability in the web server. User-supplied input is passed to system() without sufficient filtering, allowing a remote authenticated attacker to execute arbitrary commands on the underlying operating system and escalate privileges to root.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81942"
+    },
+    {
+      "id": "CVE-2026-81305",
+      "published": "2026-09-18T16:17:10.103",
+      "lastModified": "2026-09-19T15:17:02.673",
+      "description": "CM2507 IP cameras automatically execute a predetermined script from removable media without verifying its authenticity or integrity. An attacker with physical access to the device could supply a malicious script and execute arbitrary code in the security context of the affected device.",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-81305"
+    },
+    {
+      "id": "CVE-2026-7006",
+      "published": "2026-09-18T16:17:09.940",
+      "lastModified": "2026-09-22T20:25:55.870",
+      "description": "Sublime Text for Windows through Build 4192 (Sublime Text 4) and Build 3207 (Sublime Text 3) contains a local privilege escalation vulnerability that allows unprivileged local attackers to execute arbitrary code with elevated privileges by abusing the update staging mechanism. Attackers can place a malicious DLL in the user-writable staging directory under %LOCALAPPDATA%, mark it read-only to bypass cleanup, and have the elevated installer copy it into the protected installation directory, causing the DLL to execute in the context of any higher-privileged user who subsequently launches the application.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7006"
+    },
+    {
+      "id": "CVE-2026-77960",
+      "published": "2026-09-18T16:17:09.583",
+      "lastModified": "2026-09-18T19:03:28.367",
+      "description": "Bransys ELD is shipped with hardcoded MQTT credentials, which will grant read access to real-time data for every active device across a subset of carriers that were connected to the affected MQTT broker.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77960"
+    },
+    {
+      "id": "CVE-2026-77568",
+      "published": "2026-09-18T16:17:09.307",
+      "lastModified": "2026-09-21T18:17:10.830",
+      "description": "Rejected reason: ** REJECT ** DO NOT USE THIS CANDIDATE NUMBER. ConsultIDs: CVE-2026-15747. Reason: This candidate is a duplicate of CVE-2026-15747. Notes: All CVE users should reference CVE-2026-15747 instead of this candidate.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77568"
+    },
+    {
+      "id": "CVE-2026-75883",
+      "published": "2026-09-18T16:17:09.167",
+      "lastModified": "2026-09-22T15:17:13.797",
+      "description": "The code in pppd that formats a response to a PEAP Request packet in peap_response() copies an entire TLS record of up to 16384 bytes into the fixed global buffer outpacket_buf\n without checking the available space and without implementing outgoing \nPEAP fragmentation. Thus a pppd process connecting to a server which \nrequests PEAP authentication can be induced to corrupt global static \ndata following the outpacket_buf array, most likely causing incorrect behavior or a crash.",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75883"
+    },
+    {
+      "id": "CVE-2026-75031",
+      "published": "2026-09-18T16:17:09.043",
+      "lastModified": "2026-09-18T19:06:08.407",
+      "description": "In the interchange/interchange project, a critical remote code execution (RCE) vulnerability was found in the \n“quick question” admin feature. In default installations arbitrary Perl \ncode can be injected and executed server-side by unauthenticated users. \nThe Perl code normally runs within a Safe container which limits the \nscope of what it can do, unless the non-default AllowGlobal directive is\n configured for the catalog being accessed.CTOR]",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75031"
+    },
+    {
+      "id": "CVE-2026-68914",
+      "published": "2026-09-18T16:17:08.897",
+      "lastModified": "2026-09-21T18:17:10.110",
+      "description": "Rejected reason: ** REJECT ** DO NOT USE THIS CANDIDATE NUMBER. ConsultIDs: CVE-2026-14803. Reason: This candidate is a duplicate of CVE-2026-14803. Notes: All CVE users should reference CVE-2026-14803 instead of this candidate.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-68914"
+    },
+    {
+      "id": "CVE-2026-67549",
+      "published": "2026-09-18T16:17:08.733",
+      "lastModified": "2026-09-24T21:17:23.270",
+      "description": "OpenImageIO is a toolset for reading, writing, and manipulating image files of any image file format relevant to VFX / animation. Prior to 3.1.16.0, A crafted 1-bit contiguous cmyk tiff is exposed through a native uint1 imagespec, so callers allocate a bit-packed buffer. tiffinput::read_native_scanline_locked() nevertheless invokes tiffinput::bit_convert() with 8-bit output and writes one expanded byte per value into that smaller buffer, resulting in a heap out-of-bounds write and memory corruption. The affected implementation is identified by src/tiff.imageio/tiffinput.cpp, TIFFInput::bit_convert(), TIFFInput::read_native_scanline_locked(), PHOTOMETRIC_SEPARATED, 1-bit CMYK, and native uint1 ImageSpec, which define the relevant source path, functions, state, and trigger. This issue is fixed in 3.1.16.0.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-67549"
+    },
+    {
+      "id": "CVE-2026-65970",
+      "published": "2026-09-18T16:17:08.590",
+      "lastModified": "2026-09-24T21:22:19.873",
+      "description": "OpenImageIO is a toolset for reading, writing, and manipulating image files of any image file format relevant to VFX / animation. Prior to 3.1.16.0, a crafted ZIP-compressed TIFF processed with TIFF multithreading enabled can make TIFFInput::read_native_scanlines() return through an error path while asynchronous strip-decompression work remains queued. Because task_set is declared before ok and compressed_scratch, those captured objects are destroyed before the task-set destructor waits, allowing worker tasks to use stale stack and heap storage, resulting in a use-after-scope crash and denial of service. The affected implementation is identified by src/tiff.imageio/tiffinput.cpp, TIFFInput::read_native_scanlines(), task_set, ok, compressed_scratch, and uncompress_one_strip(), which define the relevant source path, functions, state, and trigger. This issue is fixed in 3.1.16.0.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-65970"
+    },
+    {
+      "id": "CVE-2026-65969",
+      "published": "2026-09-18T16:17:08.433",
+      "lastModified": "2026-09-23T18:12:04.247",
+      "description": "OpenImageIO is a toolset for reading, writing, and manipulating image files of any image file format relevant to VFX / animation. Prior to 3.0.21.0, 3.1.16.0, and 3.2.0.3-beta1, A truncated tga can leave a pending gif frame that is processed during output close. gifsplitpalette() computes numpixels multiplied by the palette partition width in signed 32-bit arithmetic; a large image overflows that intermediate, corrupts subpixelsa, and drives an out-of-bounds read while building the gif palette, resulting in a process crash and denial of service. The affected implementation is identified by src/gif.imageio/gif.h, GifSplitPalette(), numPixels, subPixelsA, GIFOutput, and truncated TGA input, which define the relevant source path, functions, state, and trigger. This issue is fixed in versions 3.0.21.0, 3.1.16.0, and 3.2.0.3-beta1.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-65969"
+    },
+    {
+      "id": "CVE-2026-63638",
+      "published": "2026-09-18T16:17:08.283",
+      "lastModified": "2026-09-23T18:25:00.707",
+      "description": "OpenImageIO is a toolset for reading, writing, and manipulating image files of any image file format relevant to VFX / animation. Prior to 3.0.21.0, 3.1.16.0, and 3.2.0.3-beta1, A crafted cineon image can declare unsupported component bit depth 26. cineoninput::open() maps it to a 32-bit imagespec, but libcineon maps the unsupported depth to an 8-byte value, so cineoninput::read_native_scanline() causes attacker-controlled data to be written beyond the 4-byte-per-pixel caller buffer, resulting in a heap out-of-bounds write and memory corruption. The affected implementation is identified by src/cineon.imageio/cineoninput.cpp, CineonInput::open(), CineonInput::read_native_scanline(), ComponentDataSize(), bit depth 26, and ImageSpec, which define the relevant source path, functions, state, and trigger. This issue is fixed in versions 3.0.21.0, 3.1.16.0, and 3.2.0.3-beta1.",
+      "score": 8.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-63638"
+    },
+    {
+      "id": "CVE-2026-63635",
+      "published": "2026-09-18T16:17:08.130",
+      "lastModified": "2026-09-24T21:17:20.440",
+      "description": "OpenImageIO is a toolset for reading, writing, and manipulating image files of any image file format relevant to VFX / animation. Prior to 3.0.21.0, 3.1.16.0, and 3.2.0.3-beta1, A crafted psd with an invalid color_mode bypasses normal validation when oiio:rawcolor or psd:rawdata is enabled. psdinput::setup() then uses the attacker-controlled value to index fixed color-mode tables, causing a global out-of-bounds read and potentially a bogus allocation, resulting in denial of service. The affected implementation is identified by src/psd.imageio/psdinput.cpp, PSDInput::validate_header(), PSDInput::setup(), oiio:RawColor, psd:RawData, color_mode, and mode_channel_count, which define the relevant source path, functions, state, and trigger. This issue is fixed in versions 3.0.21.0, 3.1.16.0, and 3.2.0.3-beta1.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-63635"
+    },
+    {
+      "id": "CVE-2026-63422",
+      "published": "2026-09-18T16:17:07.987",
+      "lastModified": "2026-09-23T18:12:04.247",
+      "description": "OpenImageIO is a toolset for reading, writing, and manipulating image files of any image file format relevant to VFX / animation. Prior to 3.0.21.0, 3.1.16.0, and 3.2.0.3-beta1, A valid tiled openexr image whose width is not a multiple of its tile width can trigger an overflow when a caller reads a partial edge-tile rectangle. openexrinput::read_native_tiles() copies each row into the caller buffer using the padded whole-tile scanline_stride rather than user_scanline_bytes for the requested rectangle, resulting in a heap out-of-bounds write and memory corruption. The affected implementation is identified by src/openexr.imageio/exrinput.cpp, OpenEXRInput::read_native_tiles(), partial edge tile, user_scanline_bytes, and scanline_stride, which define the relevant source path, functions, state, and trigger. This issue is fixed in versions 3.0.21.0, 3.1.16.0, and 3.2.0.3-beta1.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-63422"
+    },
     {
       "id": "CVE-2026-63420",
       "published": "2026-09-18T16:17:07.837",
@@ -628,276 +894,6 @@
       "score": 5.9,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-56344"
-    },
-    {
-      "id": "CVE-2026-93606",
-      "published": "2026-09-18T14:19:12.500",
-      "lastModified": "2026-09-18T18:18:31.267",
-      "description": "vm2 (npm) versions 3.12.0 and earlier contain a sandbox escape in `VM` and `NodeVM`. When an embedder exposes a host API that returns a host-realm Promise, the bridge's rejection sanitizer (hostPromiseSanitizeReject / makeSanitizedPromiseCallback / normalizeHostPromiseCallbacks in lib/bridge.js) only wraps `then`/`catch` rejection slots that hold a function, and the sandbox-side `Symbol.species`/`.then` neutralization is installed only on the sandbox intrinsic `Promise.prototype`, so it never applies to a host Promise. Code running inside the sandbox can overwrite `p.constructor[Symbol.species]` on the host Promise and then call `p.then()` with no `onRejected` handler; V8 substitutes its internal Thrower, which re-throws the raw host rejection value into a resolve/reject closure captured by the attacker. This delivers an unsanitized, fully functional bridge proxy of the host object to sandboxed code, bypassing handleException and hostPromiseSanitizeReject. If the rejection value is host-pivotable (for example a host `process` object), this results in arbitrary code execution on the host. Fixed in 3.12.1.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93606"
-    },
-    {
-      "id": "CVE-2026-93605",
-      "published": "2026-09-18T14:19:12.340",
-      "lastModified": "2026-09-21T21:17:19.060",
-      "description": "vm2 NodeVM versions before 3.12.1 contain a sandbox escape vulnerability where the DANGEROUS_BUILTINS denylist omits child_process despite blocking other host-spawning modules. Attackers can require child_process and execute arbitrary commands on the host system when NodeVM is configured with builtin:['*'] or explicit child_process allowance.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93605"
-    },
-    {
-      "id": "CVE-2026-93604",
-      "published": "2026-09-18T14:19:12.167",
-      "lastModified": "2026-09-18T14:19:12.287",
-      "description": "vm2 through 3.12.0 exposes Node.js's crypto.setFips() function to untrusted guest code when an embedder explicitly allowlists the crypto builtin for a NodeVM (require.builtin: ['crypto']). The builtin sanitizer (sanitizeCryptoModule in lib/builtin.js) replaces crypto.setEngine but leaves crypto.setFips callable, and the readonly wrapper used to expose the host module does not localize side effects of forwarded host functions. Guest code can therefore call crypto.setFips() to change the FIPS mode of the entire host process; the modified mode is subsequently observed by trusted host code (crypto.getFips() changed from 0 to 1 in the reported test), crossing the NodeVM isolation boundary. Fixed in vm2 3.12.1.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93604"
-    },
-    {
-      "id": "CVE-2026-93603",
-      "published": "2026-09-18T14:19:12.003",
-      "lastModified": "2026-09-22T15:17:24.040",
-      "description": "vm2 through 3.12.0 (fixed in 3.12.1) does not correctly handle a nullish `this` receiver in the apply trap of its bridge (lib/bridge.js): when sandboxed code calls a host-provided non-strict (sloppy-mode) function without a receiver — e.g. `fn()`, a detached method, `fn.call()`, `fn.apply(undefined)`, `Reflect.apply(fn, undefined, [])`, or `fn.bind()()` — the undefined receiver is passed straight through to the host call, and V8 substitutes the host realm's global object for `this`. vm2 then wraps and returns that object to the sandbox, giving sandboxed script a live proxy of the host global. This allows a complete sandbox escape: untrusted script can reach `process` and execute arbitrary code/commands on the host (for example via `process.getBuiltinModule('child_process').execSync`). Exploitation requires that the embedding application expose at least one non-strict host function to the sandbox; strict-mode and ES module host functions are not affected.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93603"
-    },
-    {
-      "id": "CVE-2026-93602",
-      "published": "2026-09-18T14:19:11.850",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "rustls-webpki versions before 0.103.10 and 0.104.0-alpha.5 contain faulty CRL authority-matching logic that compares only the first distributionPoint against each CRL's IssuingDistributionPoint, ignoring additional distributionPoints. Attackers with a compromised trusted issuing authority can present revoked certificates that pass revocation checks under UnknownStatusPolicy::Allow, or cause incorrect errors under the default deny policy.",
-      "score": 4.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93602"
-    },
-    {
-      "id": "CVE-2026-93601",
-      "published": "2026-09-18T14:19:11.707",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "rustls-webpki (the Rust webpki fork used by rustls) versions >= 0.101.0 and prior to 0.103.12 and 0.104.0-alpha.6 incorrectly accepted permitted-subtree DNS name constraints for certificates asserting a wildcard name. For example, a name constraint of accept.example.com was treated as satisfied by a certificate for *.example.com, which could feasibly assert reject.example.com — a name outside the permitted subtree. Because name constraints are restrictions applied to otherwise properly issued certificates, the issue is only reachable after signature verification succeeds and requires a misissued wildcard certificate to exploit.",
-      "score": 2.2,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93601"
-    },
-    {
-      "id": "CVE-2026-93600",
-      "published": "2026-09-18T14:19:11.563",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "rustls-webpki (rustls/webpki) versions 0.101.0 through 0.103.11 and 0.104.0-alpha releases before 0.104.0-alpha.6 ignore X.509 name constraints that apply to URI names, causing such constraints to be accepted rather than enforced. Because name constraints are restrictions on otherwise properly issued certificates, the flaw is only reachable after successful signature verification and requires a misissued certificate to exploit; the library also provides no API for asserting URI names, and URI name constraints are otherwise unimplemented. Versions 0.103.12 and 0.104.0-alpha.6 reject URI name constraints unconditionally.",
-      "score": 2.2,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93600"
-    },
-    {
-      "id": "CVE-2026-93599",
-      "published": "2026-09-18T14:19:11.410",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "rustls-webpki through 0.103.12 (and 0.104.0-alpha releases before 0.104.0-alpha.7) contains a reachable panic in bit_string_flags() in src/der.rs. The input guard fails to reject a named-bit BIT STRING whose content is exactly [0x00] (zero padding bits and no data bytes), so raw_bits.len() - 1 underflows on the empty slice and the subsequent index operation panics (subtract-with-overflow in debug, index-out-of-bounds in release). The condition is reachable through the public API BorrowedCertRevocationList::from_der() when a CRL contains an issuingDistributionPoint extension with such an onlySomeReasons value. Exploitation requires an application that explicitly opts in to CRL revocation checking by passing RevocationOptions to verify_for_usage() and that parses CRL bytes obtained from a source the attacker can influence; the default rustls configuration, which does not use RevocationOptions, is unaffected. A crafted CRL causes a denial of service via the panic. Fixed in 0.103.13 and 0.104.0-alpha.7.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93599"
-    },
-    {
-      "id": "CVE-2026-93598",
-      "published": "2026-09-18T14:19:11.247",
-      "lastModified": "2026-09-22T15:17:23.913",
-      "description": "ArcadeDB (Maven artifact com.arcadedb:arcadedb-engine) through 26.8.1 contains an incomplete deny-list in the polyglot script sandbox: com.arcadedb.query.polyglot.HostClassLookupFilter.DENIED lists java.util.ResourceBundle as a bare class name, which is matched by exact equality and therefore does not cover its subclasses, while ScriptTriggerExecutor.ALLOWED_PACKAGES permits java.util.*. A user with the UPDATE_SCHEMA privilege (sufficient to create or alter a JavaScript trigger; no server-admin rights required) can reference java.util.PropertyResourceBundle or java.util.ListResourceBundle and invoke the inherited static ResourceBundle.getBundle(String) to read .properties resources from the application classpath, which the sandbox (IOAccess.NONE, with java.io.**, java.nio.** and java.net.** denied) is intended to make unreachable. This can disclose packaged application configuration such as database credentials and API keys; the advisory states the issue does not provide arbitrary host filesystem read or remote code execution. Fixed in 26.9.1.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93598"
-    },
-    {
-      "id": "CVE-2026-93597",
-      "published": "2026-09-18T14:19:11.083",
-      "lastModified": "2026-09-18T18:18:29.630",
-      "description": "ArcadeDB versions before 26.9.1 fail to validate IPv6 transition addresses in the SSRF guard used by IMPORT DATABASE and server commands. Authenticated attackers can supply URLs resolving to NAT64, 6to4, or Teredo addresses embedding RFC 1918 or loopback IPv4 payloads to reach internal services and cloud metadata endpoints.",
-      "score": 7.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93597"
-    },
-    {
-      "id": "CVE-2026-93596",
-      "published": "2026-09-18T14:19:10.917",
-      "lastModified": "2026-09-18T18:18:29.093",
-      "description": "ArcadeDB before 26.9.1 (com.arcadedb:arcadedb-engine <= 26.8.1) fails to bind the authenticated principal onto the DatabaseAsyncTransaction async worker threads used by the parallel edge-connect phase of POST /api/v1/batch/{database}. Because those workers have no current user, LocalDatabase.checkPermissionsOnFile returns early and allows the write, bypassing per-type CREATE_RECORD/UPDATE_RECORD ACL enforcement. In deployments that rely on per-type or per-group ACLs, an authenticated low-privilege user holding CREATE_RECORD on an edge type E but with CREATE_RECORD/UPDATE_RECORD revoked on a vertex type V can submit a graph edge-load batch request (with parallelFlush at its default value of true) and durably append edges to protected vertices of type V by writing records into V's <V>_out_edges/<V>_in_edges buckets, resulting in unauthorized modification of graph adjacency. Setting parallelFlush=false causes the request to be correctly rejected. This is an incomplete fix of GHSA-c23x-pqcj-7hfm, which bound the principal only on the HTTP handler thread.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93596"
-    },
-    {
-      "id": "CVE-2026-93595",
-      "published": "2026-09-18T14:19:10.757",
-      "lastModified": "2026-09-21T21:17:18.797",
-      "description": "ArcadeDB before 26.9.1 contains an access control bypass vulnerability in the query_database tool exposed through the AI chat endpoints. The tool executes queries without binding the authenticated principal to DatabaseContext, causing per-type and per-bucket ACL checks to silently no-op and allowing authenticated users to read data they are explicitly denied at the per-type level. Attackers can prompt the AI assistant to execute queries against restricted types or buckets to retrieve sensitive data that would be rejected through normal query endpoints.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93595"
-    },
-    {
-      "id": "CVE-2026-93594",
-      "published": "2026-09-18T14:19:10.587",
-      "lastModified": "2026-09-18T15:17:21.587",
-      "description": "ArcadeDB (Maven artifact com.arcadedb:arcadedb-engine) through 26.8.1 enforces its per-type/per-record access-control rules only in LocalBucket, keyed on file id. Query-execution paths that reach record data through LSM index files or the TimeSeries engine never invoke that permission check, so an authenticated user who is denied readRecord/deleteRecord on a type can still, with a single ordinary SQL statement, read the type's indexed key values and record IDs (e.g. SELECT key, rid FROM INDEX:Type[field]), read MAX/MIN values via the index shortcut, read and count TimeSeries samples, learn the type's record count, and delete index entries (DELETE FROM INDEX:Type[field]), which desynchronizes the index from the data and can defeat unique constraints. Index and type names needed for exploitation are discoverable because SELECT FROM schema:indexes is unfiltered. The issue affects both embedded and server deployments and all transports (HTTP, Bolt, Postgres, Gremlin) once a principal is bound. Fixed in 26.9.1.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93594"
-    },
-    {
-      "id": "CVE-2026-93593",
-      "published": "2026-09-18T14:19:10.413",
-      "lastModified": "2026-09-22T15:17:23.783",
-      "description": "ArcadeDB before 26.9.1 fails to enforce security-group types ACL entries for TimeSeries types because the ACL resolver builds permissions from bucket IDs, but TimeSeries types do not own normal record buckets. An authenticated low-privilege user can read or insert TimeSeries samples despite explicit deny rules by exploiting the missing type-name-based access check that causes permission lookups to fail open.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93593"
-    },
-    {
-      "id": "CVE-2026-93592",
-      "published": "2026-09-18T14:19:10.267",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "vLLM versions before 0.28.0 fail to validate the lower bound of token IDs in the /v1/embeddings and /pooling endpoints, allowing unauthenticated attackers to crash the engine by submitting negative token IDs. A single request with a negative token ID triggers a CUDA device-side assertion that poisons the GPU context, causing all subsequent requests to fail until the process restarts.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93592"
-    },
-    {
-      "id": "CVE-2026-93591",
-      "published": "2026-09-18T14:19:10.097",
-      "lastModified": "2026-09-18T20:17:33.037",
-      "description": "SiYuan versions before 3.8.3 contain an SQL injection vulnerability in the graph.go query2Stmt function where tag values are concatenated raw into SQL string literals without escaping single quotes. A publish-mode reader or anonymous visitor can inject SQL via inline HTML span tags in the getGraph endpoint to execute arbitrary queries on the read-write database and exfiltrate private data across notebooks.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93591"
-    },
-    {
-      "id": "CVE-2026-93590",
-      "published": "2026-09-18T14:19:09.943",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "ImageMagick before 7.1.2-31 contains a policy bypass vulnerability in the UHDR encoder that fails to perform policy checks during buffer allocation for image pixels. Attackers can bypass resource policies by processing specially crafted UHDR images, potentially causing denial of service through excessive memory allocation.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93590"
-    },
-    {
-      "id": "CVE-2026-93589",
-      "published": "2026-09-18T14:19:09.760",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "ImageMagick before 7.1.2-31 and 6.9.13-56 contains a division-by-zero flaw in the FLIF encoder. An incorrect value for ticks per second in the image being encoded causes a divide-by-zero and crashes the encoder, resulting in a denial of service. The issue is fixed in 7.1.2-31 and 6.9.13-56.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93589"
-    },
-    {
-      "id": "CVE-2026-93588",
-      "published": "2026-09-18T14:19:09.590",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "ImageMagick before 7.1.2-31 and before 6.9.13-56 contains a NULL pointer dereference in the PNM coder. When the coder reaches a memory (resource) limit at a specific point during processing, the failed allocation is not handled and a NULL pointer is dereferenced, which can lead to a denial of service (application crash) when processing a specially crafted or sufficiently large PNM image.",
-      "score": 3.1,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93588"
-    },
-    {
-      "id": "CVE-2026-93587",
-      "published": "2026-09-18T14:19:09.410",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "ImageMagick before 7.1.2-31 and before 6.9.13-56 contains a policy bypass in the PCD (and, per the upstream advisory, CUBE and HALD) coder: when a specific command line option is supplied, the decoder does not check a configured resource limit, which can result in extra memory allocation. A local user able to pass command line options to ImageMagick can therefore exceed the intended memory policy limit, causing a limited availability impact. The issue is fixed in 7.1.2-31 and 6.9.13-56.",
-      "score": 3.3,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93587"
-    },
-    {
-      "id": "CVE-2026-93586",
-      "published": "2026-09-18T14:19:09.207",
-      "lastModified": "2026-09-22T20:25:55.870",
-      "description": "ImageMagick before 7.1.2-31 and before 6.9.13-56 contains a use-after-free vulnerability in the ImagesToBlob method, caused by a pointer that is not updated correctly. Exploitation may result in a limited availability impact (e.g., a crash of the affected process). The issue is fixed in versions 7.1.2-31 and 6.9.13-56.",
-      "score": 2.9,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93586"
-    },
-    {
-      "id": "CVE-2026-93560",
-      "published": "2026-09-18T14:19:08.210",
-      "lastModified": "2026-09-22T15:17:23.120",
-      "description": "A flaw was found in the Netty STOMP codec. A remote attacker could send a specially crafted STOMP frame with a content-length header exceeding the maximum integer value. This integer truncation vulnerability could lead to an infinite decode loop, causing a Denial of Service (DoS) by exhausting memory and CPU resources.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93560"
-    },
-    {
-      "id": "CVE-2026-93504",
-      "published": "2026-09-18T14:19:08.027",
-      "lastModified": "2026-09-23T17:17:19.813",
-      "description": "A vulnerability has been found in SveltyCMS 0.0.6. This affects an unknown part of the file src/routes/api/[...path]/+server.ts of the component User Attribute Update Endpoint. Such manipulation leads to improper access controls. It is possible to launch the attack remotely. The name of the patch is 05b4f9efeb79e9d72a693232334d7529687f896f. It is advisable to implement a patch to correct this issue.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93504"
-    },
-    {
-      "id": "CVE-2026-93019",
-      "published": "2026-09-18T14:19:04.480",
-      "lastModified": "2026-09-18T18:18:17.967",
-      "description": "Imager versions before 1.036 for Perl exit the process reading a TGA with a colour map length of 32768 or more in tga_palette_read.\n\nThe reader unpacks the two-byte colour map length into a signed short, so a length of 32768 or more becomes negative. tga_palette_read() casts that value to size_t and asks mymalloc() for a size near SIZE_MAX. The allocation fails and Imager's allocator calls exit(3).\n\nReading an attacker-supplied file through Imager->read() triggers an uncatchable exit.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93019"
-    },
-    {
-      "id": "CVE-2026-93018",
-      "published": "2026-09-18T14:19:04.363",
-      "lastModified": "2026-09-22T19:16:57.277",
-      "description": "Imager versions before 1.036 for Perl disclose uninitialised heap memory reading a paletted image with pixel indexes past its colour map in i_gpix_p and i_glin_p.\n\nThe palette is allocated uninitialised, and only the entries a reader adds count as populated. The TGA reader stores pixel indexes without checking them against the colour map. i_gpix_p() rejects only an index greater than the count, so an index equal to it reads the first unpopulated entry, and getpixel() returns it.\n\ni_glin_p() skips any index at or beyond the count without writing that pixel to the caller's buffer. The palette-to-RGB conversion reads each row through an uninitialised buffer, so those pixels of the converted image hold prior heap contents.\n\nReading an attacker-supplied image through Imager->read() and then fetching its pixels or converting it to RGB discloses process heap memory.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93018"
-    },
-    {
-      "id": "CVE-2026-88623",
-      "published": "2026-09-18T14:19:02.617",
-      "lastModified": "2026-09-22T19:43:52.337",
-      "description": "NUUO Network Video Recorder 2.0.0 is vulnerable to arbitrary file read. In up.php, the url parameter submitted by the user via POST is received, and fopen() is used to open the URL in binary read-only mode. The content is then written to the /tmp/ directory, with the filename derived from basename() of the URL. This operation requires no authentication.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88623"
-    },
-    {
-      "id": "CVE-2026-88622",
-      "published": "2026-09-18T14:19:02.480",
-      "lastModified": "2026-09-22T20:00:03.713",
-      "description": "NUUO Network Video Recorder 2.0.0 is vulnerable to Command Injection in handle_import_privilege.php.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88622"
-    },
-    {
-      "id": "CVE-2026-79294",
-      "published": "2026-09-18T14:18:48.077",
-      "lastModified": "2026-09-22T20:00:03.713",
-      "description": "Cross Site Scripting vulnerability in Moonshot AI Kimi version as of 2026-07-18 allows a remote attacker to execute arbitrary code via the HTML artifact Preview rendering; public Share view component",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79294"
-    },
-    {
-      "id": "CVE-2026-62282",
-      "published": "2026-09-18T14:17:19.500",
-      "lastModified": "2026-09-23T17:17:49.553",
-      "description": "OpenCVE is a vulnerability intelligence platform. Prior to 3.0.0, OpenCVE notification testing for Webhook and Slack integrations does not sufficiently validate user-supplied HTTP or HTTPS destinations. An authenticated user with permission to configure notification channels can trigger requests to hosts reachable from the OpenCVE server, including internal network resources, localhost interfaces, link-local addresses, and cloud metadata services, and retrieve information from reachable HTTP services. This issue is fixed in version 3.0.0.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62282"
-    },
-    {
-      "id": "CVE-2023-5778",
-      "published": "2026-09-18T14:17:14.870",
-      "lastModified": "2026-09-18T17:49:08.457",
-      "description": "Improper handling of length parameter inconsistency vulnerability in ABB Freelance Controller DCP, ABB Freelance Controller AC700, ABB Freelance Controller AC800, and ABB Freelance Controller AC900.\n\nThis issue affects Freelance Controller DCP: through 2013, 2013 SP1, 2016, 2016 SP1, 2019, and 2019 SP1; Freelance Controller AC700: through 2013, 2013 SP1, 2016, 2016 SP1, 2019, and 2019 SP1; Freelance Controller AC800: through 2013, 2013 SP1, 2016, 2016 SP1, 2019, and 2019 SP1; Freelance Controller AC900: through 2013, 2013 SP1, 2016, 2016 SP1, 2019, and 2019 SP1.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2023-5778"
     }
   ]
 }
