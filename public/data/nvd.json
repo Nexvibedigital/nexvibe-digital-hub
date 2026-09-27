@@ -1,6 +1,78 @@
 {
-  "syncedAt": "2026-09-27T21:16:19.794Z",
+  "syncedAt": "2026-09-27T23:55:31.881Z",
   "items": [
+    {
+      "id": "CVE-2026-75158",
+      "published": "2026-09-21T15:17:31.360",
+      "lastModified": "2026-09-25T13:58:05.620",
+      "description": "Apache Airflow's `/assets/events` API returned asset events for every Dag in the deployment, with no filter restricting them to the Dags the caller is authorized to read. Any authenticated user holding asset-read access could therefore enumerate asset events — including the source Dag ID, task ID, run ID and event timestamps — for Dags they have no permission to see. Because the filter was also absent from the count query, `total_entries` and pagination disclosed the existence of hidden Dags even without inspecting individual rows. Deployments are affected whenever per-Dag access control is used to separate teams or tenants; no special configuration is required. Upgrade to apache-airflow 3.3.2 or later.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75158"
+    },
+    {
+      "id": "CVE-2026-71543",
+      "published": "2026-09-21T15:17:31.173",
+      "lastModified": "2026-09-25T20:17:46.773",
+      "description": "OpenBao is an open source identity-based secrets management system. Prior to 2.6.0, templated ACL, PKI, and SSH policies could substitute attacker-controlled identity data without rejecting syntax-significant characters. In ACL templated policies, asterisks, plus signs, and slashes could alter path matching. In PKI allowed_uri_sans_template and allowed_domains policies, an asterisk could broaden certificate issuance to unauthorized domains. In SSH allowed_users and allowed_domains policies, a comma could add unauthorized principals. Exploitation requires a deployment to use templated policy data that users can freely modify; templates based on the randomly generated identity.entity.id value are not affected. This could allow privilege escalation, unauthorized access, and unauthorized certificate issuance. This issue is fixed in version 2.6.0.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71543"
+    },
+    {
+      "id": "CVE-2026-68919",
+      "published": "2026-09-21T15:17:30.977",
+      "lastModified": "2026-09-25T20:17:42.043",
+      "description": "GoCD is a continuous deliver server. From 13.3.0 until 26.1.0, GoCD does not correctly encode and escape malicious material modification comments that mimic the special trackback format used by package materials when rendering the Stage Detail, Job/Build Detail, Value Stream Map, and Pipeline History views. A user with write access to a material tracked by GoCD can store arbitrary HTML or JavaScript in a forged package material comment, which executes in the browser session of a user who later views an affected page. Exploitation requires a victim to view a page that renders the malicious modification, and GoCD does not render every material comment in every view. Successful exploitation can expose a privileged user session or allow changes using the victim's credentials and privileges. This issue is fixed in version 26.1.0.",
+      "score": 7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-68919"
+    },
+    {
+      "id": "CVE-2026-61630",
+      "published": "2026-09-21T15:17:30.650",
+      "lastModified": "2026-09-24T21:25:27.050",
+      "description": "nginx ignition is a user interface for the nginx web server. In versions 2.33.0 through 2.35.0, any user that has enabled the OTP 2FA can have their TOTP reused during the standard 30 second validity window. Version 2.35.1 patches the issue.",
+      "score": 4.2,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61630"
+    },
+    {
+      "id": "CVE-2026-61629",
+      "published": "2026-09-21T15:17:30.477",
+      "lastModified": "2026-09-24T23:17:13.280",
+      "description": "nginx ignition is a user interface for the nginx web server. In versions 2.29.0 through 2.40.0, the gin i18n middleware in nginx-ignition's API server runs in front of every HTTP request and calls `golang.org/x/text/language.ParseAcceptLanguage` on the raw `Accept-Language` header without imposing any size or shape filter. The underlying parser has quadratic-time behaviour on long lists of malformed language tags. The CVE-2022-32149 guard that golang.org/x/text added in v0.3.8 caps the number of `-` characters in the input at 1000, but it does not cap `_` characters even though the parser's internal scanner aliases `_` to `-` before parsing. A single unauthenticated GET request with an `Accept-Language` header built out of `_` separators burns about 2.4 seconds of server CPU on the host running nginx-ignition; ten concurrent attackers saturate a ten-core box for the duration of the attack while consuming ~10 MiB/s of upstream bandwidth. Version 2.40.1 fixes this issue.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61629"
+    },
+    {
+      "id": "CVE-2026-61628",
+      "published": "2026-09-21T15:17:30.290",
+      "lastModified": "2026-09-23T18:25:00.707",
+      "description": "nginx ignition is a user interface for the nginx web server. Prior to version 2.41.1, `POST /api/users/onboarding/finish` is registered as anonymous (unauthenticated) and creates a user with full ReadWrite admin permissions. Because the handler uses a check-then-act (TOCTOU) pattern between the \"onboarding already completed?\" check and the user-creation write, with no atomic guard, a remote unauthenticated attacker who can reach an instance in its pre-onboarding state can create an administrator account for themselves — and concurrent requests can create multiple admin accounts in a single race. Version 2.41.1 patches the issue.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61628"
+    },
+    {
+      "id": "CVE-2026-55870",
+      "published": "2026-09-21T15:17:30.123",
+      "lastModified": "2026-09-24T21:17:43.237",
+      "description": "GoCD is a continuous deliver server. Prior to 26.1.0, GoCD can return unmasked credentials that administrators stored in the userinfo portion of source control material URLs through several read-only APIs available to regular authenticated users. Although GoCD recommends dedicated username and password fields or secret-management plugins, legacy configuration permits credentials in material URLs, and not every mixed-use API consistently applies URL masking for every material type. An authenticated user with access to an affected pipeline can obtain credentials embedded in its material URL, while dedicated password fields remain encrypted and are not exposed by this issue. This issue is fixed in version 26.1.0.",
+      "score": 2.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55870"
+    },
+    {
+      "id": "CVE-2026-55625",
+      "published": "2026-09-21T15:17:29.967",
+      "lastModified": "2026-09-24T23:17:11.610",
+      "description": "GoCD is a continuous deliver server. From 16.1.0 until 26.1.0, the internal material connection test APIs at /go/api/admin/internal/material_test and /go/api/internal/config_repos/*/material_test accept an arbitrary existing pipeline and pipeline-group context without sufficient validation. A pipeline group administrator can invoke Test Connection for source control materials outside the administrator's authorized pipeline group or configuration repository and potentially use credentials from those materials. For GoCD 20.6.0 and later, the test context can also resolve external secrets managed by secret-management plugins, including global reusable secrets with separate permissions. This issue is fixed in version 26.1.0.",
+      "score": 4.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55625"
+    },
     {
       "id": "CVE-2026-55567",
       "published": "2026-09-21T15:17:29.793",
@@ -824,78 +896,6 @@
       "score": 9.9,
       "severity": "CRITICAL",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94095"
-    },
-    {
-      "id": "CVE-2026-94094",
-      "published": "2026-09-20T23:17:03.530",
-      "lastModified": "2026-09-22T16:18:17.050",
-      "description": "A flaw has been found in OpenClaw up to 2026.9.5. Affected is the function createCanvasHostHandler of the file extensions/canvas/src/host/server.ts of the component Canvas Host Route. Executing a manipulation can lead to denial of service. The attack can be launched remotely. The exploit has been published and may be used. Fix suggestion's \"streaming/size-limit\" was never shipped - latest 2026.9.5 still buffers the whole file via readFile() (src/canvas/serve.runtime.ts:17,114), unlike the sibling WS path which caps at 64KB. The vendor was contacted early about this disclosure.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94094"
-    },
-    {
-      "id": "CVE-2026-94093",
-      "published": "2026-09-20T23:17:03.343",
-      "lastModified": "2026-09-21T17:19:19.420",
-      "description": "A security vulnerability has been detected in DLR-RM stable-baselines3 up to 2.9.0. This affects the function PPO.load/load_replay_buffer/VecNormalize.load of the file save_util.py. Such manipulation leads to deserialization. It is possible to launch the attack remotely. The exploit has been disclosed publicly and may be used. In v2.9.0 the PyTorch tensor load path is hardened (weights_only=True), but that hardening was later reverted on master via PR #1913 \"Hotfix: revert loading with weights_only=True\" [blocked] to fix PyTorch 1.13 compat - so even the one \"safe\" path is inconsistent across versions. #2281 was closed as a duplicate of #1831 since both are unsafe pickle deserialization - but #1831's fix (PR #41) only gated the Hugging Face Hub loader in the separate huggingface_sb3 package. This finding covers the core stable_baselines3 load APIs (PPO.load, load_replay_buffer, VecNormalize.load), which have no safe mode or gate and remained exploitable in v2.9.0 until the outstanding hardening (PR #2264) ships.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94093"
-    },
-    {
-      "id": "CVE-2026-94092",
-      "published": "2026-09-20T23:17:03.160",
-      "lastModified": "2026-09-24T13:17:17.293",
-      "description": "A vulnerability was detected in dmlc dgl up to 2.1.0. This impacts the function load_info/_read_torch_data of the file utils.py. Performing a manipulation of the argument path results in deserialization. The attack can be initiated remotely. The exploit is now public and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94092"
-    },
-    {
-      "id": "CVE-2026-94091",
-      "published": "2026-09-20T23:17:02.977",
-      "lastModified": "2026-09-21T13:33:33.387",
-      "description": "A weakness has been identified in piskvorky gensim up to 4.4.0. The impacted element is the function Load of the file gensim/utils.py of the component Model Loader. This manipulation of the argument fname causes deserialization. It is possible to initiate the attack remotely. The exploit has been made available to the public and could be used for attacks. Maintainer closed #3663 same-day with no comment, PR, or fix; repo's last push (2025-11-01) predates the report, so the unsafe pickle.load in SaveLoad.load remains unguarded at develop HEAD.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94091"
-    },
-    {
-      "id": "CVE-2026-94090",
-      "published": "2026-09-20T22:16:30.703",
-      "lastModified": "2026-09-21T20:17:40.360",
-      "description": "A security flaw has been discovered in JusticeRage Manalyze 1.0.0. The affected element is the function PE::_parse_debug of the file manape/pe.cpp of the component PE Parser. The manipulation of the argument misc.Length results in integer underflow. The attack may be performed from remote. The patch is identified as 3e299685759f4f767088871de58c5d07f98ee382. A patch should be applied to remediate this issue.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94090"
-    },
-    {
-      "id": "CVE-2026-94089",
-      "published": "2026-09-20T21:16:55.780",
-      "lastModified": "2026-09-22T16:18:16.913",
-      "description": "A vulnerability was determined in D-Link DIR-868L 2.01b05. This issue affects the function strcpy of the file /webfa_authentication.cgi of the component Authentication Handler. Executing a manipulation of the argument id/password can lead to stack-based buffer overflow. The attack can be executed remotely. The exploit has been publicly disclosed and may be utilized.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94089"
-    },
-    {
-      "id": "CVE-2026-94051",
-      "published": "2026-09-20T21:16:55.597",
-      "lastModified": "2026-09-21T17:19:19.273",
-      "description": "A vulnerability was found in 0717376 cowork_bench up to d943e75bc0fc8e3b27141979300cd8cbcd1e890d. Affected by this vulnerability is the function ControlFlowNode of the file local_servers/pdf-tools-mcp/pdf_tools_mcp/server.py of the component pdf-tools-mcp. Performing a manipulation of the argument pdf_file_path results in server-side request forgery. It is possible to initiate the attack remotely. The exploit has been made public and could be used. This product is using a rolling release to provide continious delivery. Therefore, no version details for affected nor updated releases are available. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94051"
-    },
-    {
-      "id": "CVE-2026-94050",
-      "published": "2026-09-20T21:16:55.380",
-      "lastModified": "2026-09-24T13:17:17.090",
-      "description": "A vulnerability has been found in D-Link DIR-X1860Z up to 1.0.2.220120.165402. Affected is the function routerd.wificfg_get/routerd.get_rand_key of the component ubus JSON-RPC interface. Such manipulation leads to information disclosure. The attack must be carried out from within the local network. Upgrading to version 1.0.7.260821.161908 is able to address this issue. It is suggested to upgrade the affected component. This vulnerability only affects products that are no longer supported by the maintainer.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94050"
     }
   ]
 }
