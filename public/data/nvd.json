@@ -1,6 +1,171 @@
 {
-  "syncedAt": "2026-10-02T00:07:35.341Z",
+  "syncedAt": "2026-10-02T06:06:01.826Z",
   "items": [
+    {
+      "id": "CVE-2026-97554",
+      "published": "2026-09-25T11:17:05.860",
+      "lastModified": "2026-09-28T06:16:38.783",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsmb: client: avoid using uninitialized SIDs in cifs_posix_to_fattr()\n\ncifs_posix_to_fattr() ignores the return value of posix_info_parse().\nWhen a malformed POSIX directory entry is encountered (e.g. invalid\nSID lengths from an untrusted server), posix_info_parse() returns -1\nwithout populating the 'parsed' struct.  The uninitialized stack\nmemory in parsed.owner and parsed.group is then passed to\nsid_to_id(), which processes the garbage bytes and passes them to\nrequest_key() to construct a SID string, potentially leaking kernel\nstack contents to the userspace idmap daemon.\n\nFix this by checking the return value and skipping the SID-to-id\nmapping when parsing fails.  The remaining fattr fields (timestamps,\nmode, etc.) are populated directly from the 'info' pointer so they\nare unaffected.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97554"
+    },
+    {
+      "id": "CVE-2026-97553",
+      "published": "2026-09-25T11:17:05.757",
+      "lastModified": "2026-09-25T11:17:05.757",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: lock the healthmon when inserting unmount event\n\nLOLLM complains that xfs_healthmon_unmount does an unlocked insert of\nthe unmount event into the health monitor's event list.  Fix that.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97553"
+    },
+    {
+      "id": "CVE-2026-97552",
+      "published": "2026-09-25T11:17:05.647",
+      "lastModified": "2026-09-25T11:17:05.647",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: initialise error in xfs_defer_finish_one()\n\nxfs_defer_finish_one() declares error without an initialiser and only\nassigns it inside the loop over dfp->dfp_work.  When that list is empty\nthe loop body never runs, control falls through to the \"Done with the\ndfp, free it\" path, and the function returns an indeterminate value.\n\nAn item-less pending item reaches this through xfs_defer_add_barrier(),\nwhich xfs_reap_ag_blocks() uses on any CONFIG_XFS_ONLINE_REPAIR kernel.\nxfs_defer_finish_noroll() treats any non-EAGAIN return as fatal, so a\nnon-zero stack value turns a successful barrier into a\nSHUTDOWN_CORRUPT_INCORE in the middle of a repair.  Zero is the correct\nresult: reaching the free path means the item loop drained without a\nnon-zero error.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97552"
+    },
+    {
+      "id": "CVE-2026-97551",
+      "published": "2026-09-25T11:17:05.530",
+      "lastModified": "2026-09-25T11:17:05.530",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: initialise args->total for parent pointer updates\n\nxfs_parent_da_args_init() builds an xfs_da_args from a zeroed\nxfs_parent_args (kmem_cache_zalloc), leaving args->total == 0.\nxfs_da_grow_inode_int() treats that field as a running block reservation\nand subtracts from it; because it is an xfs_extlen_t (uint32_t), the\nfirst attr-fork growth wraps it to ~0U.  That defeats the free-space\ncheck in xfs_alloc_space_available(), and when it coincides with an AG\nthat has exactly zero available blocks the allocation is clamped to\nmaxlen 0 and returns -ENOSPC, which xfs_defer_finish_noroll() escalates\nto a filesystem shutdown.\n\nSet args->total the way the log recovery path does\n(xfs_attri_recover_work(), xfs_attr_item.c:706), in the add and replace\npaths that can grow the fork.  Removals and lookups never grow it, so\nthey leave the field alone, matching that switch.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97551"
+    },
+    {
+      "id": "CVE-2026-97550",
+      "published": "2026-09-25T11:17:05.423",
+      "lastModified": "2026-09-25T11:17:05.423",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: fix unit conversions in per_binval computation\n\nLOLLM noticed that we're doing the unit conversion in the per_binval\ncomputation backwards -- xfs_buf_inval_log_space's second parameter is\nsupposed to be in bytes, but max_binval is in units of fsblocks.  Hence\nthe conversion should be FSB -> B, not the other way around.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97550"
+    },
+    {
+      "id": "CVE-2026-97549",
+      "published": "2026-09-25T11:17:05.290",
+      "lastModified": "2026-09-25T15:17:58.680",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: fix under-reservation of blocks when repairing sf directories\n\nWhilst running QA on XFS for-next as of 7.3-rc2 with MKFS_OPTIONS=\"-n\nsize=8192\", I observed the following (trimmed) dmesg splat:\n\n XFS: Assertion failed: args->total >= dp->i_nblocks - nblks, file: fs/xfs/libxfs/xfs_da_btree.c, line: 2387\n WARNING: fs/xfs/xfs_message.c:104 at assfail+0x46/0x4a [xfs], CPU#0: xfs_scrub/1426511\n CPU: 0 UID: 0 PID: 1426511 Comm: xfs_scrub Tainted: G        W           7.3.0-rc2-djwx #rc2 PREEMPT(lazy)  6e418570b606a39783b0e7e7b30dc407b965f9e8\n Tainted: [W]=WARN\n RIP: 0010:assfail+0x46/0x4a [xfs]\n RSP: 0018:ffffc900010d7890 EFLAGS: 00010246\n RAX: 0000000000000000 RBX: 0000000000000000 RCX: 00000000ffffffd1\n RDX: 0000000000000000 RSI: 0000000000000021 RDI: ffffffffa059fd38\n RBP: 0000000000000002 R08: 0000000000000000 R09: 0000000000000000\n R10: 000000000000000a R11: 000000007fffffff R12: ffffc900010d7940\n R13: ffff888368d8f980 R14: ffffc900010d7a48 R15: ffffc900010d78d0\n FS:  00007f445c5ce680(0000) GS:ffff8884a97ea000(0000) knlGS:0000000000000000\n CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033\n CR2: 00007f443803b9a8 CR3: 0000000107a4b000 CR4: 00000000003506f0\n Call Trace:\n  <TASK>\n  xfs_da_grow_inode_int+0x2e0/0x300 [xfs 5de2257e14108c136f11317e6bbb8ac77efd392c]\n  xfs_dir2_grow_inode+0x6e/0x150 [xfs 5de2257e14108c136f11317e6bbb8ac77efd392c]\n  xfs_dir2_sf_to_block+0x149/0x870 [xfs 5de2257e14108c136f11317e6bbb8ac77efd392c]\n  xrep_dir_swap_prep+0xe2/0x110 [xfs 5de2257e14108c136f11317e6bbb8ac77efd392c]\n  xrep_dir_swap+0xfb/0x2f0 [xfs 5de2257e14108c136f11317e6bbb8ac77efd392c]\n  xrep_dir_rebuild_tree+0x99/0x100 [xfs 5de2257e14108c136f11317e6bbb8ac77efd392c]\n  xrep_directory+0x83/0x1c0 [xfs 5de2257e14108c136f11317e6bbb8ac77efd392c]\n  xrep_attempt+0x4f/0x1e0 [xfs 5de2257e14108c136f11317e6bbb8ac77efd392c]\n  xfs_scrub_metadata+0x393/0x5b0 [xfs 5de2257e14108c136f11317e6bbb8ac77efd392c]\n  xfs_ioc_scrubv_metadata+0x306/0x570 [xfs 5de2257e14108c136f11317e6bbb8ac77efd392c]\n  xfs_file_ioctl+0xa4f/0x1150 [xfs 5de2257e14108c136f11317e6bbb8ac77efd392c]\n  __x64_sys_ioctl+0x76/0xc0\n  do_syscall_64+0x7a/0x3b0\n  entry_SYSCALL_64_after_hwframe+0x4b/0x53\n\nThis is a consequence of commit 0fe77e57588b98, which added the\nfollowing assertion to xfs_da_grow_inode_int:\n\n ASSERT(args->total >= dp->i_nblocks - nblks);\n\nTracing this back to xrep_dir_swap_prep, I noticed that the xfs_da_args\nobject that's passed to xfs_dir2_sf_to_block sets args->total to 1.\nThis is incorrect because mkfs set the directory block size to 8k and\nthe filesystem block size to 4k.  In other words, args->total should be\n2 here, not 1.\n\nDave Chinner tripped over the same problem with the same branch through\na different channel -- his test setup set the fs block size to 1k, in\nwhich case the directory block size is still set to 4k.  Here,\nargs->total should be 4.\n\nChanging the assignment of args->total to sc->mp->m_dir_geo->fsbcount\nmakes the assertion go away, but that isn't a complete fix.  In\nxrep_tempexch_estimate, we also incorrectly assume that a shortform\nconversion requires 1 fsblock when it should be m_dir_geo->fsbcount.\nWithout that, we can under-reserve space in the transaction and cause a\nfilesystem shutdown.\n\nNote that the xfs_dabuf_nfsb helper will compute the correct value for\ndirectories and xattr, so we use that instead of open-coding the logic.\nAlso fix xrep_xattr_swap_prep to assign args->total via xfs_dabuf_nfsb\nto avoid one logic bomb if we ever support multi-fsblock attrs.\n\nTripped-by: 0fe77e57588b98 (\"xfs: assert the reservation covers each da fork growth\")",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97549"
+    },
+    {
+      "id": "CVE-2026-97548",
+      "published": "2026-09-25T11:17:05.183",
+      "lastModified": "2026-09-25T15:17:58.553",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: fix the rtrmap and rtrefcount _maxlevels_ondisk functions\n\nThe _maxlevels_ondisk functions are used to compute the size of\nin-memory btree cursors for each btree type.  Unfortunately, LOLLM\nnoticed that the rtrmap and rtrefcount versions of these functions\nforget to account for the inode root, which means that we could access\nbeyond the end of the cursor given a sufficiently large btree.  Fix\nthis.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97548"
+    },
+    {
+      "id": "CVE-2026-97547",
+      "published": "2026-09-25T11:17:05.070",
+      "lastModified": "2026-09-25T11:17:05.070",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: fix exchange-range reflink flag clearing issue with INO1_WRITTEN\n\nWhen exchanging two full-file ranges, xmi_can_exchange_reflink_flags()\ncan move the reflink inode flag from the file that currently has it to\nthe other file, as long as exactly one side is marked.  This assumes\nthat the file contents, and therefore all shared extents, are exchanged.\n\nThat assumption is not true when XFS_EXCHMAPS_INO1_WRITTEN is set.\nxfs_exchmaps_can_skip_mapping() can skip hole and unwritten mappings\nfrom file1, so an exchange can complete without moving every mapping\nthat the earlier flag-swap decision accounted for.  In that case the\npost-operation cleanup can clear the reflink flag from an inode that\nstill owns shared written extents.  Later writes then take the\nnon-reflink write path and may update blocks that should still have\nbeen protected by CoW, which shows up as data corruption between\nreflink-related files.\n\nFix this by disabling the reflink flag exchange whenever\nXFS_EXCHMAPS_INO1_WRITTEN is requested.  The contents exchange can still\nproceed; the conservative outcome is that both inodes keep the reflink\nflag.  The regular reflink flag cleanup path can drop the extra flag\nlater once the inode no longer has shared extents.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97547"
+    },
+    {
+      "id": "CVE-2026-97546",
+      "published": "2026-09-25T11:17:04.963",
+      "lastModified": "2026-09-25T11:17:04.963",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: don't spin forever on zero-length dirents when salvaging them\n\nLOLLM noticed that xrep_dir_recover_data can spin forever if it\nencounters an unused dirent that claims to have length zero.  Fix that,\nand prevent the same thing from happening with a zero-length entry.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97546"
+    },
+    {
+      "id": "CVE-2026-97545",
+      "published": "2026-09-25T11:17:04.860",
+      "lastModified": "2026-09-25T11:17:04.860",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: don't leak new_bp if xfs_btree_bload_drop_buf fails\n\nLOLLM observes that in xfs_btree_bload_prep_block,\nxfs_btree_bload_drop_buf can hit an IO error if writing the delwri\nbuffer list to disk fails.  In this case, we fail to release new_bp,\nwhich means we lose a locked buffer.  Fix that.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97545"
+    },
+    {
+      "id": "CVE-2026-97544",
+      "published": "2026-09-25T11:17:04.753",
+      "lastModified": "2026-09-25T11:17:04.753",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: don't leak dqacct if rhashtable insertion fails\n\nLOLLM observes that xqcheck_mod_live_ino_dqtrx doesn't free the newly\nallocated dqa object if rhashtable insertion fails.  Fix this leak.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97544"
+    },
+    {
+      "id": "CVE-2026-97543",
+      "published": "2026-09-25T11:17:04.643",
+      "lastModified": "2026-09-25T11:17:04.643",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: destroy seen inode bitmap when we fail to add a dirpath\n\nLOLLM observes a memory leak in xchk_dirtree_create_path if we create\nthe directory path object but appending the name to the path fails.\nWhen this happens, we don't tear down the (empty) seen inode bitmap.\nThis is a pretty trivial error, but let's not leave logic bombs.\n\nDo the same for a similar bug in xrep_dirtree_create_adoption_path.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97543"
+    },
+    {
+      "id": "CVE-2026-97542",
+      "published": "2026-09-25T11:17:04.540",
+      "lastModified": "2026-09-25T11:17:04.540",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: bail out on bitmap errors in xrep_agfl_fill\n\nLOLLM also points out that the xagb_bitmap_set call in xrep_agfl_fill\ncan fail, but we don't check the result of xagb_bitmap_walk, so we\nsilently drop the error and proceed with inconsistent incore data.\nThat shouldn't be allowed.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97542"
+    },
+    {
+      "id": "CVE-2026-97541",
+      "published": "2026-09-25T11:17:04.423",
+      "lastModified": "2026-09-28T06:16:38.680",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: ath9k_htc: don't store usb_device_id\n\nusb_device_id is not guaranteed to live longer than probe due to presence\nof dynamic ID. All information apart from driver_data can be easily\nretrieved from usb_device, so just store driver_data.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97541"
+    },
+    {
+      "id": "CVE-2026-97540",
+      "published": "2026-09-25T11:17:04.310",
+      "lastModified": "2026-09-28T06:16:38.587",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: usb: pegasus: don't rely on id table pointer arithmetic\n\nThe current code is broken when dynamic ID is involved; in such cases\nusb_device_id parameter of probe lives on the heap and the pointer\narithmetic will get an index that is wildly out of bound. Instead of\nkeeping a side table for additional information, use driver_info field of\nthe usb_device_id.\n\nThe dynamic ID parsing code needs to be updated for this; convert it to\njust write to the reserved entry for dynamic ID and remove the weird loop.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97540"
+    },
+    {
+      "id": "CVE-2026-97539",
+      "published": "2026-09-25T11:17:04.197",
+      "lastModified": "2026-09-28T06:16:38.480",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nusb: xusbatm: don't rely on id table pointer arithmetic\n\nThe current code is broken when dynamic ID is involved; in such cases\nusb_device_id parameter of probe lives on the heap and the pointer\narithmetic will get an index that is wildly out of bound. xusbatm\ninitialize the USB device IDs dynamically so it can just use driver_info\ntoo.\n\nEven with conversion, xusbatm still cannot support dynamic IDs, so also set\nno_dynamic_id.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97539"
+    },
+    {
+      "id": "CVE-2026-97538",
+      "published": "2026-09-25T11:17:04.080",
+      "lastModified": "2026-09-25T11:17:04.080",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nhwmon: (asus_rog_ryujin) Validate HID report lengths\n\nrog_ryujin_raw_event() parses response headers and payload fields without\nfirst checking that they are present in the received report. A short report\ncan therefore make the driver consume uninitialized bytes from the HID\ntransport buffer and expose them as sensor values through sysfs.\n\nValidate the response header and the fields used by each response type\nbefore parsing them.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97538"
+    },
+    {
+      "id": "CVE-2026-97537",
+      "published": "2026-09-25T11:17:03.973",
+      "lastModified": "2026-09-28T06:16:38.373",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Fix queue teardown NULL dma_free and bitmap locking\n\nqla25xx_free_req_que() and qla25xx_free_rsp_que() have two pre-existing\nbugs exposed on the error path of qla25xx_create_{req,rsp}_que():\n\n 1. When dma_alloc_coherent() fails during queue creation, the error\n    path calls the free function with req->ring / rsp->ring still NULL\n    (from kzalloc).  The unconditional dma_free_coherent() with a NULL\n    cpu_addr is undefined behavior and can panic.\n\n 2. The free functions clear req_qid_map / rsp_qid_map under vport_lock,\n    but the create functions protect the same bitmaps with mq_lock.\n    This provides no mutual exclusion.  Additionally, the create error\n    path clears the bit and releases mq_lock before calling the free\n    function, creating a window where another thread can allocate the\n    same que_id and have its ha->req_q_map entry clobbered by the\n    subsequent lockless NULL assignment in the free function.\n\nFix by:\n\n - Guarding dma_free_coherent() with a NULL check on the ring pointer.\n\n - Using mq_lock (the lock held by all creators) in the free functions\n   to atomically NULL the map entry and clear the bitmap bit.\n\n - Removing the now-redundant clear_bit blocks from the create error\n   paths since the free functions handle it atomically.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97537"
+    },
+    {
+      "id": "CVE-2026-97536",
+      "published": "2026-09-25T11:17:03.863",
+      "lastModified": "2026-09-25T15:17:58.427",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Fix use-after-free of qpair work on queue teardown\n\nThe response queue MSI-X handler qla2xxx_msix_rsp_q() schedules\nqla_do_work() via queue_work(ha->wq, &qpair->q_work). qla_do_work()\ndereferences the qpair (vha, rsp) and takes qpair->qp_lock.\n\nDuring teardown, qla2xxx_delete_qpair() deletes the response queue, which\ncalls free_irq() in qla25xx_free_rsp_que(), and then frees the queue and\nthe qpair. free_irq() waits for running hardirq handlers but does not\ncancel work already placed on ha->wq. A still-pending q_work then runs\nqla_do_work() against the freed qpair and response queue, causing a\nuse-after-free. This is especially likely during full adapter teardown,\nwhere destroy_workqueue(ha->wq) forces pending work to run after the queue\npairs have been freed.\n\nFlush the work item with cancel_work_sync() in qla25xx_free_rsp_que()\nafter free_irq() has released the interrupt (so no new work can be\nqueued) and before the response queue and qpair memory are freed (so the\nflushed handler still sees valid memory). Guard on rsp->qpair and ha->wq\nto match the INIT_WORK() condition and avoid operating on an\nuninitialized work_struct.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97536"
+    },
+    {
+      "id": "CVE-2026-97535",
+      "published": "2026-09-25T11:17:03.757",
+      "lastModified": "2026-09-25T11:17:03.757",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Bound VP index against VP_CTRL IOCB bitmap size\n\nThe VP control IOCB selects its target virtual port by setting one bit\nin vp_idx_map, a fixed 16-byte (128-bit) array in both\nvp_ctrl_entry_24xx and vp_ctrl_entry_24xx_ext. qla25xx_ctrlvp_iocb()\ncomputes map = (vp_index - 1) / 8 and writes vce->vp_idx_map[map]\nwithout checking that map stays within the array.\n\nmax_npiv_vports is taken from firmware and only sanitized to a\nMIN_MULTI_ID_FABRIC-aligned boundary, so it can legitimately be 191 or\n255, and qla24xx_control_vp() only rejects vp_index >= max_npiv_vports.\nA vp_index above 128 therefore yields map >= 16 and an out-of-bounds\nwrite of up to 16 bytes past vp_idx_map, corrupting the trailing IOCB\nfields (or the adjacent request-ring slot on the 64-byte layout).\n\nReject a vp_index that cannot be represented in the IOCB bitmap in\nqla24xx_control_vp(), and add a defensive ARRAY_SIZE() guard in\nqla25xx_ctrlvp_iocb() before the write. Adapters that report the usual\n63 or 127 NPIV vports are unaffected.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97535"
+    },
+    {
+      "id": "CVE-2026-97534",
+      "published": "2026-09-25T11:17:03.643",
+      "lastModified": "2026-09-25T11:17:03.643",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nf2fs: accurately adjust free_sections during free_segment_range\n\nIn free_segment_range(), MAIN_SECS(sbi) is temporarily reduced by `secs`\nto restrict block allocation to the safe remaining main area while valid\nblocks in the truncated range are evacuated by GC.\n\nHowever, FREE_I(sbi)->free_sections tracks the total number of free\nsections across the whole filesystem. If any sections within the\ntruncated range were already free upon entering free_segment_range(),\nfailing to deduct them from free_sections causes the filesystem to\noverestimate available free sections in the active, reduced main area.\nThis leads to inconsistent free section accounting during GC data\nmigration and can trigger unexpected allocation failures or assertion\nerrors when space is tight.\n\nFix this by calculating the number of already-free sections in the\ntruncated range, deducting them from free_sections upon entering\nfree_segment_range(), and restoring them on exit.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97534"
+    },
+    {
+      "id": "CVE-2026-97533",
+      "published": "2026-09-25T11:17:03.520",
+      "lastModified": "2026-09-25T11:17:03.520",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nx86/mm/pat: Acquire init_mm read lock on attribute changes to avoid UAF\n\nA previous commit protected against races between ptdump and CPA collapse,\nhowever one still exists between attribute changes and collapse as reported\nby Denis V. Lunev (linked).\n\nWhen an attribute change arises, a lockless page table walker obtains a PTE\nentry, which is later written to via set_pte_atomic():\n\n  ...\n  -> change_page_attr_set_clr()\n  -> __change_page_attr_set_clr()\n  -> __change_page_attr()\n\t-> _lookup_address_cpa()\n\t-> lookup_address_in_pgd_attr()\n\t-> [ lockless page table walker ]\n  -> set_pte_atomic()\n\nThere is nothing preventing a concurrent CPA collapse which can free the\nPTE that was retrieved here, resulting in a use-after-free.\n\nWith the mmap write lock taken on init_mm over CPA collapse, resolve this\nrace by acquiring an mmap read lock on init_mm over\n__change_page_attr_set_clr().\n\nThis locks across the whole operation over which the walk and the PTE\nentry write occurs, solving the race.\n\nIt is safe to do this here, as no spinlocks are held upon entry to\n__change_page_attr_set_clr().\n\nHowever, the lock must not be held over an allocation, as allocation can\ntrigger reclaim and shrinkers may call into CPA recursively, making\ndeadlocks possible (init_mm -> ... -> fs_reclaim -> init_mm).\n\nA page table is allocated when a huge page needs to be split:\n\n  -> change_page_attr_set_clr()\n  -> __change_page_attr_set_clr()\n  -> __change_page_attr()\n  -> split_large_page()\n  [ pagetable_alloc() ]\n  -> __split_large_page()\n\nAvoid deadlocks by dropping the mmap lock across pagetable_alloc() in\nsplit_large_page() and track whether this is needed by adding a new\n'init_mm_read_locked' flag to struct cpa_data.\n\nThis is safe as __split_large_page() (called with locks re-established)\nrevalidates that the page table entry is the same as it was prior to the\nlocks being dropped and __change_page_attr() repeats the entire page table\nwalk whenever a split occurs, so concurrent split and collapse are\naccounted for.\n\nConcurrent ptdump is also safe as the lock is only dropped over page table\nallocation during which time the page table has not yet been modified.\n\nThe CPA_COLLAPSE flag is only set by set_memory_rox(), which exclusively\noperates upon vmalloc ranges, and on x86 only within the module mapping\nspace.\n\nThis is important, because some callers directly invoke\n__change_page_attr_set_clr(), bypassing this lock. However, none of these\noperate within the module mapping space.\n\n  * cpa_process_alias() - a recursive helper called by\n    __change_page_attr_set_clr().\n  * __set_memory_enc_pgtable() - operates on the direct mapping and (via\n    __vmbus_establish_gpadl()) the vmalloc mapping space.\n  * __set_pages_[n]p() - called by set_direct_map_[invalid, default,\n    valid]_noflush(), __kernel_map_pages() - operates on the direct map.\n  * kernel_[un]map_pages_in_pgd() - operates on EFI ranges.\n\nThis work is based upon Denis V. Lunev's excellent analysis of the bug\nwith gratitude.\n\n[ dhansen: move to imperative voice in changelog ]",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97533"
+    },
+    {
+      "id": "CVE-2026-97532",
+      "published": "2026-09-25T11:17:03.413",
+      "lastModified": "2026-09-28T06:16:38.267",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nscsi: qla2xxx: Null out freed pointers in qla2x00_mem_alloc() error path\n\nWhen qla2x00_mem_alloc() fails, qla2x00_probe_one() jumps to\nprobe_hw_failed and calls qla2x00_mem_free(). Several error labels in\nqla2x00_mem_alloc() freed adapter members (elsrej.c, purex_dma_pool,\nflt, sfp_data, loop_id_map, async_pd, sf_init_cb, ex_init_cb, npiv_info)\nbut left the pointers dangling. qla2x00_mem_free() then freed them a\nsecond time. Worse, for the dma_pool members it issued\ndma_pool_free(ha->s_dma_pool, ...) after s_dma_pool had already been\ndestroyed and set to NULL at fail_s_dma_pool, dereferencing a NULL pool.\n\nClear each freed pointer (and its DMA handle) in the error labels so the\nsubsequent qla2x00_mem_free() skips them.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97532"
+    },
     {
       "id": "CVE-2026-97531",
       "published": "2026-09-25T11:17:03.307",
@@ -685,213 +850,6 @@
       "score": 2.7,
       "severity": "LOW",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97721"
-    },
-    {
-      "id": "CVE-2026-97818",
-      "published": "2026-09-25T05:17:08.120",
-      "lastModified": "2026-09-30T17:32:07.107",
-      "description": "phpIPAM through 1.8.3 has incorrect authorization for id==\"admins\" and id==\"all\" in api/controllers/User.php.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97818"
-    },
-    {
-      "id": "CVE-2026-97764",
-      "published": "2026-09-25T05:17:07.953",
-      "lastModified": "2026-09-30T17:32:07.107",
-      "description": "django-allauth before 65.19.4 does not have the expected limits on failed login attempts because, in some common configurations, an attacker can leverage the handling of diacritics (e.g., accents) for a higher effective limit.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97764"
-    },
-    {
-      "id": "CVE-2026-97737",
-      "published": "2026-09-25T05:17:07.760",
-      "lastModified": "2026-09-30T17:32:07.107",
-      "description": "In Wakapi before 2.17.6, the user caching service allows a lookup to be resolved in an unintended lookup context, leading to account takeover.",
-      "score": 7.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97737"
-    },
-    {
-      "id": "CVE-2026-97736",
-      "published": "2026-09-25T04:17:50.977",
-      "lastModified": "2026-09-30T17:32:07.107",
-      "description": "tinyauth before 5.1.3 allows rule bypass by appending an allowed route string. This is caused by an unanchored regular expression.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97736"
-    },
-    {
-      "id": "CVE-2026-97735",
-      "published": "2026-09-25T04:17:50.763",
-      "lastModified": "2026-09-30T17:32:07.107",
-      "description": "ITFlow before 26.08 allows SVG attachments in the ticket email parser (cron/ticket_email_parser.php) for email messages that may arrive over SMTP from arbitrary senders.",
-      "score": 8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97735"
-    },
-    {
-      "id": "CVE-2026-97732",
-      "published": "2026-09-25T04:17:50.537",
-      "lastModified": "2026-09-30T17:32:07.107",
-      "description": "IRONMACE Ironshield 1.0.0.167 has a tvk.sys kernel-mode driver that authenticates client executables by checking for expected publisher and root-certificate strings in WIN_CERTIFICATE data (\"IRONMACE Co., Ltd.\" and \"DigiCert Trusted Root G4\") instead of parsing and validating the PKCS signature data. As a result, a local unprivileged attacker may bypass this via crafted certificate data and obtain access to privileged IOCTL functionality.",
-      "score": 5.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97732"
-    },
-    {
-      "id": "CVE-2025-14814",
-      "published": "2026-09-25T04:17:31.093",
-      "lastModified": "2026-09-25T14:17:12.273",
-      "description": "The CSS & JavaScript Toolbox plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the plugin's cjtoolbox shortcode in all versions up to, and including, 12.0.6 due to insufficient input sanitization and output escaping on user supplied attributes. This makes it possible for authenticated attackers, with contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-14814"
-    },
-    {
-      "id": "CVE-2026-97731",
-      "published": "2026-09-25T03:16:59.697",
-      "lastModified": "2026-09-30T17:23:08.953",
-      "description": "MinIO through 7aac2a2 does not verify that every x-amz-* header present on a request also appears in the client-supplied X-Amz-SignedHeaders list. extractSignedHeaders() in cmd/signature-v4-utils.go iterates only the claimed list and never enumerates the headers that actually arrived, and thus a header that arrives unsigned is neither hashed into the canonical request nor rejected. Because cmd/api-router.go dispatches CopyObject on the presence of x-amz-copy-source alone, the holder of a presigned PUT URL scoped to a single object can add that header to the unmodified URL and cause a server-side copy, executed as the signer, of any object the signing key can read. A grant to write one object becomes a read of every bucket that key can reach. Amazon S3 rejects the equivalent request with HTTP 403 AccessDenied. The minio/minio GitHub repository was archived in April 2026; pgsty/silo before 1233254 is also affected.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97731"
-    },
-    {
-      "id": "CVE-2026-97730",
-      "published": "2026-09-25T03:16:59.533",
-      "lastModified": "2026-09-30T17:23:08.953",
-      "description": "In Netgate pfSense Plus before 26.07 and pfSense CE before 2.9.0, a Local File Inclusion (LFI) vulnerability in the Dashboard (index.php) widget sequence data handling allows an authenticated attacker to execute arbitrary PHP code. To exploit this, an attacker with privileges to modify Dashboard settings and write arbitrary files to the pfSense firewall system (e.g., /tmp/test.widget.php) can submit a crafted widget sequence value containing a path traversal payload (e.g., ../../../../../../../../../../../tmp/test). The Dashboard will subsequently read and execute the arbitrary PHP file as if it were a standard widget.",
-      "score": 8.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97730"
-    },
-    {
-      "id": "CVE-2026-97724",
-      "published": "2026-09-25T03:16:59.327",
-      "lastModified": "2026-09-30T17:32:07.107",
-      "description": "A prototype pollution vulnerability in Software Mansion React Native Worklets before 0.12.2 allows an attacker-controlled object containing a __proto__ property to modify the prototype of an object created during serialization in clonePlainJSObject in packages/react-native-worklets/src/memory/serializable.native.ts. When affected data is subsequently processed by React Native Worklets, the malformed serialized object can cause the React Native application to crash. This can result in a remotely triggered denial of service in applications that pass attacker-controlled data through the affected serialization path. In applications where the attacker-controlled data is persisted, the denial of service may persist across application restarts or repeated attempts to access the affected content.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97724"
-    },
-    {
-      "id": "CVE-2026-97650",
-      "published": "2026-09-25T03:16:59.087",
-      "lastModified": "2026-09-25T14:17:25.903",
-      "description": "A vulnerability has been found in ningzichun student-management-system up to 98760f5711cf6dc8b4adca53a9e207ca49b02ebf. Affected by this issue is the function echo of the file admin/fun/addLog.php. The manipulation of the argument reason/detail leads to cross site scripting. The attack can be initiated remotely. The exploit has been disclosed to the public and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97650"
-    },
-    {
-      "id": "CVE-2026-97723",
-      "published": "2026-09-25T02:16:55.377",
-      "lastModified": "2026-09-30T17:32:07.107",
-      "description": "madpsy ka9q_ubersdr before 0.1.58 has a stored cross-site scripting (XSS) vulnerability in the chat message rendering functionality. User-controlled URLs in chat messages were insufficiently neutralized before being converted into HTML links. Quotation characters could break out of the generated href attribute and introduce attacker-controlled HTML attributes, allowing arbitrary JavaScript to execute in the browser of another user when the stored chat message was rendered. No click on the malicious link was required.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97723"
-    },
-    {
-      "id": "CVE-2026-97649",
-      "published": "2026-09-25T02:16:55.183",
-      "lastModified": "2026-09-25T15:18:01.647",
-      "description": "A flaw has been found in ningzichun student-management-system up to 98760f5711cf6dc8b4adca53a9e207ca49b02ebf. Affected by this vulnerability is an unknown functionality of the file example_lite.sql. Executing a manipulation can lead to use of default credentials. It is possible to launch the attack remotely. The exploit has been published and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 4.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97649"
-    },
-    {
-      "id": "CVE-2026-97648",
-      "published": "2026-09-25T02:16:55.000",
-      "lastModified": "2026-09-25T16:17:30.993",
-      "description": "A vulnerability was detected in ningzichun student-management-system up to 98760f5711cf6dc8b4adca53a9e207ca49b02ebf. Affected is an unknown function. Performing a manipulation results in cross-site request forgery. It is possible to initiate the attack remotely. The exploit is now public and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97648"
-    },
-    {
-      "id": "CVE-2026-97647",
-      "published": "2026-09-25T02:16:54.817",
-      "lastModified": "2026-09-29T04:18:03.073",
-      "description": "A security vulnerability has been detected in ningzichun student-management-system up to 98760f5711cf6dc8b4adca53a9e207ca49b02ebf. This impacts an unknown function of the file user/editLog.php. Such manipulation of the argument sid/addtime/type/reason/detail/logdate leads to authorization bypass. The attack may be performed from remote. The exploit has been disclosed publicly and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97647"
-    },
-    {
-      "id": "CVE-2026-95811",
-      "published": "2026-09-25T02:16:54.677",
-      "lastModified": "2026-09-26T16:16:39.087",
-      "description": "Lemonldap::NG::Handler versions from 2.0.0 before 2.16.10, from 2.17.0 before 2.21.6, from 2.22.0 before 2.23.4 for Perl allow an equivalent spelling of a path to bypass the locationRules that restrict it.\n\nThe handler matches each vhost's locationRules regular expressions against REQUEST_URI, the raw request line, while the web server routes on the path it has already percent-decoded and normalized. A request that percent-encodes a character of the path, inserts dot segments, or doubles a slash therefore reaches the protected resource under a URI that no rule regexp matches, and the vhost's default rule decides access. Deny rules, identity and group conditions, and unprotect and skip rules are bypassed alike.\n\nOnly a vhost whose default rule is more permissive than its other rules is affected. An authenticated user then reaches any URL a locationRules regexp was meant to restrict, but gains no more than that default rule already grants.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-95811"
-    },
-    {
-      "id": "CVE-2026-97646",
-      "published": "2026-09-25T01:16:49.063",
-      "lastModified": "2026-09-25T16:17:30.850",
-      "description": "A weakness has been identified in ningzichun student-management-system up to 98760f5711cf6dc8b4adca53a9e207ca49b02ebf. This affects an unknown function of the file admin/fun/getStudent.php. This manipulation of the argument sid causes authorization bypass. The attack is possible to be carried out remotely. The exploit has been made available to the public and could be used for attacks. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97646"
-    },
-    {
-      "id": "CVE-2026-92289",
-      "published": "2026-09-25T01:16:48.943",
-      "lastModified": "2026-09-26T23:16:38.897",
-      "description": "Lemonldap::NG::Portal versions from 2.23.0 before 2.23.4 for Perl allow a PKCE bypass for public Relying Parties in \"PKCE or secret\" mode because checkEndPointAuthenticationCredentials does not verify the client secret.\n\nWith oidcRPMetaDataOptionsRequirePKCE set to 2, the authorization endpoint issues a code even when the request carries no code_challenge, and token() admits the exchange as long as a challenge was stored or an authentication method was returned for the caller. checkEndPointAuthenticationCredentials() skips the secret comparison for a Relying Party marked public and still returns the method deduced from the request, so any Basic or form credential satisfies the secret branch. validatePKCEChallenge() then passes, because neither a challenge nor a verifier is present.\n\nAn attacker who intercepts an authorization code issued to a public Relying Party can exchange it for the user's access, ID and refresh tokens by replaying the client_id with an arbitrary secret, which is the attack PKCE prevents. Dynamic client registration creates every Relying Party in this mode.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92289"
-    },
-    {
-      "id": "CVE-2026-92288",
-      "published": "2026-09-25T01:16:48.820",
-      "lastModified": "2026-09-25T16:17:29.543",
-      "description": "Lemonldap::NG::Portal versions from 2.20.0 before 2.21.6, from 2.22.0 before 2.23.4 for Perl allow unauthenticated OAuth2 token introspection because checkEndPointAuthenticationCredentials does not verify the client secret of a public Relying Party.\n\ncheckEndPointAuthenticationCredentials() skips the secret comparison for a Relying Party marked public and still returns the authentication method deduced from the request, client_secret_basic or client_secret_post. introspection() rejects a caller only when that method is missing or none, so a request carrying a public client_id and an arbitrary or empty secret passes the endpoint's authentication check.\n\nAn attacker who holds an access token and knows the client_id of any public Relying Party can confirm the token is active and read its metadata, including scope, audience, expiry and the sub claim. The sub claim is computed with the calling Relying Party's user identifier attribute, so an attacker can translate a user identifier from one Relying Party to another, defeating per-client and pseudonymous identifiers.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92288"
-    },
-    {
-      "id": "CVE-2026-85417",
-      "published": "2026-09-25T01:16:48.580",
-      "lastModified": "2026-09-29T19:17:27.183",
-      "description": "Incomplete property masking in the SANnav logging subsystem permits SNMP authentication and privacy passwords to be recorded in application logs under specific configuration conditions. Individuals with read access to system logs or support bundles can retrieve these credentials, leading to unauthorized read or management access to monitored switch environments",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85417"
-    },
-    {
-      "id": "CVE-2026-53493",
-      "published": "2026-09-25T01:16:48.227",
-      "lastModified": "2026-09-28T15:17:17.900",
-      "description": "containerd is an open-source container runtime. Prior to versions 1.7.36, 2.0.13, 2.2.9, 2.3.6, and 2.4.1, a crafted OCI index graph can force very high CPU/memory usage during PullImage (before container start), causing long ContainerCreating stalls and, at larger sizes, node/runtime instability. Versions 1.7.36, 2.0.13, 2.2.9, 2.3.6, and 2.4.1 fix the issue.",
-      "score": 6.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53493"
-    },
-    {
-      "id": "CVE-2026-85082",
-      "published": "2026-09-25T00:16:57.720",
-      "lastModified": "2026-09-25T17:17:15.800",
-      "description": "Root Browser Classic 3.3.0 passes the path of a selected SQLite database to an operating-system shell without safely separating the filename from the command.",
-      "score": 8.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85082"
-    },
-    {
-      "id": "CVE-2026-84283",
-      "published": "2026-09-25T00:16:57.570",
-      "lastModified": "2026-09-25T17:17:15.520",
-      "description": "Secure Folder 1.2 stores files selected for its password-protected vault as unencrypted files in the Android shared-storage tree. A local application or file manager that has access to the relevant shared-storage path can enumerate, copy, and open those files without authenticating to Secure Folder.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84283"
     }
   ]
 }
