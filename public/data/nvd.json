@@ -1,6 +1,204 @@
 {
-  "syncedAt": "2026-10-04T18:36:05.012Z",
+  "syncedAt": "2026-10-04T21:54:28.424Z",
   "items": [
+    {
+      "id": "CVE-2026-101040",
+      "published": "2026-09-28T11:16:43.773",
+      "lastModified": "2026-10-01T15:17:21.113",
+      "description": "A security flaw has been discovered in Ricoh SP 330DN, SP 221, SP C252SF and Aficio SP 3500SF up to 20260813. This affects an unknown part of the component HTTP Multipart Form-Data Parser. Performing a manipulation results in denial of service. The attack is possible to be carried out remotely. The exploit has been released to the public and may be used for attacks. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101040"
+    },
+    {
+      "id": "CVE-2026-101039",
+      "published": "2026-09-28T11:16:43.600",
+      "lastModified": "2026-09-28T15:16:04.793",
+      "description": "A vulnerability was identified in FAST FAC1900R 20190827_2.0.2. Affected by this issue is the function copy_msg_element of the component devdiscover Service. Such manipulation leads to stack-based buffer overflow. The attack can be executed remotely. The exploit is publicly available and might be used. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 10,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101039"
+    },
+    {
+      "id": "CVE-2026-101038",
+      "published": "2026-09-28T11:16:43.423",
+      "lastModified": "2026-09-28T15:16:04.793",
+      "description": "A vulnerability was determined in FAST FAC1200R 5.0_20201119_1.0.2. Affected by this vulnerability is the function MmtAtePrase of the component MmtAtePrase Parser. This manipulation causes stack-based buffer overflow. Remote exploitation of the attack is possible. The exploit has been publicly disclosed and may be utilized. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 9.9,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101038"
+    },
+    {
+      "id": "CVE-2026-90979",
+      "published": "2026-09-28T10:16:45.990",
+      "lastModified": "2026-09-30T20:17:36.263",
+      "description": "LDAPCache and LDAPBackingEngine build LDAP search filters for user lookup and role lookup by textually substituting the placeholders %u, %dn, and %fqdn (drawn from the login name, the resolved user DN, and its fully qualified namespace form) into administrator-configured filter templates (userFilter, roleFilter). Before the fix, the only sanitization applied to the substituted value was double backslashed:\n\nfilter = filter.replaceAll(Pattern.quote(\"%u\"), Matcher.quoteReplacement(user));\n\nfilter = filter.replace(\"\\\\\", \"\\\\\\\\\");\n\n\n\n\nThis does not escape the other characters RFC 4515 requires escaping in an LDAP search filter: *, (, ), and NUL. A login name containing any of these can change the structure of the resulting filter rather than being matched as a literal value (e.g. a crafted username can turn an equality match into a wildcard match, or close/reopen filter clauses), widening what the search returns and potentially causing a login or role lookup to match an LDAP entry other than the intended one, over-granting roles, and depending on deployment-specific filter templates, potentially affecting which account a login resolved to.\n\n\n\n\nIt's not exploitable through every entry points: LDAPLoginModule and LDAPPubkeyLoginModule both called Util.doRFC2254Encoding() (correct RFC 4515 escaping) on the login name before handing it to LDAPCache, which masked the missing escaping in LDAPCache for those two call paths. Using LDAPCache directly (bypassing the login modules) does not reproduce through the normal LDAPLoginModule/LDAPPubkeyLoginModule authentication flow for this reason. It does reproduce through two other call paths that reach LDAPCache/LDAPBackingEngine without any prior escaping:\n\n  *  GSSAPILdapLoginModule passes the NameCallback name straight through, unescaped.\n  *  LDAPBackingEngine (listRoles) passes principal.getName() straight through, unescaped.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90979"
+    },
+    {
+      "id": "CVE-2026-7172",
+      "published": "2026-09-28T10:16:45.763",
+      "lastModified": "2026-09-30T14:17:30.580",
+      "description": "Stored Cross-Site Scripting (XSS) in TPVEnlanube affecting the following endpoint and parameter:\n\n  *  CVE-2026-7172: parameter 'Nombre Completo' in the endpoint  '/administrator/index.php?option=com_virtuemart&page=admin.user_list'.\n\n\n\n\nSuccessful exploitation of this vulnerability could allow an authenticated attacker to inject malicious code and execute it in users' browsers without their consent.",
+      "score": 4.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7172"
+    },
+    {
+      "id": "CVE-2026-7171",
+      "published": "2026-09-28T10:16:45.637",
+      "lastModified": "2026-09-30T14:17:30.440",
+      "description": "Stored Cross-Site Scripting (XSS) in TPVEnlanube affecting the following endpoint and parameter:\n\n  *  CVE-2026-7171: parameter 'Apellido 1' in the endpoint  '/administrator/index.php?page=admin.user_add&user_id=45&option=com_virtuemart'.\n\n\nSuccessful exploitation of this vulnerability could allow an authenticated attacker to inject malicious code and execute it in users' browsers without their consent.",
+      "score": 4.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7171"
+    },
+    {
+      "id": "CVE-2026-7170",
+      "published": "2026-09-28T10:16:45.487",
+      "lastModified": "2026-09-30T14:17:30.287",
+      "description": "Stored Cross-Site Scripting (XSS) in TPVEnlanube affecting the following endpoint and parameter:\n\n  *  CVE-2026-7170: parameter 'vendor_store_name' in the endpoint  '/administrator/index.php?pshop_mode=admin&page=store.store_add&option=com_virtuemart&vendor_id=[ID]'.\n\n\n\n\nSuccessful exploitation of this vulnerability could allow an authenticated attacker to inject malicious code and execute it in users' browsers without their consent.",
+      "score": 4.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7170"
+    },
+    {
+      "id": "CVE-2026-101037",
+      "published": "2026-09-28T10:16:42.793",
+      "lastModified": "2026-10-01T15:17:20.957",
+      "description": "A vulnerability was found in FAST FAC1200R 5.0_20201119_1.0.2. Affected is the function parse_advertisement_frame of the component devdiscover Service. The manipulation results in stack-based buffer overflow. The attack may be launched remotely. The exploit has been made public and could be used. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 9.9,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101037"
+    },
+    {
+      "id": "CVE-2026-101036",
+      "published": "2026-09-28T10:16:42.630",
+      "lastModified": "2026-09-28T15:16:04.793",
+      "description": "A vulnerability has been found in FLB-Music FLB-Music-Player 1.1.8/1.1.9/1.2.0/1.2.1. This impacts the function path.join of the file /src/main/core/createParsedTrack.ts. The manipulation leads to path traversal. The attack must be carried out locally. The exploit has been disclosed to the public and may be used. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101036"
+    },
+    {
+      "id": "CVE-2026-101035",
+      "published": "2026-09-28T10:16:42.453",
+      "lastModified": "2026-09-28T15:16:04.793",
+      "description": "A flaw has been found in aligungr UERANSIM up to 3.3.0. This affects the function DecodePlainMmMessage in the library src/lib/nas/encode.cpp of the component nr-gnb. Executing a manipulation can lead to uncaught exception. The attack can be launched remotely. The exploit has been published and may be used. This patch is called 1ae9bf2062b57595dbcbc4bc1d0a0ccf06815bac. It is best practice to apply a patch to resolve this issue.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101035"
+    },
+    {
+      "id": "CVE-2026-101018",
+      "published": "2026-09-28T10:16:42.137",
+      "lastModified": "2026-10-01T15:17:20.797",
+      "description": "A vulnerability was determined in dayrui XunruiCMS up to 4.7.2. This issue affects the function group_all_edit of the file dayrui/App/Member/Controllers/Admin/Home.php of the component Group Editing. This manipulation of the argument groupid causes sql injection. The attack is possible to be carried out remotely. The exploit has been publicly disclosed and may be utilized. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 4.7,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101018"
+    },
+    {
+      "id": "CVE-2026-95104",
+      "published": "2026-09-28T09:17:08.697",
+      "lastModified": "2026-09-30T14:18:03.917",
+      "description": "Stack-based buffer overflow vulnerability exists in BUFFALO Wi-Fi products. A non-authenticated crafted HTTP request may cause a denial-of-service (DoS) condition.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-95104"
+    },
+    {
+      "id": "CVE-2026-94287",
+      "published": "2026-09-28T09:17:08.577",
+      "lastModified": "2026-09-29T21:32:59.833",
+      "description": "A denial of service via unsigned underflow in libXpm's write path in libXpm before 3.5.19 could be used by local attackers to cause unbounded CPU usage and memory exhaustion.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94287"
+    },
+    {
+      "id": "CVE-2026-94286",
+      "published": "2026-09-28T09:17:08.463",
+      "lastModified": "2026-09-30T13:17:26.710",
+      "description": "An out-of-bounds read in libXtst's RECORD reply parser in libXtst before 1.2.6 could be used by malicious X servers to crash attached X clients.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94286"
+    },
+    {
+      "id": "CVE-2026-94285",
+      "published": "2026-09-28T09:17:08.353",
+      "lastModified": "2026-09-30T13:17:26.570",
+      "description": "An out-of-bounds read in libX11's byte-oriented codeset parser in libX11 before 1.8.14 could be used by malicious X servers to crash attached X clients.",
+      "score": 5.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94285"
+    },
+    {
+      "id": "CVE-2026-94284",
+      "published": "2026-09-28T09:17:08.247",
+      "lastModified": "2026-09-30T13:17:26.410",
+      "description": "An out-of-bounds read vulnerability in libX11's XIM trigger-key registration parser in libX11 before 1.8.14 could be used by malicious X servers to crash attached X clients.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94284"
+    },
+    {
+      "id": "CVE-2026-94283",
+      "published": "2026-09-28T09:17:08.133",
+      "lastModified": "2026-09-30T13:17:26.270",
+      "description": "An out-of-bounds read vulnerability in libX11's XIM (X Input Method) attribute parser in libX11 before 1.8.14 could be used by malicious X servers to crash attached X clients.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94283"
+    },
+    {
+      "id": "CVE-2026-94282",
+      "published": "2026-09-28T09:17:08.003",
+      "lastModified": "2026-09-30T13:17:26.123",
+      "description": "An out-of-bounds read in libXi's XI2 enter/leave/focus cookie conversion in libXi before 1.8.4 could be used by malicious X server to crash an attached X client.",
+      "score": 5.6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94282"
+    },
+    {
+      "id": "CVE-2026-86530",
+      "published": "2026-09-28T09:17:07.653",
+      "lastModified": "2026-09-30T13:17:21.037",
+      "description": "BUFFALO Wi-Fi products handle some web form input improperly to assemble command line strings internally. An administrative user may send a crafted HTTP request and execute an arbitrary OS command.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86530"
+    },
+    {
+      "id": "CVE-2026-86507",
+      "published": "2026-09-28T09:17:07.520",
+      "lastModified": "2026-09-28T14:29:44.860",
+      "description": "Improper neutralization of input in Apache Roller 6.1.5 allows an anonymous remote attacker to store a crafted comment-author URL that can execute script in the session of a weblog moderator or global administrator when the comment management page is viewed. This affects sites that permit comments on at least one weblog and whose moderator subsequently reviews the submitted comment; no non-default server setting is required. Users are recommended to upgrade to Apache Roller 6.1.6 or later.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86507"
+    },
+    {
+      "id": "CVE-2026-85134",
+      "published": "2026-09-28T09:17:07.380",
+      "lastModified": "2026-09-28T14:31:05.267",
+      "description": "Unrestricted upload of file with dangerous type vulnerability in Bimser Solution Software Trade Inc. EBA Plus Document and Workflow Management System allows Upload a Web Shell to a Web Server.\n\nThis issue affects eBA Plus Document and Workflow Management System: from 6.7.141 before 10.0.11.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85134"
+    },
+    {
+      "id": "CVE-2026-82969",
+      "published": "2026-09-28T09:17:07.267",
+      "lastModified": "2026-09-28T14:31:05.267",
+      "description": "Improper neutralization of input during web page generation ('cross-site scripting') vulnerability in Bimser Solution Software Trade Inc. EBA Plus Document and Workflow Management System allows Stored XSS.\n\nThis issue affects eBA Plus Document and Workflow Management System: from 6.7.141 before 10.0.11.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82969"
+    },
     {
       "id": "CVE-2026-82915",
       "published": "2026-09-28T09:17:07.130",
@@ -702,204 +900,6 @@
       "score": 2.6,
       "severity": "LOW",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-100881"
-    },
-    {
-      "id": "CVE-2026-96281",
-      "published": "2026-09-27T21:17:04.330",
-      "lastModified": "2026-09-30T21:17:18.823",
-      "description": "On a multi-user system, a user with an active local login session could downgrade a system-wide Flatpak app to an older version by removing the app's remote ref via the unprivileged system-helper RemoveLocalRef method, causing the anti-downgrade check to fail to find a reference date. A malicious local user could use this to expose other users of the same system to an app version with unfixed vulnerabilities.",
-      "score": 6.2,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-96281"
-    },
-    {
-      "id": "CVE-2026-96280",
-      "published": "2026-09-27T21:17:04.200",
-      "lastModified": "2026-09-29T21:29:07.663",
-      "description": "The OCI delta stream parser read sizes as guint64 but passed them to GLib I/O and allocation functions expecting gsize (32 bits on 32-bit systems), causing undersized allocations while subsequent operations use the original 64-bit size, leading to heap buffer overflows. An attacker controlling an OCI registry can craft a delta stream that triggers this during flatpak install/update, potentially achieving code execution on 32-bit systems.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-96280"
-    },
-    {
-      "id": "CVE-2026-101090",
-      "published": "2026-09-27T21:17:03.003",
-      "lastModified": "2026-09-28T21:02:16.150",
-      "description": "Nezha 2.2.3 contains a Host header injection regression in the OAuth2 redirect endpoint. When the new optional dashboard_host setting is empty, /api/v1/oauth2/{provider} (cmd/dashboard/controller/oauth2.go) reflects the attacker-supplied HTTP Host header into the redirect_uri sent to the identity provider instead of falling back to the configured install_host. An attacker who induces a victim to begin OAuth2 login via a request that reaches Nezha with a forged Host header can cause an attacker-controlled callback URL to be used as the redirect_uri; if the OAuth2 provider accepts it, the victim's authorization code is delivered to the attacker origin, allowing the attacker to complete the OAuth2 login/binding flow and take over the account. This regresses the fix for GHSA-9rc6-8cjv-rcvx and is configuration-dependent (dashboard_host empty). At the time of the advisory no patched version was available.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101090"
-    },
-    {
-      "id": "CVE-2026-101089",
-      "published": "2026-09-27T21:17:02.870",
-      "lastModified": "2026-09-28T20:57:50.143",
-      "description": "Nezha before 2.2.7 contains an information disclosure vulnerability in the GET /api/v1/profile endpoint that returns the bcrypt-hashed password field of authenticated users. Attackers can extract password hashes and perform offline cracking attacks without rate limiting or audit trail constraints.",
-      "score": 3.1,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101089"
-    },
-    {
-      "id": "CVE-2026-101088",
-      "published": "2026-09-27T21:17:02.727",
-      "lastModified": "2026-09-30T23:16:57.597",
-      "description": "Nezha is a server and website monitoring tool. In versions >= 2.2.11 and < 2.3.1, the service sentinel worker (service/singleton/servicesentinel.go) contains an incomplete fix for a previously reported nil dereference denial of service (GHSA-qjpp-gffx-2wm9). The 2026-07-21 fix re-validated the service lifecycle under serviceResponseDataStoreLock but reused an already-captured, now stale reporter pointer and never re-validated the server, and that lock does not guard ServerShared. An authenticated user with the member role who owns an agent can issue a concurrent server delete (POST /api/v1/batch-delete/server) for their own server to win the race window, causing the worker to dereference a missing entry in the server list snapshot. Because the sentinel workers and the gRPC server have no recover()/recovery interceptor, the resulting panic is unrecovered and crashes the entire instance. This is fixed in version 2.3.1.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101088"
-    },
-    {
-      "id": "CVE-2026-101087",
-      "published": "2026-09-27T21:17:02.587",
-      "lastModified": "2026-09-30T15:22:18.827",
-      "description": "Nezha versions 2.0.10 through 2.3.2 use a restricted HTTP client to validate user-configurable notification and DDNS webhook URLs, but the denylist did not cover IPv6 transition ranges — specifically the 6to4 prefix 2002::/16 and the local-use IPv4/IPv6 translation prefix 64:ff9b:1::/48. Because such addresses satisfy Go's netip.Addr.IsGlobalUnicast check, the URL validator accepted them. An authenticated user able to configure a webhook may be able to cause the dashboard to issue requests to an otherwise restricted IPv6 endpoint, but only where the dashboard's network provides unusual or non-standards-compliant routing for these transition ranges; no direct path to an IPv4 metadata, loopback, or private-network HTTP request has been demonstrated. The issue is fixed in version 2.3.3 (commit d1fcde8e), which blocks both prefixes.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101087"
-    },
-    {
-      "id": "CVE-2026-101086",
-      "published": "2026-09-27T21:17:02.450",
-      "lastModified": "2026-09-28T21:02:16.150",
-      "description": "Nezha Dashboard versions before 2.3.5 fail to restrict service monitor task types to supported probe types, allowing authenticated users with nezha:service:write scope to submit privileged task types through the service API. Attackers can deliver command execution or Agent configuration tasks to Agents within their authorization scope by exploiting the shared protobuf Task.Type namespace between service monitors and privileged operations.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101086"
-    },
-    {
-      "id": "CVE-2026-101085",
-      "published": "2026-09-27T21:17:02.307",
-      "lastModified": "2026-09-28T20:57:50.143",
-      "description": "Nezha before 2.3.8 fails to validate alert rule type and duration bounds, allowing authenticated non-administrator users to create malformed rules that trigger unrecovered panics in the alert evaluator goroutine. Attackers can submit a crafted alert rule via the POST /api/v1/alert-rule endpoint to crash the dashboard process, which persists the rule and causes repeated crashes on restart, disabling all monitoring and control plane functionality.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101085"
-    },
-    {
-      "id": "CVE-2026-101084",
-      "published": "2026-09-27T21:17:02.163",
-      "lastModified": "2026-09-30T23:16:57.460",
-      "description": "obot versions before v0.21.1 fail to enforce Access Control Rules on the /mcp-connect endpoint, allowing any authenticated user to connect to restricted MCP servers if they possess the server ID. Attackers can bypass authorization checks to access and manipulate sensitive backend systems through MCP tool calls using stored OAuth credentials.",
-      "score": 9.6,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101084"
-    },
-    {
-      "id": "CVE-2026-101065",
-      "published": "2026-09-27T21:17:02.027",
-      "lastModified": "2026-09-30T18:18:13.903",
-      "description": "Obot is an open-source AI agent/MCP platform. In all versions up to and including commit d7e6970, the Docker quickstart command documented in the README starts the container listening on 0.0.0.0:8080 with authentication disabled by default. When authentication is disabled, every request is mapped to a synthetic \"nobody\" user that holds the Owner and Admin roles, so any unauthenticated party who can reach the exposed port obtains full administrative access to the Obot API and UI, including the ability to register and launch attacker-controlled MCP servers. Because the quickstart also mounts /var/run/docker.sock into the container, the MCP runtime backend reachable this way has access to the host's Docker control surface. The fix is documentation-only: the quickstart now enables authentication, and operators who followed the previous instructions should set OBOT_SERVER_ENABLE_AUTHENTICATION=true before exposing the host to any untrusted network.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101065"
-    },
-    {
-      "id": "CVE-2026-101064",
-      "published": "2026-09-27T21:17:01.893",
-      "lastModified": "2026-09-28T21:02:16.150",
-      "description": "Obot before v0.23.0 contains a server-side request forgery vulnerability in remote MCP server registration that allows privileged users to specify arbitrary URLs without destination validation. Attackers with Power User or higher roles can coerce Obot to make requests to internal services and cloud metadata endpoints, reading responses in error messages to disclose sensitive credentials.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101064"
-    },
-    {
-      "id": "CVE-2026-101063",
-      "published": "2026-09-27T21:17:01.757",
-      "lastModified": "2026-09-28T21:02:16.150",
-      "description": "Obot versions before v0.23.0 fail to enforce authentication on MCP Registry endpoints under /v0.1/* when registry authentication is enabled. Unauthenticated attackers can read registry metadata including server names, descriptions, repository URLs, and connect URLs by sending GET requests to /v0.1/servers.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101063"
-    },
-    {
-      "id": "CVE-2026-101062",
-      "published": "2026-09-27T21:17:01.617",
-      "lastModified": "2026-09-30T23:16:57.320",
-      "description": "Obot before v0.23.0 (affected versions <= v0.22.1) running with OBOT_SERVER_ENABLE_AUTHENTICATION=true exposes OAuth dynamic client registration without authentication and without any restriction on the redirect URIs a client may register. Because the authorization flow auto-completes for an already logged-in user with no consent screen, an attacker who registers a client pointing at their own domain and induces a logged-in victim to visit a single crafted authorization URL receives an authorization code at the attacker-controlled redirect URI and can exchange it for an access token and refresh token. The token minted by the MCP OAuth flow carries the victim's full group set in the JWT, and Obot validated only the issuer and not the audience, so the token is accepted as a bearer token against any Obot API endpoint the victim can access rather than being scoped to the requested MCP server, allowing the attacker to read or modify the victim's resources until the token is revoked. v0.23.0 adds a consent screen, restricts MCP OAuth tokens to the MCP involved in the request, and enforces audience validation.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101062"
-    },
-    {
-      "id": "CVE-2026-100880",
-      "published": "2026-09-27T21:17:01.450",
-      "lastModified": "2026-09-28T15:16:04.793",
-      "description": "A weakness has been identified in zhistaredu StarTraining up to 3.8.1. This vulnerability affects unknown code of the file du-common/src/main/java/com/edu/common/utils/file/MimeTypeUtils.java of the component Upload Endpoint. This manipulation of the argument File causes cross site scripting. It is possible to initiate the attack remotely. The exploit has been made available to the public and could be used for attacks. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 3.5,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-100880"
-    },
-    {
-      "id": "CVE-2026-100879",
-      "published": "2026-09-27T21:17:01.283",
-      "lastModified": "2026-09-30T23:16:56.500",
-      "description": "A security flaw has been discovered in zhistaredu StarTraining up to 3.8.1. This affects the function checkRoleAllowed of the file SysRoleServiceImpl.java of the component dataScope Endpoint. The manipulation results in missing authorization. The attack may be performed from remote. The exploit has been released to the public and may be used for attacks. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-100879"
-    },
-    {
-      "id": "CVE-2026-100878",
-      "published": "2026-09-27T21:17:01.100",
-      "lastModified": "2026-09-28T15:16:04.793",
-      "description": "A vulnerability was identified in zhistaredu StarTraining up to 3.8.1. Affected by this issue is the function SysUser.isAdmin of the file edu-common/src/main/java/com/edu/common/core/domain/entity/SysUser.java of the component authRole Endpoint. The manipulation of the argument userId/roleIds leads to authorization bypass. The attack is possible to be carried out remotely. The exploit is publicly available and might be used. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-100878"
-    },
-    {
-      "id": "CVE-2026-100877",
-      "published": "2026-09-27T21:17:00.923",
-      "lastModified": "2026-09-28T15:16:04.793",
-      "description": "A vulnerability was determined in mathurvishal CloudClassroom-PHP-Project up to 5dadec098bfbbf3300d60c3494db3fb95b66e7be. Affected by this vulnerability is an unknown functionality of the file registrationform.php. Executing a manipulation of the argument FName/LName/Addrs can lead to cross site scripting. The attack can be executed remotely. The exploit has been publicly disclosed and may be utilized. This product implements a rolling release for ongoing delivery, which means version information for affected or updated releases is unavailable. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-100877"
-    },
-    {
-      "id": "CVE-2026-96279",
-      "published": "2026-09-27T20:16:53.043",
-      "lastModified": "2026-09-29T21:29:07.663",
-      "description": "A malicious OCI registry can hardlink arbitrary host files into the extraction directory when a user installs or updates a Flatpak application from an OCI remote, allowing disclosure of arbitrary host file contents. For system-wide installs running as root, this includes sensitive files such as /etc/shadow.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-96279"
-    },
-    {
-      "id": "CVE-2026-100876",
-      "published": "2026-09-27T20:16:48.960",
-      "lastModified": "2026-09-30T23:16:56.343",
-      "description": "A vulnerability was found in mathurvishal CloudClassroom-PHP-Project up to 5dadec098bfbbf3300d60c3494db3fb95b66e7be. Affected is an unknown function of the file loginlinkstudent.php. Performing a manipulation of the argument umail results in missing authentication. Remote exploitation of the attack is possible. The exploit has been made public and could be used. This product follows a rolling release approach for continuous delivery, so version details for affected or updated releases are not provided. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-100876"
-    },
-    {
-      "id": "CVE-2026-100875",
-      "published": "2026-09-27T19:16:54.100",
-      "lastModified": "2026-09-28T15:16:04.793",
-      "description": "A vulnerability has been found in mathurvishal CloudClassroom-PHP-Project up to 5dadec098bfbbf3300d60c3494db3fb95b66e7be. This impacts an unknown function of the file updatedetailsfromfaculty.php. Such manipulation of the argument myfid leads to sql injection. The attack may be launched remotely. The exploit has been disclosed to the public and may be used. This product operates on a rolling release basis, ensuring continuous delivery. Consequently, there are no version details for either affected or updated releases. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-100875"
-    },
-    {
-      "id": "CVE-2026-100874",
-      "published": "2026-09-27T19:16:53.920",
-      "lastModified": "2026-09-28T15:16:04.793",
-      "description": "A flaw has been found in mathurvishal CloudClassroom-PHP-Project up to 5dadec098bfbbf3300d60c3494db3fb95b66e7be. This affects an unknown function of the file addnewstudent.php. This manipulation causes sql injection. The attack may be initiated remotely. The exploit has been published and may be used. This product uses a rolling release model to deliver continuous updates. As a result, specific version information for affected or updated releases is not available. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-100874"
-    },
-    {
-      "id": "CVE-2026-100873",
-      "published": "2026-09-27T19:16:53.720",
-      "lastModified": "2026-09-30T23:16:55.880",
-      "description": "A vulnerability was detected in mathurvishal CloudClassroom-PHP-Project up to 5dadec098bfbbf3300d60c3494db3fb95b66e7be. The impacted element is an unknown function. The manipulation results in cross-site request forgery. The attack can be launched remotely. The exploit is now public and may be used. This product does not use versioning. This is why information about affected and unaffected releases are unavailable. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-100873"
     }
   ]
 }
