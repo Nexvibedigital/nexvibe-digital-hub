@@ -1,6 +1,863 @@
 {
-  "syncedAt": "2026-10-15T09:21:10.030Z",
+  "syncedAt": "2026-10-15T14:22:17.873Z",
   "items": [
+    {
+      "id": "CVE-2026-107375",
+      "published": "2026-10-08T18:17:21.883",
+      "lastModified": "2026-10-09T16:17:22.297",
+      "description": "JHipster is a development platform to quickly generate, develop, and deploy modern web applications and microservice architectures. From 7.0.0 until 9.4.0, reactive applications generated with Spring WebFlux, Spring Data R2DBC, and a SQL database pass the attacker-controlled sort request parameter from paginated entity-list endpoints into createOrderByFields in generators/spring-boot/generators/data-relational/templates/src/main/java/package/repository/EntityManager_reactive.java.ejs. The generated code renders these properties into the SQL ORDER BY clause without validation or quoting, and the R2DBC simple query protocol can execute additional statements separated by semicolons. A normal authenticated user can consequently read sensitive tables, modify or delete data, or drop tables, while non-reactive JPA applications and NoSQL backends are outside this root cause. This issue is fixed in 9.4.0.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107375"
+    },
+    {
+      "id": "CVE-2026-107362",
+      "published": "2026-10-08T18:17:21.587",
+      "lastModified": "2026-10-08T21:03:43.847",
+      "description": "Malcolm file-upload component ships the upstream FilePond PHP server (pqina/filepond-server-php) largely unmodified: Dockerfile copies all upstream *.php files and Malcolm only overwrites config.php and submit.php. Upstream index.php exposes a fetch API route that instructs the server to download an arbitrary URL with curl (including FOLLOWLOCATION) and, for HEAD requests, stores the fetched response body in the upload container's transfer directory and returns the transfer ID to the caller, enabling full readback of the fetched content.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107362"
+    },
+    {
+      "id": "CVE-2026-107361",
+      "published": "2026-10-08T18:17:21.170",
+      "lastModified": "2026-10-08T21:03:43.847",
+      "description": "The Arkime live capture service (arkime-live) in Malcolm runs with network_mode: host, exposing port 8005 on all network interfaces (viewHost=0.0.0.0). Arkime trusts the X-Forwarded-User header from any IP address (userAuthIps=::,0.0.0.0/0) and auto-creates users with full access. The passwordSecret is hardcoded to the public value \"Malcolm\". A network-adjacent attacker bypasses nginx entirely by connecting directly to port 8005 with a forged identity header.",
+      "score": 4.2,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107361"
+    },
+    {
+      "id": "CVE-2026-107337",
+      "published": "2026-10-08T18:17:20.687",
+      "lastModified": "2026-10-08T21:03:43.847",
+      "description": "The Malcolm kiosk Flask application exposes a POST /script_call/<script> endpoint with zero authentication and wildcard CORS (CORS(app)). An attacker can force the operator's browser to execute arbitrary management commands via CSRF, including control.py --wipe which permanently deletes all captured network traffic and forensic logs, or control.py --stop which blinds the security monitoring.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107337"
+    },
+    {
+      "id": "CVE-2026-107336",
+      "published": "2026-10-08T18:17:20.177",
+      "lastModified": "2026-10-08T21:03:43.847",
+      "description": "Malcolm's front nginx reverse proxy defines a \"Dashboards → Arkime shortcut\" location using a case-insensitive regex matcher but a case-sensitive rewrite. A request whose path segment is not exact-lowercase (for example /IDDASH2ARK/...) enters the location (the matcher fires) but evades the rewrite (no redirect is issued), so nginx falls through to the location's proxy_pass to the Arkime backend. That location is the one proxied location in the shipped config that does not include the per-location authentication file, so the request reaches Arkime unauthenticated. The same location also forwards a client-supplied X-Forwarded-User header un-overwritten, and Arkime is configured to trust X-Forwarded-User as the authenticated username — so an unauthenticated network caller can reach the Arkime backend while supplying a forged, auto-provisioned identity.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107336"
+    },
+    {
+      "id": "CVE-2026-107335",
+      "published": "2026-10-08T18:17:19.970",
+      "lastModified": "2026-10-13T17:17:16.610",
+      "description": "Malcolm's upload-processing pipeline (scripts/safe-extract.py) enforces entry-count, nesting-depth, and total-uncompressed-byte limits when extracting container archives (zip/tar/rar/7z via libarchive), but those limits are not applied when the uploaded file is a single-stream compressed format (.gz, .bz2, .xz, .lzma, .lz) that isn't a .tar.*-style archive. Any authenticated user permitted to upload PCAP/log files can upload a small, highly compressible file (e.g. a gzip bomb) that decompresses to an effectively unbounded size on disk, exhausting the shared Docker volume used by OpenSearch, Logstash, Arkime, and Zeek, and disrupting the platform for all users.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107335"
+    },
+    {
+      "id": "CVE-2026-107334",
+      "published": "2026-10-08T18:17:19.763",
+      "lastModified": "2026-10-08T21:03:43.847",
+      "description": "Malcolm's nginx Lua role-based access control (RBAC) layer decides whether an authenticated user may reach a role-restricted path (e.g. /htadmin, /auth, /admin_login, /arkime/api/esadmin, NetBox, upload endpoints) by pattern-matching the raw, percent-encoded request URI. Nginx itself, however, selects which location block actually serves the request using the percent-decoded, normalized URI. Because the RBAC check never percent-decodes its input, an authenticated low-privilege user can request an admin-only path using percent-encoding (e.g. /%68tadmin.php) and have nginx route it to the restricted location while the Lua RBAC gate evaluating the un-decoded raw string finds no matching restriction and grants access.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107334"
+    },
+    {
+      "id": "CVE-2026-107333",
+      "published": "2026-10-08T18:17:19.603",
+      "lastModified": "2026-10-08T21:03:43.847",
+      "description": "Malcolm's nginx based reverse proxy contains a URL path normalization inconsistency between its Lua based role-based access control (RBAC) authorization layer and nginx's own request routing logic. An authenticated user can craft a specially formatted request path to bypass role-based restrictions and reach administrative or role gated endpoints they should not have access to. This affects all restricted paths protected by the RBAC authorization layer, including file upload, PHP server, htadmin, and authentication management interfaces.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107333"
+    },
+    {
+      "id": "CVE-2026-107332",
+      "published": "2026-10-08T18:17:19.443",
+      "lastModified": "2026-10-09T17:16:45.423",
+      "description": "Insecure file permissions in the CodeCatalyst connection handler in AWS Toolkit for VS Code before 4.10.0 allowed local users to obtain CodeCatalyst bearer tokens via reading world-readable token cache files.\n\n\n\nTo mitigate this issue, users should upgrade to version 4.10.0 or later.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107332"
+    },
+    {
+      "id": "CVE-2026-107303",
+      "published": "2026-10-08T18:17:19.277",
+      "lastModified": "2026-10-09T12:17:07.987",
+      "description": "JHipster is a development platform to quickly generate, develop, and deploy modern web applications and microservice architectures. Prior to generator-jhipster 9.4.0 and react-jhipster 1.1.0, generated applications can persist attacker-controlled Blob data and companion ContentType values, return them through generated REST endpoints, and pass them to the generated openFile helper in generators/client/generators/common/templates/src/main/webapp/app/shared/jhipster/data-utils.ts.ejs. The helper uses the returned ContentType as the browser Blob MIME type and opens an object URL, so a normal authenticated user with write access to a Blob-bearing entity can store active HTML or SVG content that may execute under the application origin when a privileged user opens it. Exploitability depends on the generated application's content security policy and target-browser Blob behavior. This issue is fixed in generator-jhipster 9.4.0 and react-jhipster 1.1.0.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107303"
+    },
+    {
+      "id": "CVE-2026-107302",
+      "published": "2026-10-08T18:17:19.100",
+      "lastModified": "2026-10-08T20:48:36.970",
+      "description": "msgpack5 is a msgpack v5 implementation for node.js and the browser. Prior to 6.1.0, the decoder reads the four-byte length of a map32 value before validating that the complete five-byte header is available. A truncated map32 header therefore causes a checked out-of-bounds buffer read and throws RangeError instead of IncompleteBufferError, which can unexpectedly terminate a request, stream, or worker in applications that wait for additional bytes after IncompleteBufferError. There is no adjacent-memory disclosure because the buffer implementation checks bounds. This issue is fixed in version 6.1.0.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107302"
+    },
+    {
+      "id": "CVE-2026-88647",
+      "published": "2026-10-08T17:17:17.783",
+      "lastModified": "2026-10-10T03:17:08.620",
+      "description": "A hostname verification bypass in GnuTLS v3.8.13 allows attackers to circumvent the Common Name fallback mechanism and eavesdrop on communications via a crafted certificate.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88647"
+    },
+    {
+      "id": "CVE-2026-62167",
+      "published": "2026-10-08T17:17:17.720",
+      "lastModified": "2026-10-08T17:17:17.720",
+      "description": "Rejected reason: This CVE is a duplicate of another CVE.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62167"
+    },
+    {
+      "id": "CVE-2026-62166",
+      "published": "2026-10-08T17:17:17.663",
+      "lastModified": "2026-10-08T17:17:17.663",
+      "description": "Rejected reason: This CVE is a duplicate of another CVE.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62166"
+    },
+    {
+      "id": "CVE-2026-62163",
+      "published": "2026-10-08T17:17:17.587",
+      "lastModified": "2026-10-08T17:17:17.587",
+      "description": "Rejected reason: Reason: This candidate is a duplicate of CVE-2026-60089.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62163"
+    },
+    {
+      "id": "CVE-2026-61801",
+      "published": "2026-10-08T17:17:17.433",
+      "lastModified": "2026-10-08T21:35:53.890",
+      "description": "The `github.com/moby/sys/user` package provides Go utilities for parsing and looking up entries in Unix-style user and group database files. Versions before 0.4.1 do not sufficiently limit entries when parsing `/etc/passwd`- or `/etc/group`-style files, allowing an attacker who can supply a specially crafted file to cause excessive memory consumption and potentially terminate the affected process due to an out-of-memory condition. This issue is patched in version 0.4.1. As a workaround, avoid parsing attacker-controlled user or group database files, or validate and limit untrusted input before parsing it.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61801"
+    },
+    {
+      "id": "CVE-2026-50055",
+      "published": "2026-10-08T17:17:17.307",
+      "lastModified": "2026-10-08T20:49:23.240",
+      "description": "A policy-enforcement flaw in Zimbra Collaboration Suite allows an authenticated user to bypass disabled mail forwarding by using a Sieve notify action to send copies of email content and headers to an arbitrary address.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-50055"
+    },
+    {
+      "id": "CVE-2026-50054",
+      "published": "2026-10-08T17:17:17.180",
+      "lastModified": "2026-10-08T20:49:23.240",
+      "description": "An authorization flaw in Zimbra Collaboration Suite’s GrantRightsRequest allows an attacker with access to an authenticated account to grant another local account the loginAs right, creating persistent mailbox access and mail-sending authority that survives password changes and session expiry.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-50054"
+    },
+    {
+      "id": "CVE-2026-10631",
+      "published": "2026-10-08T17:17:16.410",
+      "lastModified": "2026-10-08T20:49:23.240",
+      "description": "An authorization bypass in the EWS FindItem handler of Zimbra Collaboration Suite 10.1.0 through 10.1.19 allows an authenticated user with EWS enabled to read complete mailbox items, including raw MIME and attachments, from arbitrary local accounts without a share or delegation grant.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-10631"
+    },
+    {
+      "id": "CVE-2026-107709",
+      "published": "2026-10-08T17:17:16.293",
+      "lastModified": "2026-10-08T21:17:52.420",
+      "description": "A path traversal vulnerability exists in Bower decompress-zip through version 0.3.3. The vulnerability located in `lib/decompress-zip.js` improperly validates archive entry paths during ZIP extraction. A crafted ZIP archive containing entries that resolve to prefix-sibling directories can cause files to be written outside the intended extraction directory. Successful exploitation may allow arbitrary file overwrite, application compromise, or remote code execution depending on the target environment and writable sibling paths.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107709"
+    },
+    {
+      "id": "CVE-2026-107301",
+      "published": "2026-10-08T17:17:16.143",
+      "lastModified": "2026-10-14T01:17:05.583",
+      "description": "msgpack5 is a msgpack v5 implementation for node.js and the browser. Prior to 6.1.0, constructing msgpack5 with an empty or partial options object disables the default protoAction: 'error' protection. A decoded map containing a __proto__ key can then replace the decoded object's prototype, potentially changing inherited properties or downstream behavior, although Object.prototype is not modified globally. This issue is fixed in version 6.1.0.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107301"
+    },
+    {
+      "id": "CVE-2026-107300",
+      "published": "2026-10-08T17:17:16.000",
+      "lastModified": "2026-10-08T20:48:36.970",
+      "description": "msgpack5 is a msgpack v5 implementation for node.js and the browser. Prior to 6.1.0, the streaming decoder recursively invokes itself for each complete MessagePack value remaining in a chunk. A remote peer can send one chunk containing many small valid values, causing recursion proportional to the value count, exhausting the JavaScript call stack, and interrupting the process or stream. This issue is fixed in version 6.1.0.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107300"
+    },
+    {
+      "id": "CVE-2026-107299",
+      "published": "2026-10-08T17:17:15.850",
+      "lastModified": "2026-10-09T16:17:22.147",
+      "description": "msgpack5 is a msgpack v5 implementation for node.js and the browser. Prior to 6.1.0, the streaming decoder treats the reserved MessagePack byte 0xc1 as incomplete input instead of invalid input. When 0xc1 begins a stream, subsequent data remains buffered while the decoder waits for bytes that cannot make the value valid, allowing a remote peer to exhaust memory. This issue is fixed in version 6.1.0.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107299"
+    },
+    {
+      "id": "CVE-2026-107298",
+      "published": "2026-10-08T17:17:15.703",
+      "lastModified": "2026-10-09T12:17:07.863",
+      "description": "msgpack5 is a msgpack v5 implementation for node.js and the browser. Prior to 6.1.0, the array and map decoding paths have no nesting-depth limit, allowing an attacker who can provide MessagePack input to submit deeply nested containers that exhaust the JavaScript call stack and interrupt a process, worker, or request handler. This issue is fixed in version 6.1.0.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107298"
+    },
+    {
+      "id": "CVE-2026-107297",
+      "published": "2026-10-08T17:17:15.550",
+      "lastModified": "2026-10-08T20:48:36.970",
+      "description": "msgpack5 is a msgpack v5 implementation for node.js and the browser. Prior to 6.1.0, the streaming decoder reparses an incomplete array or map from the beginning whenever another chunk arrives. A remote peer can split one valid MessagePack container across many small chunks, causing completed elements to be decoded repeatedly, producing quadratic CPU use and blocking the event loop. This issue is fixed in version 6.1.0.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107297"
+    },
+    {
+      "id": "CVE-2026-107296",
+      "published": "2026-10-08T17:17:15.390",
+      "lastModified": "2026-10-14T01:17:05.483",
+      "description": "msgpack5 is a msgpack v5 implementation for node.js and the browser. Prior to 6.1.0, decoding a negative signed 64-bit integer modifies the corresponding bytes in the caller-provided input buffer while computing the value. Applications that retain or reuse encoded input for integrity checks, logging, or later processing can observe silently corrupted data, while positive integers and other MessagePack value types are unaffected. This issue is fixed in version 6.1.0.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107296"
+    },
+    {
+      "id": "CVE-2026-107295",
+      "published": "2026-10-08T17:17:15.237",
+      "lastModified": "2026-10-13T14:16:53.140",
+      "description": "Pydantic AI is a Python agent framework for building applications and workflows with Generative AI. From 1.34.0 until 1.107.4 and 2.28.0, the Agent.to_web() and clai web development chat endpoint has missing request content-type validation. A website visited by a developer can submit a browser-compatible request to a loopback-hosted chat server, causing the served agent to run and execute tools with the privileges and credentials of the local process; client-relayed approval decisions also leave requires_approval=True tools exposed. Binding to localhost does not prevent a browser page from reaching the loopback address. This issue is fixed in versions 1.107.4 and 2.28.0.",
+      "score": 7.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107295"
+    },
+    {
+      "id": "CVE-2026-107294",
+      "published": "2026-10-08T17:17:15.080",
+      "lastModified": "2026-10-13T13:49:02.473",
+      "description": "Pydantic AI is a Python agent framework for building applications and workflows with Generative AI. From 1.77.0 until 1.107.2 and 2.24.0, web_fetch_tool, the WebFetch local fallback, and remote FileUrl media downloads buffer the complete HTTP response body before enforcing content-size controls. An attacker-influenced URL can stream an arbitrarily large response that exhausts process memory and crashes the worker; affected media types include ImageUrl, DocumentUrl, VideoUrl, and AudioUrl. SSRF protections remain effective, and the impact is limited to availability. This issue is fixed in versions 1.107.2 and 2.24.0.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107294"
+    },
+    {
+      "id": "CVE-2026-107293",
+      "published": "2026-10-08T17:17:14.933",
+      "lastModified": "2026-10-13T14:30:39.803",
+      "description": "Pydantic AI is a Python agent framework for building applications and workflows with Generative AI. From 0.3.4 until 1.107.4 and 2.27.1, OpenTelemetry instrumentation configured with InstrumentationSettings(include_content=False) can export retry prompts outside tool calls in gen_ai.input.messages and pydantic_ai.all_messages. Agents using NativeOutput, PromptedOutput, or output validators on text output can therefore disclose validation feedback, including invalid model values quoted by that feedback, to readers of the telemetry backend. Tool-call retries and deployments that do not use include_content=False are not affected by this specific path. This issue is fixed in versions 1.107.4 and 2.27.1.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107293"
+    },
+    {
+      "id": "CVE-2026-107292",
+      "published": "2026-10-08T17:17:14.770",
+      "lastModified": "2026-10-14T01:17:05.360",
+      "description": "Pydantic AI is a Python agent framework for building applications and workflows with Generative AI. From 1.34.0 until 2.30.0, the Agent.to_web() and clai web development chat server does not validate the Host header, allowing a website visited by a developer to use DNS rebinding to reach a loopback-hosted agent as a same-origin service. The hostile page can read the served UI and submit chat requests that execute agent tools with the local process's privileges and credentials, causing data disclosure or unwanted side effects. Binding to localhost, Origin checks, and CSRF tokens do not prevent the same-origin DNS rebinding path. This issue is fixed in versions 1.107.5 and 2.30.0.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107292"
+    },
+    {
+      "id": "CVE-2026-107291",
+      "published": "2026-10-08T17:17:14.590",
+      "lastModified": "2026-10-13T14:34:22.207",
+      "description": "Pydantic AI is a Python agent framework for building applications and workflows with Generative AI. From 0.3.4 until 1.107.6 and 2.44.0, OpenTelemetry instrumentation configured with InstrumentationSettings(include_content=False) can still export sensitive agent content through exception.message and exception.stacktrace events, error status descriptions, and model_request_parameters containing instructions or the prompted_output_template. The exposed data is available to readers of the configured telemetry backend and can include tool feedback, provider error bodies, runtime instructions, and structured-output templates even though message attributes are redacted. This issue does not grant new access to agent data, and deployments that do not use include_content=False are not affected by the setting bypass. This issue is fixed in versions 1.107.6 and 2.44.0.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107291"
+    },
+    {
+      "id": "CVE-2026-107290",
+      "published": "2026-10-08T17:17:14.413",
+      "lastModified": "2026-10-13T14:34:38.623",
+      "description": "Pydantic AI is a Python agent framework for building applications and workflows with Generative AI. From 1.77.0 until 1.107.6 and 2.44.0, the local web_fetch_tool and the WebFetch local fallback process server-controlled responses with quadratic title extraction, whitespace normalization, and ordered-list numbering. An attacker-controlled page of modest size can therefore block the event loop for an extended period, stalling other agent runs and requests, while unsupported codecs or excessive HTML or JSON nesting can abort an individual run. This issue is fixed in versions 1.107.6 and 2.44.0.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107290"
+    },
+    {
+      "id": "CVE-2026-105436",
+      "published": "2026-10-08T17:17:12.363",
+      "lastModified": "2026-10-09T16:17:21.427",
+      "description": "Deserialization of Untrusted Data vulnerability in MainWP MainWP Child mainwp-child allows Object Injection.This issue affects MainWP Child: from n/a through 6.2.1.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105436"
+    },
+    {
+      "id": "CVE-2026-104078",
+      "published": "2026-10-08T17:17:11.753",
+      "lastModified": "2026-10-12T21:17:08.157",
+      "description": "Obsidian Desktop before 1.14.0 contains a filter bypass vulnerability in the bundled MathJax 3.2.2 Safe component that allows attackers to execute arbitrary code by embedding a crafted \\href value with a TAB byte in the URL scheme, causing filterURL to produce an empty protocol that bypasses the configured safeProtocols restrictions. Attackers can craft a note containing a malicious MathJax formula that renders as a javascript: URL anchor, which when clicked by the victim in Live Preview executes in the Node-integration-enabled vault renderer via require('child_process'), achieving arbitrary operating system command execution as the desktop user.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104078"
+    },
+    {
+      "id": "CVE-2026-104077",
+      "published": "2026-10-08T17:17:11.603",
+      "lastModified": "2026-10-12T21:17:07.983",
+      "description": "Obsidian Desktop before 1.14.0 contains a remote code execution vulnerability that allows attackers to craft malicious Markdown notes exploiting insufficient sanitization of the data-background-iframe attribute, which bypasses DOMPurify and is processed by the bundled Reveal.js 4.3.1 within the Slides core plugin, allowing a javascript: URL to execute in the resulting background iframe. Because Node integration is enabled and context isolation is disabled in Obsidian's vault renderer, the injected script can call parent.require() to access Node APIs such as fs and child_process, enabling arbitrary operating system command execution when the victim opens the note and manually starts the presentation.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104077"
+    },
+    {
+      "id": "CVE-2026-95208",
+      "published": "2026-10-08T16:18:01.420",
+      "lastModified": "2026-10-08T21:34:48.800",
+      "description": "An issue in the ConfirmNameConstraints() function (wolfcrypt/src/asn.c) of wolfSSL v5.9.1 and v5.9.2 allows attackers to cause a Denial of Service (DoS) via providing crafted Certificate Authority certificates, leading to valid certificates without SAN to be incorrectly rejected by wolfSSL-based TLS clients.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-95208"
+    },
+    {
+      "id": "CVE-2026-19585",
+      "published": "2026-10-08T16:17:10.490",
+      "lastModified": "2026-10-08T21:07:57.460",
+      "description": "HashiCorp go-getter versions before 1.8.10 and go-getter/v2 versions before 2.2.5 are vulnerable to path traversal during S3 and GCS directory downloads, which may allow files to be written outside the requested destination. This vulnerability (CVE-2026-19585) is fixed in go-getter 1.8.10 and go-getter/v2 2.2.5.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19585"
+    },
+    {
+      "id": "CVE-2026-107678",
+      "published": "2026-10-08T16:17:05.747",
+      "lastModified": "2026-10-14T23:55:04.477",
+      "description": "FFmpeg through 9.0.2 contains a stack exhaustion vulnerability in av_encryption_init_info_free() in libavutil/encryption_info.c, which recursively frees AVEncryptionInitInfo linked lists built by the MOV demuxer's mov_read_pssh(). Attackers can supply a crafted MP4 file with tens of thousands of small pssh boxes to exhaust the stack and crash the process, while also causing quadratic CPU consumption.",
+      "score": 4.7,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107678"
+    },
+    {
+      "id": "CVE-2026-107677",
+      "published": "2026-10-08T16:17:05.430",
+      "lastModified": "2026-10-14T23:55:11.270",
+      "description": "FFmpeg through 9.0.2 contains a denial of service vulnerability in the DASH demuxer that allows attackers to trigger an infinite loop by supplying an empty SegmentTemplate media URL. Attackers can craft an .mpd manifest declaring SegmentTemplate media=\"\" so get_current_fragment() calls av_strireplace() with an empty search string, consuming CPU indefinitely.",
+      "score": 4.7,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107677"
+    },
+    {
+      "id": "CVE-2026-107676",
+      "published": "2026-10-08T16:17:05.247",
+      "lastModified": "2026-10-14T23:55:20.810",
+      "description": "FFmpeg through 9.0.2 contains an uninitialized memory disclosure vulnerability in av_dynamic_hdr_plus_to_t35() that leaves up to three payload bytes uninitialized when tone_mapping_flag is 0. Attackers can supply crafted Matroska T.35 BlockAdditional or HEVC/AV1 SEI metadata so that remuxing or transcoding writes leaked process memory into output files.",
+      "score": 3.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107676"
+    },
+    {
+      "id": "CVE-2026-107675",
+      "published": "2026-10-08T16:17:05.070",
+      "lastModified": "2026-10-14T23:55:28.720",
+      "description": "FFmpeg through 9.0.2 contains a missing host key verification vulnerability in the libssh-based sftp protocol handler that allows network attackers to impersonate SFTP servers. Attackers performing man-in-the-middle, DNS, or ARP spoofing can capture passwords supplied in sftp URLs, serve forged media, or receive uploaded output.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107675"
+    },
+    {
+      "id": "CVE-2026-107660",
+      "published": "2026-10-08T16:17:04.893",
+      "lastModified": "2026-10-14T23:56:12.057",
+      "description": "FFmpeg before 8.1.3 and 9.x before 9.0.2 contains an improper certificate validation vulnerability in tls_open() of libavformat/tls_mbedtls.c, which skips hostname checks for IP-address hosts. Network attackers can intercept https, rtmps, or tls connections to IP-literal URLs with any trusted CA-issued certificate to read and tamper with streams.",
+      "score": 4.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107660"
+    },
+    {
+      "id": "CVE-2026-107289",
+      "published": "2026-10-08T16:17:04.337",
+      "lastModified": "2026-10-13T14:34:48.123",
+      "description": "Pydantic AI is a Python agent framework for building applications and workflows with Generative AI. From 1.56.0 until 1.107.6 and 2.44.0, applications that opt attacker-influenced URLs into local network access through FileUrl with force_download='allow-local' or web_fetch_tool with allow_local_urls=True can bypass the cloud-metadata blocklist by appending an IPv6 zone identifier to an IPv6 metadata address. IPv6Address equality and hashing include the zone identifier, so the blocklist comparison fails even though the network stack ignores the zone on a non-link-local destination and reaches the metadata service, potentially exposing cloud IAM credentials. The opt-in settings are disabled by default, and the issue requires an IPv6-enabled environment. This issue is fixed in versions 1.107.6 and 2.44.0.",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107289"
+    },
+    {
+      "id": "CVE-2026-107288",
+      "published": "2026-10-08T16:17:04.147",
+      "lastModified": "2026-10-13T14:35:05.370",
+      "description": "Pydantic AI is a Python agent framework for building applications and workflows with Generative AI. From 1.77.0 until 1.107.6 and 2.44.0, the local web_fetch_tool and the WebFetch local fallback compare blocked_domains entries with a URL hostname before both values are normalized to the form used by getaddrinfo. An attacker-influenced model can use an equivalent IDNA spelling, non-ASCII label separator, case variation, or trailing root label that resolves to a blocked host but does not match the configured string, causing the application to fetch that host with its own privileges. allowed_domains fails closed for unmatched spellings, and private-IP and cloud-metadata protections remain effective. This issue is fixed in versions 1.107.6 and 2.44.0.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107288"
+    },
+    {
+      "id": "CVE-2026-107287",
+      "published": "2026-10-08T16:17:03.973",
+      "lastModified": "2026-10-14T01:17:04.887",
+      "description": "Pydantic AI is a Python agent framework for building applications and workflows with Generative AI. From 1.77.0 until 1.107.7 and 2.52.0, the local web_fetch_tool and the WebFetch local fallback can consume excessive CPU and memory during HTML-to-Markdown conversion of attacker-controlled HTML containing deeply nested block elements. Conversion repeatedly reprocesses accumulated text and can greatly expand intermediate output before the returned-content limit is applied, allowing a model-directed fetch to delay other work in the process. Provider-native web fetching is not affected. This issue is fixed in versions 1.107.7 and 2.52.0.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107287"
+    },
+    {
+      "id": "CVE-2026-106177",
+      "published": "2026-10-08T16:17:01.777",
+      "lastModified": "2026-10-09T04:18:04.790",
+      "description": "A kernel buffer overflow vulnerability in HP Sure Click versions prior to 4.4.33 may allow local privilege escalation or arbitrary code execution. HP has released version 4.4.33 to address this vulnerability.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106177"
+    },
+    {
+      "id": "CVE-2026-9209",
+      "published": "2026-10-08T15:17:57.677",
+      "lastModified": "2026-10-08T21:35:53.890",
+      "description": "mJobTime through build 15.7.3.32 contains an unauthenticated SQL execution vulnerability in the Login.aspx admin panel handlers, where the runQueryButton postback and exportSqlQuery_Server PageMethod execute caller-supplied SQL against the backing Sybase SQL Anywhere database using DBA/sysadmin privileges with no server-side authentication enforced beyond a client-side sessionStorage flag. Attackers can submit arbitrary SQL through these exposed endpoints to invoke xp_cmdshell and xp_read_file, achieving pre-authentication remote code execution as LocalSystem via a single HTTP request.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-9209"
+    },
+    {
+      "id": "CVE-2026-95125",
+      "published": "2026-10-08T15:17:57.530",
+      "lastModified": "2026-10-08T21:33:42.423",
+      "description": "libming through 0.4.8 contains a heap buffer overflow in r_readc() in src/blocks/fromswf.c. A crafted SWF file with a malformed or truncated RECT header can cause a denial of service.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-95125"
+    },
+    {
+      "id": "CVE-2026-93034",
+      "published": "2026-10-08T15:17:57.117",
+      "lastModified": "2026-10-08T21:18:03.583",
+      "description": "SGLang contains an arbitrary code execution vulnerability caused by the ZMQ message decoder unconditionally deserializing PickleWrapper payloads via pickle.loads() in _maybe_unwrap_pickle without type allowlisting or authentication; this vulnerability persists via the msgpack path even when SGLANG_USE_PICKLE_IPC is disabled, and becomes remotely exploitable if data-parallel attention is enabled with a non-loopback --dist-init-addr setting.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93034"
+    },
+    {
+      "id": "CVE-2026-93017",
+      "published": "2026-10-08T15:17:56.950",
+      "lastModified": "2026-10-10T04:18:19.450",
+      "description": "The `insights-operator-gather` ClusterRole grants the operator's service account read access to secrets in the core API group with no namespace or resourceNames restriction — therefore, access to every secret in every namespace in the cluster.\n\nRef: https://github.com/openshift/insights-operator/blob/8f15e3157ff09f54ab22801f5b21da35a195cc6d/manifests/03-clusterrole.yaml#L368-L373\n```\n- apiGroups:\n  - \"\"\n  resources:\n  - secrets\n  verbs:\n  - get\n  - list\n```\n\nBy spawning a pod with the gather service account mounted, an attacker will be able to access any secret in any namespace.\n\n```\nspec:\n serviceAccountName:\"gather\"\n```",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93017"
+    },
+    {
+      "id": "CVE-2026-14999",
+      "published": "2026-10-08T15:17:50.360",
+      "lastModified": "2026-10-14T19:41:36.160",
+      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to bypass authentication by forging valid JSON Web Signatures due to improper verification of cryptographic signatures.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14999"
+    },
+    {
+      "id": "CVE-2026-14992",
+      "published": "2026-10-08T15:17:50.210",
+      "lastModified": "2026-10-14T19:47:01.233",
+      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 vulnerable to buffer overflow.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14992"
+    },
+    {
+      "id": "CVE-2026-14988",
+      "published": "2026-10-08T15:17:49.973",
+      "lastModified": "2026-10-14T19:48:59.643",
+      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 is vulnerable to buffer overflow.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14988"
+    },
+    {
+      "id": "CVE-2026-14905",
+      "published": "2026-10-08T15:17:49.837",
+      "lastModified": "2026-10-15T02:12:05.190",
+      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 is vulnerable to an XML external entity injection (XXE) attack when processing XML data. A remote attacker could exploit this vulnerability to expose sensitive information or consume memory resources.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14905"
+    },
+    {
+      "id": "CVE-2026-14888",
+      "published": "2026-10-08T15:17:49.700",
+      "lastModified": "2026-10-14T19:58:08.343",
+      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to execute arbitrary code due to a heap-based buffer overflow.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14888"
+    },
+    {
+      "id": "CVE-2026-14509",
+      "published": "2026-10-08T15:17:49.560",
+      "lastModified": "2026-10-14T20:02:22.867",
+      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to cause a denial of service due to algorithmic complexity in linked-list traversal.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14509"
+    },
+    {
+      "id": "CVE-2026-14508",
+      "published": "2026-10-08T15:17:49.413",
+      "lastModified": "2026-10-14T20:03:55.157",
+      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to cause a denial of service and obtain sensitive information due to a use-after-free.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14508"
+    },
+    {
+      "id": "CVE-2026-14507",
+      "published": "2026-10-08T15:17:49.283",
+      "lastModified": "2026-10-14T20:04:42.920",
+      "description": "IBM DataPower Gateway 11.0.0.0 through 11.0.0.2 could allow a remote authenticated attacker to cause a denial of service due to improper memory allocation during key derivation.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14507"
+    },
+    {
+      "id": "CVE-2026-14502",
+      "published": "2026-10-08T15:17:49.150",
+      "lastModified": "2026-10-14T23:58:22.163",
+      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to obtain administrative access due to failure to reject empty passwords during LDAP authentication.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14502"
+    },
+    {
+      "id": "CVE-2026-14497",
+      "published": "2026-10-08T15:17:49.013",
+      "lastModified": "2026-10-14T23:58:32.363",
+      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote authenticated attacker to bypass security restrictions due to improper verification of cryptographic signatures.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14497"
+    },
+    {
+      "id": "CVE-2026-14496",
+      "published": "2026-10-08T15:17:48.880",
+      "lastModified": "2026-10-14T23:58:46.747",
+      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to cause a denial of service due to a heap-based buffer overflow.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14496"
+    },
+    {
+      "id": "CVE-2026-14273",
+      "published": "2026-10-08T15:17:48.733",
+      "lastModified": "2026-10-14T23:58:54.937",
+      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a local attacker to obtain sensitive information due to improper authorization.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14273"
+    },
+    {
+      "id": "CVE-2026-14269",
+      "published": "2026-10-08T15:17:48.600",
+      "lastModified": "2026-10-14T23:59:01.973",
+      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 is vulnerable to a heap-based buffer overflow, caused by improper bounds checking. An unauthenticated remote attacker could overflow the buffer and execute arbitrary code on the system.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14269"
+    },
+    {
+      "id": "CVE-2026-13258",
+      "published": "2026-10-08T15:17:48.393",
+      "lastModified": "2026-10-14T23:59:08.033",
+      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 is vulnerable to cross-site scripting. This vulnerability allows an authenticated user to embed arbitrary JavaScript code in the Web UI thus altering the intended functionality potentially leading to credentials disclosure within a trusted session.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13258"
+    },
+    {
+      "id": "CVE-2026-13257",
+      "published": "2026-10-08T15:17:48.143",
+      "lastModified": "2026-10-14T23:59:21.327",
+      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow an authenticated user to forge signature requests due to improper verification of data authenticity.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13257"
+    },
+    {
+      "id": "CVE-2026-12859",
+      "published": "2026-10-08T15:17:48.010",
+      "lastModified": "2026-10-08T20:17:36.100",
+      "description": "Missing Authorization vulnerability in Caz Informatics Services Trade Inc. Advancity ALMS Cloud allows Accessing Functionality Not Properly Constrained by ACLs.\n\nThis issue affects Advancity ALMS Cloud: through 2026-10-08. NOTE: The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12859"
+    },
+    {
+      "id": "CVE-2026-107640",
+      "published": "2026-10-08T15:17:47.343",
+      "lastModified": "2026-10-08T21:35:53.890",
+      "description": "Integrics Enswitch 3.13 through 4.4 contains an authentication bypass vulnerability in /api/json/user/password/update/ that allows unauthenticated attackers to change account passwords by omitting the reset parameter. Attackers can target accounts with no pending reset, whose empty reset_key matches the defaulted empty value, to take over administrator accounts after enumerating valid usernames.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107640"
+    },
+    {
+      "id": "CVE-2026-107639",
+      "published": "2026-10-08T15:17:47.117",
+      "lastModified": "2026-10-10T04:18:09.920",
+      "description": "ILIAS before 9.24, 10.x before 10.12 and 11.x before 11.5 contains an argument injection vulnerability in assImagemapQuestionGUI that allows question authors to inject ImageMagick convert options via uploaded image filenames. Attackers can embed tab-separated options, which escapeshellcmd() does not neutralise, to write a PHP file under the web root and achieve remote code execution.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107639"
+    },
+    {
+      "id": "CVE-2026-107638",
+      "published": "2026-10-08T15:17:46.930",
+      "lastModified": "2026-10-08T18:17:25.320",
+      "description": "pH7Builder (pH7 Social Dating CMS) before 18.5.0 contains an improper restriction of authentication attempts vulnerability that allows attackers to bypass two-factor authentication by guessing TOTP codes without limits. Attackers who know an account password can submit unlimited 6-digit verification codes to VerificationCodeFormProcess.php to take over member, affiliate, or administrator accounts.",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107638"
+    },
+    {
+      "id": "CVE-2026-107637",
+      "published": "2026-10-08T15:17:46.737",
+      "lastModified": "2026-10-08T15:17:46.873",
+      "description": "pH7Builder (pH7 Social Dating CMS) before 18.5.0 contains an improper authorization vulnerability in the note module delete() action that allows authenticated members to delete other members' note comments and categories. Attackers can submit another member's note ID in the POST id parameter to remove all comments and category associations, since those queries lack profile ID checks.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107637"
+    },
+    {
+      "id": "CVE-2026-107636",
+      "published": "2026-10-08T15:17:46.543",
+      "lastModified": "2026-10-08T18:17:25.180",
+      "description": "pH7Builder (pH7 Social Dating CMS) before 18.5.1 contains a payment validation vulnerability that allows registered low-privileged members to obtain any membership tier by supplying client-controlled plan and amount fields. Attackers can set item_number, cart_order_id, or the PayPal custom field while paying a token amount, or submit uncompleted PayPal IPN payments, to gain the most expensive membership and its paid features.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107636"
+    },
+    {
+      "id": "CVE-2026-107635",
+      "published": "2026-10-08T15:17:46.340",
+      "lastModified": "2026-10-08T21:33:42.423",
+      "description": "Dislocker through 0.7.3 contains an integer underflow vulnerability in get_vmk() and get_fvek() that allows attackers to trigger out-of-bounds heap reads via crafted datum sizes. Attackers can supply a malicious BitLocker volume image with a datum_size smaller than the 36-byte AES-CCM header, causing hexdump() to over-read and crash dislocker.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107635"
+    },
+    {
+      "id": "CVE-2026-107634",
+      "published": "2026-10-08T15:17:46.160",
+      "lastModified": "2026-10-10T04:18:09.720",
+      "description": "Dislocker through 0.7.3 contains a heap out-of-bounds read vulnerability in get_dataset() and get_next_datum() that never validate dataset and datum sizes against the metadata allocation. Attackers can craft a BitLocker volume image with inflated dataset or datum sizes that, when opened or mounted, crashes dislocker or discloses adjacent heap memory.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107634"
+    },
+    {
+      "id": "CVE-2026-107623",
+      "published": "2026-10-08T15:17:46.017",
+      "lastModified": "2026-10-08T20:49:23.240",
+      "description": "A flaw was found in the OIDC Dynamic Client Registration (DCR) component of Keycloak. A bug in the response serialization causes the backchannel logout offline token revocation setting to be omitted from responses. When a client performs a standard update, this missing information causes the setting to be silently disabled. As a result, offline tokens may remain valid even after a user session is terminated via backchannel logout.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107623"
+    },
+    {
+      "id": "CVE-2026-107604",
+      "published": "2026-10-08T15:17:45.290",
+      "lastModified": "2026-10-08T20:49:23.240",
+      "description": "A flaw was found in the installation provider and client registration endpoints of the Keycloak identity management service. A realm administrator with only the read-only view-clients role can access the active primary secret of any confidential client, which should normally be restricted. This exposed secret can be used to impersonate the client and gain unauthorized access to its associated service account permissions.",
+      "score": 4.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107604"
+    },
+    {
+      "id": "CVE-2026-107589",
+      "published": "2026-10-08T15:17:45.153",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Insufficient job validation for service accounts in Jacamar CI prior to v0.30.0 allows authenticated CI users to generate arbitrary account names.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107589"
+    },
+    {
+      "id": "CVE-2026-107586",
+      "published": "2026-10-08T15:17:44.897",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Uncontrolled eviction in the browser session table of the REST API in Progressive Robot hMailServer 6.2.28 through 6.3.5 allows a remote authenticated user to end other users' sessions. The table of browser sessions, shared by every account, the server administrator and support sessions, dropped its least recently used session whenever it was full, whoever it belonged to, and placed no limit on how many sessions one account could hold. A user who repeatedly signs in with their own mailbox password can therefore keep the table full and sign out every webmail and administration session that is idle for more than a short time, for as long as they continue.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107586"
+    },
+    {
+      "id": "CVE-2026-107585",
+      "published": "2026-10-08T15:17:44.763",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Uncontrolled eviction in the pending sign-in tables of the REST API in Progressive Robot hMailServer 6.3.4 and 6.3.5 allows a remote unauthenticated attacker to make other users' OpenID Connect, SAML and passkey sign-ins fail. The routes that start a single sign-on and hand out a passkey sign-in challenge are reached without authentication and stored pending state in bounded tables that dropped their oldest entry when full, whoever had started it. An attacker who starts sign-ins a few times a second (about a hundred a second for passkeys) pushes every other user's pending sign-in out of the table before that user's browser returns, denying single sign-on and passkey sign-in for as long as the requests continue.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107585"
+    },
+    {
+      "id": "CVE-2026-107565",
+      "published": "2026-10-08T15:17:43.310",
+      "lastModified": "2026-10-08T20:49:23.240",
+      "description": "A flaw was found in luksmeta. A local attacker with administrative privileges can cause data corruption when saving metadata to a Linux Unified Key Setup (LUKS) device. Due to incorrect boundary calculations and flawed overlap detection, new metadata entries can be written beyond available free space or over existing records. This issue can corrupt stored encrypted payload data or existing metadata, potentially rendering the affected data inaccessible.",
+      "score": 5.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107565"
+    },
+    {
+      "id": "CVE-2026-107286",
+      "published": "2026-10-08T15:17:40.753",
+      "lastModified": "2026-10-13T14:36:51.687",
+      "description": "Pydantic AI is a Python agent framework for building applications and workflows with Generative AI. From 2.10.0 until 2.53.0, streamed requests made through ConcurrencyLimitedModel or limit_model_concurrency can retain shared concurrency slots because anyio.CapacityLimiter associates an acquired slot with the borrowing task while streaming cleanup can run in a different task. Early stream termination, cancellation, consumer exceptions, or complete stream_text() consumption with debounce_by=0.1 can therefore leave capacity occupied, eventually preventing later requests that share the long-lived limiter from proceeding and causing a denial of service. Agent-level max_concurrency and non-streaming model requests are not affected. This issue is fixed in version 2.53.0.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107286"
+    },
+    {
+      "id": "CVE-2026-105833",
+      "published": "2026-10-08T15:17:35.913",
+      "lastModified": "2026-10-08T18:17:15.000",
+      "description": "EspoCRM before 10.0.5 contains an insecure direct object reference vulnerability in PersonalAccount\\Service that allows users with Email Account scope access to retrieve other users' IMAP passwords. Attackers who know a victim's Email Account record ID can request that record to steal stored IMAP credentials and access the victim's mailbox.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105833"
+    },
+    {
+      "id": "CVE-2026-105832",
+      "published": "2026-10-08T15:17:35.697",
+      "lastModified": "2026-10-08T15:17:35.840",
+      "description": "EspoCRM before 10.0.6 contains an authentication bypass vulnerability that accepts a login stopped at the second factor on routes not requiring authentication. Attackers knowing a 2FA-enabled user's username and password can skip the second factor to read config parameters not exposed publicly.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105832"
+    },
+    {
+      "id": "CVE-2026-105831",
+      "published": "2026-10-08T15:17:35.507",
+      "lastModified": "2026-10-08T18:17:14.857",
+      "description": "EspoCRM before 10.0.6 contains a stored HTML injection vulnerability that allows unauthenticated attackers to inject HTML by submitting crafted Lead Capture public form data. The request body is stored in LeadCaptureLogRecord.data and rendered unescaped when administrators view the log record, though Content Security Policy blocks JavaScript execution.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105831"
+    },
+    {
+      "id": "CVE-2026-105830",
+      "published": "2026-10-08T15:17:35.340",
+      "lastModified": "2026-10-08T21:33:42.423",
+      "description": "league/commonmark from 2.0.0 before 2.10.2 contains a quadratic-time denial of service vulnerability in the GitHub Flavored Markdown Table extension's TableStartParser::tryStart() block-start scan. Unauthenticated attackers can submit a large paragraph of pipe-free lines not starting with letters, forcing repeated full-buffer strpos scans that exhaust PHP worker CPU.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105830"
+    },
+    {
+      "id": "CVE-2026-105829",
+      "published": "2026-10-08T15:17:35.167",
+      "lastModified": "2026-10-10T04:18:09.177",
+      "description": "League CommonMark from 1.3.0 before 2.10.2 contains a cross-site scripting vulnerability that allows users posting Markdown to bypass the DisallowedRawHtml extension by ending raw HTML with a bare disallowed tag name. Attackers can place a lone <script or <iframe line followed by a block supplying attributes like src or onload, executing stored scripts in viewers' browsers under default GFM settings.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105829"
+    },
+    {
+      "id": "CVE-2026-105828",
+      "published": "2026-10-08T15:17:34.993",
+      "lastModified": "2026-10-08T21:35:34.087",
+      "description": "Parse Server 8.2.2 before 8.6.92 and 9.0.0 before 9.10.1-alpha.12 contains an information disclosure vulnerability in which GraphQL validation error messages reveal hidden class names when public introspection is disabled. Unauthenticated attackers holding only the public Application Id can send crafted operations triggering unknown-argument or invalid enum value errors to learn pointer and relation target classes.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105828"
+    },
+    {
+      "id": "CVE-2026-105827",
+      "published": "2026-10-08T15:17:34.820",
+      "lastModified": "2026-10-09T14:17:17.417",
+      "description": "Rejected reason: This CVE ID has been rejected as a duplicate.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105827"
+    },
+    {
+      "id": "CVE-2026-105826",
+      "published": "2026-10-08T15:17:34.650",
+      "lastModified": "2026-10-09T14:17:17.067",
+      "description": "Rejected reason: This CVE ID has been rejected as a duplicate.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105826"
+    },
+    {
+      "id": "CVE-2026-105825",
+      "published": "2026-10-08T15:17:34.490",
+      "lastModified": "2026-10-09T14:17:16.793",
+      "description": "Rejected reason: This CVE ID has been rejected as a duplicate.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105825"
+    },
+    {
+      "id": "CVE-2026-105824",
+      "published": "2026-10-08T15:17:34.323",
+      "lastModified": "2026-10-09T14:17:16.520",
+      "description": "Rejected reason: This CVE ID has been rejected as a duplicate.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105824"
+    },
+    {
+      "id": "CVE-2026-105823",
+      "published": "2026-10-08T15:17:34.140",
+      "lastModified": "2026-10-09T14:17:16.223",
+      "description": "Rejected reason: This CVE ID has been rejected as a duplicate.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105823"
+    },
+    {
+      "id": "CVE-2026-105405",
+      "published": "2026-10-08T15:17:33.963",
+      "lastModified": "2026-10-09T14:17:15.907",
+      "description": "Rejected reason: This CVE ID has been rejected as a duplicate.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105405"
+    },
+    {
+      "id": "CVE-2026-105404",
+      "published": "2026-10-08T15:17:33.800",
+      "lastModified": "2026-10-09T14:17:15.400",
+      "description": "Rejected reason: This CVE ID has been rejected as a duplicate.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105404"
+    },
+    {
+      "id": "CVE-2026-105403",
+      "published": "2026-10-08T15:17:33.637",
+      "lastModified": "2026-10-09T14:17:14.723",
+      "description": "Rejected reason: This CVE ID has been rejected as a duplicate.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105403"
+    },
+    {
+      "id": "CVE-2026-105402",
+      "published": "2026-10-08T15:17:33.473",
+      "lastModified": "2026-10-09T14:17:13.843",
+      "description": "Rejected reason: This CVE ID has been rejected as a duplicate.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105402"
+    },
+    {
+      "id": "CVE-2026-105401",
+      "published": "2026-10-08T15:17:33.310",
+      "lastModified": "2026-10-09T14:17:12.887",
+      "description": "Rejected reason: This CVE ID has been rejected as a duplicate.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105401"
+    },
+    {
+      "id": "CVE-2026-105400",
+      "published": "2026-10-08T15:17:33.127",
+      "lastModified": "2026-10-09T14:17:12.290",
+      "description": "Rejected reason: This CVE ID has been rejected as a duplicate.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105400"
+    },
+    {
+      "id": "CVE-2026-105399",
+      "published": "2026-10-08T15:17:32.960",
+      "lastModified": "2026-10-09T14:17:12.027",
+      "description": "Rejected reason: This CVE ID has been rejected as a duplicate.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105399"
+    },
+    {
+      "id": "CVE-2026-105398",
+      "published": "2026-10-08T15:17:32.787",
+      "lastModified": "2026-10-09T14:17:11.647",
+      "description": "Rejected reason: This CVE ID has been rejected as a duplicate.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105398"
+    },
     {
       "id": "CVE-2026-105331",
       "published": "2026-10-08T15:17:32.530",
@@ -9,897 +866,6 @@
       "score": 5.2,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105331"
-    },
-    {
-      "id": "CVE-2026-91844",
-      "published": "2026-10-08T14:17:02.167",
-      "lastModified": "2026-10-08T20:09:14.010",
-      "description": "Unrestricted upload of file with dangerous type vulnerability in İzometri IT Services Domestic and Foreign Trade Co. Ltd. Eimzamip allows Using Malicious Files.\n\nThis issue affects eimzamip: from v1.6.4 before v1.6.6.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-91844"
-    },
-    {
-      "id": "CVE-2026-89290",
-      "published": "2026-10-08T14:17:02.010",
-      "lastModified": "2026-10-08T20:09:14.010",
-      "description": "Improper neutralization of Script-Related HTML tags in a web page (basic XSS) vulnerability in İzometri IT Services Domestic and Foreign Trade Co. Ltd. Eimzamip allows Stored XSS.\n\nThis issue affects eimzamip: from v1.6.4 before v1.6.7.",
-      "score": 3.5,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89290"
-    },
-    {
-      "id": "CVE-2026-88257",
-      "published": "2026-10-08T14:17:01.613",
-      "lastModified": "2026-10-08T21:01:07.830",
-      "description": "Improper Input Validation vulnerability in BeamMCP.Schema in ScriptKittyOS beam_mcp allows an MCP client to reach a tool's dispatch function with arguments that violate the input schema the server advertised. BeamMCP.Schema.validate/2 checked type, required, additionalProperties, enum and numeric bounds on the top-level arguments object only. Constraints inside nested objects and on array items (items, minItems, maxItems, minLength, maxLength, pattern, nested required, enum and additionalProperties: false) were advertised by tools/list and never checked at tools/call or prompts/get, and keywords outside the enforced subset (oneOf, anyOf, $ref) were advertised and ignored.\n\nA host whose dispatch code relies on the schema it declared receives values the schema forbids, such as an out-of-range number or an undeclared key inside a nested object. What the host does with such a value decides the impact.\n\nThis issue affects beam_mcp: from 0.1.0 before 0.10.1.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88257"
-    },
-    {
-      "id": "CVE-2026-42698",
-      "published": "2026-10-08T14:16:54.857",
-      "lastModified": "2026-10-08T17:24:11.230",
-      "description": "Concurrent Execution using Shared Resource with Improper Synchronization ('Race Condition') vulnerability in Themeum Tutor LMS tutor allows Leveraging Race Conditions.This issue affects Tutor LMS: from n/a through 4.1.1.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-42698"
-    },
-    {
-      "id": "CVE-2026-27420",
-      "published": "2026-10-08T14:16:54.710",
-      "lastModified": "2026-10-08T17:24:11.230",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Katie Seaborn Zotpress zotpress allows Stored XSS.This issue affects Zotpress: from n/a through 7.4.4.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27420"
-    },
-    {
-      "id": "CVE-2026-16167",
-      "published": "2026-10-08T14:16:53.690",
-      "lastModified": "2026-10-14T23:59:35.040",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to cause a denial of service due to improper bounds checking.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16167"
-    },
-    {
-      "id": "CVE-2026-16165",
-      "published": "2026-10-08T14:16:53.557",
-      "lastModified": "2026-10-14T23:59:50.617",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to cause a denial of service due to a null pointer dereference.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16165"
-    },
-    {
-      "id": "CVE-2026-16164",
-      "published": "2026-10-08T14:16:53.373",
-      "lastModified": "2026-10-15T00:00:07.820",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to cause a denial of service due to a buffer overflow.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16164"
-    },
-    {
-      "id": "CVE-2026-16163",
-      "published": "2026-10-08T14:16:53.200",
-      "lastModified": "2026-10-15T00:00:33.547",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to cause memory corruption due to an out-of-bounds write.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16163"
-    },
-    {
-      "id": "CVE-2026-16161",
-      "published": "2026-10-08T14:16:53.063",
-      "lastModified": "2026-10-15T00:00:47.903",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to cause a denial of service due to an out-of-bounds read.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16161"
-    },
-    {
-      "id": "CVE-2026-16159",
-      "published": "2026-10-08T14:16:52.920",
-      "lastModified": "2026-10-15T00:00:55.640",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to obtain sensitive information and cause a denial of service due to an out-of-bounds write.",
-      "score": 8.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16159"
-    },
-    {
-      "id": "CVE-2026-16111",
-      "published": "2026-10-08T14:16:52.780",
-      "lastModified": "2026-10-15T00:01:07.693",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow an attacker to cause a denial of service due to a type confusion flaw.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16111"
-    },
-    {
-      "id": "CVE-2026-15824",
-      "published": "2026-10-08T14:16:52.640",
-      "lastModified": "2026-10-15T00:01:13.477",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to cause a denial of service due to a heap-based buffer overflow.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15824"
-    },
-    {
-      "id": "CVE-2026-15822",
-      "published": "2026-10-08T14:16:52.500",
-      "lastModified": "2026-10-15T00:01:23.893",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to cause a denial of service due to improper memoization of GraphQL fragment spreads.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15822"
-    },
-    {
-      "id": "CVE-2026-15819",
-      "published": "2026-10-08T14:16:52.360",
-      "lastModified": "2026-10-15T00:01:30.363",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to cause a denial of service due to out-of-bounds memory access caused by a strict-weak-ordering violation in a sorting comparator.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15819"
-    },
-    {
-      "id": "CVE-2026-15784",
-      "published": "2026-10-08T14:16:52.220",
-      "lastModified": "2026-10-15T00:02:03.650",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to execute arbitrary code due to an out-of-bounds write.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15784"
-    },
-    {
-      "id": "CVE-2026-15781",
-      "published": "2026-10-08T14:16:52.037",
-      "lastModified": "2026-10-15T00:02:25.090",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote authenticated attacker to execute arbitrary code due to a buffer overflow.",
-      "score": 8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15781"
-    },
-    {
-      "id": "CVE-2026-15762",
-      "published": "2026-10-08T14:16:51.880",
-      "lastModified": "2026-10-15T00:02:35.027",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to execute arbitrary code due to an out-of-bounds write.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15762"
-    },
-    {
-      "id": "CVE-2026-14991",
-      "published": "2026-10-08T14:16:51.740",
-      "lastModified": "2026-10-15T00:02:42.217",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 is vulnerable to a buffer overflow, caused by improper bounds checking. A local user could overflow the buffer and execute arbitrary code on the system.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14991"
-    },
-    {
-      "id": "CVE-2026-14990",
-      "published": "2026-10-08T14:16:51.603",
-      "lastModified": "2026-10-08T20:49:50.083",
-      "description": "IBM DataPower Gateway 10.6.0.0 through 10.6.0.10 is vulnerable to cross-site scripting. This vulnerability allows an unauthenticated user to embed arbitrary JavaScript code in the Web UI thus altering the intended functionality potentially leading to credentials disclosure within a trusted session.",
-      "score": 9.3,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14990"
-    },
-    {
-      "id": "CVE-2026-107615",
-      "published": "2026-10-08T14:16:50.313",
-      "lastModified": "2026-10-08T21:10:00.133",
-      "description": "An uncontrolled search path element vulnerability in GlavSoft TightVNC Server for Windows before 2.8.88 allows a local authenticated user to execute arbitrary code with SYSTEM privileges. DynamicLibrary::init() (and ThemeLib) load screenhooks32.dll / screenhooks64.dll with LoadLibrary() using a bare file name and no LOAD_LIBRARY_SEARCH_* flags, so the TightVNC service follows the default DLL search order and loads an attacker-planted DLL from a writable directory earlier in that order (for example, an installation directory with permissive ACLs).",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107615"
-    },
-    {
-      "id": "CVE-2026-107614",
-      "published": "2026-10-08T14:16:50.163",
-      "lastModified": "2026-10-08T21:10:00.133",
-      "description": "An integer underflow in WinCursorShapeUtils::trimTransparent() in GlavSoft TightVNC Server for Windows before 2.8.88 allows a local authenticated user to crash the server, and potentially read out-of-bounds memory, by causing a cursor shape with a width or height of zero to be processed on the DXGI capture path. The loop bound width - 1 wraps to 0xFFFFFFFF, producing an access roughly 4 GB beyond the 64 KB cursor buffer; a monochrome cursor of height 1 also becomes 0 because getCursorHeight() halves the height in place.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107614"
-    },
-    {
-      "id": "CVE-2026-107613",
-      "published": "2026-10-08T14:16:50.020",
-      "lastModified": "2026-10-08T21:10:00.133",
-      "description": "A NULL pointer dereference vulnerability in the Win8ScreenDriver component of GlavSoft TightVNC Server for Windows before 2.8.88 allows an attacker to crash the server, causing a denial of service. When re-initialization of the DXGI Desktop Duplication driver fails in applyNewScreenProperties() (for example after a GPU reset, display hot-plug or session change), m_drvImpl is left NULL and is subsequently dereferenced without a check by executeDetection(), getScreenBuffer(), grabFb(), getScreenPropertiesChanged() and getCursorPosition().",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107613"
-    },
-    {
-      "id": "CVE-2026-107612",
-      "published": "2026-10-08T14:16:49.877",
-      "lastModified": "2026-10-08T21:10:00.133",
-      "description": "Incorrect permission assignment in GlavSoft TightVNC Server for Windows before 2.8.88 allows a local authenticated user to read or overwrite the inter-process communication handles used between the TightVNC service and its desktop server process. The named shared memory segment in the Global\\ namespace that carries the pipe HANDLE values is created with a NULL DACL, and its name is derived from a time-seeded srand(time(0)) value that is predictable to one-second granularity. A low-privileged local process can open the mapping and tamper with the IPC channel of a service running as SYSTEM, potentially leading to disclosure of session data, privilege escalation, or denial of service.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107612"
-    },
-    {
-      "id": "CVE-2026-107611",
-      "published": "2026-10-08T14:16:49.727",
-      "lastModified": "2026-10-08T21:10:00.133",
-      "description": "An out-of-bounds read vulnerability in the ZRLE decoder of GlavSoft TightVNC Viewer for Windows before 2.8.88 allows a malicious or compromised VNC server to read heap memory beyond the palette allocation and crash the viewer by sending ZRLE-encoded tiles whose palette indices exceed the declared palette size. readPaletteRleTile() and readPackedPaletteTile() use the attacker-supplied index to look up colours without validating it against the palette size; out-of-bounds heap data is copied into the framebuffer (garbled display) or the read faults, terminating the viewer.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107611"
-    },
-    {
-      "id": "CVE-2026-104634",
-      "published": "2026-10-08T14:16:46.370",
-      "lastModified": "2026-10-08T21:01:07.830",
-      "description": "Incorrect Type Conversion or Cast vulnerability in BeamMCP.Server in ScriptKittyOS beam_mcp allows an MCP client's JSON true, false and null tool arguments to reach the host's dispatch function as the strings \"true\", \"false\" and \"nil\". After BeamMCP.Schema.validate/2 accepted a value as a boolean, normalize_arguments/2 passed every argument through to_json_value/1, whose atom clause converts true, false and nil to strings. A string is truthy in Elixir, so a host that tests a boolean argument, for example if args.dry_run, takes the opposite branch for false, and a guard such as confirm: false reads as set.\n\nThe client controls the argument and could send true directly, so the practical impact is limited to hosts whose behaviour on false differs from their behaviour on true, and to any policy layer in front of the server that permits false but refuses true. The same normalisation applies to prompts/get arguments, which exist from 0.5.0.\n\nThis issue affects beam_mcp: from 0.1.0 before 0.10.1.",
-      "score": 2.3,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104634"
-    },
-    {
-      "id": "CVE-2026-103663",
-      "published": "2026-10-08T14:16:46.187",
-      "lastModified": "2026-10-08T20:08:45.857",
-      "description": "Ollama is vulnerable to path traversal in the `/api/pull` endpoint due to insufficient validation of layer digests by the `digestToPath` function. An unauthenticated remote attacker can specify a path traversal sequence as a layer digest, causing a malicious binary to be written outside the model store. \n\nCritically if the server process has write access to `/usr/lib/ollama` (the default in most Ollama Docker images), an attacker can write the malicious file to that directory. On the next server restart, the file is loaded and executed, resulting in remote code execution as root.\n\n\nThis issue was fixed in version 0.35.0.",
-      "score": 9.4,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103663"
-    },
-    {
-      "id": "CVE-2026-66479",
-      "published": "2026-10-08T13:17:18.707",
-      "lastModified": "2026-10-08T17:24:11.230",
-      "description": "Cross-Site Request Forgery (CSRF) vulnerability in Liquid Web / StellarWP WPComplete wpcomplete allows Stored XSS.This issue affects WPComplete: from n/a through 2.9.5.6.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66479"
-    },
-    {
-      "id": "CVE-2026-62142",
-      "published": "2026-10-08T13:17:18.553",
-      "lastModified": "2026-10-08T17:24:11.230",
-      "description": "Cross-Site Request Forgery (CSRF) vulnerability in Melapress WP 2FA wp-2fa allows Cross Site Request Forgery.This issue affects WP 2FA: from n/a through 4.1.0.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62142"
-    },
-    {
-      "id": "CVE-2026-62128",
-      "published": "2026-10-08T13:17:18.410",
-      "lastModified": "2026-10-10T04:18:13.200",
-      "description": "Missing Authorization vulnerability in Creator LMS Creator LMS creatorlms allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Creator LMS: from n/a through 1.2.21.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62128"
-    },
-    {
-      "id": "CVE-2026-62127",
-      "published": "2026-10-08T13:17:18.250",
-      "lastModified": "2026-10-08T17:24:11.230",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in MediaRon LLC WP Plugin Info Card wp-plugin-info-card allows Stored XSS.This issue affects WP Plugin Info Card: from n/a through 6.3.5.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62127"
-    },
-    {
-      "id": "CVE-2026-44038",
-      "published": "2026-10-08T13:17:17.963",
-      "lastModified": "2026-10-08T21:10:00.133",
-      "description": "A global out-of-bounds read in the Huffman decoder of the bundled IJG JPEG libraries (dcmjpeg/libijg8, libijg12 and libijg16) of OFFIS DCMTK 3.7.0 allows an attacker to read memory beyond the extend_test[] and extend_offset[] tables, causing incorrectly decoded pixel data or a crash, via a DICOM file with a crafted JPEG stream whose Huffman table defines a difference category above 15. Huffman symbol values are not range-checked unless DCMTK is built with DCMTK_ENABLE_STRICT_HUFFMAN_TABLE_CHECK, which is disabled by default. dcmdjpeg and any application that decompresses JPEG DICOM images with DCMTK are affected. The issue is fixed in commit d6ae1bc8d5b9ae9c7300013c8c85cc2ea0fd8cf5.",
-      "score": 4.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-44038"
-    },
-    {
-      "id": "CVE-2026-44037",
-      "published": "2026-10-08T13:17:17.817",
-      "lastModified": "2026-10-08T21:10:00.133",
-      "description": "Uncontrolled mutual recursion between DcmJSONReader::parseDataSet(), DcmJSONReader::parseElement() and DcmJSONReader::parseSequence() in dcmdata/libsrc/dcjsonrd.cc of OFFIS DCMTK 3.7.0 allows an attacker to cause a denial of service (stack exhaustion and process crash) via a crafted DICOM JSON document with deeply nested sequence (SQ) values. The json2dcm tool and any service that converts untrusted DICOM JSON (for example, DICOMweb payloads) with this reader are affected. The issue is fixed in commit cf955e64c35a1e07ba10698f639d5dcdec53b9d7.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-44037"
-    },
-    {
-      "id": "CVE-2026-44036",
-      "published": "2026-10-08T13:17:17.653",
-      "lastModified": "2026-10-08T21:10:00.133",
-      "description": "Uncontrolled mutual recursion between DcmXMLParseHelper::parseDataSet() and DcmXMLParseHelper::parseSequence() in the XML-to-DICOM converter (dcmdata/libdcxml/xml2dcm.cc) of OFFIS DCMTK 3.7.0 allows an attacker to cause a denial of service (stack exhaustion and process crash) via a crafted XML file with deeply nested sequence and item elements. The xml2dcm tool and any service that converts untrusted XML to DICOM with this code are affected. The issue is fixed in commit 87f256d73e30656a822bf7d76d1cf1d9bb693954.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-44036"
-    },
-    {
-      "id": "CVE-2026-44035",
-      "published": "2026-10-08T13:17:17.497",
-      "lastModified": "2026-10-08T21:10:00.133",
-      "description": "Uncontrolled recursion in DcmDicomDir::moveRecordToTree() in dcmdata/libsrc/dcdicdir.cc of OFFIS DCMTK 3.7.0 allows an attacker to cause a denial of service (stack exhaustion and process crash) via a crafted DICOMDIR file with a deeply chained sequence of directory records linked through the Offset of Referenced Lower-Level Directory Entity attribute. Any application that opens the DICOMDIR is affected, including dcmgpdir and media viewers built on DCMTK. The issue is fixed in commit ca761f7f3dcaaddaa95be87cf5d736138d7c3a9f.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-44035"
-    },
-    {
-      "id": "CVE-2026-44034",
-      "published": "2026-10-08T13:17:17.347",
-      "lastModified": "2026-10-08T21:10:00.133",
-      "description": "A heap-based out-of-bounds read in DcmRLECodecDecoder::decodeFrame() in dcmdata/libsrc/dcrleccd.cc of OFFIS DCMTK 3.7.0 allows an attacker to read up to 63 bytes of adjacent heap memory, or cause a crash, via a crafted RLE Lossless DICOM file whose pixel data fragment is shorter than the 64-byte RLE header. The function copies 64 bytes without checking the fragment length, a check that the sibling function decode() already performs. Applications that decode RLE images frame by frame (for example, through DcmPixelData::getUncompressedFrame()) are affected. The dcmdrle command-line tool uses decode() and is not affected. The issue is fixed in commit 45469f3c30037e9c7159290e4bb74cd7b3b9ef1d.",
-      "score": 4.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-44034"
-    },
-    {
-      "id": "CVE-2026-44033",
-      "published": "2026-10-08T13:17:17.197",
-      "lastModified": "2026-10-08T21:10:00.133",
-      "description": "Uncontrolled recursion in XMLNode::ParseXMLElement() and XMLNode::emptyTheNode() in the bundled XML parser (ofstd/libsrc/ofxml.cc) of OFFIS DCMTK 3.7.0 allows an attacker to cause a denial of service (stack exhaustion and process crash) via a crafted XML document with deeply nested elements. The parser is reachable through dcmencap when encapsulating a CDA document, and through any application that calls OFXMLParser::parseFile() or OFXMLParser::parseString() on untrusted input. The issue is fixed in commit d12e350e687530eb41e2b0c860aff4d8c04e5941.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-44033"
-    },
-    {
-      "id": "CVE-2026-44031",
-      "published": "2026-10-08T13:17:17.027",
-      "lastModified": "2026-10-08T21:10:00.133",
-      "description": "Uncontrolled recursion in DcmSequenceOfItems::read() and DcmItem::read() in the dcmdata library of OFFIS DCMTK 3.7.0 allows a remote, unauthenticated attacker to cause a denial of service (stack exhaustion and process crash) via a DICOM dataset containing deeply nested sequences (SQ elements). The dataset can be sent in a C-STORE request to storescp, dcmrecv, dcmqrscp, or any other DICOM service built on DCMTK, because the received dataset is parsed before any authentication takes place. Local tools such as dcmdump also crash when opening such a file. The issue is fixed in commit 885ff0f10372bd589b5f44cea974f28a3964cb0f, which adds a configurable sequence nesting depth limit (default 64).",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-44031"
-    },
-    {
-      "id": "CVE-2026-19218",
-      "published": "2026-10-08T13:17:16.753",
-      "lastModified": "2026-10-08T20:09:14.010",
-      "description": "Weak Password Recovery Mechanism for Forgotten Password vulnerability in AKIN Software Computer Import-Export Industry and Trade Co. Ltd. MyRezzta allows Password Recovery Exploitation.\n\nThis issue affects MyRezzta: from 2.06.03 before 2.07.01.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19218"
-    },
-    {
-      "id": "CVE-2026-16340",
-      "published": "2026-10-08T13:17:16.610",
-      "lastModified": "2026-10-15T00:02:49.540",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to execute arbitrary code due to an out-of-bounds write in the RFC2047 encoded-word parser.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16340"
-    },
-    {
-      "id": "CVE-2026-16182",
-      "published": "2026-10-08T13:17:16.477",
-      "lastModified": "2026-10-15T00:02:55.480",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow an attacker to cause a denial of service due to a NULL pointer dereference in GraphQL variable processing.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16182"
-    },
-    {
-      "id": "CVE-2026-16181",
-      "published": "2026-10-08T13:17:16.340",
-      "lastModified": "2026-10-15T00:03:06.050",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to bypass security restrictions due to improper authorization.",
-      "score": 7.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16181"
-    },
-    {
-      "id": "CVE-2026-16179",
-      "published": "2026-10-08T13:17:16.200",
-      "lastModified": "2026-10-15T00:03:15.217",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow an attacker to cause a heap buffer underwrite and potentially crash the service.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16179"
-    },
-    {
-      "id": "CVE-2026-16178",
-      "published": "2026-10-08T13:17:16.067",
-      "lastModified": "2026-10-15T00:03:24.233",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to cause a denial of service due to improper input validation.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16178"
-    },
-    {
-      "id": "CVE-2026-16177",
-      "published": "2026-10-08T13:17:15.933",
-      "lastModified": "2026-10-15T00:03:39.113",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote authenticated attacker to obtain sensitive information due to an out-of-bounds read.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16177"
-    },
-    {
-      "id": "CVE-2026-16176",
-      "published": "2026-10-08T13:17:15.797",
-      "lastModified": "2026-10-15T00:03:48.087",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to cause a denial of service due to improper validation of the length field during memory reallocation.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16176"
-    },
-    {
-      "id": "CVE-2026-16170",
-      "published": "2026-10-08T13:17:15.660",
-      "lastModified": "2026-10-15T00:03:57.897",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 could allow a remote attacker to cause a denial of service due to a heap buffer overflow.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16170"
-    },
-    {
-      "id": "CVE-2026-16169",
-      "published": "2026-10-08T13:17:15.520",
-      "lastModified": "2026-10-15T00:04:14.237",
-      "description": "IBM DataPower Gateway 11.0.0.0 through 11.0.0.2 could allow a remote attacker to cause a denial of service due to uncontrolled resource consumption.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-16169"
-    },
-    {
-      "id": "CVE-2026-14521",
-      "published": "2026-10-08T13:17:15.370",
-      "lastModified": "2026-10-15T00:04:21.057",
-      "description": "IBM DataPower Gateway 10.5.0.0 through 10.5.0.22, 10.6.1 through 10.6.6, 10.6.0.0 through 10.6.0.10, and 11.0.0.0 through 11.0.0.2 is vulnerable to server-side request forgery (SSRF). This may allow an authenticated attacker to send unauthorized requests from the system, potentially leading to network enumeration or facilitating other attacks.",
-      "score": 4.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-14521"
-    },
-    {
-      "id": "CVE-2026-106611",
-      "published": "2026-10-08T13:17:15.013",
-      "lastModified": "2026-10-08T18:17:15.380",
-      "description": "Cross-Site Request Forgery (CSRF) vulnerability in WPMU DEV Forminator forminator allows Cross Site Request Forgery.This issue affects Forminator: from n/a through 1.57.3.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106611"
-    },
-    {
-      "id": "CVE-2026-106603",
-      "published": "2026-10-08T13:17:14.877",
-      "lastModified": "2026-10-08T18:17:15.260",
-      "description": "Authorization Bypass Through User-Controlled Key vulnerability in Groundhogg HollerBox holler-box allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects HollerBox: from n/a through 2.3.14.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106603"
-    },
-    {
-      "id": "CVE-2026-106600",
-      "published": "2026-10-08T13:17:14.740",
-      "lastModified": "2026-10-08T17:24:11.230",
-      "description": "Missing Authorization vulnerability in Liquid Web / StellarWP GiveWP give allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects GiveWP: from n/a through 4.18.0.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106600"
-    },
-    {
-      "id": "CVE-2026-106596",
-      "published": "2026-10-08T13:17:14.600",
-      "lastModified": "2026-10-08T17:24:11.230",
-      "description": "Missing Authorization vulnerability in Visual Composer Visual Composer Website Builder visualcomposer allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Visual Composer Website Builder: from n/a through 45.16.3.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106596"
-    },
-    {
-      "id": "CVE-2026-105893",
-      "published": "2026-10-08T13:17:14.210",
-      "lastModified": "2026-10-08T17:24:11.230",
-      "description": "Authorization Bypass Through User-Controlled Key vulnerability in Liquid Web / StellarWP Event Tickets event-tickets allows Manipulating User-Controlled Variables.This issue affects Event Tickets: from n/a through 5.30.0.1.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105893"
-    },
-    {
-      "id": "CVE-2026-105891",
-      "published": "2026-10-08T13:17:14.070",
-      "lastModified": "2026-10-10T04:18:09.363",
-      "description": "Missing Authorization vulnerability in Liquid Web / StellarWP Event Tickets event-tickets allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Event Tickets: from n/a through 5.30.0.1.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105891"
-    },
-    {
-      "id": "CVE-2026-105890",
-      "published": "2026-10-08T13:17:13.930",
-      "lastModified": "2026-10-08T17:24:11.230",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Liquid Web / StellarWP Gutenberg Blocks by Kadence Blocks kadence-blocks allows Stored XSS.This issue affects Gutenberg Blocks by Kadence Blocks: from n/a through 3.7.12.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105890"
-    },
-    {
-      "id": "CVE-2026-105888",
-      "published": "2026-10-08T13:17:13.790",
-      "lastModified": "2026-10-08T18:17:15.143",
-      "description": "Missing Authorization vulnerability in Liquid Web / StellarWP Event Tickets event-tickets allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Event Tickets: from n/a through 5.30.0.1.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105888"
-    },
-    {
-      "id": "CVE-2026-105887",
-      "published": "2026-10-08T13:17:13.640",
-      "lastModified": "2026-10-08T17:24:11.230",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Robosoft Robo Gallery robo-gallery allows Stored XSS.This issue affects Robo Gallery: from n/a through 5.1.6.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105887"
-    },
-    {
-      "id": "CVE-2026-105886",
-      "published": "2026-10-08T13:17:13.403",
-      "lastModified": "2026-10-08T17:24:11.230",
-      "description": "Missing Authorization vulnerability in BdThemes Ultimate Post Kit ultimate-post-kit allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Ultimate Post Kit: from n/a through 4.5.5.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105886"
-    },
-    {
-      "id": "CVE-2026-105878",
-      "published": "2026-10-08T13:17:13.187",
-      "lastModified": "2026-10-08T17:24:11.230",
-      "description": "Missing Authorization vulnerability in YITH YITH WooCommerce Product Bundles yith-woocommerce-product-bundles allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects YITH WooCommerce Product Bundles: from n/a through 2.29.0.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105878"
-    },
-    {
-      "id": "CVE-2026-105079",
-      "published": "2026-10-08T13:17:13.050",
-      "lastModified": "2026-10-10T04:18:09.020",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in StylemixThemes MasterStudy LMS masterstudy-lms-learning-management-system allows Stored XSS.This issue affects MasterStudy LMS: from n/a through 3.7.52.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105079"
-    },
-    {
-      "id": "CVE-2026-105078",
-      "published": "2026-10-08T13:17:12.903",
-      "lastModified": "2026-10-08T17:24:11.230",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in WP Store Locator WP Store Locator wp-store-locator allows Stored XSS.This issue affects WP Store Locator: from n/a through 3.0.3.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105078"
-    },
-    {
-      "id": "CVE-2026-105076",
-      "published": "2026-10-08T13:17:12.763",
-      "lastModified": "2026-10-08T17:24:11.230",
-      "description": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') vulnerability in Appsbd Vitepos vitepos-lite allows Blind SQL Injection.This issue affects Vitepos: from n/a through 3.6.1.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105076"
-    },
-    {
-      "id": "CVE-2026-103072",
-      "published": "2026-10-08T13:17:12.300",
-      "lastModified": "2026-10-08T18:17:13.020",
-      "description": "Missing Authorization vulnerability in VillaTheme VillaTheme Core villatheme-core allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects VillaTheme Core: from n/a through 1.0.5.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103072"
-    },
-    {
-      "id": "CVE-2026-103070",
-      "published": "2026-10-08T13:17:12.150",
-      "lastModified": "2026-10-08T17:24:11.230",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in ShortPixel ShortPixel Image Optimizer shortpixel-image-optimiser allows Stored XSS.This issue affects ShortPixel Image Optimizer: from n/a through 6.5.6.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103070"
-    },
-    {
-      "id": "CVE-2026-102784",
-      "published": "2026-10-08T13:17:12.023",
-      "lastModified": "2026-10-08T21:07:57.460",
-      "description": "Joomla Extension - balbooa.com - CSRF in language installation feature Gridbox < 2.20.4.0 - PagesController uses a trait that validates the Joomla session token only when the HTTP method is POST. addLanguage does not require POST inside the action and reads url and zip through the generic request input. A GET request can therefore reach the action without the trait checking a token. The action still requires core.tools , but that is the victim’s permission check; it does not prove that the privileged user intended the request.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102784"
-    },
-    {
-      "id": "CVE-2026-102783",
-      "published": "2026-10-08T13:17:11.847",
-      "lastModified": "2026-10-08T21:07:57.460",
-      "description": "Joomla Extension - balbooa.com - Path Traversal in image preview Gridbox < 2.20.4.0 - Gridbox contains the same prefix-only containment logic in its site UploaderHelper . The showImage action resolves a request-controlled path, calls that helper, and then returns the image. If image decoding is unavailable or fails, the action streams the file directly. An existing image in a sibling directory such as images-backup can therefore satisfy the current containment test even though it is outside the configured images root. The route restricts the file extension to Gridbox image types, which materially limits the read primitive. The default media root is images ; the effective site setting was not independently verified. No prefix-matching sibling directory was found alongside the site’s images directory. The finding is rated Low rather than presented as arbitrary file disclosure.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102783"
-    },
-    {
-      "id": "CVE-2026-92555",
-      "published": "2026-10-08T12:17:18.787",
-      "lastModified": "2026-10-08T20:09:14.010",
-      "description": "Insertion of sensitive information into sent data vulnerability in AKIN Software Computer Import-Export Industry and Trade Co. Ltd. AKINSOFT WOLVOX Control Panel allows Pull Data from System Resources.\n\nThis issue affects AKINSOFT WOLVOX Control Panel: from 26.02.25 before 26.02.26.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92555"
-    },
-    {
-      "id": "CVE-2026-19083",
-      "published": "2026-10-08T12:17:17.500",
-      "lastModified": "2026-10-08T20:09:14.010",
-      "description": "Authorization bypass through User-Controlled key vulnerability in AKIN Software Computer Import-Export Industry and Trade Co. Ltd. OctoCloud allows Accessing Functionality Not Properly Constrained by ACLs.\n\nThis issue affects OctoCloud: from 1.12.06 before 1.12.07.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19083"
-    },
-    {
-      "id": "CVE-2026-107587",
-      "published": "2026-10-08T12:17:16.937",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Improper certificate validation in the webmail of Progressive Robot hMailServer 6.3.2 through 6.3.5 allows a remote unauthenticated attacker to have S/MIME-encrypted mail that the account later sends to another correspondent also encrypted to the attacker's key. When its recipient opened a signed message, the webmail kept the signer's certificate for encrypting replies whether or not the server found its chain trusted, under the first e-mail address the certificate listed rather than the message's From address, and beside any certificate already held for that address. Encrypted mail later sent from the webmail to that address was encrypted to every certificate held for it, so a holder of the kept certificate's key who obtains a copy of such a message can read it.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107587"
-    },
-    {
-      "id": "CVE-2026-107584",
-      "published": "2026-10-08T12:17:16.787",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Progressive Robot hMailServer 6.0.0 through 6.3.5 fails open when applying DANE (RFC 7672) to outbound SMTP delivery. The server's validating DNSSEC resolver treated a TLSA or MX lookup that did not complete (no answer, SERVFAIL, a malformed reply), an answer without the requested records and without an NSEC/NSEC3 proof of their absence, and an answer whose records carried no applicable RRSIG as if the recipient domain were unsigned, and from 6.2.19 it also delivered to mail exchangers taken from an unvalidated MX lookup that the DNSSEC-validated MX record set did not name. An attacker who can drop, forge or strip DNS answers on the path to the server's resolver, at the resolver, or between the resolver and the recipient domain's name servers, and who holds an active position on the SMTP path, can thereby disable DANE for a DNSSEC-signed recipient domain and cause messages to be delivered in cleartext or to a host of the attacker's choosing with an arbitrary certificate, where they can be read and modified.",
-      "score": 7.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107584"
-    },
-    {
-      "id": "CVE-2026-107583",
-      "published": "2026-10-08T12:17:16.633",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Inefficient algorithmic complexity in the webmail's message view of the REST API in Progressive Robot hMailServer 6.3.2 through 6.3.5 allows a remote unauthenticated attacker to make the webmail, the administration console and the REST API unavailable by sending a message. The route that renders a received message's HTML replaced each reference to an embedded image in place, with work that grew with the square of the number of references, and wrote the image out for every reference while counting it against its size limit only once. A message whose HTML refers to one small embedded image a very large number of times, opened in the webmail by its recipient, therefore keeps one of the listener's four worker threads busy for minutes and makes it build a document of gigabytes, so that a few such messages leave the HTTP listener unable to answer anybody.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107583"
-    },
-    {
-      "id": "CVE-2026-107582",
-      "published": "2026-10-08T12:17:16.480",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Inefficient algorithmic complexity in the REST API (6.3.3 through 6.3.5) and the IMAP PREVIEW response (6.2.22 through 6.3.5) of Progressive Robot hMailServer allows a remote unauthenticated attacker to make the webmail, the administration console and the REST API unavailable by sending a message. To show a snippet of each message in a folder's message list, the server decoded the character entity references of a message that has an HTML part and no text part with a string replacement whose work grew with the square of their number. A received HTML-only message holding a very large number of entity references therefore keeps one of the listener's four worker threads busy for minutes or longer each time the recipient's webmail lists the folder, without the message being opened, so that a few such listings leave the HTTP listener unable to answer anybody. The IMAP PREVIEW response read such text the same way, holding an IMAP thread for each client that asks for the preview of such a message. The flaw is in the server's shared string class, whose replace and remove both ran in quadratic time.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107582"
-    },
-    {
-      "id": "CVE-2026-107581",
-      "published": "2026-10-08T12:17:16.320",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Progressive Robot hMailServer 6.0.0 through 6.3.5 processes several IMAP commands from a signed-in account in time quadratic in the command's length or in the number of elements it names, and can be made to hold memory out of proportion to a command. The FETCH data-item parser normalised a BODY[] section with a case-insensitive string replacement that copied the whole item per occurrence and split the item list by repeatedly copying the remainder of the command; the server's case-insensitive search compared a needle afresh at every position, so a long SEARCH TEXT key over a message cost the product of the two lengths; SEARCH message sets and the saved-result marker ($), SORT criteria, HEADER.FIELDS name lists and UID ranges were each read once per message rather than once per command; and a FETCH naming a message's sections very many times read and held every section in memory before sending any. An IMAP command may continue past one line through non-synchronizing literals, so one command can reach about eleven megabytes. The IMAP worker threads are a small pool shared with SMTP and POP3, so a signed-in user sending such commands can make the IMAP, SMTP and POP3 services stop responding (CWE-407) and can consume excessive memory (CWE-400).",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107581"
-    },
-    {
-      "id": "CVE-2026-107580",
-      "published": "2026-10-08T12:17:16.123",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Inefficient algorithmic complexity in the decoding of message header fields in Progressive Robot hMailServer 6.0.0 through 6.3.5 allows a remote unauthenticated attacker to make the IMAP, SMTP and POP3 services, or the webmail, unavailable by sending a message. The server unfolded a decoded header value by finding each line break from the end of the value and removing it, moving the rest of the value each time, so its work grew with the square of the number of line breaks, and an RFC 2047 encoded word may decode to any number of them. A received message whose Subject or other header field holds such a value keeps a worker thread busy for minutes or longer each time the value is read: when the recipient's IMAP client searches, sorts or threads the folder by a header, when the webmail lists the folder, and, where configured, when a rule tests a header, a spam tag is added to the Subject or an abuse report is read during delivery. The IMAP worker threads are shared with SMTP and POP3, so a few such messages stop those services responding. The server's reading of a message header from its file also searched everything read so far after each 4,000 bytes, costing seconds for a header of tens of megabytes.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107580"
-    },
-    {
-      "id": "CVE-2026-107579",
-      "published": "2026-10-08T12:17:15.940",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Inefficient algorithmic complexity in the bounce and complaint processing of Progressive Robot hMailServer 6.3.4 and 6.3.5 allows a remote unauthenticated attacker to stop mail delivery by sending messages, when bounce processing or complaint processing is enabled or a mailing list is managed by the server (none is by default). The readers of incoming delivery status notifications (RFC 3464) and abuse feedback reports (RFC 5965) removed the blank lines at the start of the returned headers part two bytes at a time, copying the rest of the part each time, so their work grew with the square of the number of blank lines. A message shaped like such a report, whose headers part begins with a very large number of blank lines within the reader's 2 MB limit, keeps a delivery thread busy for over a minute while it is delivered, and a few such messages a minute keep every delivery thread busy.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107579"
-    },
-    {
-      "id": "CVE-2026-107578",
-      "published": "2026-10-08T12:17:15.787",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Improper link resolution and external control of file paths in the administrative command-line operations of hMailServer.exe in Progressive Robot hMailServer 6.3.4 and 6.3.5 allow a local attacker who already runs code as the low-privilege service account to escalate privilege. On Windows, operations run with administrator rights by the installer, DBSetup, the Control Panel or an administrator wrote log entries and crash records into the log folder, created, deleted and changed the permissions of the self-signed certificate and private key in the data folder, and rewrote message files in the data folder, all by path in folders the service account (NT SERVICE\\hMailServer, the default for new installations since 6.3.4) can modify, following junctions and mount points; and the store-maintenance operations reached files by names taken from the database, which the service account can write, including names outside the data folder. On Linux, the store-maintenance and object-storage operations run as root followed symbolic links the service account (the packaged hmailserver user, which owns the data folder) planted in it, so a root-run operation read, wrote or removed the link's target as root. A local attacker controlling the service account can thereby gain the administrator's (Windows) or root's (Linux) privileges when such an operation is run.",
-      "score": 6.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107578"
-    },
-    {
-      "id": "CVE-2026-107577",
-      "published": "2026-10-08T12:17:15.630",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Inefficient algorithmic complexity and a non-terminating loop in the MIME processing of received messages in Progressive Robot hMailServer 6.0.0 through 6.3.5 allow a remote unauthenticated attacker to make the mail services unavailable by sending a message. Removing a MIME header parameter whose value is empty and directly followed by a semicolon (for example a Content-Disposition with 'filename=a.bat; filename=;') entered a loop that never terminates, holding a worker thread at full load until the server is restarted; this is reached when the attachment blocker renames a blocked attachment or a filename is set over the REST API. Separately, decoding a header field that holds many RFC 2047 encoded words of an encoding other than base64 or quoted-printable, removing a parameter with many RFC 2231 continuations, and deleting many header fields of one name each took time growing with the square of the message, on the small thread pools that serve IMAP, SMTP and POP3 connections, delivery and the REST API.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107577"
-    },
-    {
-      "id": "CVE-2026-107576",
-      "published": "2026-10-08T12:17:15.487",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Inefficient algorithmic complexity in the inbound DKIM and ARC signature verification of Progressive Robot hMailServer 6.0.0 through 6.3.5 allows a remote unauthenticated attacker to make the mail services unavailable by sending a message. Building the canonical header and choosing the header fields named in a signature's h= tag took time growing with the square of the message's header: the 'simple' canonicalisation prepended each continuation line of a folded field to the lines already gathered, and both canonicalisations searched the gathered fields from the bottom for each h= name and erased the match from the middle of the list. A message whose header holds very many fields, or a field folded over very many lines, with a DKIM-Signature the attacker signs for a domain they control, keeps a worker thread busy for tens of seconds per signature; up to ten signatures are evaluated per message by each of the DKIM and DMARC tests, on the threads that serve delivery and SMTP.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107576"
-    },
-    {
-      "id": "CVE-2026-107575",
-      "published": "2026-10-08T12:17:15.333",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Inefficient algorithmic complexity in the SPF macro expansion of Progressive Robot hMailServer 6.3.4 and 6.3.5 allows a remote unauthenticated attacker to consume worker-thread time by publishing a crafted SPF record. RFC 7208 section 7.1 requires a name too long to look up to lose whole labels from the left; the server did this by removing one label at a time and copying the rest of the name each time, so the work grew with the square of the expansion. An attacker who publishes an SPF record for a domain they control, with a mechanism whose domain-spec expands through macros to a name far longer than 253 characters, makes the SPF check of a message from that domain take several seconds. The expansion is bounded by SPF's own per-term and per-macro limits, so the loss of availability is partial.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107575"
-    },
-    {
-      "id": "CVE-2026-107574",
-      "published": "2026-10-08T12:17:15.177",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Inefficient algorithmic complexity in the JSON reader of Progressive Robot hMailServer allows a remote unauthenticated attacker to make the mail services unavailable. Reading a JSON object kept the first of each duplicated member name by searching the members already read, so an object of N distinct member names cost O(N^2): 1 MB took 8.9 seconds and 4 MB took 300 seconds against the affected code. A remote attacker reaches the reader without an account by mailing a crafted TLS-RPT report (up to 16 MB after decompression) to a hosted domain's published report mailbox, which is read on a delivery thread; a few such reports hold every delivery thread (ten by default), so the server delivers no mail, local or outbound, for over an hour per report. A signed-in account reaches the same 16 MB body through the webmail's own REST routes, holding the REST API's own worker threads. Where no report mailbox is configured, the unauthenticated REST sign-in routes that read a JSON body are capped at 64 KB and are not affected.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107574"
-    },
-    {
-      "id": "CVE-2026-107573",
-      "published": "2026-10-08T12:17:15.027",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Incorrect default permissions in the Windows installer of Progressive Robot hMailServer 6.0.0 through 6.3.5 allow a local authenticated user to read the mail server's data. The installer created the data, log, temp, database and event folders and the hMailServer.INI configuration file with the permissions inherited from the installation folder, by default under Program Files, which give the local Users group read access. Any user who can sign in to the computer could read every stored message, the logs, the built-in database with the accounts' password hashes whenever the service is stopped, and the configuration file, including the database password, which is sealed only with the machine's DPAPI key and can be unsealed by any local account; with an external database that password gives full control of it. The Linux AppImage of 6.3.0 through 6.3.5 likewise created its per-user data folders readable by other local users.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107573"
-    },
-    {
-      "id": "CVE-2026-107572",
-      "published": "2026-10-08T12:17:14.870",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Inefficient complexity in the Sieve filter evaluation of Progressive Robot hMailServer 6.2.24 through 6.3.5 allows an authenticated account holder to make the mail services unavailable with their own filter. A ':matches' pattern was matched by a backtracking descent whose time grew with the matched value's length raised to the number of wildcards, so a pattern such as '*a*a*a*b' over 800 characters took 44 seconds; and 'deleteheader' erased the fields it removed one at a time, so removing many fields of one name over a message's header cost O(N^2) (80,000 fields took 18.8 seconds). Sieve filters run on the small, shared delivery thread pool, so an account holder whose active script does this, fed a few messages they can send themselves, empties the pool and stops delivery for the whole server. The script is the account holder's own and cannot be set for another user.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107572"
-    },
-    {
-      "id": "CVE-2026-107570",
-      "published": "2026-10-08T12:17:14.717",
-      "lastModified": "2026-10-10T00:17:03.540",
-      "description": "heap OOB write in convert_file_from_to() via a crafted Content-Type header allows attacker to OOB write when email is used as a template.",
-      "score": 2.5,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107570"
-    },
-    {
-      "id": "CVE-2026-107275",
-      "published": "2026-10-08T12:17:14.553",
-      "lastModified": "2026-10-08T20:49:23.240",
-      "description": "@fastify/jwt is a JSON Web Token plugin for the Fastify web framework. In versions before 10.2.3, a time span passed to expiresIn, notBefore, or maxAge that the plugin's parser cannot read, such as a compound span, a month unit, an ISO 8601 duration, a decimal comma, or a value with surrounding whitespace, is silently dropped instead of refused. On the signing path this produces a token with no expiration claim that never expires, and on the verification path a configured maxAge stops being enforced, so a token that should be rejected for age is accepted. The issue is fixed in @fastify/jwt 10.2.3, and users should upgrade to 10.2.3 or later. As a workaround, pass these options as a number of seconds, or verify that any time-span string parses to a finite value before relying on it.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107275"
-    },
-    {
-      "id": "CVE-2026-93509",
-      "published": "2026-10-08T11:16:47.217",
-      "lastModified": "2026-10-08T20:51:18.123",
-      "description": "The Wallet System for WooCommerce WordPress plugin before 2.8.0 does not validate that a wallet transfer amount is positive, and computes the sender's new balance from a stale snapshot taken before crediting the recipient, allowing an authenticated attacker with Subscriber-level access to mint wallet funds for themselves or drain a specific victim's balance into their own account.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93509"
-    },
-    {
-      "id": "CVE-2026-105190",
-      "published": "2026-10-08T11:16:44.607",
-      "lastModified": "2026-10-08T20:51:18.123",
-      "description": "The Easy Digital Downloads WordPress plugin before 3.7.1 does not consult the site's user registration setting before creating a WordPress account, allowing unauthenticated users to create an account and receive a logged-in session even when registration is disabled. The created account receives the site's default role.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105190"
-    },
-    {
-      "id": "CVE-2026-104704",
-      "published": "2026-10-08T11:16:44.457",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Progressive Robot hMailServer 6.0.0 through 6.3.5 does not enforce TLS for outbound SMTP delivery to a mail exchanger whose DNSSEC-validated TLSA records contain no DANE-EE (usage 3) record, contrary to RFC 7672 section 2.2. The server used only DANE-EE records and treated a validated TLSA record set consisting of DANE-TA (usage 2) or otherwise unusable records as if no records were published, so delivery to such a host fell back to opportunistic TLS. An attacker with an active position on the network path between the server and the recipient's mail exchanger can suppress or break the STARTTLS negotiation and cause messages to be delivered in cleartext, where they can be read and modified.",
-      "score": 7.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104704"
-    },
-    {
-      "id": "CVE-2026-104671",
-      "published": "2026-10-08T11:16:44.303",
-      "lastModified": "2026-10-08T20:51:18.123",
-      "description": "The TutorStarter WordPress theme before 4.0.4 does not respect the site's user registration setting in one of its AJAX registration handlers, allowing unauthenticated visitors to create WordPress user accounts even when user registration is disabled.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104671"
-    },
-    {
-      "id": "CVE-2026-104660",
-      "published": "2026-10-08T11:16:44.160",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Missing authorization on COM objects in Progressive Robot hMailServer 6.0.0 through 6.3.5 (Windows only) lets a local interactive user with no hMailServer credential read and write arbitrary files as the service account and queue mail as any sender. The service registers its COM classes with no DCOM access or launch permission and calls CoInitializeSecurity with no security descriptor, so any user logged on at the console or over Remote Desktop can activate the classes in the running service; a hMailServer.Message, its Attachments and Attachment, and a hMailServer.FetchAccount created this way carry a credential that never authenticated. Attachments.Add(path) and Attachment.SaveAs(path) performed no authorization check, and Message.Save/Copy and FetchAccount.AccountID/Save performed none either up to 6.3.3 and from 6.3.4 treated a holder with no credential as the server's own event-script host. Because the service does not impersonate the COM caller, Attachments.Add reads any file the service account can read and returns it, Attachment.SaveAs writes attacker-chosen bytes to any path it can write (on a LocalSystem installation, code execution as SYSTEM), Message.Save queues outbound mail from any address past the SMTP checks, and FetchAccount attaches a mail-fetch job to any mailbox. The objects an Application handed out behave the same once a later Authenticate on that Application fails.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104660"
-    },
-    {
-      "id": "CVE-2026-104659",
-      "published": "2026-10-08T11:16:44.013",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Missing Host header validation and missing throttling of failed administrator sign-ins in the REST API listener of Progressive Robot hMailServer 6.0.0 through 6.3.5 allow a remote attacker to brute-force the server administrator's password through the administrator's own browser by DNS rebinding. The listener, which is off by default and bound to the loopback when enabled, answered requests whatever their Host header named, and a failed sign-in with the administrator's password from the loopback was neither auto-banned nor delayed. A web page whose host name the attacker rebinds to 127.0.0.1, opened in a browser on the server, can therefore send authenticated requests to the listener, read the answers and try administrator passwords at full speed until one is accepted, giving the attacker full administrative control of the mail server.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104659"
-    },
-    {
-      "id": "CVE-2026-104658",
-      "published": "2026-10-08T11:16:43.870",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "The Linux live-update apply helper (hmailserver-update) of Progressive Robot hMailServer 6.3.4 and 6.3.5 runs as root on a request file written by the unprivileged hmailserver service account, and took from that request the program used to verify an AppImage update's signature and the systemd unit to stop before reading the service account's files. An attacker who already runs code as the hmailserver service account, for example through another flaw in the mail server, can therefore have arbitrary code executed as root, on any Linux installation where the live update's path unit is active - the default for the project's .deb and .rpm packages - and on AppImage installations run under that unit.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104658"
-    },
-    {
-      "id": "CVE-2026-103649",
-      "published": "2026-10-08T11:16:43.093",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Missing network timeouts in the Linux builds of Progressive Robot hMailServer 6.3.0 through 6.3.5 allow a remote attacker to hold server threads indefinitely and so stop outbound mail delivery (denial of service). The server set its socket timeouts in the form Windows takes, which Linux refuses, and its HTTPS clients read without a deadline, so a peer that accepts a connection and then sends nothing held the waiting thread for as long as the connection stayed open. The MTA-STS policy fetch, enabled by default, is made during outbound delivery to mta-sts.<recipient domain>, so anyone who can make the server deliver mail to a domain they control - for example as the envelope sender of a message that bounces - can hold delivery threads until outbound delivery stops. The same flaw affects the DANE TLSA query, the OAuth2 token request, the ACME client, and the ManageSieve and metrics listeners, which a silent client stops from serving anyone else. Windows builds are not affected.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103649"
-    },
-    {
-      "id": "CVE-2026-103647",
-      "published": "2026-10-08T11:16:42.950",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Cross-site scripting in the webmail of Progressive Robot hMailServer 6.3.2 through 6.3.5 allows a remote attacker who can send a user an encrypted message to run script in the webmail's origin with that user's session. When the webmail decrypted an S/MIME message (from 6.3.2) or an OpenPGP message (from 6.3.4) in the browser, it offered each decrypted attachment as a blob URL of the media type the message declared for it. A click saved the file, but if the user opened the attachment in a new tab, a part declared as text/html was rendered as a document of the webmail's origin and its script could read the mailbox, send mail and change the account through the REST API. The webmail is served only when the REST API is enabled, which it is not by default.",
-      "score": 8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103647"
-    },
-    {
-      "id": "CVE-2026-103517",
-      "published": "2026-10-08T11:16:42.613",
-      "lastModified": "2026-10-08T20:51:18.123",
-      "description": "The Airwallex Online Payments Gateway WordPress plugin before 1.36.0 does not verify that an incoming payment notification genuinely comes from the payment provider when no webhook secret has been configured, allowing unauthenticated attackers to forge one and mark orders as paid without paying.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103517"
-    },
-    {
-      "id": "CVE-2026-103011",
-      "published": "2026-10-08T11:16:42.270",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Heap-based buffer overflow in the legacy Blowfish encryption routine (BlowFishEncryptor::Encode, called by EncryptToString) in Progressive Robot hMailServer 6.0.0 through 6.3.5 allows an authenticated mailbox user to cause a denial of service (service crash), and possibly other unspecified impact. In 6.3.4 and 6.3.5, where the self-service REST API is enabled (it is off by default), the user does this remotely by adding a fetch account whose password is 129 to 247 characters long and not a multiple of 8, and then requesting their personal data export (GET /api/v1/me/export.zip), which encrypts that password with the legacy scheme. The same flaw is reachable on Windows by any local interactive user with no hMailServer credentials, through the COM method Utilities.BlowfishEncrypt, which checked no authentication. It is also reachable by every stored-secret write when ProtectStoredSecretsWithDPAPI is set to 0. For such a length, the routine's padding loop writes up to 7 zero bytes 2 to 232 bytes past the end of its 255-byte heap buffer. The ciphertext it returns is still correct.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103011"
-    },
-    {
-      "id": "CVE-2026-103010",
-      "published": "2026-10-08T11:16:42.117",
-      "lastModified": "2026-10-08T21:02:43.860",
-      "description": "Heap-based buffer overflow in the legacy Blowfish decryption routine (BlowFishEncryptor::DecryptFromString) in Progressive Robot hMailServer 6.0.0 through 6.3.3 on Windows allows a local interactive user with no hMailServer credentials to write bytes of their choosing past the end of a 255-byte heap buffer in the hMailServer service process, which runs as LocalSystem by default. The user does this by passing a long hexadecimal string to the COM method Utilities.BlowfishDecrypt, which checked no authentication. The routine converted hexadecimal input of any length into a fixed 255-byte buffer before decrypting it in place. The result is a denial of service (service crash), and possibly code execution with the privileges of the service account.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103010"
-    },
-    {
-      "id": "CVE-2026-107510",
-      "published": "2026-10-08T10:17:09.553",
-      "lastModified": "2026-10-09T07:17:18.097",
-      "description": "An authenticated high privilege user can inject arguments in troubleshooting commands resulting in privilege escalation.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107510"
-    },
-    {
-      "id": "CVE-2026-107503",
-      "published": "2026-10-08T10:17:08.457",
-      "lastModified": "2026-10-08T20:46:35.260",
-      "description": "Unvalidated environments URL allows OAuth authorization code + PKCE verifier theft and account takeover via injected OIDC authority in Ditto Explorer in Eclipse Ditto Ditto Explorer [3.6.0,3.9.7] allows a craft link set an attacker-controlled OIDC authority with autoSso enabled. The UI then automatically starts a login at the genuine identity provider but exchanges the returned authorization code together with its PKCE code_verifier at an attacker-controlled token endpoint. This lets the attacker redeem the code for the victim's access and refresh tokens. Alternatively, an attacker-controlled api_uri causes the UI to send the victim's bearer token or Basic credentials to the attacker. Because the configuration is persisted, later visits to the UI without the crafted link repeat the token theft.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107503"
     }
   ]
 }
