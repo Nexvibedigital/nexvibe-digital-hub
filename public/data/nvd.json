@@ -1,6 +1,411 @@
 {
-  "syncedAt": "2026-10-15T00:03:56.038Z",
+  "syncedAt": "2026-10-15T04:27:16.219Z",
   "items": [
+    {
+      "id": "CVE-2026-92555",
+      "published": "2026-10-08T12:17:18.787",
+      "lastModified": "2026-10-08T20:09:14.010",
+      "description": "Insertion of sensitive information into sent data vulnerability in AKIN Software Computer Import-Export Industry and Trade Co. Ltd. AKINSOFT WOLVOX Control Panel allows Pull Data from System Resources.\n\nThis issue affects AKINSOFT WOLVOX Control Panel: from 26.02.25 before 26.02.26.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92555"
+    },
+    {
+      "id": "CVE-2026-19083",
+      "published": "2026-10-08T12:17:17.500",
+      "lastModified": "2026-10-08T20:09:14.010",
+      "description": "Authorization bypass through User-Controlled key vulnerability in AKIN Software Computer Import-Export Industry and Trade Co. Ltd. OctoCloud allows Accessing Functionality Not Properly Constrained by ACLs.\n\nThis issue affects OctoCloud: from 1.12.06 before 1.12.07.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-19083"
+    },
+    {
+      "id": "CVE-2026-107587",
+      "published": "2026-10-08T12:17:16.937",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Improper certificate validation in the webmail of Progressive Robot hMailServer 6.3.2 through 6.3.5 allows a remote unauthenticated attacker to have S/MIME-encrypted mail that the account later sends to another correspondent also encrypted to the attacker's key. When its recipient opened a signed message, the webmail kept the signer's certificate for encrypting replies whether or not the server found its chain trusted, under the first e-mail address the certificate listed rather than the message's From address, and beside any certificate already held for that address. Encrypted mail later sent from the webmail to that address was encrypted to every certificate held for it, so a holder of the kept certificate's key who obtains a copy of such a message can read it.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107587"
+    },
+    {
+      "id": "CVE-2026-107584",
+      "published": "2026-10-08T12:17:16.787",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Progressive Robot hMailServer 6.0.0 through 6.3.5 fails open when applying DANE (RFC 7672) to outbound SMTP delivery. The server's validating DNSSEC resolver treated a TLSA or MX lookup that did not complete (no answer, SERVFAIL, a malformed reply), an answer without the requested records and without an NSEC/NSEC3 proof of their absence, and an answer whose records carried no applicable RRSIG as if the recipient domain were unsigned, and from 6.2.19 it also delivered to mail exchangers taken from an unvalidated MX lookup that the DNSSEC-validated MX record set did not name. An attacker who can drop, forge or strip DNS answers on the path to the server's resolver, at the resolver, or between the resolver and the recipient domain's name servers, and who holds an active position on the SMTP path, can thereby disable DANE for a DNSSEC-signed recipient domain and cause messages to be delivered in cleartext or to a host of the attacker's choosing with an arbitrary certificate, where they can be read and modified.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107584"
+    },
+    {
+      "id": "CVE-2026-107583",
+      "published": "2026-10-08T12:17:16.633",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Inefficient algorithmic complexity in the webmail's message view of the REST API in Progressive Robot hMailServer 6.3.2 through 6.3.5 allows a remote unauthenticated attacker to make the webmail, the administration console and the REST API unavailable by sending a message. The route that renders a received message's HTML replaced each reference to an embedded image in place, with work that grew with the square of the number of references, and wrote the image out for every reference while counting it against its size limit only once. A message whose HTML refers to one small embedded image a very large number of times, opened in the webmail by its recipient, therefore keeps one of the listener's four worker threads busy for minutes and makes it build a document of gigabytes, so that a few such messages leave the HTTP listener unable to answer anybody.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107583"
+    },
+    {
+      "id": "CVE-2026-107582",
+      "published": "2026-10-08T12:17:16.480",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Inefficient algorithmic complexity in the REST API (6.3.3 through 6.3.5) and the IMAP PREVIEW response (6.2.22 through 6.3.5) of Progressive Robot hMailServer allows a remote unauthenticated attacker to make the webmail, the administration console and the REST API unavailable by sending a message. To show a snippet of each message in a folder's message list, the server decoded the character entity references of a message that has an HTML part and no text part with a string replacement whose work grew with the square of their number. A received HTML-only message holding a very large number of entity references therefore keeps one of the listener's four worker threads busy for minutes or longer each time the recipient's webmail lists the folder, without the message being opened, so that a few such listings leave the HTTP listener unable to answer anybody. The IMAP PREVIEW response read such text the same way, holding an IMAP thread for each client that asks for the preview of such a message. The flaw is in the server's shared string class, whose replace and remove both ran in quadratic time.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107582"
+    },
+    {
+      "id": "CVE-2026-107581",
+      "published": "2026-10-08T12:17:16.320",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Progressive Robot hMailServer 6.0.0 through 6.3.5 processes several IMAP commands from a signed-in account in time quadratic in the command's length or in the number of elements it names, and can be made to hold memory out of proportion to a command. The FETCH data-item parser normalised a BODY[] section with a case-insensitive string replacement that copied the whole item per occurrence and split the item list by repeatedly copying the remainder of the command; the server's case-insensitive search compared a needle afresh at every position, so a long SEARCH TEXT key over a message cost the product of the two lengths; SEARCH message sets and the saved-result marker ($), SORT criteria, HEADER.FIELDS name lists and UID ranges were each read once per message rather than once per command; and a FETCH naming a message's sections very many times read and held every section in memory before sending any. An IMAP command may continue past one line through non-synchronizing literals, so one command can reach about eleven megabytes. The IMAP worker threads are a small pool shared with SMTP and POP3, so a signed-in user sending such commands can make the IMAP, SMTP and POP3 services stop responding (CWE-407) and can consume excessive memory (CWE-400).",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107581"
+    },
+    {
+      "id": "CVE-2026-107580",
+      "published": "2026-10-08T12:17:16.123",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Inefficient algorithmic complexity in the decoding of message header fields in Progressive Robot hMailServer 6.0.0 through 6.3.5 allows a remote unauthenticated attacker to make the IMAP, SMTP and POP3 services, or the webmail, unavailable by sending a message. The server unfolded a decoded header value by finding each line break from the end of the value and removing it, moving the rest of the value each time, so its work grew with the square of the number of line breaks, and an RFC 2047 encoded word may decode to any number of them. A received message whose Subject or other header field holds such a value keeps a worker thread busy for minutes or longer each time the value is read: when the recipient's IMAP client searches, sorts or threads the folder by a header, when the webmail lists the folder, and, where configured, when a rule tests a header, a spam tag is added to the Subject or an abuse report is read during delivery. The IMAP worker threads are shared with SMTP and POP3, so a few such messages stop those services responding. The server's reading of a message header from its file also searched everything read so far after each 4,000 bytes, costing seconds for a header of tens of megabytes.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107580"
+    },
+    {
+      "id": "CVE-2026-107579",
+      "published": "2026-10-08T12:17:15.940",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Inefficient algorithmic complexity in the bounce and complaint processing of Progressive Robot hMailServer 6.3.4 and 6.3.5 allows a remote unauthenticated attacker to stop mail delivery by sending messages, when bounce processing or complaint processing is enabled or a mailing list is managed by the server (none is by default). The readers of incoming delivery status notifications (RFC 3464) and abuse feedback reports (RFC 5965) removed the blank lines at the start of the returned headers part two bytes at a time, copying the rest of the part each time, so their work grew with the square of the number of blank lines. A message shaped like such a report, whose headers part begins with a very large number of blank lines within the reader's 2 MB limit, keeps a delivery thread busy for over a minute while it is delivered, and a few such messages a minute keep every delivery thread busy.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107579"
+    },
+    {
+      "id": "CVE-2026-107578",
+      "published": "2026-10-08T12:17:15.787",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Improper link resolution and external control of file paths in the administrative command-line operations of hMailServer.exe in Progressive Robot hMailServer 6.3.4 and 6.3.5 allow a local attacker who already runs code as the low-privilege service account to escalate privilege. On Windows, operations run with administrator rights by the installer, DBSetup, the Control Panel or an administrator wrote log entries and crash records into the log folder, created, deleted and changed the permissions of the self-signed certificate and private key in the data folder, and rewrote message files in the data folder, all by path in folders the service account (NT SERVICE\\hMailServer, the default for new installations since 6.3.4) can modify, following junctions and mount points; and the store-maintenance operations reached files by names taken from the database, which the service account can write, including names outside the data folder. On Linux, the store-maintenance and object-storage operations run as root followed symbolic links the service account (the packaged hmailserver user, which owns the data folder) planted in it, so a root-run operation read, wrote or removed the link's target as root. A local attacker controlling the service account can thereby gain the administrator's (Windows) or root's (Linux) privileges when such an operation is run.",
+      "score": 6.7,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107578"
+    },
+    {
+      "id": "CVE-2026-107577",
+      "published": "2026-10-08T12:17:15.630",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Inefficient algorithmic complexity and a non-terminating loop in the MIME processing of received messages in Progressive Robot hMailServer 6.0.0 through 6.3.5 allow a remote unauthenticated attacker to make the mail services unavailable by sending a message. Removing a MIME header parameter whose value is empty and directly followed by a semicolon (for example a Content-Disposition with 'filename=a.bat; filename=;') entered a loop that never terminates, holding a worker thread at full load until the server is restarted; this is reached when the attachment blocker renames a blocked attachment or a filename is set over the REST API. Separately, decoding a header field that holds many RFC 2047 encoded words of an encoding other than base64 or quoted-printable, removing a parameter with many RFC 2231 continuations, and deleting many header fields of one name each took time growing with the square of the message, on the small thread pools that serve IMAP, SMTP and POP3 connections, delivery and the REST API.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107577"
+    },
+    {
+      "id": "CVE-2026-107576",
+      "published": "2026-10-08T12:17:15.487",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Inefficient algorithmic complexity in the inbound DKIM and ARC signature verification of Progressive Robot hMailServer 6.0.0 through 6.3.5 allows a remote unauthenticated attacker to make the mail services unavailable by sending a message. Building the canonical header and choosing the header fields named in a signature's h= tag took time growing with the square of the message's header: the 'simple' canonicalisation prepended each continuation line of a folded field to the lines already gathered, and both canonicalisations searched the gathered fields from the bottom for each h= name and erased the match from the middle of the list. A message whose header holds very many fields, or a field folded over very many lines, with a DKIM-Signature the attacker signs for a domain they control, keeps a worker thread busy for tens of seconds per signature; up to ten signatures are evaluated per message by each of the DKIM and DMARC tests, on the threads that serve delivery and SMTP.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107576"
+    },
+    {
+      "id": "CVE-2026-107575",
+      "published": "2026-10-08T12:17:15.333",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Inefficient algorithmic complexity in the SPF macro expansion of Progressive Robot hMailServer 6.3.4 and 6.3.5 allows a remote unauthenticated attacker to consume worker-thread time by publishing a crafted SPF record. RFC 7208 section 7.1 requires a name too long to look up to lose whole labels from the left; the server did this by removing one label at a time and copying the rest of the name each time, so the work grew with the square of the expansion. An attacker who publishes an SPF record for a domain they control, with a mechanism whose domain-spec expands through macros to a name far longer than 253 characters, makes the SPF check of a message from that domain take several seconds. The expansion is bounded by SPF's own per-term and per-macro limits, so the loss of availability is partial.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107575"
+    },
+    {
+      "id": "CVE-2026-107574",
+      "published": "2026-10-08T12:17:15.177",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Inefficient algorithmic complexity in the JSON reader of Progressive Robot hMailServer allows a remote unauthenticated attacker to make the mail services unavailable. Reading a JSON object kept the first of each duplicated member name by searching the members already read, so an object of N distinct member names cost O(N^2): 1 MB took 8.9 seconds and 4 MB took 300 seconds against the affected code. A remote attacker reaches the reader without an account by mailing a crafted TLS-RPT report (up to 16 MB after decompression) to a hosted domain's published report mailbox, which is read on a delivery thread; a few such reports hold every delivery thread (ten by default), so the server delivers no mail, local or outbound, for over an hour per report. A signed-in account reaches the same 16 MB body through the webmail's own REST routes, holding the REST API's own worker threads. Where no report mailbox is configured, the unauthenticated REST sign-in routes that read a JSON body are capped at 64 KB and are not affected.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107574"
+    },
+    {
+      "id": "CVE-2026-107573",
+      "published": "2026-10-08T12:17:15.027",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Incorrect default permissions in the Windows installer of Progressive Robot hMailServer 6.0.0 through 6.3.5 allow a local authenticated user to read the mail server's data. The installer created the data, log, temp, database and event folders and the hMailServer.INI configuration file with the permissions inherited from the installation folder, by default under Program Files, which give the local Users group read access. Any user who can sign in to the computer could read every stored message, the logs, the built-in database with the accounts' password hashes whenever the service is stopped, and the configuration file, including the database password, which is sealed only with the machine's DPAPI key and can be unsealed by any local account; with an external database that password gives full control of it. The Linux AppImage of 6.3.0 through 6.3.5 likewise created its per-user data folders readable by other local users.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107573"
+    },
+    {
+      "id": "CVE-2026-107572",
+      "published": "2026-10-08T12:17:14.870",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Inefficient complexity in the Sieve filter evaluation of Progressive Robot hMailServer 6.2.24 through 6.3.5 allows an authenticated account holder to make the mail services unavailable with their own filter. A ':matches' pattern was matched by a backtracking descent whose time grew with the matched value's length raised to the number of wildcards, so a pattern such as '*a*a*a*b' over 800 characters took 44 seconds; and 'deleteheader' erased the fields it removed one at a time, so removing many fields of one name over a message's header cost O(N^2) (80,000 fields took 18.8 seconds). Sieve filters run on the small, shared delivery thread pool, so an account holder whose active script does this, fed a few messages they can send themselves, empties the pool and stops delivery for the whole server. The script is the account holder's own and cannot be set for another user.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107572"
+    },
+    {
+      "id": "CVE-2026-107570",
+      "published": "2026-10-08T12:17:14.717",
+      "lastModified": "2026-10-10T00:17:03.540",
+      "description": "heap OOB write in convert_file_from_to() via a crafted Content-Type header allows attacker to OOB write when email is used as a template.",
+      "score": 2.5,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107570"
+    },
+    {
+      "id": "CVE-2026-107275",
+      "published": "2026-10-08T12:17:14.553",
+      "lastModified": "2026-10-08T20:49:23.240",
+      "description": "@fastify/jwt is a JSON Web Token plugin for the Fastify web framework. In versions before 10.2.3, a time span passed to expiresIn, notBefore, or maxAge that the plugin's parser cannot read, such as a compound span, a month unit, an ISO 8601 duration, a decimal comma, or a value with surrounding whitespace, is silently dropped instead of refused. On the signing path this produces a token with no expiration claim that never expires, and on the verification path a configured maxAge stops being enforced, so a token that should be rejected for age is accepted. The issue is fixed in @fastify/jwt 10.2.3, and users should upgrade to 10.2.3 or later. As a workaround, pass these options as a number of seconds, or verify that any time-span string parses to a finite value before relying on it.",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107275"
+    },
+    {
+      "id": "CVE-2026-93509",
+      "published": "2026-10-08T11:16:47.217",
+      "lastModified": "2026-10-08T20:51:18.123",
+      "description": "The Wallet System for WooCommerce WordPress plugin before 2.8.0 does not validate that a wallet transfer amount is positive, and computes the sender's new balance from a stale snapshot taken before crediting the recipient, allowing an authenticated attacker with Subscriber-level access to mint wallet funds for themselves or drain a specific victim's balance into their own account.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93509"
+    },
+    {
+      "id": "CVE-2026-105190",
+      "published": "2026-10-08T11:16:44.607",
+      "lastModified": "2026-10-08T20:51:18.123",
+      "description": "The Easy Digital Downloads WordPress plugin before 3.7.1 does not consult the site's user registration setting before creating a WordPress account, allowing unauthenticated users to create an account and receive a logged-in session even when registration is disabled. The created account receives the site's default role.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105190"
+    },
+    {
+      "id": "CVE-2026-104704",
+      "published": "2026-10-08T11:16:44.457",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Progressive Robot hMailServer 6.0.0 through 6.3.5 does not enforce TLS for outbound SMTP delivery to a mail exchanger whose DNSSEC-validated TLSA records contain no DANE-EE (usage 3) record, contrary to RFC 7672 section 2.2. The server used only DANE-EE records and treated a validated TLSA record set consisting of DANE-TA (usage 2) or otherwise unusable records as if no records were published, so delivery to such a host fell back to opportunistic TLS. An attacker with an active position on the network path between the server and the recipient's mail exchanger can suppress or break the STARTTLS negotiation and cause messages to be delivered in cleartext, where they can be read and modified.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104704"
+    },
+    {
+      "id": "CVE-2026-104671",
+      "published": "2026-10-08T11:16:44.303",
+      "lastModified": "2026-10-08T20:51:18.123",
+      "description": "The TutorStarter WordPress theme before 4.0.4 does not respect the site's user registration setting in one of its AJAX registration handlers, allowing unauthenticated visitors to create WordPress user accounts even when user registration is disabled.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104671"
+    },
+    {
+      "id": "CVE-2026-104660",
+      "published": "2026-10-08T11:16:44.160",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Missing authorization on COM objects in Progressive Robot hMailServer 6.0.0 through 6.3.5 (Windows only) lets a local interactive user with no hMailServer credential read and write arbitrary files as the service account and queue mail as any sender. The service registers its COM classes with no DCOM access or launch permission and calls CoInitializeSecurity with no security descriptor, so any user logged on at the console or over Remote Desktop can activate the classes in the running service; a hMailServer.Message, its Attachments and Attachment, and a hMailServer.FetchAccount created this way carry a credential that never authenticated. Attachments.Add(path) and Attachment.SaveAs(path) performed no authorization check, and Message.Save/Copy and FetchAccount.AccountID/Save performed none either up to 6.3.3 and from 6.3.4 treated a holder with no credential as the server's own event-script host. Because the service does not impersonate the COM caller, Attachments.Add reads any file the service account can read and returns it, Attachment.SaveAs writes attacker-chosen bytes to any path it can write (on a LocalSystem installation, code execution as SYSTEM), Message.Save queues outbound mail from any address past the SMTP checks, and FetchAccount attaches a mail-fetch job to any mailbox. The objects an Application handed out behave the same once a later Authenticate on that Application fails.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104660"
+    },
+    {
+      "id": "CVE-2026-104659",
+      "published": "2026-10-08T11:16:44.013",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Missing Host header validation and missing throttling of failed administrator sign-ins in the REST API listener of Progressive Robot hMailServer 6.0.0 through 6.3.5 allow a remote attacker to brute-force the server administrator's password through the administrator's own browser by DNS rebinding. The listener, which is off by default and bound to the loopback when enabled, answered requests whatever their Host header named, and a failed sign-in with the administrator's password from the loopback was neither auto-banned nor delayed. A web page whose host name the attacker rebinds to 127.0.0.1, opened in a browser on the server, can therefore send authenticated requests to the listener, read the answers and try administrator passwords at full speed until one is accepted, giving the attacker full administrative control of the mail server.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104659"
+    },
+    {
+      "id": "CVE-2026-104658",
+      "published": "2026-10-08T11:16:43.870",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "The Linux live-update apply helper (hmailserver-update) of Progressive Robot hMailServer 6.3.4 and 6.3.5 runs as root on a request file written by the unprivileged hmailserver service account, and took from that request the program used to verify an AppImage update's signature and the systemd unit to stop before reading the service account's files. An attacker who already runs code as the hmailserver service account, for example through another flaw in the mail server, can therefore have arbitrary code executed as root, on any Linux installation where the live update's path unit is active - the default for the project's .deb and .rpm packages - and on AppImage installations run under that unit.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104658"
+    },
+    {
+      "id": "CVE-2026-103649",
+      "published": "2026-10-08T11:16:43.093",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Missing network timeouts in the Linux builds of Progressive Robot hMailServer 6.3.0 through 6.3.5 allow a remote attacker to hold server threads indefinitely and so stop outbound mail delivery (denial of service). The server set its socket timeouts in the form Windows takes, which Linux refuses, and its HTTPS clients read without a deadline, so a peer that accepts a connection and then sends nothing held the waiting thread for as long as the connection stayed open. The MTA-STS policy fetch, enabled by default, is made during outbound delivery to mta-sts.<recipient domain>, so anyone who can make the server deliver mail to a domain they control - for example as the envelope sender of a message that bounces - can hold delivery threads until outbound delivery stops. The same flaw affects the DANE TLSA query, the OAuth2 token request, the ACME client, and the ManageSieve and metrics listeners, which a silent client stops from serving anyone else. Windows builds are not affected.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103649"
+    },
+    {
+      "id": "CVE-2026-103647",
+      "published": "2026-10-08T11:16:42.950",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Cross-site scripting in the webmail of Progressive Robot hMailServer 6.3.2 through 6.3.5 allows a remote attacker who can send a user an encrypted message to run script in the webmail's origin with that user's session. When the webmail decrypted an S/MIME message (from 6.3.2) or an OpenPGP message (from 6.3.4) in the browser, it offered each decrypted attachment as a blob URL of the media type the message declared for it. A click saved the file, but if the user opened the attachment in a new tab, a part declared as text/html was rendered as a document of the webmail's origin and its script could read the mailbox, send mail and change the account through the REST API. The webmail is served only when the REST API is enabled, which it is not by default.",
+      "score": 8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103647"
+    },
+    {
+      "id": "CVE-2026-103517",
+      "published": "2026-10-08T11:16:42.613",
+      "lastModified": "2026-10-08T20:51:18.123",
+      "description": "The Airwallex Online Payments Gateway WordPress plugin before 1.36.0 does not verify that an incoming payment notification genuinely comes from the payment provider when no webhook secret has been configured, allowing unauthenticated attackers to forge one and mark orders as paid without paying.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103517"
+    },
+    {
+      "id": "CVE-2026-103011",
+      "published": "2026-10-08T11:16:42.270",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Heap-based buffer overflow in the legacy Blowfish encryption routine (BlowFishEncryptor::Encode, called by EncryptToString) in Progressive Robot hMailServer 6.0.0 through 6.3.5 allows an authenticated mailbox user to cause a denial of service (service crash), and possibly other unspecified impact. In 6.3.4 and 6.3.5, where the self-service REST API is enabled (it is off by default), the user does this remotely by adding a fetch account whose password is 129 to 247 characters long and not a multiple of 8, and then requesting their personal data export (GET /api/v1/me/export.zip), which encrypts that password with the legacy scheme. The same flaw is reachable on Windows by any local interactive user with no hMailServer credentials, through the COM method Utilities.BlowfishEncrypt, which checked no authentication. It is also reachable by every stored-secret write when ProtectStoredSecretsWithDPAPI is set to 0. For such a length, the routine's padding loop writes up to 7 zero bytes 2 to 232 bytes past the end of its 255-byte heap buffer. The ciphertext it returns is still correct.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103011"
+    },
+    {
+      "id": "CVE-2026-103010",
+      "published": "2026-10-08T11:16:42.117",
+      "lastModified": "2026-10-08T21:02:43.860",
+      "description": "Heap-based buffer overflow in the legacy Blowfish decryption routine (BlowFishEncryptor::DecryptFromString) in Progressive Robot hMailServer 6.0.0 through 6.3.3 on Windows allows a local interactive user with no hMailServer credentials to write bytes of their choosing past the end of a 255-byte heap buffer in the hMailServer service process, which runs as LocalSystem by default. The user does this by passing a long hexadecimal string to the COM method Utilities.BlowfishDecrypt, which checked no authentication. The routine converted hexadecimal input of any length into a fixed 255-byte buffer before decrypting it in place. The result is a denial of service (service crash), and possibly code execution with the privileges of the service account.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103010"
+    },
+    {
+      "id": "CVE-2026-107510",
+      "published": "2026-10-08T10:17:09.553",
+      "lastModified": "2026-10-09T07:17:18.097",
+      "description": "An authenticated high privilege user can inject arguments in troubleshooting commands resulting in privilege escalation.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107510"
+    },
+    {
+      "id": "CVE-2026-107503",
+      "published": "2026-10-08T10:17:08.457",
+      "lastModified": "2026-10-08T20:46:35.260",
+      "description": "Unvalidated environments URL allows OAuth authorization code + PKCE verifier theft and account takeover via injected OIDC authority in Ditto Explorer in Eclipse Ditto Ditto Explorer [3.6.0,3.9.7] allows a craft link set an attacker-controlled OIDC authority with autoSso enabled. The UI then automatically starts a login at the genuine identity provider but exchanges the returned authorization code together with its PKCE code_verifier at an attacker-controlled token endpoint. This lets the attacker redeem the code for the victim's access and refresh tokens. Alternatively, an attacker-controlled api_uri causes the UI to send the victim's bearer token or Basic credentials to the attacker. Because the configuration is persisted, later visits to the UI without the crafted link repeat the token theft.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107503"
+    },
+    {
+      "id": "CVE-2026-89191",
+      "published": "2026-10-08T09:16:42.413",
+      "lastModified": "2026-10-08T21:35:53.890",
+      "description": "Unsanitised input in\nthe \"template name\" field of SQLView KRIS's Workflow Template feature\nis rendered in \"onclick\" attributes on the main dashboard without\nproper server-side sanitisation, allowing an attacker with administrative\naccess to inject and store malicious scripts that execute in the browsers of\naffected users.",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89191"
+    },
+    {
+      "id": "CVE-2026-71896",
+      "published": "2026-10-08T09:16:42.287",
+      "lastModified": "2026-10-08T17:25:38.450",
+      "description": "An authorization vulnerability in Apache DolphinScheduler allows authenticated users to retrieve other users' account information through the /dolphinscheduler/users/list-all endpoint without the required permissions.\n\n\n\nThe endpoint fails to enforce the necessary authorization checks before returning user account information. As a result, an authenticated user can access account information they are not authorized to view.\n\n\n\nSuccessful exploitation may expose sensitive user information and facilitate account enumeration.\n\n\n\nThis issue affects Apache DolphinScheduler: before 3.4.3.\n\n\n\nUsers are recommended to upgrade to version 3.4.3, which fixes the issue.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71896"
+    },
+    {
+      "id": "CVE-2026-71895",
+      "published": "2026-10-08T09:16:42.167",
+      "lastModified": "2026-10-08T17:25:38.450",
+      "description": "An authorization vulnerability in Apache DolphinScheduler allows authenticated non-admin users to retrieve Kubernetes configuration data intended for administrator-managed cluster configuration. The exposed kubeconfig data contains credentials that may allow users to authenticate directly to the Kubernetes API outside DolphinScheduler.\n\n\n\nThe impact depends on the permissions granted to the disclosed credentials. If the kubeconfig provides cluster-admin or broadly privileged service-account access, an attacker may read Kubernetes Secrets, create pods, and establish persistent access to the cluster.\n\n\n\nThis issue affects Apache DolphinScheduler: from 3.2.0 before 3.4.3.\n\n\n\nUsers are recommended to upgrade to version 3.4.3, which fixes the issue.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71895"
+    },
+    {
+      "id": "CVE-2026-71183",
+      "published": "2026-10-08T09:16:42.037",
+      "lastModified": "2026-10-08T17:25:38.450",
+      "description": "An authorization vulnerability in Apache DolphinScheduler allows authenticated users to obtain information about data sources they are not authorized to access through the /unauth-datasource and /authed-datasource endpoints.\n\n\n\nThese endpoints fail to enforce the required data source access controls and return sensitive connection information, including data source passwords. As a result, an authenticated user without permission to access a data source can retrieve its connection details and credentials.\n\n\n\nSuccessful exploitation exposes sensitive data source information and may enable unauthorized access to the underlying databases using the disclosed credentials.\n\n\n\nThis issue affects Apache DolphinScheduler: before 3.4.3.\n\n\n\nUsers are recommended to upgrade to version 3.4.3, which fixes the issue.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71183"
+    },
+    {
+      "id": "CVE-2026-66087",
+      "published": "2026-10-08T09:16:41.910",
+      "lastModified": "2026-10-08T21:18:02.143",
+      "description": "An authorization bypass vulnerability in Apache DolphinScheduler allows authenticated users to operate task instance in projects they are not authorized to access through the \n\n\n\n\n\n  *  /dolphinscheduler/projects/{projectCode}/task-instances/{taskInstanceId}/stop\n  *  /dolphinscheduler/projects/{projectCode}/task-instances/{taskInstanceId}/savepoint\n\n\n\n\n\n\n\n\nThis issue affects Apache DolphinScheduler: before 3.4.3.\n\n\n\nUsers are recommended to upgrade to version 3.4.3, which fixes the issue.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66087"
+    },
+    {
+      "id": "CVE-2026-66084",
+      "published": "2026-10-08T09:16:41.783",
+      "lastModified": "2026-10-08T21:18:01.973",
+      "description": "An authorization bypass vulnerability in Apache DolphinScheduler allows authenticated users to modify task definitions in projects they are not authorized to access through the /dolphinscheduler/projects/{projectCode}/task-definition/{code}/with-upstream endpoint.\n\n\n\nThe endpoint fails to verify that the task definition identified by code belongs to the project specified by projectCode. An authenticated user can supply the code of a project they are authorized to access together with a task definition code from another project, bypassing project access restrictions and modifying the target task definition and its upstream dependencies.\n\n\n\nThis vulnerability can compromise workflow integrity and disrupt task execution in unauthorized projects.This issue affects Apache DolphinScheduler: before 3.4.3.\n\n\n\nUsers are recommended to upgrade to version 3.4.3, which fixes the issue.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66084"
+    },
+    {
+      "id": "CVE-2026-66082",
+      "published": "2026-10-08T09:16:41.637",
+      "lastModified": "2026-10-08T21:18:01.803",
+      "description": "An authorization bypass vulnerability in Apache DolphinScheduler allows authenticated users to perform unauthorized operations on workflow schedules, workflow definitions, and task instances in other projects.\n\n\n\nThe affected endpoints check permissions against the supplied projectCode but fail to verify that the target resource belongs to that project. An authenticated user with the required permissions in one project can supply that project's code together with a resource identifier from another project, bypassing the target project's access restrictions.\n\n\n\nThe affected endpoints include:\n\n  *  \n\nPOST /projects/{projectCode}/schedules/{id}/online and /offline: Activate or deactivate workflow schedules in another project.\n\n\n  *  \n\nPOST /projects/{projectCode}/workflow-definition/{code}/release: Change the ONLINE/OFFLINE state of workflow definitions in another project.\n\n\n\n\n\n\nSuccessful exploitation allows users to alter workflow availability and interfere with task execution in projects they are not authorized to access.\n\n\n\nThis issue affects Apache DolphinScheduler: before 3.4.3.\n\n\n\nUsers are recommended to upgrade to version 3.4.3, which fixes the issue.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66082"
+    },
+    {
+      "id": "CVE-2026-4894",
+      "published": "2026-10-08T09:16:41.477",
+      "lastModified": "2026-10-08T21:04:18.423",
+      "description": "A vulnerability has been identified regarding insufficient validation in the Frappe Cloud/ERPNext authentication process, which allows multiple email addresses to be accepted by manipulating the email field in the /api/method/press.api.account.signup endpoint. The vulnerability occurs when an unauthenticated remote attacker adds more than one email address.\nThe service processes the entire value as a valid list of recipients and sends the OTP code to all addresses without proper validation of all added emails (only one of them needs to be valid). Exploiting this vulnerability would allow an attacker to:\n\n  *  Obtain the authentication OTP;\n  *  Impersonate someone else in the registration process;\n  *  Register accounts using other people's email addresses without access to the mailbox;\n  *  Indirectly confirm the existence of already registered email addresses.",
+      "score": 6.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-4894"
+    },
+    {
+      "id": "CVE-2026-12260",
+      "published": "2026-10-08T09:16:41.087",
+      "lastModified": "2026-10-08T21:04:18.423",
+      "description": "SQL injection in the NetBoard CRM demo platform; specifically, the vulnerable component is the ‘user-name’ POST parameter in the ‘/module/auth/recovery.php’ endpoint. The parameter is vulnerable to blind attacks based on Boolean, error, time-based and UNION techniques. Exploitation allows attackers to extract confidential information (such as the version and type of backend used), alter data or further compromise the CRM environment.",
+      "score": 10,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12260"
+    },
+    {
+      "id": "CVE-2026-105110",
+      "published": "2026-10-08T09:16:40.930",
+      "lastModified": "2026-10-08T21:35:53.890",
+      "description": "OS Command Injection in the login.xgi CGI endpoint in Iskratel Innbox GPON ONT devices allows an unauthenticated remote attacker to execute arbitrary commands as root via the CLI parameter.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105110"
+    },
+    {
+      "id": "CVE-2026-93699",
+      "published": "2026-10-08T08:16:34.367",
+      "lastModified": "2026-10-08T21:34:48.800",
+      "description": "Argument injection in WP Toolkit for cPanel allows local users to execute arbitrary code as other accounts on the same server.",
+      "score": 8.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93699"
+    },
+    {
+      "id": "CVE-2026-107466",
+      "published": "2026-10-08T08:16:34.193",
+      "lastModified": "2026-10-08T20:49:23.240",
+      "description": "A flaw was found in flatpak-builder. This vulnerability allows an attacker to cause information disclosure by convincing a user or continuous integration (CI) system to process a crafted build manifest. By specifying local file Uniform Resource Identifiers (URIs) within source download definitions, the builder bypasses directory confinement checks. As a result, sensitive host files accessible to the build process can be read and incorporated into the build artifacts.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107466"
+    },
+    {
+      "id": "CVE-2026-87428",
+      "published": "2026-10-08T07:16:33.400",
+      "lastModified": "2026-10-14T18:51:50.510",
+      "description": "In Brocade ASCG before 3.5.0, a  local unauthorized user on the ASCG VM who can issue a request to the SANnav host network namespace can extract stored management credentials for onboarded SANnav instances and compromise connected Brocade SANnav servers or managed Brocade Fibre Channel switches.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87428"
+    },
     {
       "id": "CVE-2026-87426",
       "published": "2026-10-08T07:16:33.270",
@@ -495,411 +900,6 @@
       "score": 6.1,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2023-5648"
-    },
-    {
-      "id": "CVE-2026-94584",
-      "published": "2026-10-08T04:18:00.600",
-      "lastModified": "2026-10-14T19:15:55.857",
-      "description": "A race condition and thread-safety vulnerability exists in the web management daemon of Brocade Fabric OS versions before 10.0.1. When handling user authentication requests across a multi-threaded execution pool, this race condition causes PAM modules to process stale or incorrect client IP addresses and switch context numbers. This leads to inaccurate audit records and potential access control bypasses where AAA evaluation or Calling-Station-ID ACL policies rely on client IP attributes.",
-      "score": 2.6,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94584"
-    },
-    {
-      "id": "CVE-2026-94580",
-      "published": "2026-10-08T04:18:00.347",
-      "lastModified": "2026-10-14T19:16:30.147",
-      "description": "An arbitrary file and directory deletion vulnerability exists in the REST API management interface handling USB storage operations on Brocade Fabric OS versions before 10.0.1. An authenticated user possessing USB management privileges can manipulate requested target paths to delete arbitrary files or directories on the switch's local root filesystem, bypassing intended USB mount point boundaries.",
-      "score": 4.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94580"
-    },
-    {
-      "id": "CVE-2026-94575",
-      "published": "2026-10-08T04:18:00.023",
-      "lastModified": "2026-10-14T14:18:17.357",
-      "description": "A logic vulnerability in Brocade Fabric OS versions before 10.0.1 web management framework allows an authenticated, low-privileged user to bypass inner Role-Based Access Control (RBAC) checks under specific environmental conditions. Successful exploitation lowers the system authorization mode for the active session context, allowing access to restricted configuration settings intended exclusively for administrative roles.",
-      "score": 5.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94575"
-    },
-    {
-      "id": "CVE-2026-87688",
-      "published": "2026-10-08T04:17:56.623",
-      "lastModified": "2026-10-14T19:16:58.293",
-      "description": "An input validation vulnerability exists in the security certificate management component of the Brocade Fabric OS administrative management API. When processing certificate management operations, user-supplied certificate identifiers are handled without adequate sanitization prior to execution in external system routines. An authenticated attacker with privileges to perform certificate deletion requests can leverage this flaw to execute arbitrary system commands with the privileges of the underlying management daemon. This vulnerability affects Fabric OS versions before 9.2.2d and 10.0.0 through 10.0.0a1.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87688"
-    },
-    {
-      "id": "CVE-2026-87687",
-      "published": "2026-10-08T04:17:56.360",
-      "lastModified": "2026-10-14T19:10:43.427",
-      "description": "An authorization and input validation vulnerability exists in Brocade Fabric OS versions before 9.2.2d and 10.0.0 through 10.0.0a1. An authenticated user with restricted privileges in one Virtual Fabric can exploit this issue by submitting a specially crafted request containing an arbitrary fabric identifier. This allows the user to perform unauthorized cross-fabric operations and view configuration details within tenants/Virtual Fabrics to which they have not been granted access.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87687"
-    },
-    {
-      "id": "CVE-2026-87685",
-      "published": "2026-10-08T04:17:56.097",
-      "lastModified": "2026-10-14T19:11:25.967",
-      "description": "An arbitrary file manipulation vulnerability exists in the WebTools management interface of Brocade Fabric OS versions before 9.2.2d and 10.0.0 through 10.0.0a1. When processing configuration transfer requests, the application fails to properly validate and sanitize a user-supplied status file path parameter. An authenticated administrative user can exploit this issue by submitting a specially crafted status file parameter, causing the underlying process to move an arbitrary system file to a predictable, world-readable temporary directory. This can lead to persistent Denial of Service (DoS), critical system file destruction, host compromise, or sensitive data leakage.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87685"
-    },
-    {
-      "id": "CVE-2026-87675",
-      "published": "2026-10-08T04:17:55.843",
-      "lastModified": "2026-10-14T19:09:49.610",
-      "description": "An OS command injection vulnerability exists in the configuration management subsystem of Brocade Fabric OS versions before 9.2.2d and 10.0.0 through 10.0.0a1. When performing a configuration download operation, the management daemon will relay configuration parameters, user-supplied relay host strings, and filenames directly to an internal utility script without sufficient character set validation. Because the local utility fails to sanitize shell metacharacters before processing them in a system shell command, a malicious or compromised configuration file can cause arbitrary operating system commands to be executed on a remote local switch when an administrator initiates a configuration download.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87675"
-    },
-    {
-      "id": "CVE-2026-87674",
-      "published": "2026-10-08T04:17:53.370",
-      "lastModified": "2026-10-14T19:11:51.050",
-      "description": "A local privilege escalation vulnerability exists in the system logging daemon of Brocade Fabric OS versions before 9.2.2d and 10.0.0 through 10.0.0a1. Insufficient access controls on internal inter-process communication (IPC) channels allow an unprivileged local user to submit malformed logging configurations. Due to improper input sanitization during configuration file generation, an attacker can inject arbitrary directives that execute with elevated privileges when the logging service reloads, leading to local privilege escalation.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87674"
-    },
-    {
-      "id": "CVE-2026-87673",
-      "published": "2026-10-08T04:17:53.117",
-      "lastModified": "2026-10-14T19:12:50.530",
-      "description": "An OS command injection vulnerability exists in maintenance command-line diagnostic utilities on Brocade Fabric OS versions before 9.2.2d and 10.0.0 through 10.0.0a1. The binary fails to sanitize user-supplied input options when invoking underlying system commands through a shell interpreter. A privileged user with maintenance account access can exploit this issue by supplying crafted parameters, which results in arbitrary OS command execution with root privileges.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87673"
-    },
-    {
-      "id": "CVE-2026-87667",
-      "published": "2026-10-08T04:17:52.843",
-      "lastModified": "2026-10-14T19:14:29.397",
-      "description": "An argument injection vulnerability exists in the configuration management command-line utility of Brocade Fabric OS versions before 9.2.2d and 10.0.0 through 10.0.0a1. When executing configuration viewing commands with search pattern filters, the utility fails to sanitize user-supplied search string options before passing them to internal search commands. An authenticated user with low-privilege administrative access can exploit this vulnerability to read arbitrary files on the local operating system, including sensitive configuration files, system password hashes and system secrets.",
-      "score": 4.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87667"
-    },
-    {
-      "id": "CVE-2026-87666",
-      "published": "2026-10-08T04:17:52.553",
-      "lastModified": "2026-10-14T19:14:40.353",
-      "description": "An OS command injection vulnerability exists in the time and zone management subsystem of Brocade Fabric OS versions before 9.2.2d and 10.0.0 through 10.0.0a1. When updating system timezone settings via the REST API or configuration download routines, the system fails to sanitize input values before processing them in underlying shell execution routines. An authenticated user with low-privilege administrative access can exploit this vulnerability by submitting a crafted timezone string containing shell metacharacters. Successful exploitation allows the attacker to escape the restricted management environment and execute arbitrary shell commands with elevated privileges.",
-      "score": 8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87666"
-    },
-    {
-      "id": "CVE-2026-87660",
-      "published": "2026-10-08T04:17:52.107",
-      "lastModified": "2026-10-14T19:15:01.283",
-      "description": "An improper file permission and missing authorization vulnerability exists in the diagnostic kernel module subsystem of Brocade Fabric OS versions before 9.2.2d and 10.0.0 through 10.0.0a1. An unprivileged local user can invoke privileged hardware tests, force system error conditions, reset hardware blades, or disrupt storage fabric operations.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87660"
-    },
-    {
-      "id": "CVE-2026-107448",
-      "published": "2026-10-08T04:17:19.640",
-      "lastModified": "2026-10-10T03:17:07.040",
-      "description": "Magic: The Gathering Arena (Windows/Steam client; 2026.59.30.12801.127931.6 and certain later 2026.60.x builds) passes a server-supplied URL from a home-screen carousel GoToExternalUrl action directly to the Windows shell via Application.OpenURL/ShellExecuteW without validating the URI scheme or domain. A hypothetical attacker able to control the carousel content delivered to clients can cause arbitrary registered URI-scheme handlers to be invoked on client hosts with no user interaction. For example, one might expect that the carousel content only has https: URIs, not ms-calculator: URIs.",
-      "score": 3.4,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107448"
-    },
-    {
-      "id": "CVE-2026-107446",
-      "published": "2026-10-08T04:17:19.410",
-      "lastModified": "2026-10-08T21:33:42.423",
-      "description": "containerd overlaybd through 1.0.18 has a do_load_index (LSMT index loading) integer overflow (and resultant out-of-bounds heap access) for index_bytes, if an untrusted overlaybd blob from a registry is used in a scenario with multiple overlaybd-backed containers.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107446"
-    },
-    {
-      "id": "CVE-2026-107445",
-      "published": "2026-10-08T04:17:19.220",
-      "lastModified": "2026-10-08T20:49:23.240",
-      "description": "A flaw was found in Katello where the Flatpak Remote Repositories API does not properly enforce authorization when accessing a flatpak remote repository by identifier. An authenticated user with permission to view flatpak remotes in one organization may be able to access flatpak remote repository information belonging to another organization. The same unscoped lookup is used by the mirror action, which may allow creating a repository in a product the user can edit that is configured with another organization's flatpak remote URL and stored remote credentials.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107445"
-    },
-    {
-      "id": "CVE-2026-107444",
-      "published": "2026-10-08T04:17:14.237",
-      "lastModified": "2026-10-08T20:49:23.240",
-      "description": "A flaw was found in Katello where the Docker Tags repositories API does not properly enforce organization scoping when listing repositories for a Docker meta tag. An authenticated user with permission to view products in one organization may be able to retrieve repository metadata associated with Docker tags belonging to another organization by supplying the tag identifier. This can result in unauthorized disclosure of repository configuration information across organization boundaries.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107444"
-    },
-    {
-      "id": "CVE-2026-94583",
-      "published": "2026-10-08T03:16:38.120",
-      "lastModified": "2026-10-14T14:07:38.660",
-      "description": "A race condition vulnerability exists in the request processing logic of the REST management interface on Brocade Fabric OS versions before 10.0.1. When handling concurrent incoming network management FCIP requests, a timing window exists between when a request populates the address variable and when the service constructs and returns the response context. As a result, the first request adopts the modified context, causing the service to return sensitive management details or configuration data belonging to the second context back to the original requester.",
-      "score": 2.6,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94583"
-    },
-    {
-      "id": "CVE-2026-94582",
-      "published": "2026-10-08T03:16:37.980",
-      "lastModified": "2026-10-14T14:09:01.060",
-      "description": "A memory buffer overflow vulnerability exists in the internal diagnostic and route validation routines used by the Fabric Shortest Path First (FSPF) protocol component of Brocade Fabric OS versions before 10.0.1. While this code path is part of internal diagnostic functionality and is not directly accessible via standard user interfaces or CLI management commands, an input processing flaw allows incoming or internally routed diagnostic state payloads to exceed allocated memory boundaries. An attacker that is able to chain or link other vulnerabilities to exploit this internal diagnostic could cause a heap- or stack-based memory overrun, resulting in a daemon crash (Denial of Service) or potential arbitrary code execution within the context of the routing daemon.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94582"
-    },
-    {
-      "id": "CVE-2026-94578",
-      "published": "2026-10-08T03:16:37.840",
-      "lastModified": "2026-10-14T14:26:12.263",
-      "description": "Brocade Fabric OS versions before 10.0.1 contain an authorization logic vulnerability in the AAA (Authentication, Authorization, and Accounting) integration framework allows remote authenticated users to gain root-equivalent chassis access controls. By returning specific, crafted Vendor-Specific Attributes (VSAs) or directory claims from an external identity provider (such as RADIUS, LDAP, TACACS+, or Federated IDP), an account can bypass administrative role restriction checks during session establishment.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94578"
-    },
-    {
-      "id": "CVE-2026-92862",
-      "published": "2026-10-08T03:16:37.683",
-      "lastModified": "2026-10-08T21:09:24.520",
-      "description": "The Android application \"Ticket Ryutsu Center\" improperly handles custom URL schemes, allowing a malicious application to cause access to an arbitrary website via a crafted Intent.",
-      "score": 3.3,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92862"
-    },
-    {
-      "id": "CVE-2026-92861",
-      "published": "2026-10-08T03:16:37.530",
-      "lastModified": "2026-10-08T21:09:24.520",
-      "description": "The Android application \"Ticket Ryutsu Center\" contains hard-coded credentials, which may allow an attacker to obtain an API key used by the application.",
-      "score": 4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92861"
-    },
-    {
-      "id": "CVE-2026-87686",
-      "published": "2026-10-08T03:16:37.390",
-      "lastModified": "2026-10-14T14:32:30.360",
-      "description": "An authentication and access control bypass vulnerability exists in the web server management interface of Brocade Fabric OS versions before 10.0.1. The web dispatcher routine evaluates internal management VLAN trust decisions using the client-supplied HTTP host header instead of the actual socket transport layer source IP address. Successful exploitation allows the attacker to bypass IP-filtering access control lists (ACLs) and obtain sensitive device metadata (such as model, serial number, hardware revision, and firmware version) without authentication.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87686"
-    },
-    {
-      "id": "CVE-2026-87684",
-      "published": "2026-10-08T03:16:37.237",
-      "lastModified": "2026-10-14T14:46:52.753",
-      "description": "A stack-based buffer overflow vulnerability exists in the SNMP daemon request handling of Brocade Fabric versions before 10.0.1. When processing an incoming SNMPv3 packet, an internal statistics gathering handler copies user-supplied context name data into a fixed-size buffer without properly validating the length of the string. A remote, unauthenticated attacker (under default configuration) can exploit this vulnerability by sending a specially crafted SNMPv3 packet, leading to memory corruption, daemon crash (Denial of Service), or potential arbitrary code execution.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87684"
-    },
-    {
-      "id": "CVE-2026-87678",
-      "published": "2026-10-08T03:16:37.093",
-      "lastModified": "2026-10-14T14:47:25.070",
-      "description": "An input validation and output encoding vulnerability exists in the web management interface of Brocade Fabric OS versions before 10.0.1. When configuring Federated Authentication (FA), the system fails to sanitize the Identity Provider (IdP) issuer parameter. An authenticated administrator—or an attacker capable of supplying crafted FA configuration files during an import routine—can inject arbitrary web server directives. This can lead to service denial by preventing the web management daemon from starting, or potentially alter web server security controls.",
-      "score": 5.2,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87678"
-    },
-    {
-      "id": "CVE-2026-87676",
-      "published": "2026-10-08T03:16:36.950",
-      "lastModified": "2026-10-14T14:47:55.933",
-      "description": "A stack-based buffer overflow vulnerability exists in the security library component of Brocade Fabric OS versions before 10.0.1. When parsing uploaded X.509 PEM certificates for management display, the system improperly validates the length of the Authority Key Identifier (AKI) extension before copying string tokens into an internal memory buffer. An authenticated user with administrative privileges to import custom certificates can supply a certificate containing an intentionally oversized AKI extension. When the system processes or renders the certificate attributes, this can trigger a stack memory corruption leading to a denial-of-service (DoS) condition by crashing the management daemon.",
-      "score": 5.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87676"
-    },
-    {
-      "id": "CVE-2026-87672",
-      "published": "2026-10-08T03:16:36.810",
-      "lastModified": "2026-10-14T14:05:59.953",
-      "description": "An information disclosure vulnerability exists in the SupportLink diagnostic collection utilities of Brocade Fabric OS versions before 10.0.1. When SupportLink is configured to use an authenticated HTTP proxy, the system stores the full proxy URL. Anyone with access to the diagnostic support bundle, such as support personnel or users with access to file shares where support bundles are stored, can extract these cleartext proxy credentials.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87672"
-    },
-    {
-      "id": "CVE-2026-87671",
-      "published": "2026-10-08T03:16:36.650",
-      "lastModified": "2026-10-13T17:15:46.667",
-      "description": "An out-of-bounds memory read vulnerability exists in the web management daemon of Brocade Fabric OS versions before 10.0.1. Unauthenticated HTTP endpoints process specific URL query parameters without validating array index boundaries or performing numerical range checks. An unauthenticated remote attacker can exploit this issue by sending a single, crafted HTTP request containing extreme numerical values in the query string. This causes an invalid memory dereference, resulting in a crash of the web management process (Denial of Service) and potential temporary management-plane disruption.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87671"
-    },
-    {
-      "id": "CVE-2026-87670",
-      "published": "2026-10-08T03:16:36.403",
-      "lastModified": "2026-10-13T17:16:45.870",
-      "description": "An authorization logic vulnerability exists in the Brocade Fabric OS versions before 10.0.1 REST API gateway. The internal gate guarding restricted management endpoints relies exclusively on client-controlled HTTP headers. An authenticated user with any valid REST session can spoof these headers to gain unauthorized access to internal management endpoints. This allows low-privilege users to view sensitive chassis metadata, hardware memory patrolling state, and firmware integrity audit logs.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87670"
-    },
-    {
-      "id": "CVE-2026-87669",
-      "published": "2026-10-08T03:16:36.237",
-      "lastModified": "2026-10-13T17:17:43.257",
-      "description": "A missing authorization check in Brocade Fabric OS versions before 10.0.1 REST API interface of affected platform releases allows an authenticated user, regardless of their assigned role or administrative scope, to retrieve complete Monitoring and Alerting Policy Suite (MAPS) violation data across all logical switches. An attacker with low-privilege API access can leverage this endpoint to dump chassis-wide system health metrics, port performance violations, and configuration data without appropriate privileges.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87669"
-    },
-    {
-      "id": "CVE-2026-87668",
-      "published": "2026-10-08T03:16:36.100",
-      "lastModified": "2026-10-13T17:23:22.300",
-      "description": "A stack-based buffer overflow vulnerability exists in the diagnostic execution utility of Brocade Fabric OS versions before 10.0.1. When processing command arguments for diagnostic operations, the utility tokenizes user-supplied input into an internal argument array without enforcing boundary checks on the maximum array capacity. An authenticated user with administrative access can exploit this vulnerability by supplying a crafted diagnostic command string containing an excessive number of tokenized arguments. This leads to a memory overwrite resulting in a denial of service (process crash).",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87668"
-    },
-    {
-      "id": "CVE-2026-87665",
-      "published": "2026-10-08T03:16:35.960",
-      "lastModified": "2026-10-13T17:24:29.240",
-      "description": "A stack-based buffer overflow vulnerability exists in the Internet Key Exchange (IKEv2) protocol handler on Brocade Fabric OS versions before 10.0.1. The vulnerability occurs when processing initial IKE key exchange requests on extension switches or blades running IPsec-enabled Fibre Channel over IP (FCIP) circuits. An unauthenticated remote attacker can exploit this vulnerability by sending a single, specifically crafted UDP packet (Port 500) containing an oversized Nonce payload. Successful exploitation results in a denial of service (data-plane process crash)",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87665"
-    },
-    {
-      "id": "CVE-2026-87659",
-      "published": "2026-10-08T03:16:35.820",
-      "lastModified": "2026-10-13T17:25:28.650",
-      "description": "A critical authorization bypass vulnerability exists in the Management Server handling of Brocade Fabric OS versions before 10.0.1. A compromised switch connected to the fabric can transmit crafted inband Fibre Channel vendor-unique CT (Common Transport) management requests to bypass administrative authentication. Successful exploitation allows an unauthorized peer switch to execute administrative actions on the target device, including resetting administrative passwords, initiating system reboots, and triggering firmware downloads.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87659"
-    },
-    {
-      "id": "CVE-2017-20283",
-      "published": "2026-10-08T03:16:32.343",
-      "lastModified": "2026-10-08T21:33:42.423",
-      "description": "NXP MQX Classic before 5.0 contains an out-of-bounds write vulnerability in the RTCS UDP recvfrom() implementation. Improper enforcement of the application-supplied receive buffer length may allow a crafted UDP packet to overflow the destination buffer, resulting in memory corruption, or denial of service.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2017-20283"
-    },
-    {
-      "id": "CVE-2026-87726",
-      "published": "2026-10-08T02:16:54.713",
-      "lastModified": "2026-10-08T21:33:42.423",
-      "description": "Insufficient API bounds checking in phalFelica in NXP NXPNfcRdLib RC663 through 07.14.00_Pub may allow an attacker with privileges or an untrusted third party to access unintended memory regions, potentially leading to limited loss of confidentiality, integrity, and availability. All software versions from 07.18.00 onwards have fixed this problem.",
-      "score": 3.9,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87726"
-    },
-    {
-      "id": "CVE-2026-87683",
-      "published": "2026-10-08T02:16:54.563",
-      "lastModified": "2026-10-13T17:27:15.040",
-      "description": "Multiple stack-based buffer overflow vulnerabilities exist in the REST API management component of Brocade Fabric OS versions prior to 10.0.1. When processing API request payloads (such as device configuration attributes or port mapping requests) the REST API service fails to properly validate incoming array counts and string lengths against internal buffer capacities. An authenticated attacker with REST API access can transmit crafted, oversized request parameters to induce memory corruption on the execution stack. This may result in a denial-of-service condition (daemon crash) or potential arbitrary code execution within the management process context.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87683"
-    },
-    {
-      "id": "CVE-2026-87682",
-      "published": "2026-10-08T02:16:54.420",
-      "lastModified": "2026-10-13T17:27:59.653",
-      "description": "Multiple OS Command Injection vulnerabilities exist in the management interface and session processing routines of Brocade Fabric OS versions before 10.0.1. Input processing flaws during remote management connection validation and session verification for directory-based user accounts allow untrusted input containing shell metacharacters to reach internal system execution wrappers. An authenticated user or a compromised directory service account can exploit these vulnerabilities to execute arbitrary operating system commands with elevated privileges on the target device.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87682"
-    },
-    {
-      "id": "CVE-2026-82627",
-      "published": "2026-10-08T02:16:54.263",
-      "lastModified": "2026-10-08T18:18:27.190",
-      "description": "The Uncanny Automator – AI + Automation for WordPress | AI Agent, AI Page Builder, Free AI Usage Included plugin for WordPress is vulnerable to PHP Object Injection in all versions up to, and including, 7.6.1.1 via deserialization of untrusted input. This makes it possible for authenticated attackers, with Subscriber-level access and above, to inject a PHP Object when a third-party integration plugin (such as PeepSo,  MailPoet, WPForms, etc) is installed and a recipe is configured that stores attacker-controlled data as trigger meta. The additional presence of a POP chain within Uncanny Automator allows attackers to delete arbitrary files on the server.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82627"
-    },
-    {
-      "id": "CVE-2026-102488",
-      "published": "2026-10-08T02:16:53.003",
-      "lastModified": "2026-10-08T20:49:23.240",
-      "description": "In affected versions, Octopus Server incorrectly evaluates multiple scoped permission assignments, allowing a highly privileged user to obtain deployment permissions beyond those actually granted to them.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102488"
-    },
-    {
-      "id": "CVE-2026-87681",
-      "published": "2026-10-08T01:16:32.620",
-      "lastModified": "2026-10-13T14:13:31.013",
-      "description": "An Access Control Bypass vulnerability exists in the Role-Based Access Control (RBAC) validation engine of Brocade Fabric OS versions before 10.0.1. When processing certain management protocol operations, the RBAC engine incorrectly categorizes non-standard action opcodes during permission checks. This allows authenticated users with read-only management privileges to bypass access controls and execute restricted administrative operations.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87681"
-    },
-    {
-      "id": "CVE-2026-87680",
-      "published": "2026-10-08T01:16:32.480",
-      "lastModified": "2026-10-13T14:17:05.767",
-      "description": "A command injection vulnerability in the REST API management interface of Brocade Fabric OS versions before 10.0.1 allows an authenticated user to execute arbitrary system commands via crafted input parameters.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87680"
-    },
-    {
-      "id": "CVE-2026-87679",
-      "published": "2026-10-08T01:16:32.313",
-      "lastModified": "2026-10-13T14:17:12.197",
-      "description": "When Brocade Fabric OS versions before 10.0.1 processes trunk configuration operations, the application parses user-supplied list strings into dynamically allocated heap arrays without enforcing boundary checks on the maximum allowable number of elements. An authenticated administrator can exploit this vulnerability via crafted REST API requests containing an excessive number of list delimiters, causing heap corruption that can result in service crash or arbitrary code execution.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87679"
-    },
-    {
-      "id": "CVE-2024-8122",
-      "published": "2026-10-08T01:16:32.037",
-      "lastModified": "2026-10-08T17:17:10.723",
-      "description": "The WSO2 Identity Server fails to enforce a default expiry time for SMS One-Time Passwords (OTPs) used in multi-factor authentication (MFA). This allows unused OTPs to remain valid indefinitely, presenting an opportunity for malicious actors to conduct brute force attacks by repeatedly guessing the OTP.\n\nThe absence of automatic expiration for OTPs grants attackers an unlimited timeframe to attempt guessing the correct code. A successful brute force attack can lead to an MFA bypass, resulting in the unauthorized takeover of a user's account and compromising the security and privacy of both the individual and the system.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-8122"
-    },
-    {
-      "id": "CVE-2026-94154",
-      "published": "2026-10-08T00:16:35.333",
-      "lastModified": "2026-10-08T17:24:31.040",
-      "description": "The Aurora Heatmap plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the ‘url’ parameter in all versions up to, and including, 1.7.2 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever an admin user clicks the injected heatmap link.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94154"
-    },
-    {
-      "id": "CVE-2026-17538",
-      "published": "2026-10-08T00:16:35.153",
-      "lastModified": "2026-10-10T03:17:07.183",
-      "description": "The LatePoint - Appointment Booking & Reservation plugin for WordPress is vulnerable to Insecure Direct Object Reference in versions up to, and including, 5.6.9. This is due to the process_step_customer() function using is_user_logged_in() as the sole gate before merging POSTed customer data into an existing LatePoint customer, without any ownership checks. This makes it possible for authenticated attackers, with Subscriber-level access and above, to modify the personal information (first name, last name, email, phone, notes) of arbitrary LatePoint customers, and, when the contact_merge setting is 'phone', to overwrite the victim's email address and take over the account via a password reset.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-17538"
-    },
-    {
-      "id": "CVE-2026-107315",
-      "published": "2026-10-08T00:16:33.690",
-      "lastModified": "2026-10-08T20:49:23.240",
-      "description": "pgjdbc, the PostgreSQL JDBC Driver, versions 42.7.4 through 42.7.13 pads a value that is shorter than its declared length with bytes left in its send buffer instead of zeros, and the server stores those bytes as part of the value. The bytes are messages the driver sent earlier on the same connection: SQL text and parameter values of recent statements, which on a pooled connection can come from other requests. Each padded value can carry up to 8192 bytes of this traffic, or 16320 bytes on a connection with GSS encryption. The padding happens when an application declares a length larger than the data it supplies, through PreparedStatement.setObject with a ByteStreamWriter, CopyIn.writeToCopy, PGCopyOutputStream.write, LargeObject.write, or Blob.setBytes. The driver accepts these calls without an error. An attacker who can make the application store such a value and read it back can collect earlier traffic. Applications whose declared lengths always match their data are not affected. Versions 42.7.3 and earlier pad with zeros.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107315"
     }
   ]
 }
