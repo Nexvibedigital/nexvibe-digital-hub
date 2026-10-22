@@ -1,6 +1,708 @@
 {
-  "syncedAt": "2026-10-22T10:34:04.725Z",
+  "syncedAt": "2026-10-22T15:35:50.435Z",
   "items": [
+    {
+      "id": "CVE-2026-109841",
+      "published": "2026-10-15T19:17:21.640",
+      "lastModified": "2026-10-19T20:45:30.840",
+      "description": "undici is an HTTP client library for Node.js. In versions 7.15.0 through 7.30.0 and 8.0.0 through 8.12.1, its fetch() implementation verifies Subresource Integrity metadata by matching the algorithm token against a lowercase-only set, even though the SRI specification defines the token by its ASCII-lowercase form, so a valid but non-lowercase token such as an uppercase or mixed-case SHA256 is treated as unknown and skipped. When no recognized algorithm remains, undici treats the integrity list as empty and accepts the response, so a server returning a body that does not match the pinned digest passes the check. An attacker who controls only the response body can therefore deliver attacker-controlled bytes to an application that pinned a valid uppercase or mixed-case SRI token, with no integrity error, affecting response integrity only. The issue is fixed in undici 7.30.1 and 8.12.2, which normalize the algorithm token to ASCII lowercase before validation, and users should upgrade to one of those versions or later. As a workaround, use lowercase algorithm tokens such as sha256, sha384, or sha512 in integrity metadata.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109841"
+    },
+    {
+      "id": "CVE-2026-109829",
+      "published": "2026-10-15T19:17:21.513",
+      "lastModified": "2026-10-19T20:45:43.390",
+      "description": "undici is an HTTP client library for Node.js. In versions 7.0.0 through 7.30.0 and 8.0.0 through 8.12.1, when an originless Agent composes the redirect and cache interceptors in that order with a shared cache store, the cache builds its key from the original request URL before the redirect handler changes the origin, so a response produced after a cross-origin redirect is stored under the original key. An attacker who controls the target of a redirect from a trusted URL can have their response cached under that trusted URL and served to later callers, allowing persistent cache poisoning, and the same key confusion lets a private, non-stored redirect response to a user-specific resource be stored under the original URL and served to a later unauthenticated caller, disclosing private data. Applications are affected only when an originless Agent, a shared cache store, and the redirect-then-cache composition are all used. The issue is fixed in undici 7.30.1 and 8.12.2, which verify the producing origin still matches the cache key and preserve each redirect hop's cache-control policy before storing, and users should upgrade to one of those versions or later. As a workaround, compose the cache interceptor before the redirect interceptor, use per-origin dispatchers and cache stores, or disable shared caching on redirect-capable requests.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109829"
+    },
+    {
+      "id": "CVE-2026-109689",
+      "published": "2026-10-15T19:17:21.373",
+      "lastModified": "2026-10-15T19:56:13.350",
+      "description": "Missing Authorization vulnerability in WP Sunshine Sunshine Photo Cart sunshine-photo-cart allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Sunshine Photo Cart: from n/a through 3.7.4.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109689"
+    },
+    {
+      "id": "CVE-2026-109383",
+      "published": "2026-10-15T19:17:20.853",
+      "lastModified": "2026-10-19T20:45:52.410",
+      "description": "undici is an HTTP client library for Node.js. In versions 4.0.0 through 6.29.0, 7.0.0 through 7.30.0, and 8.0.0 through 8.12.1, its Agent dispatcher passes its constructor options through a JSON-based deep clone before forwarding them to each per-origin pool, and because JSON cannot represent functions, a caller-supplied tls option containing a checkServerIdentity callback is silently dropped before it reaches the TLS layer. As a result, a TLS peer whose certificate a custom checkServerIdentity was written to reject, but which passes Node's default hostname and chain checks, is silently accepted. Because Agent is the default dispatcher behind request, fetch, and setGlobalDispatcher, this affects the path most applications use, and EnvHttpProxyAgent is affected on its direct and no-proxy routes as well, while only applications that pass a function-valued tls option such as a custom checkServerIdentity for certificate or public-key pinning are at risk. The issue is fixed in undici 6.29.1, 7.30.1, and 8.12.2, which preserve the tls option outside the JSON clone so custom verification callbacks are forwarded unchanged, and users should upgrade to one of those versions or later. As a workaround, pass the TLS options through connect instead of tls, or for proxied destinations use requestTls and proxyTls.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109383"
+    },
+    {
+      "id": "CVE-2026-109131",
+      "published": "2026-10-15T19:17:20.717",
+      "lastModified": "2026-10-19T16:17:02.220",
+      "description": "The Hub collection module documentation renderer in the unified Ansible Automation Platform UI (built from upstream ansible-ui, frontend/hub) renders a documentation URL part (formatPartURL in DocumentationParsers.tsx) as a link without restricting the URL protocol/scheme. A collection whose documentation contains a link using a script-executing URL scheme can therefore cause script to run in the same origin as the Hub UI when another authenticated user views and activates that link in the collection documentation page. This is a stored cross-site scripting issue in shipped Platform UI code (present in the AAP 2.6 and 2.7 release branches).",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109131"
+    },
+    {
+      "id": "CVE-2026-108499",
+      "published": "2026-10-15T19:17:20.330",
+      "lastModified": "2026-10-15T21:17:12.670",
+      "description": "Missing Authorization vulnerability in WebberZone Knowledge Base knowledgebase allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Knowledge Base: from n/a through 3.2.0.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-108499"
+    },
+    {
+      "id": "CVE-2026-108334",
+      "published": "2026-10-15T19:17:20.187",
+      "lastModified": "2026-10-17T12:16:28.720",
+      "description": "A flaw was found in the internal WebAssembly (WASM) shim used by the Kuadrant operator. When generating the CEL predicate that determines whether Gateway-level authentication and rate limiting should run, the shim does not correctly escape values from HTTPRoute match fields. A user who can create or modify an HTTPRoute attached to a shared Gateway can provide a crafted path, header, or query match value that causes the predicate to skip those checks. The request is still forwarded to the route’s backend.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-108334"
+    },
+    {
+      "id": "CVE-2026-108126",
+      "published": "2026-10-15T19:17:19.873",
+      "lastModified": "2026-10-16T19:55:59.740",
+      "description": "temporal-proxy 0.2.0 through 0.8.0 does not bind encrypted payloads to the namespace they were encrypted for. When payload encryption is enabled, the proxy chooses the decryption key by an identifier stored in the payload rather than by the namespace of the request, and nothing in the ciphertext records that namespace. A caller whom the proxy authorizes only for namespace B, and who has obtained an encrypted payload from namespace A, can therefore have the proxy decrypt it. In 0.8.0, the caller can submit the payload to the codec server's /decode endpoint. In every affected version, a caller who can also write to namespace B on the Temporal server directly can place the payload there and read it back through the proxy. This holds whether namespaces share the default key or each has its own, because a single proxy holds every key it is configured with. The issue does not give the attacker encrypted payloads they could not already obtain, and does not allow encrypted payloads to be modified.",
+      "score": 6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-108126"
+    },
+    {
+      "id": "CVE-2026-106701",
+      "published": "2026-10-15T19:17:18.950",
+      "lastModified": "2026-10-20T03:17:12.767",
+      "description": "ELADMIN v2.7 and before is vulnerable to Cross Site Scripting (XSS) via the component WebSocketServer, SpringSecurityConfig, deploy.vue.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106701"
+    },
+    {
+      "id": "CVE-2026-106604",
+      "published": "2026-10-15T19:17:18.813",
+      "lastModified": "2026-10-16T15:17:04.667",
+      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in YITH YITH WooCommerce Compare yith-woocommerce-compare allows Stored XSS.This issue affects YITH WooCommerce Compare: from n/a through 3.15.0.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106604"
+    },
+    {
+      "id": "CVE-2026-105660",
+      "published": "2026-10-15T19:17:16.290",
+      "lastModified": "2026-10-16T21:17:16.750",
+      "description": "Improper Validation of Syntactic Correctness of Input vulnerability in mtrudel bandit allows an unauthenticated remote attacker to set conn.host and conn.port to values outside the RFC 3986 host grammar via the authority of an HTTP/1 absolute-form or authority-form request target. Bandit validates the Host header and answers 400 when it is malformed, but when the request target carries its own authority that authority takes precedence, as RFC 9112 requires, and Bandit.Pipeline.determine_host_and_port!/4 in lib/bandit/pipeline.ex passes it to the application unchecked. A request line such as GET http://good.example@evil.example/x HTTP/1.1 with a valid Host header yields a conn.host of good.example@evil.example, and the same path admits NUL, DEL and non-ASCII bytes, invalid IP literals and ports outside 1..65535. The HTTP/1.0 clause needs no Host header at all, and CONNECT places the unparsed port string in conn.port.\n\nApplications that build absolute URLs from conn.host, such as through Plug.Conn.request_url/1 or Phoenix URL helpers, emit links whose authority the attacker chose. Message framing is unaffected, and no CR or LF can reach conn.host.\n\nThis issue affects bandit: from 0.6.0 before 1.13.0.",
+      "score": 6.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105660"
+    },
+    {
+      "id": "CVE-2026-104828",
+      "published": "2026-10-15T19:17:15.083",
+      "lastModified": "2026-10-21T01:17:19.770",
+      "description": "HtmlUnit Neko is an HtmlUnit adaptation of NekoHTML. Prior to 5.4.0, HTMLWriterFilter writes decoded TEXTAREA and TITLE character content without entity encoding because both elements are treated as special content. During a parse-and-serialize round trip, entity references inside these escapable raw-text elements are decoded by the parser and then emitted as raw markup by printCharacters(), changing the document's semantics. Applications that use htmlunit-neko in an HTML sanitizer, content filter, or other parse-transform-serialize pipeline can therefore turn attacker-controlled encoded text into executable markup when the output is rendered by a browser. This issue is fixed in version 5.4.0.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104828"
+    },
+    {
+      "id": "CVE-2026-104827",
+      "published": "2026-10-15T19:17:14.933",
+      "lastModified": "2026-10-16T20:04:29.760",
+      "description": "react/http is an event-driven, streaming HTTP client and server implementation for ReactPHP. From 1.0.0 until 1.11.1, React\\Http\\Browser uses ClientRequestStream::handleData() to append response-header bytes to an internal buffer without enforcing a size limit. A remote server can send a valid status line and partial header, withhold the \\r\\n\\r\\n or \\n\\n header terminator, and continue streaming data so the buffer grows for the life of the connection. Applications that fetch attacker-controlled or attacker-influenced URLs, including URLs reached through redirects, can exhaust PHP memory_limit and crash the event-loop or worker process. Confidentiality and integrity are unaffected. This issue is fixed in version 1.11.1.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104827"
+    },
+    {
+      "id": "CVE-2026-104150",
+      "published": "2026-10-15T19:17:14.603",
+      "lastModified": "2026-10-16T16:00:33.533",
+      "description": "AdonisJS HTTP Server is a package for handling HTTP requests in the AdonisJS framework. Prior to 8.2.2 and 9.1.1, the regular expression returned by router.matchers.slug() contains adjacent greedy repetitions with overlapping character classes. When an application applies this matcher to an attacker-controlled route parameter, a long slug ending in a character rejected by the final assertion causes quadratic backtracking and excessive CPU use. Route matching occurs before route and group middleware, so authentication or rate-limiting middleware attached to the route may not prevent an unauthenticated request from blocking the Node.js event loop and stopping the worker from serving unrelated requests or health checks. This issue is fixed in versions 8.2.2 and 9.1.1.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104150"
+    },
+    {
+      "id": "CVE-2026-103083",
+      "published": "2026-10-15T19:17:13.590",
+      "lastModified": "2026-10-15T20:17:05.547",
+      "description": "Authorization Bypass Through User-Controlled Key vulnerability in ELEXtensions ELEX WooCommerce Advanced Bulk Edit Products, Prices & Attributes elex-bulk-edit-products-prices-attributes-for-woocommerce-basic allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects ELEX WooCommerce Advanced Bulk Edit Products, Prices & Attributes: from n/a through 1.5.3.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103083"
+    },
+    {
+      "id": "CVE-2026-102946",
+      "published": "2026-10-15T19:17:13.423",
+      "lastModified": "2026-10-15T20:17:05.407",
+      "description": "joserfc is a Python library that provides an implementation of several JSON Object Signing and Encryption (JOSE) standards. Prior to 1.7.4, joserfc.jws.deserialize_json() accepts a JWS General JSON Serialization with an empty signatures array as authenticated. The verify_general_json() loop performs no iterations for the empty array and returns success because no signature check failed, allowing an attacker without a signing key to supply an arbitrary payload that relying applications may treat as authentic. The issue affects the General JSON Serialization path; compact JWS and JWT decoding, Flattened JSON serialization, and JWE JSON processing do not follow this vulnerable path. This issue is fixed in version 1.7.4.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102946"
+    },
+    {
+      "id": "CVE-2026-84731",
+      "published": "2026-10-15T18:17:29.960",
+      "lastModified": "2026-10-16T19:55:59.740",
+      "description": "An unauthenticated remote attacker can bypass authentication and gain full access to administrative API endpoints in Nutanix Prism Element by including a crafted internal management HTTP header. The vulnerability is caused by a misconfiguration in the application's authentication filters.\n\n\n\nConsequently, the server responds with a Set-Cookie header containing a valid JSESSIONID. This session cookie decodes to a JSON Web Token (JWT) granting maximum cluster administrative privileges. Successful exploitation allows the attacker to execute root-level commands on all Controller VMs (CVMs) in the cluster, leading to complete cluster destruction and unauthorized access to VM memory and virtual disks.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-84731"
+    },
+    {
+      "id": "CVE-2026-61702",
+      "published": "2026-10-15T18:17:28.580",
+      "lastModified": "2026-10-20T19:08:42.567",
+      "description": "OpenPrinting CUPS is an open source printing system for Linux and other Unix-like operating systems. Prior to 2.4.20, copy_banner() in scheduler/ipp.c uses the attacker-controlled IPP attributes-natural-language value as a directory component beneath DataDir/banners when processing a job-sheets banner. The job-sheets value must first match a registered banner basename, and the traversed path must contain a matching reachable basename; selecting an arbitrary target as demonstrated additionally requires pre-positioned path state such as a symlink with that basename. Subject to the scheduler's filesystem and sandbox access, path separators in the language value can escape the intended banner directory, make the root scheduler open the reachable file, and copy its bytes into a job-sheet spool object that a configured backend can deliver to an attacker-observable endpoint. This issue is fixed in version 2.4.20.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61702"
+    },
+    {
+      "id": "CVE-2026-55876",
+      "published": "2026-10-15T18:17:28.307",
+      "lastModified": "2026-10-21T01:17:39.250",
+      "description": "Helium is a free online student planner for classes, homework, grades, and notes. Prior to 2.2.60, the POST /planner/attachments/ endpoint allows authenticated users to upload SVG and HTML attachments because conf/configs/common.py omits those formats from BLOCKED_ATTACHMENT_EXTENSIONS and BLOCKED_ATTACHMENT_MIME_TYPES, and helium/planner/serializers/attachmentserializer.py relies on those blocklists. An uploaded SVG served as image/svg+xml can execute embedded script when a visitor opens its public attachment URL, allowing persistent attacker-controlled active content and phishing under an application-managed storage URL. The attachment storage uses a separate origin from the application, so same-origin policy prevents the script from reading application cookies or storage, and application-session compromise is not supported by the maintained deployment configuration. This issue is fixed in version 2.2.60.",
+      "score": 3.5,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55876"
+    },
+    {
+      "id": "CVE-2026-55875",
+      "published": "2026-10-15T18:17:28.130",
+      "lastModified": "2026-10-16T20:04:29.760",
+      "description": "Helium is a free online student planner for classes, homework, grades, and notes. Prior to 2.2.60, any authenticated user can submit an arbitrary URL to POST /feed/externalcalendars/, where helium/feed/services/icalexternalcalendarservice.py uses validate_url to check only URL syntax before passing the value to urllib.request.urlopen, and fetch_ical_conditional periodically refetches the stored URL. The server can therefore issue requests to attacker-selected external or internal hosts, while distinct responses, including an uncaught http.client.RemoteDisconnected condition for non-HTTP services, reveal internal host and port reachability. The supported impact is forced outbound requests and internal service reconnaissance; the advisory does not demonstrate secret retrieval because the relevant ECS credentials path is task-specific and unpredictable. This issue is fixed in version 2.2.60.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55875"
+    },
+    {
+      "id": "CVE-2026-55480",
+      "published": "2026-10-15T18:17:27.987",
+      "lastModified": "2026-10-20T19:37:33.393",
+      "description": "OpenPrinting CUPS is an open source printing system for Linux and other Unix-like operating systems. Prior to 2.4.20, copy_model() in scheduler/ipp.c creates a predictable TempDir/<connection-number>.ppd path in an lp-group-writable directory and opens it as root without O_EXCL or O_NOFOLLOW. Exploitation requires an lp-group process able to write that directory to predict the connection-derived name and plant a symlink before the root open, while a privileged add-printer or modify-printer operation using a model PPD triggers copy_model(). The reporter treats an existing lp foothold and the privileged operation as distinct prerequisites, while the maintainer assesses high privileges because installing the relevant filter or administering the printer requires root or print-administrator access. If the race succeeds, the root scheduler follows the symlink and truncates or overwrites a root-writable target with generated PPD data, compromising file integrity or availability. This issue is fixed in version 2.4.20.",
+      "score": 5.7,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55480"
+    },
+    {
+      "id": "CVE-2026-55467",
+      "published": "2026-10-15T18:17:27.833",
+      "lastModified": "2026-10-20T19:37:48.443",
+      "description": "OpenPrinting CUPS is an open source printing system for Linux and other Unix-like operating systems. Prior to 2.4.20, the cupsdCreateJob option-string builder in scheduler/job.c maps attacker-controlled destination-uri and pre-dial-string values from a configured fax queue to the phone and faxPrefix options. Unlike ordinary IPP job attributes, these mapped fax values bypass the control-character sanitizer and are copied directly into the filter options argument. A user permitted to submit a job can therefore inject control characters into the downstream option stream. The reporter states that a downstream fax filter passing these values to a shell or modem command could execute code as lp, while the maintainer states that CUPS has no confidentiality or integrity impact because the only known code-executing filter is optional Foomatic and addressed separately, leaving possible disruption of the affected queue. This issue is fixed in version 2.4.20.",
+      "score": 2.5,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55467"
+    },
+    {
+      "id": "CVE-2026-55453",
+      "published": "2026-10-15T18:17:27.677",
+      "lastModified": "2026-10-20T19:38:09.283",
+      "description": "OpenPrinting CUPS is an open source printing system for Linux and other Unix-like operating systems. Prior to 2.4.20, the backend/ipp.c quote_string() function preserves carriage-return and line-feed characters in a remote printer-controlled marker-message before report_attr() writes the value to the scheduler status stream. The scheduler can parse an injected newline as a separate PPD: control line and persist an attacker-selected PPD keyword. The reporter demonstrated that a later print job on a Foomatic-backed queue could consume an injected FoomaticRIPCommandLine value and execute in the filter context as lp. This issue is fixed in version 2.4.20.",
+      "score": 3.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55453"
+    },
+    {
+      "id": "CVE-2026-55414",
+      "published": "2026-10-15T18:17:27.503",
+      "lastModified": "2026-10-16T20:04:29.760",
+      "description": "NL Portal Backend Libraries provide backend components for Dutch government portals that interact with residents, customers, suppliers, and partner organizations. From 1.1.0 until 3.0.4, and in 3.1.0, the public getFormDefinitionByObjectenApiUrl and deprecated getFormDefinitionById GraphQL resolvers are reachable without CommonGroundAuthentication and forward a caller-influenced URL through ObjectenApiService.getObjectByUrl to ObjectsApiClient.getObjectByUrl, which attaches the privileged Objecten-API token. The host-equality check restricts requests to the configured Objecten-API host but does not constrain the scheme, port, or path, allowing an unauthenticated caller to induce a token-bearing request to a chosen endpoint on that host. Standard deployments are not exposed to cross-host SSRF, token capture requires attacker-controlled routing on the configured host, and typed deserialization limits returned data to objects shaped like form definitions. The 3.0 release line is fixed in version 3.0.4. The advisory does not identify a fixed 3.1 release.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55414"
+    },
+    {
+      "id": "CVE-2026-55246",
+      "published": "2026-10-15T18:17:27.317",
+      "lastModified": "2026-10-16T20:04:29.760",
+      "description": "bincookie is a header-only binarycookies parser. Prior to 0.1.9, bincookie_init_file() in bincookie.h allocates a buffer using the actual .binarycookies file length but trusts the file-controlled num_pages field as the loop bound for byte-swapping page_sizes entries. A crafted file can make the loop read and write beyond the heap allocation, and related unvalidated page sizes and cookie_offsets can drive additional out-of-bounds accesses in page and cookie iteration. Applications that parse an attacker-supplied binarycookies file may crash or suffer heap corruption that can potentially enable code execution. This issue is fixed in version 0.1.9.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55246"
+    },
+    {
+      "id": "CVE-2026-55103",
+      "published": "2026-10-15T18:17:27.163",
+      "lastModified": "2026-10-16T20:04:29.760",
+      "description": "Discourse ActivityPub adds ActivityPub support to Discourse. Prior to commit 1c8518b0f2abdf31cbea3e0b242f74d8994a9ba5, inbound ActivityPub processing does not sufficiently verify that the actor authenticated by the signed request matches the Activity actor and owns the referenced federated post. A remote attacker can exploit these missing identity and ownership checks to edit, delete, or reply to federated posts without the required permissions. This vulnerability is fixed with commit 1c8518b0f2abdf31cbea3e0b242f74d8994a9ba5.",
+      "score": 8.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55103"
+    },
+    {
+      "id": "CVE-2026-54683",
+      "published": "2026-10-15T18:17:27.003",
+      "lastModified": "2026-10-16T20:04:29.760",
+      "description": "NL Portal Backend Libraries provide backend components for Dutch government portals that interact with residents, customers, suppliers, and partner organizations. Prior to 3.0.3, both the getDocumentContent GraphQL query and GET /api/documentapi/{documentapi}/document/{documentId}/content REST route allow any authenticated portal user to retrieve a document without checking ownership of or another authorized relationship to it. A user with a valid login and another person's document identifier can read that document's contents, which may include sensitive personal information. Document identifiers are random and difficult to guess, but they can leak through other channels. This issue is fixed in version 3.0.3.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54683"
+    },
+    {
+      "id": "CVE-2026-111105",
+      "published": "2026-10-15T18:17:26.670",
+      "lastModified": "2026-10-16T18:14:51.460",
+      "description": "Telegram rlottie Numeric Truncation Remote Code Execution Vulnerability. This vulnerability allows remote attackers to execute arbitrary code on affected installations of Telegram. User interaction is required to exploit this vulnerability in that the target must visit a malicious page or open a malicious file.\n\nThe specific flaw exists within the rlottie library. The issue results from the lack of proper validation of user-supplied data, which can result in a write before the start of an allocated buffer. An attacker can leverage this vulnerability to execute code in the context of the current process. Was ZDI-CAN-30207.",
+      "score": 7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111105"
+    },
+    {
+      "id": "CVE-2026-110891",
+      "published": "2026-10-15T18:17:26.473",
+      "lastModified": "2026-10-16T15:17:12.477",
+      "description": "Missing Authorization vulnerability in WordLift Srl WordLift wordlift allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects WordLift: from n/a through 3.54.15.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110891"
+    },
+    {
+      "id": "CVE-2026-110890",
+      "published": "2026-10-15T18:17:26.327",
+      "lastModified": "2026-10-15T19:56:13.350",
+      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Crocoblock JetSmartFilters jet-smart-filters allows Stored XSS.This issue affects JetSmartFilters: from n/a through 3.8.6.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110890"
+    },
+    {
+      "id": "CVE-2026-110888",
+      "published": "2026-10-15T18:17:26.180",
+      "lastModified": "2026-10-16T18:17:34.633",
+      "description": "Missing Authorization vulnerability in Meow Apps AI Engine ai-engine allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects AI Engine: from n/a through 3.8.3.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110888"
+    },
+    {
+      "id": "CVE-2026-110381",
+      "published": "2026-10-15T18:17:26.023",
+      "lastModified": "2026-10-16T18:17:32.037",
+      "description": "Authorization Bypass Through User-Controlled Key vulnerability in NSquared Simply Schedule Appointments simply-schedule-appointments allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Simply Schedule Appointments: from n/a through 1.6.12.35.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110381"
+    },
+    {
+      "id": "CVE-2026-110371",
+      "published": "2026-10-15T18:17:25.880",
+      "lastModified": "2026-10-15T19:56:13.350",
+      "description": "Missing Authorization vulnerability in WP Chill Strong Testimonials strong-testimonials allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Strong Testimonials: from n/a through 3.3.12.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110371"
+    },
+    {
+      "id": "CVE-2026-110367",
+      "published": "2026-10-15T18:17:25.743",
+      "lastModified": "2026-10-15T19:56:13.350",
+      "description": "Missing Authorization vulnerability in WPExperts APIExperts Square for WooCommerce woosquare allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects APIExperts Square for WooCommerce: from n/a through 4.7.5.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110367"
+    },
+    {
+      "id": "CVE-2026-108175",
+      "published": "2026-10-15T18:17:25.607",
+      "lastModified": "2026-10-15T19:56:13.350",
+      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in PluginUs.Net MDTF wp-meta-data-filter-and-taxonomy-filter allows Stored XSS.This issue affects MDTF: from n/a through 1.4.0.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-108175"
+    },
+    {
+      "id": "CVE-2026-106707",
+      "published": "2026-10-15T18:17:23.840",
+      "lastModified": "2026-10-16T19:56:15.773",
+      "description": "XXL-JOB <=3.5.0-SNAPSHOT contains a stored Cross-Site Scripting (XSS) vulnerability in the job log list page (/joblog). An authenticated user who holds permission on a target executor job group can inject arbitrary JavaScript via the executorParam argument of the manual-trigger endpoint POST /jobinfo/trigger.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106707"
+    },
+    {
+      "id": "CVE-2026-106706",
+      "published": "2026-10-15T18:17:23.567",
+      "lastModified": "2026-10-19T19:17:19.000",
+      "description": "XXL-JOB through 3.5.0-SNAPSHOT is vulnerable to stored cross-site scripting (XSS) in the GLUE code editor. JobCodeController.save() stores the user-supplied glueSource parameter without output encoding, and the FreeMarker template job.code.ftl renders the stored value unescaped.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106706"
+    },
+    {
+      "id": "CVE-2026-104266",
+      "published": "2026-10-15T18:17:22.983",
+      "lastModified": "2026-10-21T01:17:19.640",
+      "description": "tinytag is a Python library for reading audio file metadata. From 2.0.0 until 2.3.0, an M4A file containing a sub-atom with a size of zero inside a ---- atom can cause the metadata parser to stop advancing through the input. The custom-field atom traversal repeatedly processes the malformed location, causing an infinite loop and denying service to a program that reads the crafted file. This issue is fixed in version 2.3.0.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104266"
+    },
+    {
+      "id": "CVE-2026-103936",
+      "published": "2026-10-15T18:17:22.433",
+      "lastModified": "2026-10-16T20:04:29.760",
+      "description": "libp2p is a JavaScript implementation of the libp2p networking stack. Prior to 6.0.28, the @libp2p/webrtc webRTCDirect() Node.js listener processes unauthenticated STUN Binding Requests before PeerId authentication, Noise, muxing, protocol negotiation, connection creation, or connection-manager admission. The listener in packages/transport-webrtc/src/private-to-public/utils/stun-listener.ts forwards the packet-controlled request.ufrag into DirectRTCPeerConnection.setLocalDescription, where the value is reused as an ICE password without validating its required length and character set. A short credential causes node-datachannel or libdatachannel to raise an uncaught native invalid_argument and abort the process with SIGABRT, allowing a single remote UDP packet to deny service. The confirmed impact is process termination only, with no demonstrated memory corruption, code execution, browser impact, confidentiality impact, integrity impact, or connection-limit bypass. This issue is fixed in version 6.0.28.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103936"
+    },
+    {
+      "id": "CVE-2026-103350",
+      "published": "2026-10-15T18:17:21.773",
+      "lastModified": "2026-10-15T19:56:13.350",
+      "description": "Improper Validation of Specified Quantity in Input vulnerability in Magepeople inc. Booking and Rental Manager booking-and-rental-manager-for-woocommerce allows Removing Important Client Functionality.This issue affects Booking and Rental Manager: from n/a through 2.8.0.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103350"
+    },
+    {
+      "id": "CVE-2026-102740",
+      "published": "2026-10-15T18:17:21.613",
+      "lastModified": "2026-10-16T20:02:37.630",
+      "description": "The AsyncHttpClient library allows Java applications to execute HTTP requests and asynchronously process HTTP responses. From 2.0.0 until 2.16.1 and 3.0.12, PropertiesBasedResumableProcessor stores resumable download state at the predictable shared path $java.io.tmpdir/ahc/ResumableAsyncHandler.properties with default permissions and link-following file operations. A local user who can read the shared store can see download URLs, including embedded user information or query tokens. A local user who can write within or pre-create the affected shared store directory can plant a symbolic link that the client follows when saving state, truncating and overwriting a target file writable by the client process. The filesystem path is used when ResumableAsyncHandler decorates another AsyncHandler, while the no-argument constructors use a no-op processor and are unaffected. This issue is fixed in versions 2.16.1 and 3.0.12.",
+      "score": 5.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102740"
+    },
+    {
+      "id": "CVE-2026-85634",
+      "published": "2026-10-15T17:17:29.250",
+      "lastModified": "2026-10-15T20:38:04.303",
+      "description": "A flaw was found in the ContentRepositoryImpl.copyExplodedContent function of the wildfly-core library, which is used by WildFly and JBoss EAP to manage server deployments. The issue occurs when the library processes an unsanitized deployment name. Due to a missing containment check, an attacker with the Deployer RBAC role can use path traversal sequences to access files outside the restricted deployment directory. This can allow the attacker to delete arbitrary directories or create files with arbitrary content, leading to a full privilege escalation to the management SuperUser role.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85634"
+    },
+    {
+      "id": "CVE-2026-78851",
+      "published": "2026-10-15T17:17:28.640",
+      "lastModified": "2026-10-16T19:56:15.773",
+      "description": "Directory Traversal vulnerability in Grav CMS 2.0.3 through 2.0.6 allows a remote attacker to obtain sensitive information via the GravExtension.php and the mediaDirFunc method.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78851"
+    },
+    {
+      "id": "CVE-2026-78850",
+      "published": "2026-10-15T17:17:28.513",
+      "lastModified": "2026-10-16T19:55:59.740",
+      "description": "An issue in Matomo v.5.11.2 allows a remote attacker to obtain sensitive information via the SiteContentDetector / SitesManager component",
+      "score": 5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78850"
+    },
+    {
+      "id": "CVE-2026-77470",
+      "published": "2026-10-15T17:17:27.997",
+      "lastModified": "2026-10-15T21:08:49.703",
+      "description": "Lychee is a free, open-source photo-management tool. Prior to 7.7.1, the Supporter or Pro webshop POST /api/v2/Shop/Checkout/Process flow accepts an unrestricted additional_data array and CheckoutService::preparePurchaseParameters() merges it after server-computed purchase parameters. Because later string keys overwrite earlier keys, an unauthenticated buyer can replace amount, currency, returnUrl, cancelUrl, or transactionId before CheckoutService::processPayment() passes the parameters to a non-PayPal Omnipay gateway. An attacker can therefore make a gateway accept a successful payment for an attacker-selected amount and obtain auto-fulfilled goods while underpaying the merchant. The issue requires an enabled webshop, a purchasable item, and an affected Omnipay gateway. This issue is fixed in version 7.7.1.",
+      "score": 8.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77470"
+    },
+    {
+      "id": "CVE-2026-77468",
+      "published": "2026-10-15T17:17:27.860",
+      "lastModified": "2026-10-15T21:08:49.703",
+      "description": "Lychee is a free, open-source photo-management tool. Prior to 7.7.0, GET /docs/api exposes the Scramble-generated OpenAPI documentation configured by config/scramble.php to unauthenticated callers after installation, with observed response size and latency suggesting that the schema is regenerated without an application-level cache. A remote attacker can repeatedly request the unthrottled route to consume server CPU and obtain a detailed map of the API surface and parameter schema. This issue is fixed in version 7.7.0.",
+      "score": 6.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77468"
+    },
+    {
+      "id": "CVE-2026-77467",
+      "published": "2026-10-15T17:17:27.727",
+      "lastModified": "2026-10-20T03:17:16.690",
+      "description": "Lychee is a free, open-source photo-management tool. Prior to 7.7.0, Lychee enables ImageMagick PDF support with Ghostscript but does not apply an effective pre-render limit to PDF page dimensions in ImagickHandler::loadPdf(). An authenticated user who can upload a small PDF with an oversized /MediaBox can cause Imagick::readImage() to consume substantial CPU before failing to produce an image. When QUEUE_CONNECTION selects synchronous processing the request can occupy a web worker, while the official asynchronous Docker configuration can clog the shared image-processing queue and delay other work. The advisory did not identify a Ghostscript sandbox escape. This issue is fixed in version 7.7.0.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77467"
+    },
+    {
+      "id": "CVE-2026-77466",
+      "published": "2026-10-15T17:17:27.580",
+      "lastModified": "2026-10-15T21:08:49.703",
+      "description": "Lychee is a free, open-source photo-management tool. Prior to 7.7.0, Lychee hides the Omnipay Dummy test provider from the checkout options in production through OmnipayFactory::get_supported_providers(), but CreateSessionRequest validates only that the submitted provider is an OmnipayProviderType and does not enforce OmnipayProviderType::isAllowed(). A buyer, including a guest when webshop_allow_guest_checkout is enabled, can submit Dummy directly and complete the test gateway flow without a real payment. When webshop_auto_fulfill_enabled is enabled, OrderCompletedListener::fullfillOrder() can then release the purchasable item. The issue requires access to the Supporter or Pro webshop and an enabled purchasable item. Testing bypassed the closed-source license middleware, so whether the real license layer performs additional payment-provider validation remains unverified. The payment finalize status check itself is not the root cause. This issue is fixed in version 7.7.0.",
+      "score": 8.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77466"
+    },
+    {
+      "id": "CVE-2026-62679",
+      "published": "2026-10-15T17:17:26.820",
+      "lastModified": "2026-10-16T18:17:59.390",
+      "description": "Lychee is a free, open-source photo-management tool. Prior to 7.6.4, SecurePathController, which serves GET /image/{path}, concatenates the attacker-controlled path with the local storage root and performs a string-prefix check before canonicalizing dot segments. Under the supported non-default configuration with temporary_image_link_enabled enabled, temporary_image_link_when_logged_in disabled, and secure_image_link_enabled disabled, any authenticated user can submit encoded traversal segments that pass the prefix check and are later resolved by filesystem operations. This permits reading files available to the web process, including application configuration and other users' private images, and disclosed APP_KEY or database credentials can enable further compromise. This issue is fixed in version 7.6.4.",
+      "score": 8.9,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62679"
+    },
+    {
+      "id": "CVE-2026-61838",
+      "published": "2026-10-15T17:17:26.677",
+      "lastModified": "2026-10-15T21:08:49.703",
+      "description": "Lychee is a free, open-source photo-management tool. Prior to 7.6.3, GET /api/v2/Zip authorizes album and photo archives through AlbumPolicy::canDownload() and PhotoPolicy::canDownload() without first enforcing AlbumPolicy::canAccess(). For a public, password-protected album with grants_download enabled, an unauthenticated attacker who knows the shared album identifier can download a ZIP archive without supplying the password or unlocking the album, even though browsing endpoints deny access. The archive exposes the album's photos and can include full-resolution originals and associated metadata when grants_full_photo_access is enabled. This issue is fixed in version 7.6.3.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61838"
+    },
+    {
+      "id": "CVE-2026-61611",
+      "published": "2026-10-15T17:17:26.537",
+      "lastModified": "2026-10-15T21:08:49.703",
+      "description": "Lychee is a free, open-source photo-management tool. Prior to 7.6.1, POST /api/v2/Album::unlock has no throttle, attempt counter, backoff, CAPTCHA, or lockout. UnlockAlbumRequest::authorize() permits any caller to submit attempts, and app/Actions/Album/Unlock.php verifies each guess with Hash::check without limiting repeated failures. A remote unauthenticated attacker who knows or can obtain an album identifier can automate password guesses against a password-protected album and, if the password is recovered, gain access to its private photo collection. This issue is fixed in version 7.6.1.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61611"
+    },
+    {
+      "id": "CVE-2026-61610",
+      "published": "2026-10-15T17:17:26.393",
+      "lastModified": "2026-10-20T03:17:16.427",
+      "description": "Lychee is a free, open-source photo-management tool. Prior to 7.6.1, when photos_star_visibility is set to anonymous, POST /api/v2/Photo::highlight can fetch and modify a photo without confirming that the caller can see it. BaseApiRequest::validateResolved() invokes SetPhotosHighlightedRequest::processValidatedValues() before authorization, and PhotoPolicy::canHighlight() returns true for anonymous callers without a canSee check. An unauthenticated attacker who can guess photo identifiers can distinguish existing private photos through differing success and not-found responses and can change their is_highlighted state, including for photos in private or password-protected albums. The issue is limited to installations using the non-default anonymous star-visibility setting. This issue is fixed in version 7.6.1.",
+      "score": 2.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61610"
+    },
+    {
+      "id": "CVE-2026-57569",
+      "published": "2026-10-15T17:17:24.033",
+      "lastModified": "2026-10-15T21:08:49.703",
+      "description": "Lychee is a free, open-source photo-management tool. Prior to 7.6.0, the POST /api/v2/Photo::fromUrl flow validates a hostname and its resolved addresses in app/Rules/PhotoUrlRule.php but later passes the original hostname through app/Actions/Import/FromUrl.php to app/Image/Files/DownloadedFile.php for a separate fopen connection. An authenticated attacker who controls DNS responses can cause validation to observe a public address and the subsequent fetch to resolve the same hostname to a private or otherwise forbidden address. This DNS rebinding time-of-check to time-of-use mismatch bypasses the intended server-side request forgery protections and can reach services available from the Lychee server, subject to deployment and TLS behavior. This issue is fixed in version 7.6.0.",
+      "score": 2.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57569"
+    },
+    {
+      "id": "CVE-2026-57568",
+      "published": "2026-10-15T17:17:23.880",
+      "lastModified": "2026-10-16T18:17:58.887",
+      "description": "Lychee is a free, open-source photo-management tool. Prior to 7.6.0, Lychee permits an authenticated user with album-edit permissions to store a javascript URI in an album or photo Markdown description because config/markdown.php enables allow_unsafe_links. app/Http/Resources/Models/Utils/PreformattedPhotoData.php and app/Http/Resources/Models/Utils/PreFormattedAlbumData.php convert the description to HTML, and the gallery components PhotoDetails.vue, Overlay.vue, PhotoThumb.vue, AlbumHero.vue, and AlbumCard.vue render that HTML with v-html. A visitor, including an unauthenticated visitor to a public album, who clicks the rendered link executes attacker-controlled JavaScript in the Lychee origin, which can expose session data or enable authenticated requests in the victim's context. This gallery-view flaw is distinct from CVE-2026-33738, which addressed feed rendering. This issue is fixed in version 7.6.0.",
+      "score": 5.7,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57568"
+    },
+    {
+      "id": "CVE-2026-110812",
+      "published": "2026-10-15T17:17:16.110",
+      "lastModified": "2026-10-16T19:17:03.750",
+      "description": "Deserialization of untrusted data in the Gremlin graph data import component in Amazon Neptune engine might allow an authenticated remote actor with standard database permissions to execute arbitrary code and access internal service credentials.\n\n\n\nTo remediate this issue, users not enrolled in auto-update should upgrade to Amazon Neptune engine version 1.5.0.0.(Backports to 1.4.8.1 and 1.4.7.1)",
+      "score": 9.9,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110812"
+    },
+    {
+      "id": "CVE-2026-105065",
+      "published": "2026-10-15T17:17:12.160",
+      "lastModified": "2026-10-16T15:17:03.890",
+      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in 8theme.com XStore xstore allows Reflected XSS.This issue affects XStore: from n/a before 9.7.9.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105065"
+    },
+    {
+      "id": "CVE-2026-102631",
+      "published": "2026-10-15T17:17:10.130",
+      "lastModified": "2026-10-16T21:17:11.620",
+      "description": "In authd before 0.7.1, the user identity matching in UpdateUser (internal/users/manager.go) resolves an incoming login by the broker-scoped provider ID, but falls back to matching the username when the provider ID does not belong to any known user, and does not reject a conflicting non-empty provider ID. If an identity provider reassigns an email address, which authd uses as the username, to a new account, the new account inherits the previous user's local UID and home directory on its next login. This allows the new user to access and modify files belonging to the previous user, including credentials such as SSH keys and cloud API tokens, and silently rebinds the local account record to the new identity. As a mitigation, administrators should lock or delete the previous user's local authd account when the corresponding IdP account is removed.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102631"
+    },
+    {
+      "id": "CVE-2026-102527",
+      "published": "2026-10-15T17:17:08.973",
+      "lastModified": "2026-10-16T18:17:14.633",
+      "description": "Nuxt OG Image generates OG Images with Vue templates in Nuxt. From 6.2.5 until 6.7.0, the dynamic /_og/d/*.png route accepts unsigned requests while resolvePathCacheKey() produces cache keys from the request path, site URL, and normalized rendering options exposed through image URLs and server responses. An unauthenticated attacker can provide attacker-controlled image data through the title parameter together with a derived cacheKey and populate the cache slot used for a legitimate Open Graph image, causing spoofed image content to be served to users. This issue is fixed in version 6.7.0.",
+      "score": 6.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102527"
+    },
+    {
+      "id": "CVE-2026-100409",
+      "published": "2026-10-15T17:17:07.923",
+      "lastModified": "2026-10-16T20:04:29.760",
+      "description": "OpenNext Cloudflare is an open Next.js adapter for Cloudflare. From 0.3.0 until 1.20.2, applications that enable enableCacheInterception, rely on middleware for access control, and have a matching cached protected route process encoded pathnames inconsistently between middleware matching and cache lookup. An unauthenticated attacker can use a percent-encoded pathname that does not match authorization middleware but decodes to the cache key of a protected route, causing cached content to be returned without authorization. Malformed encodings can also be partially decoded, allowing cache lookup to continue with a pathname that middleware did not evaluate consistently. This issue is fixed in version 1.20.2.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-100409"
+    },
+    {
+      "id": "CVE-2026-100354",
+      "published": "2026-10-15T17:17:07.780",
+      "lastModified": "2026-10-15T19:17:12.943",
+      "description": "kin-openapi is a Go project for handling OpenAPI files. Prior to 0.149.0, runtime request, response, and direct schema validation lacks cycle detection when an allOf, anyOf, or oneOf chain refers back to an ancestor schema, even though loading and document validation accept the circular reference. A request or response that reaches the affected schema causes unbounded recursion in Schema.visitJSON or openapi3filter.decodeValue and exhausts the Go goroutine stack. The resulting fatal stack overflow cannot be caught with recover and terminates the entire process, including unrelated requests. This issue is fixed in version 0.149.0.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-100354"
+    },
+    {
+      "id": "CVE-2026-100353",
+      "published": "2026-10-15T17:17:07.627",
+      "lastModified": "2026-10-15T17:17:07.747",
+      "description": "kin-openapi is a Go project for handling OpenAPI files. From 0.136.0 until 0.149.0, three openapi3filter decoder paths that were missed by the fix for GHSA-p6wj-qrr4-pgh5 lack a nil-items guard for legal OpenAPI 3.1 array schemas. An unauthenticated remote client can trigger a deterministic nil-pointer panic through an array query parameter, a deepObject query parameter containing an array property, or an application/x-www-form-urlencoded request body whose array property appears inside an allOf, anyOf, or oneOf subschema. The query and composed-body paths reach urlValuesDecoder.parseArray, while the deepObject path reaches buildResObj, and all pass a nil items schema into code that dereferences it. This issue is fixed in version 0.149.0.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-100353"
+    },
+    {
+      "id": "CVE-2026-97712",
+      "published": "2026-10-15T16:18:26.137",
+      "lastModified": "2026-10-16T19:55:59.740",
+      "description": "Sonatype Nexus Repository 3 allows a user that holds the role create or role update permission to grant roles and privileges that the account does not hold. This can give the user more access than intended, up to full administrative access.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97712"
+    },
+    {
+      "id": "CVE-2026-97667",
+      "published": "2026-10-15T16:18:25.900",
+      "lastModified": "2026-10-16T19:55:59.740",
+      "description": "Sonatype Nexus Repository 3 allows a user account that holds the edit permission on a hosted R repository to store script content in the metadata of an uploaded R package. The script runs in the browser of a user who opens the details of that package in the Browse user interface, with the permissions of the viewing user. In this description, a user account means an account that has supplied valid credentials. The anonymous user, if enabled, is also a user account and can hold this permission if an administrator grants it.",
+      "score": 5.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97667"
+    },
+    {
+      "id": "CVE-2026-97666",
+      "published": "2026-10-15T16:18:25.650",
+      "lastModified": "2026-10-16T19:55:59.740",
+      "description": "Sonatype Nexus Repository 3 allows an unauthenticated remote attacker to supply attacker-controlled input to a Java class loading call through an ExtDirect endpoint. This allows the attacker to learn whether specific classes are present in the application. The issue does not by itself allow code execution.",
+      "score": 6.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97666"
+    },
+    {
+      "id": "CVE-2026-97665",
+      "published": "2026-10-15T16:18:25.490",
+      "lastModified": "2026-10-16T19:55:59.740",
+      "description": "A missing authorization check in Nexus Repository 3's NuGet Components API upload path allows an account holding only repository read and browse privileges to upload and persist NuGet symbol packages (.snupkg) to a hosted repository, bypassing the write-permission check enforced for ordinary package uploads. Exploitation requires a hosted NuGet repository with Symbol Server enabled. If anonymous access is enabled, the built-in anonymous user holds read and browse privileges across all repositories by default, so this precondition can also be met without an authenticated account.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97665"
+    },
+    {
+      "id": "CVE-2026-97394",
+      "published": "2026-10-15T16:18:25.273",
+      "lastModified": "2026-10-20T03:17:17.587",
+      "description": "kin-openapi is a Go project for handling OpenAPI files. From 0.136.0 until 0.143.0, openapi3filter accepts OpenAPI 3.1 array schemas without an items keyword and then dereferences the nil Schema.Items value while decoding application/x-www-form-urlencoded or multipart/form-data request bodies, response headers, and other array parameter surfaces. A remote unauthenticated client can reach an affected operation with a nonempty request or matching response and deterministically trigger a nil-pointer panic during ValidateRequest or ValidateResponse. OpenAPI 3.0 documents are not affected because document validation rejects arrays without items, and JSON request bodies use a different decoder path. This issue is fixed in version 0.143.0.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-97394"
+    },
+    {
+      "id": "CVE-2026-95155",
+      "published": "2026-10-15T16:18:24.470",
+      "lastModified": "2026-10-16T19:56:15.773",
+      "description": "FasterXML Jackson 1.x, confirmed in jackson-mapper-asl versions 1.8.3, 1.9.2, 1.9.11, 1.9.12, and 1.9.13, allows attackers to cause a denial of service by supplying deeply nested JSON input to an application that deserializes untrusted JSON using ObjectMapper.readValue.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-95155"
+    },
+    {
+      "id": "CVE-2026-92982",
+      "published": "2026-10-15T16:18:23.657",
+      "lastModified": "2026-10-21T19:17:04.523",
+      "description": "A flaw was found in Ansible Operator Plugins. A low-privileged Kubernetes user can exploit a Jinja2 template injection vulnerability by crafting malicious custom resource (CR) specification values. These values are processed by Ansible without proper sanitization, allowing embedded Jinja2 expressions to be executed within the operator pod. This can lead to arbitrary code execution and privilege escalation, granting the attacker control over the operator's service account with cluster-wide permissions.",
+      "score": 8.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92982"
+    },
+    {
+      "id": "CVE-2026-88753",
+      "published": "2026-10-15T16:18:22.887",
+      "lastModified": "2026-10-20T03:17:17.410",
+      "description": "A Regular-Expression Denial of Service (ReDoS) in the Markdown2. extract_metadata() function (lib/markdown2.py) of trentm markdown2 through v2.5.5 allows attackers to cause a Denial of Service (DoS) via a crafted Markdown document.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88753"
+    },
+    {
+      "id": "CVE-2026-75505",
+      "published": "2026-10-15T16:18:20.103",
+      "lastModified": "2026-10-16T18:18:35.670",
+      "description": "EspoCRM is an open source customer relationship management application. Prior to 10.0.2, an authenticated user with mass-update permission can supply a known attachment identifier to the mass-update functionality. The mass-update processor duplicates the attachment without checking whether the caller can read it, bypassing record-level and field-level restrictions and exposing the file contents through the copied attachment. Obtaining a valid attachment identifier may be difficult. This issue is fixed in version 10.0.2.",
+      "score": 6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-75505"
+    },
+    {
+      "id": "CVE-2026-71490",
+      "published": "2026-10-15T16:18:19.723",
+      "lastModified": "2026-10-15T21:08:49.703",
+      "description": "OPNsense is a FreeBSD based firewall and routing platform. Prior to 26.1.11, OPNsense\\Core\\ACL::hasPrivilege() appends a directly assigned comma-separated <priv> value as one string and then uses an exact comparison when checking user-config-readonly. A user directly assigned both a component write privilege and user-config-readonly can therefore be treated as lacking the read-only restriction, and MVC APIs protected by throwReadOnly() can persist configuration changes for that component. Group privileges are not affected by the same parser flaw because the group path already splits comma-separated values. This issue is fixed in version 26.1.11.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71490"
+    },
+    {
+      "id": "CVE-2026-63442",
+      "published": "2026-10-15T16:18:19.157",
+      "lastModified": "2026-10-16T18:18:00.230",
+      "description": "OPNsense is a FreeBSD based firewall and routing platform. Prior to version 26.1.11, the unauthenticated WebGUI login usernamefld accepts carriage-return and line-feed characters that survive LOG_AUTH processing through syslog-ng-lockout.conf into the syslog-ng program destination feeding lockout_handler. The consumer's readline() processing treats an injected fragment as a separate authentication event and selects the first syntactically valid IP address from the forged line. An attacker with network access to the login page can forge failure events for another IP, causing that IP to be added to the sshlockout PF table and its active states to be killed, or forge accepted events that reset an attacker's own brute-force counter. This can block administrative, DNS, gateway, or monitoring addresses and can bypass password-guessing lockout without authentication. This issue is fixed in version 26.1.11.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-63442"
+    },
+    {
+      "id": "CVE-2026-58395",
+      "published": "2026-10-15T16:18:18.583",
+      "lastModified": "2026-10-15T21:08:49.703",
+      "description": "OPNsense is a FreeBSD based firewall and routing platform. Prior to version 26.1.11, the safe-delete path reached through ApiMutableModelControllerBase::delBase() interpolates an unvalidated safe-delete token from the request URL into an XPath expression over config.xml before confirming that the token is a valid identifier. A user holding any one affected module privilege can send a crafted token to one of 21 affected delete endpoints covering Traffic Shaper, DHCP relay, Dnsmasq, Firewall Category, or Kea DHCP, causing the XPath to match configuration data across modules. The resulting error response exposes configuration item names, descriptions, reference paths, and UUIDs and provides an XPath substring-presence oracle, including for modules the user cannot otherwise access. The request does not modify configuration or perform a deletion. This issue is fixed in version 26.1.11.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-58395"
+    },
+    {
+      "id": "CVE-2026-58394",
+      "published": "2026-10-15T16:18:18.447",
+      "lastModified": "2026-10-15T21:08:49.703",
+      "description": "OPNsense is a FreeBSD based firewall and routing platform. Prior to version 26.1.11, src/www/system_advanced_admin.php reads certificate records into $a_cert but omits that array from legacy_html_escape_form_data() before rendering each certificate descr value in the SSL Certificate selector. The certificate description accepts HTML metacharacters, allowing a user with the page-system-certmanager privilege to store markup that executes when another user opens System Settings Administration. This issue is fixed in version 26.1.11.",
+      "score": 5.2,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-58394"
+    },
+    {
+      "id": "CVE-2026-58393",
+      "published": "2026-10-15T16:18:18.310",
+      "lastModified": "2026-10-15T21:08:49.703",
+      "description": "OPNsense is a FreeBSD based firewall and routing platform. Prior to version 26.1.11, the OpenVPN Client Specific Override common_name field accepts path traversal sequences and openvpn_csc_conf_write() concatenates the value into /var/etc/openvpn-csc/<vpnid>/<common_name> without normalization or a basename check. The affected event handlers are client_connect.php and user_pass_verify.php. An authenticated user with Client Specific Override privileges can store the traversal value, and a matching OpenVPN client-connect or authentication event causes a generated CSO file to be written outside the intended directory. The file content is generated OpenVPN configuration rather than arbitrary bytes, and practical exploitation requires the attacker to cause a matching common name or username to be processed. This issue is fixed in version 26.1.11.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-58393"
+    },
+    {
+      "id": "CVE-2026-58392",
+      "published": "2026-10-15T16:18:18.167",
+      "lastModified": "2026-10-15T21:08:49.703",
+      "description": "OPNsense is a FreeBSD based firewall and routing platform. Prior to version 26.1.11, the NTP GPS page stores the operator-supplied initcmd value in base64 form, applies legacy_html_escape_form_data() to the encoded string, and then uses base64_decode() to decode the value directly into the GPS initialization-command textarea in src/www/services_ntpd_gps.php. Because decoding occurs after escaping, stored HTML remains unescaped at the output sink. A user with page-services-ntp-gps privilege can store a value that closes the textarea, and script executes in the session of any user who later opens the GPS page. The script can read CSRF material and perform authenticated actions, including actions available to an administrator. This issue is fixed in version 26.1.11.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-58392"
+    },
+    {
+      "id": "CVE-2026-58391",
+      "published": "2026-10-15T16:18:18.030",
+      "lastModified": "2026-10-20T03:17:16.200",
+      "description": "OPNsense is a FreeBSD based firewall and routing platform. Prior to version 26.1.11, Firewall Rules and NAT views place stored category names and alias descriptions into HTML title attributes in filter_rule.volt and nat_rule.volt without quote-safe encoding. The response layer uses ENT_NOQUOTES, so a double quote survives and closes the attribute, allowing an event-handler attribute to be added to the existing span. A user with Firewall Categories or Firewall Alias Edit privileges can store a category name or alias description; the category must be assigned to a filter or NAT rule, or the alias must be referenced by a rule source or destination, and the rule must be saved so the affected tooltip is rendered. Script then executes in the session of an administrator or other user who opens the affected Rules or NAT page. The script can access CSRF material and perform authenticated actions as the victim. This issue is fixed in version 26.1.11.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-58391"
+    },
+    {
+      "id": "CVE-2026-58390",
+      "published": "2026-10-15T16:18:17.890",
+      "lastModified": "2026-10-20T03:17:16.080",
+      "description": "OPNsense is a FreeBSD based firewall and routing platform. Prior to version 26.1.11, the OpenVPN connection-status dashboard widget in src/opnsense/www/js/widgets/OpenVPNClients.js and the connection-status view place a client common_name into data-common-name attributes without quote-safe encoding. Exploitation requires an OpenVPN server configured with username-as-common-name and RADIUS or LDAP authentication, plus the ability to provision or self-register a valid backend username containing a double quote; deployments where the same administrator controls both the identity backend and firewall do not cross a separate trust boundary. An authenticated client using that username can close the attribute and add an event handler, while the local user database is not affected because its username validator rejects quotes. Script executes in an administrator's session when the administrator opens the dashboard or connection-status page and the injected event is triggered; the demonstrated payload used pointer movement over the client row rather than unconditional page-load execution. The advisory demonstrates that the script can read config.xml, invoke privileged APIs, reset the root password, and obtain root command execution. This issue is fixed in version 26.1.11.",
+      "score": 8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-58390"
+    },
     {
       "id": "CVE-2026-57155",
       "published": "2026-10-15T16:18:17.300",
@@ -196,702 +898,6 @@
       "score": 5.3,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-100347"
-    },
-    {
-      "id": "CVE-2026-9703",
-      "published": "2026-10-15T15:17:39.180",
-      "lastModified": "2026-10-16T20:02:37.630",
-      "description": "Grafana's data source proxy did not apply role-based access control to write requests forwarded to Loki data sources. A user holding only the Viewer role on an affected Grafana instance could send POST, PUT and DELETE requests through the proxy to the Loki rules API (/loki/api/v1/rules), allowing them to create, modify and delete Loki alerting rules. Because those rules are stored by Loki rather than by Grafana, the change took effect for every user of that Loki data source, not only for the Viewer who made the request.\n\nExploitation requires an authenticated Viewer account on the Grafana instance and a configured Loki data source; no other privileges are needed. Both Grafana OSS and Grafana Enterprise are affected. The defect is in Grafana's data source proxy; Loki itself is not vulnerable and does not need to be patched.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-9703"
-    },
-    {
-      "id": "CVE-2026-95180",
-      "published": "2026-10-15T15:17:38.930",
-      "lastModified": "2026-10-16T19:56:15.773",
-      "description": "An issue in Justson agentweb-core v5.1.6-androidx and earlier allows a local attacker to obtain sensitive information and launch non-exported host application components via incorrect access control in the handling of intent:// URLS in DefaultWebClient",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-95180"
-    },
-    {
-      "id": "CVE-2026-95179",
-      "published": "2026-10-15T15:17:38.790",
-      "lastModified": "2026-10-16T19:56:15.773",
-      "description": "An issue in lottie-android 6.7.1 and earlier (and master) allows a remote attacker to cause a denial of service via a crafted Lottie animation JSON containing a cyclic precomposition reference graph that triggers uncontrolled recursion in BaseLayer.forModel and CompositionLayer.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-95179"
-    },
-    {
-      "id": "CVE-2026-79843",
-      "published": "2026-10-15T15:17:38.040",
-      "lastModified": "2026-10-15T19:17:44.430",
-      "description": "A corrupted file may cause out-of-bounds read in HPE NonStop SQL/MX EXE under certain conditions, potentially leading to information disclosure, process termination, CPU halt, or data corruption.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79843"
-    },
-    {
-      "id": "CVE-2026-79841",
-      "published": "2026-10-15T15:17:37.923",
-      "lastModified": "2026-10-15T19:17:44.330",
-      "description": "A buffer overflow vulnerability in HPE NonStop RDMA SERVICES NSK may cause out-of-bounds memory write, which may result in memory corruption.",
-      "score": 5.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79841"
-    },
-    {
-      "id": "CVE-2026-79840",
-      "published": "2026-10-15T15:17:37.810",
-      "lastModified": "2026-10-15T19:17:44.227",
-      "description": "A buffer overflow vulnerability in HPE NonStop XABroker may cause memory corruption, resulting in application crash.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79840"
-    },
-    {
-      "id": "CVE-2026-79839",
-      "published": "2026-10-15T15:17:37.693",
-      "lastModified": "2026-10-15T19:17:44.120",
-      "description": "A buffer overflow vulnerability in HPE NonStop ODBC/MX Server may cause memory corruption, resulting in application crash.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79839"
-    },
-    {
-      "id": "CVE-2026-79838",
-      "published": "2026-10-15T15:17:37.580",
-      "lastModified": "2026-10-15T19:17:44.010",
-      "description": "A buffer overflow vulnerability in HPE NonStop ODBC/MX Services may cause memory corruption, resulting in application crash.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79838"
-    },
-    {
-      "id": "CVE-2026-77460",
-      "published": "2026-10-15T15:17:36.900",
-      "lastModified": "2026-10-15T16:18:21.517",
-      "description": "EspoCRM is an open source customer relationship management application. Prior to 10.0.3, a user with email-template edit access and mass-email sending access can reference restricted record fields in a template because the renderer stops filtering those fields when per-user ACL application is disabled. The same behavior affects group email auto-replies when a regular user can edit the selected template, even though an administrator controls the group email. Rendered messages can disclose restricted user fields. This issue is fixed in version 10.0.3.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77460"
-    },
-    {
-      "id": "CVE-2026-63130",
-      "published": "2026-10-15T15:17:36.333",
-      "lastModified": "2026-10-15T16:18:19.060",
-      "description": "EspoCRM is an open source customer relationship management application. Prior to 9.3.10, an authenticated administrator can provide crafted input to the administrative Label Manager. Insufficient path validation allows traversal outside the intended directory and permits reading, modifying, creating, or deleting JSON files accessible to the application, subject to filesystem permissions and server configuration. This issue is fixed in version 9.3.10.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-63130"
-    },
-    {
-      "id": "CVE-2026-59994",
-      "published": "2026-10-15T15:17:36.180",
-      "lastModified": "2026-10-20T03:17:16.317",
-      "description": "EspoCRM is an open source customer relationship management application. Prior to 9.3.9, an unauthenticated remote attacker can send an email to a monitored group or IMAP address, including an email-to-Case address, and place arbitrary HTML in its plain-text body. EspoCRM stores that body and renders it without escaping in Email Received stream notification emails sent to users following the related record, allowing HTML injection and, in mail clients that execute it, JavaScript execution. Earlier sanitization for Post and Mention notifications did not cover this notification path. This issue is fixed in version 9.3.9.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59994"
-    },
-    {
-      "id": "CVE-2026-55184",
-      "published": "2026-10-15T15:17:35.777",
-      "lastModified": "2026-10-15T16:18:13.490",
-      "description": "EspoCRM is an open source customer relationship management application. Prior to 9.3.9, a user with Email Template or PDF Template edit permission can store crafted HTML that bypasses moderateSanitizeHtml(). When another user opens the template in edit mode and clientCspDisabled is true, the stored payload executes and can hijack the user's session. This issue is fixed in version 9.3.9.",
-      "score": 3.5,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55184"
-    },
-    {
-      "id": "CVE-2026-55154",
-      "published": "2026-10-15T15:17:35.620",
-      "lastModified": "2026-10-16T18:17:58.457",
-      "description": "EspoCRM is an open source customer relationship management application. Prior to 9.3.9, application/Espo/Tools/Export/Format/Csv/Processor.php, application/Espo/Tools/Export/Format/Xlsx/OpenSpoutProcessor.php, and application/Espo/Tools/Export/Format/Xlsx/PhpSpreadsheetProcessor.php inspect only the first byte in sanitizeCellValue(). An authenticated low-privileged user can store a free-text value whose formula trigger is preceded by whitespace or a control character, causing CSV or XLSX export to omit the leading single-quote formula-neutralization prefix. When a privileged user opens the exported file and accepts applicable spreadsheet security prompts, spreadsheet software can ignore the whitespace or control-character prefix and evaluate the cell as a formula, permitting outbound data disclosure and, on legacy configurations with DDE enabled, command execution. This issue is fixed in version 9.3.9.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-55154"
-    },
-    {
-      "id": "CVE-2026-53575",
-      "published": "2026-10-15T15:17:35.340",
-      "lastModified": "2026-10-15T16:18:12.730",
-      "description": "EspoCRM is an open source customer relationship management application. Prior to 9.3.9, an authenticated administrator can place crafted content in the applicationName setting through CSP nonce injection. The persistent injection is inserted into the main application page without escaping, allowing attacker-controlled JavaScript to run in users' sessions and leak page data, including unsaved user input. This issue is fixed in version 9.3.9.",
-      "score": 2.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53575"
-    },
-    {
-      "id": "CVE-2026-53574",
-      "published": "2026-10-15T15:17:35.180",
-      "lastModified": "2026-10-15T16:18:12.620",
-      "description": "EspoCRM is an open source customer relationship management application. From 8.1.0 until 9.3.8, an authenticated non-administrator can submit a crafted where parameter to the GET entity streamAttachments endpoint because that query path permits complex expressions. Boolean-based blind SQL injection can extract arbitrary database information, including active administrator session tokens, and can enable full privilege escalation. This issue is fixed in version 9.3.8.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-53574"
-    },
-    {
-      "id": "CVE-2026-47168",
-      "published": "2026-10-15T15:17:34.917",
-      "lastModified": "2026-10-20T03:17:15.227",
-      "description": "EspoCRM is an open source customer relationship management application. Prior to 9.3.7, an authenticated administrator can supply crafted serialized PHP object data that is stored in background MassAction or Export parameters and later deserialized by the application. The deserialization paths do not restrict allowed classes, allowing attacker-controlled object instantiation and arbitrary code execution on the server. This issue is fixed in version 9.3.7.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-47168"
-    },
-    {
-      "id": "CVE-2026-46708",
-      "published": "2026-10-15T15:17:34.760",
-      "lastModified": "2026-10-15T16:18:12.220",
-      "description": "EspoCRM is an open source customer relationship management application. Prior to 9.3.7, a low-privileged user who can access a shared TargetList can invoke opt-out or cancel-opt-out actions for a protected Contact or Lead that the user cannot read or edit. The service validates access to the target list but retrieves the target record without the required record authorization, allowing unauthorized changes to its opted_out relationship state. This issue is fixed in version 9.3.7.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-46708"
-    },
-    {
-      "id": "CVE-2026-46694",
-      "published": "2026-10-15T15:17:34.610",
-      "lastModified": "2026-10-16T18:17:57.980",
-      "description": "EspoCRM is an open source customer relationship management application. Prior to 9.3.7, a portal user with stream access to a parent record can directly fetch a Note through the portal Note API and read an internal stream note when the note identifier is known. Stream list responses correctly hide notes whose isInternal field is true, but the direct single-Note access check does not enforce that restriction, exposing internal agent content. This issue is fixed in version 9.3.7.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-46694"
-    },
-    {
-      "id": "CVE-2026-46691",
-      "published": "2026-10-15T15:17:34.440",
-      "lastModified": "2026-10-15T16:18:12.110",
-      "description": "EspoCRM is an open source customer relationship management application. Prior to 9.3.7, an authenticated user with Import scope access can send POST /api/v1/Import/{id}/exportErrors with another user's import identifier and retrieve an attachment identifier for a CSV containing rows from that import. The endpoint performs a scope-level check but omits the entity-level ownership check enforced by the Import AccessChecker and sibling Import endpoints. This issue is fixed in version 9.3.7.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-46691"
-    },
-    {
-      "id": "CVE-2026-110957",
-      "published": "2026-10-15T15:17:30.640",
-      "lastModified": "2026-10-20T03:17:14.930",
-      "description": "A vulnerability has been found in Wavlink WL-WN530BE2-A up to M30BE2_V250604. The affected element is the function sub_12580 of the file api.cgi of the component Login Processing. The manipulation of the argument REMOTE_ADDR leads to os command injection. It is possible to initiate the attack remotely. The exploit has been disclosed to the public and may be used. Upgrading to version 2026-09-24-841a51c6d5_tclinux.bin is sufficient to fix this issue. You should upgrade the affected component. The vendor confirms: \"We confirm the finding, and it has already been addressed. In the current firmware the api=info&client=app handler no longer builds a shell command: the login script is now invoked through an argument vector (execvp) instead of system(), and the client address is length-limited and null-checked.\"",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110957"
-    },
-    {
-      "id": "CVE-2026-110936",
-      "published": "2026-10-15T15:17:30.383",
-      "lastModified": "2026-10-21T13:10:11.553",
-      "description": "A vulnerability has been identified in Siemens Software Center (All versions < V4.0.9.8). The affected application loads dynamic-link libraries (DLLs) from an uncontrolled search path. This could allow an authenticated local attacker to place a specially crafted DLL in a directory that the application searches, leading to arbitrary code execution with the privileges of the affected application.",
-      "score": 6.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110936"
-    },
-    {
-      "id": "CVE-2026-110746",
-      "published": "2026-10-15T15:17:28.487",
-      "lastModified": "2026-10-16T16:00:33.533",
-      "description": "A local privilege escalation vulnerability in TotalAV allows an unprivileged local user to forge the gRPC IPC authentication token, through loading IPC.dll and abuse the SYSTEM service's within TotalAV to execute arbitrary code as NT AUTHORITY\\SYSTEM.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110746"
-    },
-    {
-      "id": "CVE-2026-109413",
-      "published": "2026-10-15T15:17:24.993",
-      "lastModified": "2026-10-16T16:00:33.533",
-      "description": "In Symfony YAML prior to versions 5.4.54, 6.4.45, 7.4.18, and 8.1.6, Yaml\\Parser::lexInlineStructure() recursed through lexInlineMapping() and lexInlineSequence() for every { and [ of an inline collection, without entering the nesting level that the rest of the parser bounds with maxNestingLevel. A document made of deeply nested inline collections, such as [[[[...]]]], exhausted the stack while it was being lexed: depending on the PHP version and its stack settings, the process crashed or the request ended with a fatal error.\n\n\n\nAny code parsing untrusted YAML is affected. That includes #[MapRequestPayload] when the Yaml component is installed and the endpoint does not restrict acceptFormat: a single unauthenticated request with a YAML content type is enough.\n\n\n\nThis issue affects symfony/yaml through v5.4.53, v6.0.0-BETA1 through v6.4.44, v7.0.0-BETA1 through v7.4.17, and v8.0.0-BETA1 through v8.1.5.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109413"
-    },
-    {
-      "id": "CVE-2026-108116",
-      "published": "2026-10-15T15:17:22.753",
-      "lastModified": "2026-10-20T19:38:26.287",
-      "description": "In Progress Kendo UI for jQuery prior to v2026.3.1015, specially crafted filter values in the PivotGrid XMLA transport could alter MDX predicates or inject XML markup into SOAP requests, potentially exposing data accessible through the configured XMLA connection.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-108116"
-    },
-    {
-      "id": "CVE-2026-108082",
-      "published": "2026-10-15T15:17:22.583",
-      "lastModified": "2026-10-16T16:00:33.533",
-      "description": "Symfony is a PHP framework for web and console applications and a set of reusable PHP components. Prior to versions 5.4.54, 6.4.46, 7.4.19, and 8.1.7, HeaderUtils::split() parsed header values with a pattern whose token alternative also matched whitespace, followed by a (?<!\\s) lookbehind. A run of whitespace placed before a separator could be divided among the iterations of the enclosing repetition in exponentially many ways, and the engine tried all of them before settling. HeaderBag calls it for the Cache-Control header whenever a Request is built, so any application handling HTTP requests is reachable, with no authentication.\n\n\n\nA single request carrying such a header costs close to a second of CPU (813 ms for a run of 17 spaces in an 8 KB header on PHP 8.5, doubling with each extra space). From 18 spaces on, preg_match_all() gives up at pcre.backtrack_limit and split() returns an empty array, so every directive of the header is silently dropped.\n\n\n\nThis issue affects symfony/http-foundation v4.1.0-BETA1 through v5.4.53, v6.0.0-BETA1 through v6.4.45, v7.0.0-BETA1 through v7.4.18, and v8.0.0-BETA1 through v8.1.6.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-108082"
-    },
-    {
-      "id": "CVE-2026-106153",
-      "published": "2026-10-15T15:17:22.307",
-      "lastModified": "2026-10-20T19:38:38.233",
-      "description": "In Progress® Kendo® UI for jQuery prior to version 2026.3.1015, the Calendar and MultiViewCalendar month content templates render data.url and data.title without proper URL sanitization and HTML attribute encoding. An attacker with low privileges who can control the URL option or culture-derived title values can supply a JavaScript URL or inject event-handler attributes. When a user interacts with an affected calendar, JavaScript can execute in the user's browser context and compromise the confidentiality and integrity of accessible data.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106153"
-    },
-    {
-      "id": "CVE-2026-106151",
-      "published": "2026-10-15T15:17:22.157",
-      "lastModified": "2026-10-20T19:38:49.383",
-      "description": "In Progress® Kendo® UI for jQuery versions starting with 2012.2.710 and prior to 2026.3.1015, the Validator decodes validation messages from data-msg-* attributes and parses the resulting text as HTML. An attacker who can modify a validation message can cause HTML that was correctly escaped in the page attribute to become active markup, including event handlers, when the user triggers validation. Successful exploitation can execute JavaScript in a user's browser and compromise the confidentiality and integrity of data accessible to the affected application. This issue is fixed in version 2026.3.1015.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106151"
-    },
-    {
-      "id": "CVE-2026-106150",
-      "published": "2026-10-15T15:17:22.010",
-      "lastModified": "2026-10-15T19:17:17.320",
-      "description": "In Progress® Kendo® UI for jQuery prior to 2026.3.1015, the Splitter and Window components starting with version 2011.2.804 and the Tooltip component starting with version 2013.1.319 construct iframe markup without properly sanitizing URL values or encoding the Window iframe title. An attacker with low privileges who can control these values can inject HTML attributes, including JavaScript event handlers, through an apostrophe in an iframe URL or a crafted title. When a user interacts with the affected component, injected JavaScript can execute in the user's browser context, compromising the confidentiality and integrity of accessible data.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106150"
-    },
-    {
-      "id": "CVE-2026-106149",
-      "published": "2026-10-15T15:17:21.843",
-      "lastModified": "2026-10-20T19:38:55.830",
-      "description": "In Progress® Kendo® UI for jQuery prior to v2026.3.1015, the Menu component constructs HTML attributes from bound dataSource fields by string concatenation without proper neutralization. An attacker with low privileges who can control these fields can inject JavaScript event-handler attributes that execute when a user interacts with the affected Menu, compromising the confidentiality and integrity of data accessible in the user's browser context.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106149"
-    },
-    {
-      "id": "CVE-2026-104586",
-      "published": "2026-10-15T15:17:21.067",
-      "lastModified": "2026-10-20T03:17:12.597",
-      "description": "AUTOM8N (WHM/cPanel plugin) through commit 82821f7 contains an OS Command Injection in borg_restore.cgi.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104586"
-    },
-    {
-      "id": "CVE-2026-103509",
-      "published": "2026-10-15T15:17:20.757",
-      "lastModified": "2026-10-16T19:55:59.740",
-      "description": "P4 Search (formerly Helix Search) returns stored credentials in cleartext through its configuration API to users with administrative privileges on the connected P4 Server, allowing privilege escalation.\nThis affects 2026.4.2 and earlier and is fixed in 2026.4.3.",
-      "score": 8.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103509"
-    },
-    {
-      "id": "CVE-2026-103508",
-      "published": "2026-10-15T15:17:20.547",
-      "lastModified": "2026-10-16T19:55:59.740",
-      "description": "P4 Search (formerly Helix Search) allows an authenticated user holding administrative privileges on the connected P4 Server to supply a crafted logging configuration that causes files to be written or deleted outside the intended logging directory. This could lead to code execution as the P4 Search service account. This issue affects P4 Search 2026.4.2 and earlier.\n\n\n\nPerforce resolved it in 2026.4.3.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103508"
-    },
-    {
-      "id": "CVE-2026-93649",
-      "published": "2026-10-15T14:17:30.107",
-      "lastModified": "2026-10-16T19:17:44.900",
-      "description": "In the Eclipse Adoptium website (adoptium.net), in every deployment built from commit 0b24ea1 (2025-06-18) up to the fix in commit cbb53cf (2026-09-24), the post-download page /[locale]/download takes a download URL from the \"link\" query parameter and automatically navigates to it with a meta http-equiv=\"refresh\". The URL is checked against a list of trusted prefixes using String.startsWith() on the raw string, while the browser applies RFC 3986 dot-segment normalisation before navigating, so a value such as https://github.com/adoptium/temurin/../../attacker/malware/releases/download/v1/jdk.exe passes the check but resolves to an attacker-controlled repository. A victim who follows a crafted adoptium.net link is shown the genuine \"Thank you for downloading Eclipse Temurin\" page while their browser downloads a binary of the attacker's choosing",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-93649"
-    },
-    {
-      "id": "CVE-2026-110927",
-      "published": "2026-10-15T14:17:22.760",
-      "lastModified": "2026-10-21T07:17:17.647",
-      "description": "Rejected reason: CVE-2026-110927 has been marked as a duplicate of CVE-2026-106585.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110927"
-    },
-    {
-      "id": "CVE-2026-110924",
-      "published": "2026-10-15T14:17:22.387",
-      "lastModified": "2026-10-21T07:17:17.480",
-      "description": "Rejected reason: CVE-2026-110924 has been marked as a duplicate of CVE-2026-106553.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110924"
-    },
-    {
-      "id": "CVE-2026-106163",
-      "published": "2026-10-15T14:17:15.083",
-      "lastModified": "2026-10-20T19:39:05.070",
-      "description": "In Progress® Kendo® UI for jQuery versions starting with v2023.1.117 and prior to v2026.3.1015, the FileBrowser and ImageBrowser components render remotely supplied file and directory names as HTML without proper encoding. An attacker-controlled name containing script-related HTML can execute JavaScript in the user's browser, compromising the confidentiality and integrity of data accessible to the affected application.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106163"
-    },
-    {
-      "id": "CVE-2026-106162",
-      "published": "2026-10-15T14:17:14.963",
-      "lastModified": "2026-10-20T19:39:14.840",
-      "description": "In Progress® Kendo® UI for jQuery versions starting with 2023.3.1010 and prior to 2026.3.1015, the FileManager component renders remotely supplied item names as HTML in its default drag hint even though the corresponding list items are encoded. An attacker who can control an item name can inject HTML containing event handlers that execute JavaScript in a user's browser when the user drags the affected item. Successful exploitation can compromise the confidentiality and integrity of data accessible to the affected application. This issue is fixed in version 2026.3.1015.",
-      "score": 4.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106162"
-    },
-    {
-      "id": "CVE-2026-106161",
-      "published": "2026-10-15T14:17:14.843",
-      "lastModified": "2026-10-20T19:39:26.817",
-      "description": "In Progress® Kendo® UI for jQuery releases starting with v2020.1.114 and prior to 2026.3.1015, the Badge text method renders string values as raw HTML without encoding, including values supplied through text binding. An attacker who can modify data bound to a Badge can supply HTML containing event handlers that execute JavaScript in a user's browser when the Badge renders the value. Successful exploitation can compromise the confidentiality and integrity of data accessible to the affected application. This issue is fixed in version 2026.3.1015.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106161"
-    },
-    {
-      "id": "CVE-2026-106160",
-      "published": "2026-10-15T14:17:14.727",
-      "lastModified": "2026-10-20T19:39:35.483",
-      "description": "In Progress® Kendo® UI for jQuery prior to 2026.3.1015, Model.accept passes server-response keys to kendo.setter without guarding against unsafe object paths containing __proto__, constructor, or prototype. An attacker who can supply data accepted by an affected model can modify object prototype attributes and influence application behavior, potentially compromising the confidentiality and integrity of application data. The impact depends on how the application uses the modified objects, including in server-side JavaScript scenarios. The earliest affected version has not been confirmed. This issue is fixed in version 2026.3.1015.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106160"
-    },
-    {
-      "id": "CVE-2026-106159",
-      "published": "2026-10-15T14:17:14.603",
-      "lastModified": "2026-10-20T19:39:44.073",
-      "description": "In Progress® Kendo® UI for jQuery versions starting with 2022.3.1109 and prior to 2026.3.1015, ToolBar ButtonGroup button URLs are concatenated into an unquoted href attribute after URL sanitization. An attacker who can control a button URL can supply an otherwise allowed HTTPS URL containing whitespace and additional attributes, including an event handler, and execute JavaScript in a user's browser when the affected button is interacted with. Successful exploitation can compromise the confidentiality and integrity of data accessible to the affected application. This issue is fixed in version 2026.3.1015.",
-      "score": 4.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106159"
-    },
-    {
-      "id": "CVE-2026-106158",
-      "published": "2026-10-15T14:17:14.483",
-      "lastModified": "2026-10-20T19:21:09.810",
-      "description": "In Progress® Kendo® UI for jQuery, in v2026.3.811 and earlier, the Scheduler Day, Timeline, Month, and Agenda views insert resource color values into quoted event wrapper attributes without proper encoding. An attacker who can control a resource color can inject additional HTML attributes, including event handlers, and execute JavaScript in a user's browser when the affected event is interacted with. Successful exploitation can compromise the confidentiality and integrity of data accessible to the affected application. The earliest affected version has not been confirmed. This issue is fixed in version 2026.3.1015.",
-      "score": 4.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106158"
-    },
-    {
-      "id": "CVE-2026-106157",
-      "published": "2026-10-15T14:17:14.367",
-      "lastModified": "2026-10-20T19:21:25.813",
-      "description": "In Progress® Kendo® UI for jQuery versions starting with 2019.2.514 and prior to 2026.3.1015, the PanelBar component inserts data source item URL values into a single-quoted href attribute without proper encoding. An attacker who can control an item URL can inject additional HTML attributes, including event handlers, and execute JavaScript in a user's browser when the affected item is interacted with. Successful exploitation can compromise the confidentiality and integrity of data accessible to the affected application. This issue is fixed in version 2026.3.1015.",
-      "score": 4.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106157"
-    },
-    {
-      "id": "CVE-2026-106148",
-      "published": "2026-10-15T14:17:14.243",
-      "lastModified": "2026-10-20T19:21:36.343",
-      "description": "In Progress® Kendo® UI for jQuery prior to 2026.3.1015, the TabStrip, Menu, and PanelBar components insert data source imageUrl values into single-quoted image src attributes without proper escaping. An attacker who can modify an image URL can inject additional HTML attributes, including event handlers, and execute JavaScript in a user's browser when the affected component renders the image. Successful exploitation can compromise the confidentiality and integrity of data accessible to the affected application. The earliest affected version has not been confirmed. This issue is fixed in version 2026.3.1015.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106148"
-    },
-    {
-      "id": "CVE-2026-106147",
-      "published": "2026-10-15T14:17:14.120",
-      "lastModified": "2026-10-20T19:21:42.213",
-      "description": "In Progress® Kendo® UI for jQuery releases starting with R1 2020 and prior to 2026.3.1015, the ListBox default item template renders the bound dataTextField value as raw HTML without encoding. An attacker who can modify the bound data can supply HTML containing event handlers that execute JavaScript in a user's browser when the affected list item is rendered. Successful exploitation can compromise the confidentiality and integrity of data accessible to the affected application. This issue is fixed in version 2026.3.1015.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106147"
-    },
-    {
-      "id": "CVE-2026-104024",
-      "published": "2026-10-15T14:17:13.553",
-      "lastModified": "2026-10-16T19:56:15.773",
-      "description": "Incomplete List of Disallowed Inputs (CWE-184) in the dangerous-extension confirmation of the archive object viewer (peach.pas, grid_obj_open) in PeaZip 10.5.0 through 11.2.0 on Windows allows an attacker who convinces a victim to open an entry of a crafted archive to execute a program, or an arbitrary command, with no confirmation dialog. The prompt (Do you want to run this file?) is gated by SECEXTCONST, a hard-coded list of seven extensions (exe cmd msi bat ps1 vbs reg); the check is an exact string comparison of the entry extension against that list, so it answers only whether the extension is one of the seven and never whether the shell will execute the file. Shell-executable and scripting-host types that Windows runs through ShellExecuteW are absent from the list, among them .url and .lnk. An archived Windows Internet Shortcut (.url) whose URL line is attacker-controlled is launched with no prompt, while the byte-identical content in an entry named .bat does raise the warning in the same session. A .lnk entry raises the ceiling from launching a program to running a command line, because a Windows shortcut carries arguments: a proof-of-concept shortcut targeting cmd.exe with an attacker-chosen command line executed with no prompt. The shortcut target is not confined to the local disk; the shell also resolved an attacker-named UNC path (fetching a remote payload was only attempted, not demonstrated). No privilege escalation; everything runs as the user who opened the archive.",
-      "score": 4.6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104024"
-    },
-    {
-      "id": "CVE-2026-99999",
-      "published": "2026-10-15T13:17:14.137",
-      "lastModified": "2026-10-19T22:17:28.667",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nipv4: validate checksum_start before completing checksum\n\nIf a packet with bad checksum metadata gets into the ipv4 stack,\nskb_checksum_help can corrupt the network header and cause a bunch of\nmischief.\n\nThis was discovered and reported by Paulos, and has been reporoduced\nby others independently since.\n\nWe really shouldn't allow such packets in, but as a defence\nin depth measure, let's also check before we complete the checksum.\n\nA more complete validation at input is forthcoming, but needs more work.",
-      "score": 9.3,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99999"
-    },
-    {
-      "id": "CVE-2026-98432",
-      "published": "2026-10-15T13:17:13.987",
-      "lastModified": "2026-10-19T10:18:50.010",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nipv4: free inet_opt and ireq_opt after an RCU grace period\n\ntcp_v4_syn_recv_sock() transfers ownership of ireq->ireq_opt to the\nchild socket (newinet->inet_opt) without copying it.\n\nAnother cpu can concurrently process a retransmitted SYN for the same\nrequest socket, and send a SYNACK from tcp_check_req().\ntcp_v4_send_synack() and inet_csk_route_req() read ireq->ireq_opt\nunder rcu_read_lock() only, and ip_build_and_send_pkt() and\nip_options_build() then read opt->optlen twice.\n\nNote that the SYNACK timer itself is not an issue: it holds a\nreference on its request socket, and inet_csk_reqsk_queue_drop()\ncalls timer_delete_sync() before the child can be freed.\n\nSince commit 079096f103fa (\"tcp/dccp: install syn_recv requests\ninto ehash table\"), request sockets are processed without holding\nthe listener lock, so nothing prevents the child socket from being\nfreed while the SYNACK is still being built. TCP child sockets do\nnot have SOCK_RCU_FREE, and inet_sock_destruct() frees inet_opt\nwith a plain kfree(), leading to a use-after-free in\nip_options_build().\n\nA similar issue exists with request socket migration\n(net.ipv4.tcp_migrate_req=1, or a BPF_SK_REUSEPORT_SELECT_OR_MIGRATE\nprogram). reqsk_timer_handler() clones the request socket with\ninet_reqsk_clone(), so that the old request socket and its clone\nshare the same ireq_opt, then reqsk_migrate_reset() clears the\npointer in the old one. Another cpu holding a reference on the old\nrequest socket can still be using these options (sending a SYNACK,\nor creating a child in tcp_v4_syn_recv_sock()) when the clone is\nfreed, and tcp_v4_reqsk_destructor() also uses a plain kfree().\n\nReaders already use RCU, and other paths replacing inet_opt\n(do_ip_setsockopt(), cipso_v4_sock_setattr()...) already use\nkfree_rcu(). Use kfree_rcu() in inet_sock_destruct() and\ntcp_v4_reqsk_destructor() as well.\n\nIPv6 is not affected by the first issue, because tcp_v6_syn_recv_sock()\nduplicates the options. tcp_v6_reqsk_destructor() has the same\nmigration issue with ipv6_opt, which is only set by CALIPSO. This\nwill be addressed in a separate patch.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98432"
-    },
-    {
-      "id": "CVE-2026-88794",
-      "published": "2026-10-15T13:17:13.837",
-      "lastModified": "2026-10-16T16:00:33.533",
-      "description": "Enterprise Architect is vulnerable to XML External Entity (XXE) injection in the XSLT Debugger feature. When a user loads a crafted XML file containing a `DOCTYPE` with an external DTD reference, the parser processes external entities, allowing an attacker to read arbitrary files from the victim's filesystem.\n\nBecause vendor contact attempts were unsuccessful, the vulnerability has only been confirmed in version 17.1 but may also affect other versions.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88794"
-    },
-    {
-      "id": "CVE-2026-79837",
-      "published": "2026-10-15T13:17:13.707",
-      "lastModified": "2026-10-15T16:23:06.250",
-      "description": "A vulnerability in HPE NonStop SQL/MX UDR SERVER may allow a crafted message to cause process termination, service disruption or memory corruption, resulting in undefined behavior.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79837"
-    },
-    {
-      "id": "CVE-2026-110724",
-      "published": "2026-10-15T13:17:12.973",
-      "lastModified": "2026-10-16T19:17:03.597",
-      "description": "In `api-gateway` versions till `1.7.3`, The default rate-limit key resolver, `ClientIpKeyResolver`, derives the per-client bucket key from the leftmost element of the `X-Forwarded-For` request header. That element is supplied by the originating HTTP client and is not validated against any trusted-proxy list. A single attacker can therefore obtain an unlimited number of independent rate-limit buckets — one per unique header value — and completely bypass the gateway's request-rate limiting on every route that uses the shipped default configuration.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110724"
-    },
-    {
-      "id": "CVE-2026-110723",
-      "published": "2026-10-15T13:17:12.857",
-      "lastModified": "2026-10-15T14:41:34.110",
-      "description": "In `api-gateway` versions till `1.7.3`, The default rate-limit key resolver, `ClientIpKeyResolver`, derives the per-client bucket key from the leftmost element of the `X-Forwarded-For` request header. That element is supplied by the originating HTTP client and is not validated against any trusted-proxy list. A single attacker can therefore obtain an unlimited number of independent rate-limit buckets — one per unique header value — and completely bypass the gateway's request-rate limiting on every route that uses the shipped default configuration.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110723"
-    },
-    {
-      "id": "CVE-2026-109892",
-      "published": "2026-10-15T13:17:12.697",
-      "lastModified": "2026-10-15T14:45:38.353",
-      "description": "Incorrect Privilege Assignment vulnerability in Shabti Kaplan Frontend Admin by DynamiApps acf-frontend-form-element allows Privilege Escalation.This issue affects Frontend Admin by DynamiApps: from n/a through 3.29.13.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109892"
-    },
-    {
-      "id": "CVE-2026-109702",
-      "published": "2026-10-15T13:17:12.467",
-      "lastModified": "2026-10-15T16:17:44.597",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in maxfoundry Social Share Buttons share-button allows Stored XSS.This issue affects Social Share Buttons: from n/a through 1.31.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109702"
-    },
-    {
-      "id": "CVE-2026-109698",
-      "published": "2026-10-15T13:17:12.317",
-      "lastModified": "2026-10-15T14:45:38.353",
-      "description": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') vulnerability in Kitae Park Mang Board WP mangboard allows SQL Injection.This issue affects Mang Board WP: from n/a through 2.4.4.",
-      "score": 9.3,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109698"
-    },
-    {
-      "id": "CVE-2026-109693",
-      "published": "2026-10-15T13:17:12.190",
-      "lastModified": "2026-10-16T15:17:08.103",
-      "description": "Incorrect Privilege Assignment vulnerability in WP ManageNinja LLC Fluent CRM fluent-crm allows Privilege Escalation.This issue affects Fluent CRM: from n/a through 3.2.5.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109693"
-    },
-    {
-      "id": "CVE-2026-109692",
-      "published": "2026-10-15T13:17:12.063",
-      "lastModified": "2026-10-15T14:45:38.353",
-      "description": "Missing Authorization vulnerability in ThemeGrill User Registration user-registration allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects User Registration: from n/a through 5.2.8.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109692"
-    },
-    {
-      "id": "CVE-2026-109688",
-      "published": "2026-10-15T13:17:11.917",
-      "lastModified": "2026-10-15T15:17:27.873",
-      "description": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') vulnerability in Link Whisper INC Link Whisper Free link-whisper allows Blind SQL Injection.This issue affects Link Whisper Free: from n/a through 0.9.7.",
-      "score": 9.3,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109688"
-    },
-    {
-      "id": "CVE-2026-109686",
-      "published": "2026-10-15T13:17:11.540",
-      "lastModified": "2026-10-15T16:17:44.390",
-      "description": "Deserialization of Untrusted Data vulnerability in Link Whisper INC Link Whisper Free link-whisper allows Object Injection.This issue affects Link Whisper Free: from n/a through 0.9.7.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109686"
-    },
-    {
-      "id": "CVE-2026-109685",
-      "published": "2026-10-15T13:17:11.400",
-      "lastModified": "2026-10-16T15:17:08.003",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Link Whisper INC Link Whisper Free link-whisper allows Reflected XSS.This issue affects Link Whisper Free: from n/a through 0.9.7.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109685"
-    },
-    {
-      "id": "CVE-2026-107416",
-      "published": "2026-10-15T13:17:10.930",
-      "lastModified": "2026-10-15T14:45:38.353",
-      "description": "Authorization Bypass Through User-Controlled Key vulnerability in Webba Plugins Webba Booking webba-booking-lite allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Webba Booking: from n/a through 6.5.2.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107416"
-    },
-    {
-      "id": "CVE-2026-105882",
-      "published": "2026-10-15T13:17:10.787",
-      "lastModified": "2026-10-15T16:17:34.770",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in ThemeGrill User Registration user-registration allows Stored XSS.This issue affects User Registration: from n/a through 5.2.8.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105882"
-    },
-    {
-      "id": "CVE-2026-104025",
-      "published": "2026-10-15T13:17:10.617",
-      "lastModified": "2026-10-16T19:56:15.773",
-      "description": "Path Traversal (CWE-22) in the execute_obj function of the archive object viewer (peach.pas) in PeaZip 11.2.0 and earlier on Windows allows an attacker who convinces a victim to preview an entry of a crafted archive via the \"Preview with... -> Associated application\" action (Shift+Ctrl+O) to execute an arbitrary program already present on the victim's system, with no warning dialog. The function validates only outname (PeaZip's own temporary directory) with checkfiledirname, while the string actually executed is the concatenation outname+tempstring; tempstring is taken verbatim from the archive entry name (StringGridList.Cells[12,...]) and is never validated. checkfiledirname (list_utils.pas) rejects control and reserved characters in the file name but performs no \"..\" path-containment check, so an entry named ../../../../Windows/System32/calc.exe escapes the extraction directory and is passed to cp_open -> ShellExecuteW; the extracting backend (7-Zip) strips the traversal while the opener does not. In addition, the SECEXTCONST dangerous-extension confirmation prompt is implemented only in the double-click handler (grid_obj_open) and not on this preview route, so an executable inside an archive reaches ShellExecuteW unannounced, and where the prompt does fire it names the entry's display name rather than the resolved path that will run. Arbitrary code execution was demonstrated with a proof of concept against official PeaZip builds, confirmed on two archive formats (.zip and .tar) to show the defect is in PeaZip's own path handling and not in a single format parser.",
-      "score": 8.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104025"
-    },
-    {
-      "id": "CVE-2026-102389",
-      "published": "2026-10-15T13:17:10.470",
-      "lastModified": "2026-10-15T15:17:18.567",
-      "description": "Improper Control of Generation of Code ('Code Injection') vulnerability in WPMU DEV Broken Link Checker broken-link-checker allows Code Injection.This issue affects Broken Link Checker: from n/a through 2.4.14.1.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102389"
-    },
-    {
-      "id": "CVE-2026-8145",
-      "published": "2026-10-15T12:16:39.923",
-      "lastModified": "2026-10-15T14:45:38.353",
-      "description": "The WholesaleX – B2B & Wholesale Plugin for WooCommerce with Wholesale Prices plugin for WordPress is vulnerable to Limited Privilege Escalation in all versions up to, and including, 3.0.8 via the 'process_registration' due to missing validation on the 'wholesalex_registration_role' parameter. This makes it possible for unauthenticated attackers to register as any existing WholesaleX role. The vulnerability was partially patched in version 2.3.8.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-8145"
-    },
-    {
-      "id": "CVE-2026-79836",
-      "published": "2026-10-15T12:16:39.800",
-      "lastModified": "2026-10-15T16:23:06.250",
-      "description": "A vulnerability HPE NonStop SQL/MX Run-Time Statistics may allow an attacker to cause memory corruption and null pointer dereference, potentially leading to process crash,  DoS or information disclosure.",
-      "score": 6.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79836"
-    },
-    {
-      "id": "CVE-2026-79835",
-      "published": "2026-10-15T12:16:39.673",
-      "lastModified": "2026-10-15T16:23:06.250",
-      "description": "A crafted input message can cause a buffer overflow in HPE Nonstop KMS Server.",
-      "score": 2.8,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79835"
-    },
-    {
-      "id": "CVE-2026-79834",
-      "published": "2026-10-15T12:16:39.497",
-      "lastModified": "2026-10-15T16:23:06.250",
-      "description": "A security vulnerability in HPE NonStop SQL/MX SQLCAT may allow an unauthenticated user to perform unauthorized command execution.",
-      "score": 7.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79834"
-    },
-    {
-      "id": "CVE-2026-110726",
-      "published": "2026-10-15T12:16:37.517",
-      "lastModified": "2026-10-15T16:17:46.283",
-      "description": "In `api-gateway` versions till `1.7.3`, The default rate-limit key resolver, `ClientIpKeyResolver`, derives the per-client bucket key from the leftmost element of the `X-Forwarded-For` request header. That element is supplied by the originating HTTP client and is not validated against any trusted-proxy list. A single attacker can therefore obtain an unlimited number of independent rate-limit buckets — one per unique header value — and completely bypass the gateway's request-rate limiting on every route that uses the shipped default configuration.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110726"
-    },
-    {
-      "id": "CVE-2026-79833",
-      "published": "2026-10-15T11:17:50.433",
-      "lastModified": "2026-10-15T16:23:06.250",
-      "description": "A vulnerability in HPE NonStop ANSI SQLUTIL may allow a remote unauthenticated actor to cause an affected service to terminate unexpectedly, causing a denial of service.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79833"
-    },
-    {
-      "id": "CVE-2026-79832",
-      "published": "2026-10-15T11:17:50.313",
-      "lastModified": "2026-10-15T16:23:06.250",
-      "description": "A stack buffer overflow vulnerability in HPE NonStop SQL/MX Executor may potentially result in information disclosure or process crash.",
-      "score": 7.6,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79832"
-    },
-    {
-      "id": "CVE-2026-79831",
-      "published": "2026-10-15T11:17:50.200",
-      "lastModified": "2026-10-15T16:23:06.250",
-      "description": "A heap buffer overflow in HPE NonStop Posix User Threads may allow arbitrary code execution.",
-      "score": 6.6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79831"
-    },
-    {
-      "id": "CVE-2026-79830",
-      "published": "2026-10-15T11:17:50.083",
-      "lastModified": "2026-10-15T16:23:06.250",
-      "description": "A vulnerability in HPE NonStop Kernel Level Thread Model Lib can cause stack buffer overflow which can allow arbitrary code execution.",
-      "score": 6.6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79830"
-    },
-    {
-      "id": "CVE-2026-17525",
-      "published": "2026-10-15T11:17:28.300",
-      "lastModified": "2026-10-16T15:36:06.590",
-      "description": "Incomplete cleanup vulnerability in ABB My Control System.\n\nThis issue affects My Control System: 26.4 and 26.5.",
-      "score": 5.2,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-17525"
-    },
-    {
-      "id": "CVE-2026-109695",
-      "published": "2026-10-15T11:17:27.113",
-      "lastModified": "2026-10-15T16:17:44.490",
-      "description": "Insertion of Sensitive Information Into Sent Data vulnerability in WPManageNinja FluentCart fluent-cart allows Retrieve Embedded Sensitive Data.This issue affects FluentCart: from n/a through 1.7.1.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109695"
-    },
-    {
-      "id": "CVE-2026-109694",
-      "published": "2026-10-15T11:17:24.537",
-      "lastModified": "2026-10-15T15:17:27.977",
-      "description": "Incorrect Privilege Assignment vulnerability in WP ManageNinja LLC Fluent CRM fluent-crm allows Privilege Escalation.This issue affects Fluent CRM: from n/a through 3.2.5.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109694"
-    },
-    {
-      "id": "CVE-2026-108498",
-      "published": "2026-10-15T11:17:19.957",
-      "lastModified": "2026-10-15T14:45:38.353",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in bannersky BSK PDF Manager bsk-pdf-manager allows Stored XSS.This issue affects BSK PDF Manager: from n/a through 3.8.1.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-108498"
-    },
-    {
-      "id": "CVE-2026-108497",
-      "published": "2026-10-15T11:17:19.823",
-      "lastModified": "2026-10-16T15:17:06.360",
-      "description": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') vulnerability in TMS Amelia ameliabooking allows SQL Injection.This issue affects Amelia: from n/a through 2.4.10.",
-      "score": 9.3,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-108497"
-    },
-    {
-      "id": "CVE-2026-108491",
-      "published": "2026-10-15T11:17:19.677",
-      "lastModified": "2026-10-15T14:45:38.353",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Everest Forms Everest Forms everest-forms allows Stored XSS.This issue affects Everest Forms: from n/a through 3.6.1.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-108491"
     }
   ]
 }
