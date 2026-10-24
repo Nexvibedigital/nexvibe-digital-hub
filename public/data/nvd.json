@@ -1,6 +1,45 @@
 {
-  "syncedAt": "2026-10-24T21:31:18.518Z",
+  "syncedAt": "2026-10-24T23:37:38.367Z",
   "items": [
+    {
+      "id": "CVE-2026-98440",
+      "published": "2026-10-18T16:16:54.287",
+      "lastModified": "2026-10-24T14:16:41.777",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nKVM: arm64: nv: Delay freeing of shadow S2 structures until VM destruction\n\nWe free the shadow S2 structures from kvm_arch_flush_shadow_all(), which\nis a Bad Idea(tm). Freeing the page tables is fair game (this is what\nthis callback is for), but freeing the container that could still be\nreferenced by another part of the system is not great.\n\nInstead, grow separate destructors that gets called when we tear the VM\ndown for good. From there, we can nuke both the individual MMUs as well\nas the global array that points to them, safe in the knowledge that the\nvcpus themselves have been destroyed already.",
+      "score": 7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98440"
+    },
+    {
+      "id": "CVE-2026-98439",
+      "published": "2026-10-18T15:16:53.687",
+      "lastModified": "2026-10-19T10:18:52.057",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsmb/server: cancel async requests when closing connection\n\nAn async request may still be waiting when a connection is closed.\nThis can stop the connection from closing.\n\nCancel active async requests before waiting for them to finish.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98439"
+    },
+    {
+      "id": "CVE-2026-98438",
+      "published": "2026-10-18T15:16:53.590",
+      "lastModified": "2026-10-19T10:18:51.960",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmptcp: options: fix uninit-value in mptcp_write_data_fin\n\nWhen sending a DATA_FIN without data, and because the DATA_FIN occupies\n1 octet of the connection-level sequence space [1], it is then required\nto add a DSS mapping with specific values.\n\nIf the checksum has been negotiated, it also needs to be computed, and\nincluded in the outgoing packet, and thus the initial csum data needs to\nbe reset to 0 as well. This is no longer the case since commit\ncfcceb7a39fc (\"tcp: shrink per-packet memset in __tcp_transmit_skb()\"),\nbecause the whole ext_copy structure is no longer zeroed by default.\n\nThis seems to be the only case where use_map is changed and set\nafterwards, so initialising the csum field only in this case, along with\nother fields for this specific case.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98438"
+    },
+    {
+      "id": "CVE-2026-98437",
+      "published": "2026-10-18T15:16:53.490",
+      "lastModified": "2026-10-19T10:18:51.853",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: qcom: iris: fix runtime PM reference leaks\n\nUse pm_runtime_resume_and_get() in iris_enable_power_domains()\nto avoid leaking a runtime PM usage count on failure.\n\nAlso ensure pm_runtime_put_sync() is always called in\niris_disable_power_domains(), even when iris_opp_set_rate()\nfails, so runtime PM references remain balanced.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98437"
+    },
+    {
+      "id": "CVE-2026-98436",
+      "published": "2026-10-18T15:16:53.397",
+      "lastModified": "2026-10-24T14:16:41.643",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\naccel/amdxdna: Disable device buffer exporting\n\nDevice buffers are never intended to be exported. Disable exporting\nsupport explicitly.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98436"
+    },
     {
       "id": "CVE-2026-98435",
       "published": "2026-10-18T15:16:53.300",
@@ -849,41 +888,6 @@
       "score": 7.3,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111866"
-    },
-    {
-      "id": "CVE-2026-108117",
-      "published": "2026-10-17T23:16:55.320",
-      "lastModified": "2026-10-18T22:10:00.100",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-108117"
-    },
-    {
-      "id": "CVE-2026-107772",
-      "published": "2026-10-17T23:16:55.260",
-      "lastModified": "2026-10-18T22:10:00.100",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107772"
-    },
-    {
-      "id": "CVE-2026-107345",
-      "published": "2026-10-17T23:16:55.203",
-      "lastModified": "2026-10-18T22:10:00.100",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107345"
-    },
-    {
-      "id": "CVE-2026-107274",
-      "published": "2026-10-17T23:16:55.140",
-      "lastModified": "2026-10-18T22:10:00.100",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107274"
-    },
-    {
-      "id": "CVE-2026-105391",
-      "published": "2026-10-17T23:16:55.053",
-      "lastModified": "2026-10-18T22:10:00.100",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105391"
     }
   ]
 }
