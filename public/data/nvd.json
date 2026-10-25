@@ -1,6 +1,151 @@
 {
-  "syncedAt": "2026-10-25T04:29:15.334Z",
+  "syncedAt": "2026-10-25T09:20:39.856Z",
   "items": [
+    {
+      "id": "CVE-2026-98466",
+      "published": "2026-10-18T16:16:57.090",
+      "lastModified": "2026-10-24T14:16:43.193",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nKVM: arm64: Transfer the hyp stack pages out of the host stage-2\n\nfix_host_ownership() walks only the linear-map alias of each memblock\nregion, and the per-CPU hyp stack, mapped in the private VA range for\nits guard page, has none.\n\nWalk each stack's VA range with the same walker.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98466"
+    },
+    {
+      "id": "CVE-2026-98465",
+      "published": "2026-10-18T16:16:56.993",
+      "lastModified": "2026-10-24T14:16:43.033",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRISC-V: KVM: Serialize IMSIC attributes with vCPU migration\n\nKVM device ioctls are not serialized against KVM_RUN. As a result,\nkvm_riscv_aia_imsic_rw_attr() can snapshot the physical CPU and HGEI of\nan IMSIC VS-file before a concurrent vCPU migration releases it.\n\nThe HGEI can then be allocated to another vCPU before imsic_vsfile_rw()\nuses the stale tuple. A GET or SET attribute may consequently access the\nnew owner's interrupt file.\n\nSerialize the entire IMSIC attribute operation with the target vCPU\nmutex. This prevents the VS-file from being migrated and recycled until\nthe attribute access completes. Acquire the mutex killably so that the\ndevice ioctl remains interruptible while waiting for KVM_RUN to finish.",
+      "score": 7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98465"
+    },
+    {
+      "id": "CVE-2026-98464",
+      "published": "2026-10-18T16:16:56.873",
+      "lastModified": "2026-10-24T14:16:42.853",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRISC-V: KVM: Synchronize hrtimer callback during teardown\n\nThe non-Sstc hrtimer callback clears next_set before its final uses of\nthe enclosing vCPU.  If teardown observes next_set as false while the\ncallback is still running, kvm_riscv_vcpu_timer_cancel() skips\nhrtimer_cancel() and kvm_destroy_vcpus() can free the vCPU before the\ncallback enters kvm_riscv_vcpu_set_interrupt().\n\nA guest can arm the timer with SBI TIME and request shutdown with SBI\nlegacy shutdown or SRST.  A VMM that honors KVM_EXIT_SYSTEM_EVENT and\ndestroys the VM supplies the teardown side of the race; no post-launch\nhost ioctl is needed to arm or request teardown.\n\nOn upstream master 62cc90241548, generic KASAN reported:\n\n  BUG: KASAN: slab-use-after-free in do_raw_spin_lock\n  Write of size 4 at addr ff60000005e58898\n\n  kvm_riscv_vcpu_set_interrupt\n  kvm_riscv_vcpu_hrtimer_expired\n  __hrtimer_run_queues\n  hrtimer_interrupt\n\nThe object was allocated by KVM_CREATE_VCPU and freed concurrently by:\n\n  kvm_destroy_vcpus\n  kvm_arch_destroy_vm\n  kvm_destroy_vm\n  __fput\n\nFor deterministic validation, I added mdelay(1000) immediately after\nthe existing next_set = false assignment.  This only widens the\nexisting post-clear callback window.  A no-delay trace build naturally\nreached the callback-after-teardown-start/before-deinit ordering in 12\nof 200 runs, but 1,500 stock-kernel stress iterations did not produce a\nKASAN report, so natural reproduction is timing-sensitive.\n\nAlways invoke hrtimer_cancel() for an initialized timer.  Preserve the\nexisting -EINVAL result when the timer is no longer set, but only after\nsynchronizing with a running callback.\n\nWith this patch, hrtimer_cancel() blocked for the full widened callback\nwindow before vCPU destruction.  KASAN reported no error in 100\nfixed-and-widened runs or 200 fix-only timing-sweep runs.",
+      "score": 9.3,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98464"
+    },
+    {
+      "id": "CVE-2026-98463",
+      "published": "2026-10-18T16:16:56.770",
+      "lastModified": "2026-10-19T10:18:55.960",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsched_ext: Derive SCX_RQ_IN_WAKEUP from the core enqueue flags\n\nschedule_deferred_locked() skips scheduling a deferred action while\nSCX_RQ_IN_WAKEUP is set and relies on the task_woken_scx() call that follows\na wakeup enqueue to run it. enqueue_task_scx() sets the flag from the merged\nenqueue flags, which include the flags stashed for a remote activation.\nmove_remote_task_to_local_dsq() thus sets SCX_RQ_IN_WAKEUP on the\ndestination rq when the moved task was woken up, although no\ntask_woken_scx() follows that activation.\n\nAn IMMED insert into a busy destination requests a local reenqueue during\nthat enqueue. The request gets linked but not scheduled and stays pending\nuntil an unrelated wakeup or preemption on that CPU runs the deferred\nactions. The IMMED task sits behind the running task in the meantime. If\nnothing runs them before the scheduler is disabled, the request outlives the\nscheduler and points into its freed per-cpu area, which the next scheduler\ndereferences from run_deferred().\n\nTest the core enqueue flags for the wakeup bit. Only the core's wakeup path\nis followed by task_woken_scx().",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98463"
+    },
+    {
+      "id": "CVE-2026-98462",
+      "published": "2026-10-18T16:16:56.660",
+      "lastModified": "2026-10-19T10:18:55.827",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nBluetooth: hci_conn: fix CIS hold ownership on reuse\n\nCommit 69997d50ec57 (\"Bluetooth: ISO: handle bound CIS cleanup via\nhci_conn\") made hci_bind_cis() and hci_connect_cis() return a\nconnection with one hold for the ISO layer.  hci_bind_cis() currently\ntakes that hold only after configuring a CIS, so its BT_CONNECTED and\nmatching BT_BOUND paths return a bare lookup result.  Its configuration\nfailure path can likewise call hci_conn_drop() before taking a hold.\n\nTake the hold before any state-dependent return or configuration error\nso every successful return follows the documented ownership contract\nand every error drop is balanced.\n\nhci_connect_cis() also assumes hci_conn_link() always takes a new CIS\nhold before dropping the one returned by hci_bind_cis().  However, the\nhelper returns an existing link without taking another hold.  In that\ncase, preserve the CIS hold for the caller and drop the redundant LE\nhold because the existing link already owns its parent hold.  Returning\nearly also avoids changing an existing CIS back to BT_CONNECT.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98462"
+    },
+    {
+      "id": "CVE-2026-98461",
+      "published": "2026-10-18T16:16:56.543",
+      "lastModified": "2026-10-19T10:18:55.667",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nBluetooth: hci_sock: validate event length before filtering\n\nis_filtered_packet() reads the event code from skb->data[0] without first\nchecking that the skb is nonempty. When an opcode filter is configured,\nit also reads the command opcode at offsets 3 or 4 without checking that\na Command Complete or Command Status event is long enough.\n\nhci_send_to_sock() invokes the filter before hci_event_packet() validates\nthe event header. A malformed event supplied by a controller or a vhci\ndevice can therefore cause an out-of-bounds read.\n\nKeep the unmasked event code for the opcode checks. The masked value is\nneeded for the 64-bit event bitmap, but using it to identify command events\naliases event codes above 0x3f. In particular, Synchronous Train Complete\n(0x4f) was treated as Command Status (0x0f) even though its payload has no\nopcode.\n\nReject actual command events that are too short for the field being\ninspected. A truncated command event cannot match a configured opcode.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98461"
+    },
+    {
+      "id": "CVE-2026-98460",
+      "published": "2026-10-18T16:16:56.430",
+      "lastModified": "2026-10-19T10:18:55.520",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nBluetooth: hci_sock: reject out-of-range OCF values\n\nThe raw HCI socket security filter has 128 OCF bits per supported OGF,\nbut masks the 10-bit OCF with 127 before looking up the command. An\nunprivileged socket can therefore submit a reserved OCF that aliases an\nallowlisted command modulo 128.\n\nA conforming controller should reject reserved opcodes. Nevertheless,\nthe security decision must apply to the opcode that will actually be\nsent, especially since controller-specific behavior is outside the host\nstack's control.\n\nReject OCF values that cannot be represented by the security filter\ninstead of aliasing them onto an unrelated command.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98460"
+    },
+    {
+      "id": "CVE-2026-98459",
+      "published": "2026-10-18T16:16:56.327",
+      "lastModified": "2026-10-19T10:18:55.390",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nBluetooth: ISO: balance the parent hold in hci_bind_bis()\n\nhci_conn_link() takes a lifetime reference to its parent with\nhci_conn_get(), but only takes an operational hold on the child.\nhci_conn_unlink() later balances both a hold and a reference on the\nparent.\n\nThe SCO and CIS paths pass a parent acquired from a connect helper, so\nit already has a hold. For an additional BIS, hci_bind_bis() obtains the\nparent from hci_conn_hash_lookup_big(), which returns a bare pointer.\nUnlinking the child then drops the parent's existing hold and can\nschedule it for disconnection while its socket is still using it.\n\nTake a hold on the parent before linking it and drop that hold if linking\nfails. A successful link transfers the hold to hci_conn_unlink().",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98459"
+    },
+    {
+      "id": "CVE-2026-98458",
+      "published": "2026-10-18T16:16:56.230",
+      "lastModified": "2026-10-19T10:18:55.257",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nBluetooth: ISO: release unused CIS holds after channel attach\n\nhci_bind_cis() and hci_connect_cis() return one hci_conn hold for the\nISO layer.  A new channel association consumes that hold, which is\neventually released by iso_conn_free().\n\nThere are two cases where iso_chan_add() does not create an association:\nit returns success when the socket is already attached to the same\niso_conn, and it returns -EBUSY when another socket is attached.  The\nhold returned for the current call is unused in both cases.  This occurs\nwhen deferred setup calls iso_connect_cis() again for its existing\nsocket, or when another socket attempts to reuse the CIS.\n\nDetect the idempotent case while the connection is locked and release\nthe unused hold after iso_chan_add().  Also release it on -EBUSY.  Do not\ndrop it for other errors: a newly allocated iso_conn releases the\ntransferred hold when its last temporary reference is put.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98458"
+    },
+    {
+      "id": "CVE-2026-98457",
+      "published": "2026-10-18T16:16:56.110",
+      "lastModified": "2026-10-19T10:18:55.100",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nBluetooth: L2CAP: validate frame length before control and FCS access\n\nl2cap_data_rcv() unpacks either a two-byte or four-byte control field\nwithout first ensuring that it is present. A short ERTM or streaming-mode\nframe can therefore cause an out-of-bounds read.\n\nThere is a second short-frame case when CRC16 is enabled. After the\ncontrol field is pulled, l2cap_check_fcs() subtracts two from skb->len\nwithout checking it. If fewer than two bytes remain, the subtraction\nwraps; skb_trim() leaves the buffer unchanged and the subsequent FCS\nload reads past the logical end of the frame.\n\nValidate that the frame contains both its control field and, when\nenabled, its FCS before either field is accessed.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98457"
+    },
+    {
+      "id": "CVE-2026-98456",
+      "published": "2026-10-18T16:16:56.003",
+      "lastModified": "2026-10-24T14:16:42.700",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nBluetooth: mgmt: fix race in read_unconf_index_list()\n\nread_unconf_index_list() counts unconfigured controllers before allocating\nits response, then checks the device flags again while filling it.\n\nhci_dev_list_lock stabilizes list membership, but it does not serialize the\nper-device flags. During asynchronous controller setup, the worker can set\nHCI_UNCONFIGURED and clear HCI_SETUP between the two passes. A controller\nomitted from the allocation count can then become eligible for the fill\npass, causing an out-of-bounds write to rp->index[].\n\nAllocate space for every device on hci_dev_list. Since list membership\ncannot change while hci_dev_list_lock is held, the response remains large\nenough regardless of flag transitions. The reported count and response\nlength still include only eligible unconfigured controllers.",
+      "score": 7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98456"
+    },
+    {
+      "id": "CVE-2026-98455",
+      "published": "2026-10-18T16:16:55.863",
+      "lastModified": "2026-10-19T10:18:54.803",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nBluetooth: RFCOMM: fix NULL dereference of dlc->session in RFCOMM_CONNINFO\n\nThe RFCOMM_CONNINFO getsockopt handler accepts a socket that is not\nconnected as long as deferred setup is enabled:\n\n\tif (sk->sk_state != BT_CONNECTED &&\n\t\t\t\t!rfcomm_pi(sk)->dlc->defer_setup) {\n\t\terr = -ENOTCONN;\n\t\tbreak;\n\t}\n\tl2cap_sk = rfcomm_pi(sk)->dlc->session->sock->sk;\n\ndlc->defer_setup is set in rfcomm_sock_init() when rfcomm_connect_ind()\ncreates a child socket for an incoming connection on a listening socket\nthat has BT_DEFER_SETUP enabled. It is never cleared afterwards. The\nsession, however, can go away underneath it.\n\nrfcomm_recv_disc() forces the dlc state before tearing it down:\n\n\td->state = BT_CLOSED;\n\t__rfcomm_dlc_close(d, err);\n\nThe RFCOMM_DEFER_SETUP early return in __rfcomm_dlc_close() only covers\nBT_CONNECT, BT_CONFIG, BT_OPEN and BT_CONNECT2, so with the state\nalready BT_CLOSED that switch does not match and the function falls\nthrough to rfcomm_dlc_unlink(), which sets d->session = NULL, while\nd->defer_setup stays 1.\n\nA getsockopt(SOL_RFCOMM, RFCOMM_CONNINFO) on the accepted socket after\nthat point therefore skips the -ENOTCONN path -- sk->sk_state is\nBT_CLOSED, but dlc->defer_setup is still set -- and dereferences the\nNULL session. No race is needed: once the DISC has been processed, the\ndereference is unconditional.\n\nReproduced on a KASAN kernel under QEMU with a BR/EDR peer emulated over\n/dev/vhci: the peer brings up an ACL link, opens L2CAP on the RFCOMM\nPSM, starts a session and sends SABM for a channel bound with\nBT_DEFER_SETUP, and sends DISC for that dlci after the socket has been\naccepted. getsockopt(SOL_RFCOMM, RFCOMM_CONNINFO) on the accepted\nsocket then hits:\n\n Oops: general protection fault, probably for non-canonical address\n 0xdffffc0000000002: 0000 [#1] SMP KASAN PTI\n KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]\n CPU: 1 UID: 0 PID: 150 Comm: init Tainted: G B 7.3.0-rc3-g5dd1818b15d9\n Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)\n RIP: 0010:rfcomm_sock_getsockopt+0x529/0x780\n Call Trace:\n  <TASK>\n  do_sock_getsockopt+0x3ad/0x7d0\n  __sys_getsockopt+0x10e/0x1b0\n  __x64_sys_getsockopt+0xc2/0x160\n  do_syscall_64+0xda/0x4b0\n  entry_SYSCALL_64_after_hwframe+0x77/0x7f\n  </TASK>\n\n0x10 is the offset of sock in struct rfcomm_session;\nrfcomm_sock_getsockopt_old() is inlined into rfcomm_sock_getsockopt().\n\nCommit 43a556b2fd43 (\"Bluetooth: RFCOMM: take rfcomm_mutex for the\ndeferred setup accept\") fixed the same \"a remote DISC clears the session\nwhile deferred setup is still flagged\" problem in rfcomm_dlc_accept();\nthis is the remaining instance of it, in the getsockopt path.\n\nDeferred setup only leaves a socket usable here once it has reached\nBT_CONNECT2, so restrict the exception to that state and check that a\nsession is actually present before following it.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98455"
+    },
+    {
+      "id": "CVE-2026-98454",
+      "published": "2026-10-18T16:16:55.757",
+      "lastModified": "2026-10-24T14:16:42.543",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsmb: client: fix create context out-of-bounds reads\n\nsmb2_parse_contexts() validates the complete create-context area but\ndoes not limit each record to its Next field before dispatching it.  A\nmalformed chain can therefore expose bytes beyond the current context to\na handler.  The QFid handler also used a full response-structure cast\nalthough it only reads DiskFileId.\n\nThe SMB2/SMB3 lease parsers made the same layout assumption: they read\nLeaseState and LeaseFlags at canonical offsets rather than at\nDataOffset.  A valid non-canonical DataOffset could therefore yield\nunrelated in-bounds data, while a short DataLength was still accepted.\n\nLimit each context to its Next value, reject offsets before the context\nheader, and reject malformed chains.  Bound the name range by the current\ncontext and do not dispatch a known handler when DataLength is zero.  Read\nthe QFid DiskFileId only when the context data covers that field.  Parse the\nlease context from DataOffset and require DataLength to match the v1 or v2\nlease_context size used by ksmbd.  A size mismatch skips lease parsing\nwithout failing the open.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98454"
+    },
+    {
+      "id": "CVE-2026-98453",
+      "published": "2026-10-18T16:16:55.647",
+      "lastModified": "2026-10-21T13:21:30.693",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsmb: client: close handle after create-context parsing failure\n\nSMB2_open() accounts a successful CREATE response as a remote open before\nparsing its create contexts.  If smb2_parse_contexts() rejects malformed\ncontext data, SMB2_open() returns without closing the handle, leaving the\nserver-side handle open and num_remote_opens elevated.\n\nClose the handle after a post-CREATE context parsing failure so the error\npath releases the remote resource and balances the open count.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98453"
+    },
+    {
+      "id": "CVE-2026-98452",
+      "published": "2026-10-18T16:16:55.537",
+      "lastModified": "2026-10-19T10:18:54.437",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsmb: client: clean up failed cached directory opens\n\nopen_cached_dir() sends CREATE and QUERY_INFO as a compound request. If\nthe CREATE succeeds but a later command returns an error, the function\nmust retain the CREATE FID so common cleanup can issue SMB2_close(). It\nalso must not treat a response error as a valid CREATE.\n\nValidate the CREATE response before using its fields, record the FIDs, and\nmark the handle open before handling errors from later compound commands.\nMove the -EREMCHG reconnect handling before response validation so a\nmissing response does not hide the reconnect request. Count the handle\nwhen it is marked open; confirmed close responses decrement the counter,\nwhile existing close retry behavior remains best effort on transport\nfailures.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98452"
+    },
+    {
+      "id": "CVE-2026-98451",
+      "published": "2026-10-18T16:16:55.437",
+      "lastModified": "2026-10-24T14:16:42.393",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsmb: client: use finish_no_open() for non-regular inodes\n\nAn O_CREAT open can find an existing symlink or another non-regular\ninode. cifs_atomic_open() calls finish_open() on it and attaches a\ncifsFileInfo. Symlink inodes have no CIFS release operation, so the\ndentry reference held by cifsFileInfo is leaked. FMODE_OPENED also\nprevents the VFS from following the symlink.\n\nTrack whether cifs_do_create() returned an open server handle. For\nnon-regular inodes, close the handle if present, remove the pending\nopen, and call finish_no_open() so the VFS can continue the lookup.\nDo not set FMODE_CREATED unless a regular file was opened. For\nO_NOFOLLOW with __O_REGULAR, return -ELOOP before the VFS's\n-EFTYPE check.\n\nDefer closing a legacy POSIX handle on a non-regular inode until\nafter inode lookup. This avoids closing it again if lookup fails.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98451"
+    },
+    {
+      "id": "CVE-2026-98450",
+      "published": "2026-10-18T16:16:55.333",
+      "lastModified": "2026-10-21T13:21:30.083",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsmb: client: close completed creates on compound wait errors\n\ncompound_send_recv() waits for responses in order. If a later wait is\ninterrupted, or if a later MID fails during response synchronization, an\nearlier CREATE may already have opened a remote handle. The earlier mid\nis then released without invoking handle_cancelled_mid(), leaving the\nremote handle open because no FID was copied to the caller.\n\nMark completed earlier mids as cancelled when a compound wait or MID\nsynchronization aborts. Keep their response buffers attached while the\nMIDs are synchronized, and transfer them only after synchronization of\nthe processed responses, so the release path can inspect successful\nCREATE responses and queue SMB2_close() after a later failure. Account for\na remote open only after the close work is allocated and before it is\nqueued, since the caller has not yet updated num_remote_opens. Mark the\ncreate+close compound used by smb2_unlink() so it is not closed again.\nNon-CREATE responses and compounds that already include a close keep their\nexisting behavior.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98450"
+    },
+    {
+      "id": "CVE-2026-98449",
+      "published": "2026-10-18T16:16:55.237",
+      "lastModified": "2026-10-19T10:18:54.070",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsmb: client: delete compound mids on send failure before unlock\n\nWhen sending a compound request fails, smb_send_rqst() kicks off a\nreconnect. compound_send_recv() still has those mids on pending_mid_q,\nbut it unlocks the server without removing them first.\n\nDuring reconnect, cifs_abort_connection() walks pending_mid_q and runs\neach mid callback. With no response yet, those callbacks return credits\nand drop in_flight. Then compound_send_recv()'s send-error path returns\nthe same credits again. in_flight ends up decremented twice and\nsmb2_add_credits() WARNs.\n\nsyzbot hits this during SMB2_negotiate when the socket send fails.\n\ncifs_call_async() already calls delete_mid() before unlock on send\nfailure. Do the same for compound chains and set cancelled_mid[] so the\nout: path does not delete them again.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98449"
+    },
+    {
+      "id": "CVE-2026-98448",
+      "published": "2026-10-18T16:16:55.140",
+      "lastModified": "2026-10-19T10:18:53.943",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfs: release orphanage dir inode if chown fails\n\nLOLLM points out that we leak the igrab'd reference to the orphanage\ndirectory inode if chowning it fails.  Fix that.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-98448"
+    },
     {
       "id": "CVE-2026-98447",
       "published": "2026-10-18T16:16:55.037",
@@ -709,177 +854,6 @@
       "score": 8.8,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107436"
-    },
-    {
-      "id": "CVE-2026-96534",
-      "published": "2026-10-18T07:16:53.680",
-      "lastModified": "2026-10-19T21:04:50.950",
-      "description": "The Modern Events Calendar Lite WordPress plugin before 7.37.0, Modern Event Calendar Pro WordPress plugin before 7.37.0 does not sanitise and escape a parameter before using it in a SQL statement, allowing authenticated users with minimal privileges (Subscriber and above) to perform SQL injection attacks.",
-      "score": 7.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-96534"
-    },
-    {
-      "id": "CVE-2026-87844",
-      "published": "2026-10-18T07:16:53.560",
-      "lastModified": "2026-10-19T21:04:50.950",
-      "description": "The PickPlugins Product Designer for WooCommerce WordPress plugin through 1.0.40 does not perform any capability check and its nonce verification is inverted, accepting requests with an invalid or absent nonce while rejecting valid ones, and it does not validate the post the data is written to, allowing unauthenticated users to insert design template data into the metadata of any post on the site.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-87844"
-    },
-    {
-      "id": "CVE-2026-111942",
-      "published": "2026-10-18T07:16:53.343",
-      "lastModified": "2026-10-19T16:17:04.647",
-      "description": "A weakness has been identified in hrisikeshpal Blood_Bank_Management_System 1.0.0. Impacted is an unknown function of the file /abs.php. This manipulation of the argument Search causes cross site scripting. The attack can be initiated remotely. The exploit has been made available to the public and could be used for attacks. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111942"
-    },
-    {
-      "id": "CVE-2026-111877",
-      "published": "2026-10-18T07:16:53.033",
-      "lastModified": "2026-10-22T03:16:31.903",
-      "description": "A vulnerability was determined in dext34-morgan Books4Cash up to a8d3e357db75c07ac5ffbadcbaee2aeb4db3e571. This affects an unknown part of the file search.php. Executing a manipulation of the argument Search can lead to cross site scripting. The attack may be performed from remote. The exploit has been publicly disclosed and may be utilized. The code repository of the project has not been active for many years.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111877"
-    },
-    {
-      "id": "CVE-2026-111041",
-      "published": "2026-10-18T07:16:52.920",
-      "lastModified": "2026-10-19T21:04:50.950",
-      "description": "The AI Engine  WordPress plugin before 3.7.9 does not verify that the user performing certain AI media management actions owns or is otherwise allowed to edit the targeted object, allowing users with the Editor role or above to modify, or change the type of, arbitrary posts on the site, including content they are not permitted to edit.",
-      "score": 4.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111041"
-    },
-    {
-      "id": "CVE-2026-110981",
-      "published": "2026-10-18T07:16:52.817",
-      "lastModified": "2026-10-19T21:04:50.950",
-      "description": "The WP Photo Album Plus WordPress plugin before 9.2.11.002 does not properly escape a category navigation value before reflecting it into a JavaScript event handler on its gallery breadcrumb links, allowing unauthenticated attackers to inject arbitrary script that executes in the browser of anyone who follows a crafted gallery link and clicks the breadcrumb, including a logged-in administrator.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110981"
-    },
-    {
-      "id": "CVE-2026-110976",
-      "published": "2026-10-18T07:16:52.713",
-      "lastModified": "2026-10-19T21:04:50.950",
-      "description": "The AI Engine  WordPress plugin before 3.7.9 does not check that the item passed to one of its media actions belongs to the requesting user before converting it to an attachment and permanently deleting it, allowing users with the Editor role and above to delete arbitrary posts of any type, including content they cannot otherwise delete such as navigation menus, block templates and global styles.",
-      "score": 4.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110976"
-    },
-    {
-      "id": "CVE-2026-110070",
-      "published": "2026-10-18T07:16:52.610",
-      "lastModified": "2026-10-19T21:04:50.950",
-      "description": "The Modern Events Calendar Lite WordPress plugin before 7.36.4 does not verify that a user is authorized to edit the target post before updating it, allowing authenticated users with the Subscriber role to modify the title, content, and excerpt of arbitrary posts, pages, and custom post types created by other users.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110070"
-    },
-    {
-      "id": "CVE-2026-110069",
-      "published": "2026-10-18T07:16:52.500",
-      "lastModified": "2026-10-19T21:04:50.950",
-      "description": "The Modern Events Calendar Lite WordPress plugin before 7.37.0 does not perform capability, nonce, or ownership checks before returning event booking and attendee data, allowing any authenticated user, including Subscribers, to disclose the names, email addresses, transaction IDs and payment amounts of every booking on the site.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110069"
-    },
-    {
-      "id": "CVE-2026-110035",
-      "published": "2026-10-18T07:16:52.397",
-      "lastModified": "2026-10-19T21:04:50.950",
-      "description": "The Salon Booking System  WordPress plugin before 10.31.11 does not restrict one of its REST API endpoints to salon staff, allowing any authenticated user, such as a subscriber, to retrieve every discount coupon configured on the site, including coupons the administrator has chosen to hide from customers, together with their amounts, validity dates and usage limits.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110035"
-    },
-    {
-      "id": "CVE-2026-110033",
-      "published": "2026-10-18T07:16:52.287",
-      "lastModified": "2026-10-19T21:04:50.950",
-      "description": "The Salon Booking System  WordPress plugin before 10.31.11 does not validate a user-supplied image URL before fetching it server-side and writing the response to a publicly accessible location under an attacker-chosen filename, allowing users with the Salon Staff role or higher to force the server to read internal-only resources and disclose them, and to store a malicious SVG that runs arbitrary scripts in the site's origin for anyone who opens it.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110033"
-    },
-    {
-      "id": "CVE-2026-110032",
-      "published": "2026-10-18T07:16:52.183",
-      "lastModified": "2026-10-19T21:04:50.950",
-      "description": "The Salon Booking System  WordPress plugin before 10.31.11 does not restrict which user account its salon staff roles may edit through the customers management screen, allowing users with the Salon Staff or Salon Worker role to reset any other user's role, including administrators, to a customer and to overwrite arbitrary profile fields on any account, leading to loss of administrative access and potential site lockout.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110032"
-    },
-    {
-      "id": "CVE-2026-110031",
-      "published": "2026-10-18T07:16:52.077",
-      "lastModified": "2026-10-19T21:04:50.950",
-      "description": "The Salon Booking System  WordPress plugin before 10.31.11 does not prevent users holding its custom salon staff role from assigning arbitrary capabilities to other accounts when editing a customer, allowing them to escalate any account to administrator and take over the site.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110031"
-    },
-    {
-      "id": "CVE-2026-110026",
-      "published": "2026-10-18T07:16:51.967",
-      "lastModified": "2026-10-19T21:02:51.987",
-      "description": "The Tasty Recipes Lite  WordPress plugin before 1.2.11 does not correctly check user capabilities when creating, renaming and deleting taxonomy terms, allowing users with a role as low as Contributor to add, rename and permanently delete terms in any taxonomy on the site, including categories, tags and navigation menus.",
-      "score": 4.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110026"
-    },
-    {
-      "id": "CVE-2026-109937",
-      "published": "2026-10-18T07:16:50.927",
-      "lastModified": "2026-10-19T21:02:51.987",
-      "description": "The Otter Blocks  WordPress plugin before 3.2.3 does not validate that a user-supplied return URL belongs to the site before using it to build the return destination of a Stripe Checkout session, allowing unauthenticated attackers to redirect victims who complete or cancel checkout to an arbitrary external URL.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109937"
-    },
-    {
-      "id": "CVE-2026-111876",
-      "published": "2026-10-18T06:16:57.047",
-      "lastModified": "2026-10-19T20:17:52.393",
-      "description": "A vulnerability was found in alexpasmantier television up to 0.15.9. Affected by this issue is the function Entry::output of the file television/channels/entry.rs. Performing a manipulation of the argument raw results in command injection. The attack requires a local approach. The reported GitHub issue was closed with the label \"not planned\".",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111876"
-    },
-    {
-      "id": "CVE-2026-111875",
-      "published": "2026-10-18T06:16:56.840",
-      "lastModified": "2026-10-19T17:17:04.950",
-      "description": "A vulnerability has been found in David-Crty Databasement up to 1.8.1. Affected by this vulnerability is an unknown functionality of the file app/Http/Requests/Api/V1/SaveScheduledRestoreRequest.php of the component Scheduled Restore. Such manipulation of the argument schema_name leads to missing authorization. The attack can be executed remotely. The exploit has been disclosed to the public and may be used. Upgrading to version 1.8.2 addresses this issue. It is suggested to upgrade the affected component.",
-      "score": 4.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111875"
-    },
-    {
-      "id": "CVE-2026-111874",
-      "published": "2026-10-18T06:16:56.380",
-      "lastModified": "2026-10-19T16:17:04.357",
-      "description": "A flaw has been found in OpenCATS 0.10.0. Affected is the function processLogin of the file modules/careers/CareersUI.php of the component Career Portal. This manipulation of the argument applyToJobSubAction causes improper restriction of excessive authentication attempts. Remote exploitation of the attack is possible. A high degree of complexity is needed for the attack. The exploitability is told to be difficult. The exploit has been published and may be used. Patch name: 1cf4fa3ee9054314b023be79d404078645c22ade. It is suggested to install a patch to address this issue. The project maintainer explains: \"Candidates will now need to authenticate each time they access the Career Portal and successfully complete the CAPTCHA as part of that authentication flow. The authenticated candidate identity is now maintained server-side rather than relying on the previous persistent client-side cats…cw cookie mechanism. Application-level rate limiting is deliberately not in scope for this change. In my view, request throttling and brute-force protection of that kind are better applied at the network, reverse-proxy or web-server layer, where they can be configured appropriately for each deployment without OpenCATS having to implement and maintain its own rate-limiting framework. I'll update the online documentation to that effect.\"",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111874"
-    },
-    {
-      "id": "CVE-2026-111873",
-      "published": "2026-10-18T05:16:27.920",
-      "lastModified": "2026-10-22T03:16:31.740",
-      "description": "A vulnerability was detected in itsmeravitejak Online-Examination-System up to e6208e630b14657999bbfe4c9912302d2a1e2449. This impacts the function MySQLDB::topicslist of the file exammanger.php of the component AJAX Endpoint. The manipulation of the argument subject results in sql injection. The attack may be launched remotely. The exploit is now public and may be used. This product operates on a rolling release basis, ensuring continuous delivery. Consequently, there are no version details for either affected or updated releases. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111873"
     }
   ]
 }
