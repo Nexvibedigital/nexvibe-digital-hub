@@ -1,6 +1,229 @@
 {
-  "syncedAt": "2026-10-26T00:39:46.643Z",
+  "syncedAt": "2026-10-26T06:00:53.031Z",
   "items": [
+    {
+      "id": "CVE-2026-80312",
+      "published": "2026-10-19T11:17:21.073",
+      "lastModified": "2026-10-19T20:45:51.597",
+      "description": "Improper Authentication vulnerability in Apache Camel OAuth component.\n\n\n\nThis issue affects Apache Camel: from 4.11.0 before 4.18.5, from 4.19.0 before 4.22.1.\n\n\n\nThe camel-oauth processors that guard a route did not stop the exchange when authentication could not be completed. Where a failure to establish an authenticated session should have terminated routing and returned an error to the caller, the processors fell through and returned control to the route, so the request continued to the protected endpoint as though authentication had succeeded. The effect is a fail-open authentication guard: an unauthenticated caller reached whatever the route did next. The condition is reached on the ordinary request path of a route configured to require OAuth, and needs no special configuration or prior access on the caller's part.\n\n\n\nUpgrade to Apache Camel 4.23.0, which fixes the issue. Users on the 4.18.x LTS releases stream should upgrade to 4.18.5. Users on the 4.22.x LTS releases stream should upgrade to 4.22.1. The processors now stop the exchange and set the appropriate error status whenever an authenticated session cannot be established, so a failed authentication no longer reaches the protected part of the route. For deployments that cannot upgrade immediately, place an explicit authorization check after the OAuth processor rather than relying on it to halt the exchange, and verify that the route stops on failure.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-80312"
+    },
+    {
+      "id": "CVE-2026-79986",
+      "published": "2026-10-19T11:17:20.860",
+      "lastModified": "2026-10-20T04:17:05.727",
+      "description": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal') vulnerability in Apache Camel Azure Files component.\n\n\n\nThis issue affects Apache Camel: from 4.0.0 before 4.18.5, from 4.19.0 before 4.22.1.\n\n\n\nThe Camel remote-file consumers poll a directory on a remote server and build the absolute remote path of each file by concatenating the configured directory with the file name reported in the server's directory listing. That concatenation (FtpUtils.absoluteFilePath and GenericFileConsumer) applied no lexical normalization and no check that the result stayed inside the directory being polled, and the resulting path became the operand for every subsequent remote operation on the file: retrieval (FtpOperations.retrieveFile / SftpOperations, reached from GenericFileConsumer where the retrieve name is taken verbatim from GenericFile.getAbsoluteFilePath), deletion when delete=true (GenericFileDeleteProcessStrategy), and renaming when move, preMove, moveFailed or readLock=rename is configured (GenericFileProcessStrategySupport and GenericFileRenameExclusiveReadLockStrategy). Neither isValidFile nor isMatched performed any containment check. A listing entry that is not a single path segment therefore resolved to a path outside the configured polling directory, causing Camel to read, delete or rename files outside it using the endpoint's own credentials. A listing name is not route-controlled data. It is supplied by the remote server, and the FTP control channel carries no integrity protection at all, so an on-path attacker can rewrite a LIST response without holding any credentials; a compromised, malicious or multi-tenant server, or a server backed by a virtual filesystem, can emit such a name directly. Retrieval is reachable in a default consumer configuration, since the remote consumers download every listed file; deletion and renaming additionally require one of the disposition options above, all of which are common. Escape from the directory Camel was configured to poll is unconditional, while escape from the server's own account boundary additionally depends on whether that server confines the account. The jailStartingDirectory option, which is documented as restricting Camel to the starting directory and is enabled by default, governed producer writes and, since the localWorkDirectory containment work, consumer downloads to the local work directory - but it did not constrain this remote operand, so its name and description claimed a boundary that was not enforced here. The same entry point had already been recognised on the local side: the localWorkDirectory download path was constrained so that a remote file name containing parent-directory segments could not resolve outside the local work directory. The remote operand was the remaining half of that surface. This artifact provides the azure-files scheme. Its consumer derives from the same RemoteFileConsumer base class and composed the remote path through a plain concatenation helper, so it inherited the same unconstrained resolution. Reaching it requires a listing name that is not a single path segment, which the Azure Files REST service does not normally return; the exposure was corrected on the same basis as the other remote-file consumers rather than from a demonstrated proof of concept against this scheme.\n\n\n\nUpgrade to Apache Camel 4.23.0, which fixes the issue. Users on the 4.22.x releases stream should upgrade to 4.22.1. Users on the 4.18.x LTS releases stream should upgrade to 4.18.5. The 4.14.x stream reached end of life and does not receive this fix; users on it should move to a supported releases stream.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79986"
+    },
+    {
+      "id": "CVE-2026-79985",
+      "published": "2026-10-19T11:17:20.647",
+      "lastModified": "2026-10-20T14:17:02.867",
+      "description": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal') vulnerability in Apache Camel SMB component.\n\n\n\nThis issue affects Apache Camel: from 4.2.0 before 4.18.5, from 4.19.0 before 4.22.1.\n\n\n\nThe Camel remote-file consumers poll a directory on a remote server and build the absolute remote path of each file by concatenating the configured directory with the file name reported in the server's directory listing. That concatenation (FtpUtils.absoluteFilePath and GenericFileConsumer) applied no lexical normalization and no check that the result stayed inside the directory being polled, and the resulting path became the operand for every subsequent remote operation on the file: retrieval (FtpOperations.retrieveFile / SftpOperations, reached from GenericFileConsumer where the retrieve name is taken verbatim from GenericFile.getAbsoluteFilePath), deletion when delete=true (GenericFileDeleteProcessStrategy), and renaming when move, preMove, moveFailed or readLock=rename is configured (GenericFileProcessStrategySupport and GenericFileRenameExclusiveReadLockStrategy). Neither isValidFile nor isMatched performed any containment check. A listing entry that is not a single path segment therefore resolved to a path outside the configured polling directory, causing Camel to read, delete or rename files outside it using the endpoint's own credentials. A listing name is not route-controlled data. It is supplied by the remote server, and the FTP control channel carries no integrity protection at all, so an on-path attacker can rewrite a LIST response without holding any credentials; a compromised, malicious or multi-tenant server, or a server backed by a virtual filesystem, can emit such a name directly. Retrieval is reachable in a default consumer configuration, since the remote consumers download every listed file; deletion and renaming additionally require one of the disposition options above, all of which are common. Escape from the directory Camel was configured to poll is unconditional, while escape from the server's own account boundary additionally depends on whether that server confines the account. The jailStartingDirectory option, which is documented as restricting Camel to the starting directory and is enabled by default, governed producer writes and, since the localWorkDirectory containment work, consumer downloads to the local work directory - but it did not constrain this remote operand, so its name and description claimed a boundary that was not enforced here. The same entry point had already been recognised on the local side: the localWorkDirectory download path was constrained so that a remote file name containing parent-directory segments could not resolve outside the local work directory. The remote operand was the remaining half of that surface. This artifact provides the smb scheme. Its consumer walks the share listing on its own rather than through RemoteFileConsumer, skipping only the exact \".\" and \"..\" entries, so a name carrying traversal segments in any other form was concatenated unchecked. Reaching it requires a server that emits a listing name which is not a single path segment, which a conforming SMB2 implementation does not do; the exposure was corrected on the same basis as the other remote-file consumers rather than from a demonstrated proof of concept against this scheme.\n\n\n\nUpgrade to Apache Camel 4.23.0, which fixes the issue. Users on the 4.22.x releases stream should upgrade to 4.22.1. Users on the 4.18.x LTS releases stream should upgrade to 4.18.5. The 4.14.x stream reached end of life and does not receive this fix; users on it should move to a supported releases stream.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79985"
+    },
+    {
+      "id": "CVE-2026-79984",
+      "published": "2026-10-19T11:17:20.437",
+      "lastModified": "2026-10-20T14:17:01.990",
+      "description": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal') vulnerability in Apache Camel Mina SFTP component.\n\n\n\nThis issue affects Apache Camel: from 4.18.0 before 4.18.5, from 4.19.0 before 4.22.1.\n\n\n\nThe Camel remote-file consumers poll a directory on a remote server and build the absolute remote path of each file by concatenating the configured directory with the file name reported in the server's directory listing. That concatenation (FtpUtils.absoluteFilePath and GenericFileConsumer) applied no lexical normalization and no check that the result stayed inside the directory being polled, and the resulting path became the operand for every subsequent remote operation on the file: retrieval (FtpOperations.retrieveFile / SftpOperations, reached from GenericFileConsumer where the retrieve name is taken verbatim from GenericFile.getAbsoluteFilePath), deletion when delete=true (GenericFileDeleteProcessStrategy), and renaming when move, preMove, moveFailed or readLock=rename is configured (GenericFileProcessStrategySupport and GenericFileRenameExclusiveReadLockStrategy). Neither isValidFile nor isMatched performed any containment check. A listing entry that is not a single path segment therefore resolved to a path outside the configured polling directory, causing Camel to read, delete or rename files outside it using the endpoint's own credentials. A listing name is not route-controlled data. It is supplied by the remote server, and the FTP control channel carries no integrity protection at all, so an on-path attacker can rewrite a LIST response without holding any credentials; a compromised, malicious or multi-tenant server, or a server backed by a virtual filesystem, can emit such a name directly. Retrieval is reachable in a default consumer configuration, since the remote consumers download every listed file; deletion and renaming additionally require one of the disposition options above, all of which are common. Escape from the directory Camel was configured to poll is unconditional, while escape from the server's own account boundary additionally depends on whether that server confines the account. The jailStartingDirectory option, which is documented as restricting Camel to the starting directory and is enabled by default, governed producer writes and, since the localWorkDirectory containment work, consumer downloads to the local work directory - but it did not constrain this remote operand, so its name and description claimed a boundary that was not enforced here. The same entry point had already been recognised on the local side: the localWorkDirectory download path was constrained so that a remote file name containing parent-directory segments could not resolve outside the local work directory. The remote operand was the remaining half of that surface. This artifact provides the mina-sftp scheme, an alternative SFTP implementation whose consumer derives from the same RemoteFileConsumer base class and therefore inherited the same unconstrained resolution.\n\n\n\nUpgrade to Apache Camel 4.23.0, which fixes the issue. Users on the 4.22.x releases stream should upgrade to 4.22.1. Users on the 4.18.x LTS releases stream should upgrade to 4.18.5. The 4.14.x stream reached end of life and does not receive this fix; users on it should move to a supported releases stream.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79984"
+    },
+    {
+      "id": "CVE-2026-79983",
+      "published": "2026-10-19T11:17:20.207",
+      "lastModified": "2026-10-20T14:17:01.710",
+      "description": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal') vulnerability in Apache Camel FTP component.\n\n\n\nThis issue affects Apache Camel: from 4.0.0 before 4.18.5, from 4.19.0 before 4.22.1.\n\n\n\nThe Camel remote-file consumers poll a directory on a remote server and build the absolute remote path of each file by concatenating the configured directory with the file name reported in the server's directory listing. That concatenation (FtpUtils.absoluteFilePath and GenericFileConsumer) applied no lexical normalization and no check that the result stayed inside the directory being polled, and the resulting path became the operand for every subsequent remote operation on the file: retrieval (FtpOperations.retrieveFile / SftpOperations, reached from GenericFileConsumer where the retrieve name is taken verbatim from GenericFile.getAbsoluteFilePath), deletion when delete=true (GenericFileDeleteProcessStrategy), and renaming when move, preMove, moveFailed or readLock=rename is configured (GenericFileProcessStrategySupport and GenericFileRenameExclusiveReadLockStrategy). Neither isValidFile nor isMatched performed any containment check. A listing entry that is not a single path segment therefore resolved to a path outside the configured polling directory, causing Camel to read, delete or rename files outside it using the endpoint's own credentials. A listing name is not route-controlled data. It is supplied by the remote server, and the FTP control channel carries no integrity protection at all, so an on-path attacker can rewrite a LIST response without holding any credentials; a compromised, malicious or multi-tenant server, or a server backed by a virtual filesystem, can emit such a name directly. Retrieval is reachable in a default consumer configuration, since the remote consumers download every listed file; deletion and renaming additionally require one of the disposition options above, all of which are common. Escape from the directory Camel was configured to poll is unconditional, while escape from the server's own account boundary additionally depends on whether that server confines the account. The jailStartingDirectory option, which is documented as restricting Camel to the starting directory and is enabled by default, governed producer writes and, since the localWorkDirectory containment work, consumer downloads to the local work directory - but it did not constrain this remote operand, so its name and description claimed a boundary that was not enforced here. The same entry point had already been recognised on the local side: the localWorkDirectory download path was constrained so that a remote file name containing parent-directory segments could not resolve outside the local work directory. The remote operand was the remaining half of that surface. This artifact provides the ftp, ftps and sftp schemes, all of which are affected. The reporter demonstrated the issue end to end against an ftp endpoint, driving a Camel route with a malicious server whose LIST response named a file outside the polled directory.\n\n\n\nUpgrade to Apache Camel 4.23.0, which fixes the issue. Users on the 4.22.x releases stream should upgrade to 4.22.1. Users on the 4.18.x LTS releases stream should upgrade to 4.18.5. The 4.14.x stream reached end of life and does not receive this fix; users on it should move to a supported releases stream.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79983"
+    },
+    {
+      "id": "CVE-2026-78165",
+      "published": "2026-10-19T11:17:19.643",
+      "lastModified": "2026-10-20T14:17:01.450",
+      "description": "Deserialization of Untrusted Data vulnerability in Apache Camel Spring Redis component.\n\n\n\nThis issue affects Apache Camel: from 2.11.0 before 4.18.5, from 4.19.0 before 4.22.1.\n\n\n\nRedisConfiguration.getSerializer lazily built a bare JdkSerializationRedisSerializer whenever no serializer option was configured, and that instance was used for every read the component performs. Spring's implementation delegates through DeserializingConverter to DefaultDeserializer, which reads the bytes with a ConfigurableObjectInputStream and installs no java.io.ObjectInputFilter on the stream, so an arbitrary serialized class graph was materialised and its readObject method executed. RedisConsumer.setBody applied that serializer to the raw bytes of every message published to the subscribed channels, before the Exchange was constructed and therefore before any route logic could inspect the message, so an actor able to issue PUBLISH on a subscribed channel reached the deserialization sink directly. The same default serializer backed the RedisTemplate built by RedisConfiguration.createDefaultTemplate, so the producer read commands GET, HGET, HGETALL and HVALS deserialized whatever was stored in the Redis keyspace, and SpringRedisIdempotentRepository shared that template. Configuring a custom redisTemplate did not close the consumer path, because RedisConsumer.setBody reads getSerializer directly rather than the serializer attached to the template, so a deployment that had wired a String serializer into its own template remained exposed on the consumer side unless it also set the serializer option. The component never constructed a java.io.ObjectInputStream itself, which is why earlier passes over the Camel codebase for unfiltered Java deserialization did not reach it. The behaviour dates back to the introduction of the component, first released in 2.11.0, and was unchanged until this fix.\n\n\n\nUsers are recommended to upgrade to version 4.23.0, which fixes the issue. If users are on the 4.22.x releases stream, then they are suggested to upgrade to 4.22.1. If users are on the 4.18.x releases stream, then they are suggested to upgrade to 4.18.5. The 4.14.x releases stream and earlier reached end of life before this issue was resolved and will not receive a fix, so deployments on those lines must move to a supported release. For deployments that cannot upgrade immediately, set the JVM-wide jdk.serialFilter system property, which the affected code path honours because it reads through a java.io.ObjectInputStream, for example -Djdk.serialFilter=!java.net.**;java.**;javax.**;org.apache.camel.**;!* ; or set the serializer endpoint option to a serializer that does not use Java serialization, such as StringRedisSerializer, noting that this must be set as the serializer option and not only on a custom redisTemplate. As defence in depth, require authentication on the Redis instance and restrict which clients may publish to the subscribed channels, and do not expose a Redis instance consumed by Camel to untrusted networks.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78165"
+    },
+    {
+      "id": "CVE-2026-78164",
+      "published": "2026-10-19T11:17:19.403",
+      "lastModified": "2026-10-19T20:45:51.597",
+      "description": "Improper Neutralization of Special Elements Used in a Template Engine and Exposure of Sensitive Information to an Unauthorized Actor vulnerability in Apache Camel HTTP, Netty HTTP, Undertow and Vert.x HTTP components.\n\n\n\nThis issue affects Apache Camel: from 4.0.0 before 4.18.5, from 4.19.0 before 4.22.1.\n\n\n\nThe Camel HTTP producer families let an inbound message override the endpoint URI through the CamelHttpUri and CamelRestHttpUri headers, and then passed that message-supplied string through CamelContext.resolvePropertyPlaceholders() before using it. Property-placeholder resolution is a configuration-resolution facility, not a URI-parsing step: it reaches operating-system environment variables, JVM system properties, every PropertiesFunction registered on the classpath - including the secret functions - and, through camel-bean, the invocation of a no-argument method on any bean in the registry. Applying it to Exchange content therefore turned a URI string into a configuration- and bean-evaluation context. A route author opted into none of this: a plain static to(\"http://backend/api\") was sufficient. Seven call sites were affected: HttpHelper.createURL and HttpHelper.createMethod in camel-http-common, HttpMethodHelper.createMethod in camel-http, VertxHttpHelper.resolveHttpURI in camel-vertx-http, UndertowHelper.createURL and UndertowHelper.createMethod in camel-undertow, and NettyHttpHelper.createURL in camel-netty-http. The bridgeEndpoint option did not bound the exposure: it suppresses the CamelHttpUri override in the createURL family but not in the createMethod family, so a route using the documented bridging configuration still resolved placeholders taken from the header, and CamelRestHttpUri was consumed before any bridgeEndpoint check in all four components. Only camel-http offered an opt-out, skipControlHeaders, which defaults to false. Reaching the headers did not always require header injection, because several Camel HTTP consumers populate CamelHttpUri from the request line themselves as a documented reverse-proxy feature. An unresolvable placeholder additionally produced a RuntimeExchangeException whose message echoed the URI, which distinguishes a set from an unset configuration key even where no outbound request is made. The behaviour predates the 4.x line. This advisory continues the alignment CAMEL-24282 applied to the toD and enrich dynamic-URI EIPs in 4.22.0, extending the same build-time-resolution contract to the HTTP producer components.\n\n\n\nUsers should upgrade to version 4.23.0, which fixes the issue. Users on the 4.22.x releases stream should upgrade to 4.22.1. Users on the 4.18.x releases stream should upgrade to 4.18.5. The 4.14.x releases stream and earlier reached end of life before this issue was resolved and will not receive a fix, so deployments on those lines must move to a supported release. For deployments that cannot upgrade immediately, strip the override headers at the trust boundary before the producer with removeHeader(\"CamelHttpUri\") and removeHeader(\"CamelRestHttpUri\"), or set skipControlHeaders=true on camel-http endpoints, which is the only component offering that option. Note that bridgeEndpoint=true is not a workaround: it suppresses the header override when the outbound URL is built but not when the header is re-parsed for the query string. Percent-encoding the placeholder delimiters is likewise not a mitigation for camel-netty-http, whose binding decodes the request path before the value reaches the header, so proxy or WAF rules written against the raw delimiters do not help there. As defence in depth, ensure consumers exposed to untrusted senders apply a strict inbound HeaderFilterStrategy over the Camel namespace, and resolve secrets through a vault rather than through environment variables or system properties that a placeholder can name.",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78164"
+    },
+    {
+      "id": "CVE-2026-78163",
+      "published": "2026-10-19T11:17:19.233",
+      "lastModified": "2026-10-19T20:45:51.597",
+      "description": "Server-Side Request Forgery (SSRF), Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal') and Exposure of Sensitive Information to an Unauthorized Actor vulnerability in Apache Camel Docling component.\n\n\n\nThis issue affects Apache Camel: from 4.15.0 before 4.18.5, from 4.19.0 before 4.22.1.\n\n\n\nDoclingProducer decided what a String message body meant by inspecting its prefix. A body starting with http:// or https:// was handed to Docling as a remote URL to fetch, a body starting with / or containing a backslash was read from the local filesystem, and anything else was written to a temporary file and converted as document content. The mode was chosen implicitly and no endpoint option allowed a route author to pin the component to a single interpretation, so a route that means convert whatever text arrives in the body silently became a fetcher of remote resources or a reader of local files whenever the text happened to begin with one of those prefixes. The only guard applied to the derived value was a size check, and that check was wrapped in an existence test, so a path that resolved to nothing, or to a pseudo-file reporting a size of zero, passed without being checked at all. Five call sites reached the two sinks: the CLI mode appended the value as the final positional argument of the docling subprocess, and the docling-serve mode passed it either to HttpSource for the backend to fetch or to Files.readAllBytes so that the content could be base64-encoded and uploaded. Because the exchange body is never filtered by a HeaderFilterStrategy, unlike the Camel header namespace, a sender able to place text in a message that a route forwards into a docling endpoint could reach both sinks without any opt-in from the deployment.\n\n\n\nUsers are recommended to upgrade to version 4.23.0, which fixes the issue. If users are on the 4.22.x releases stream, then they are suggested to upgrade to 4.22.1. If users are on the 4.18.x releases stream, then they are suggested to upgrade to 4.18.5. The 4.14.x releases stream and earlier reached end of life before this issue was resolved and will not receive a fix, so deployments on those lines must move to a supported release. For deployments that cannot upgrade immediately, do not route message bodies that originate outside the deployment into a docling endpoint, and pass the document through a typed body such as File, byte[] or InputStream, or through the CamelDoclingInputFilePath header, so that the body is never subject to prefix interpretation.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78163"
+    },
+    {
+      "id": "CVE-2026-78162",
+      "published": "2026-10-19T11:17:19.037",
+      "lastModified": "2026-10-20T04:17:02.327",
+      "description": "Deserialization of Untrusted Data vulnerability in Apache Camel.\n\n\n\nThis issue affects Apache Camel: from 4.0.0 before 4.18.5, from 4.19.0 before 4.22.1.\n\n\n\nThe camel-hazelcast component applies a default Hazelcast JavaSerializationFilterConfig to the instances it creates from its own configuration, a protection introduced by CVE-2026-43865. That change did not reach two of the configuration paths Camel builds itself, so those paths continued to create Hazelcast instances whose Java deserialization is unrestricted. ReplicatedHazelcastAggregationRepository extends HazelcastAggregationRepository but overrides doStart() without calling super.doStart(), keeping its own copy of the bootstrap block, and therefore never received the filter: a route using it without supplying a hazelcastInstance starts a Hazelcast member that deserializes values read from the backing ReplicatedMap with no class restriction. HazelcastDefaultComponent#getOrCreateHzClientInstance() builds its own ClientConfig when hazelcastMode=client is selected and neither a referenced ClientConfig nor hazelcastConfigUri is supplied, and likewise applied no filter, so client-mode endpoints behaved differently from node-mode endpoints for an otherwise identical configuration. In both cases an attacker able to publish into the Hazelcast cluster that the affected instance is attached to can cause a serialized Java object of their choosing to be deserialized inside Hazelcast's own serialization layer, before Camel processes the exchange, resulting in remote code execution. Hazelcast clusters have neither authentication nor TLS enabled by default. Selecting client mode is a topology choice rather than a security option, so neither path required the deployment to opt in to unsafe behaviour.\n\n\n\nUsers are recommended to upgrade to version 4.23.0, which fixes the issue. If users are on the 4.22.x releases stream, then they are suggested to upgrade to 4.22.1. If users are on the 4.18.x releases stream, then they are suggested to upgrade to 4.18.5. The 4.14.x releases stream and earlier reached end of life before this issue was resolved and will not receive a fix, so deployments on those lines must move to a supported release. For deployments that cannot upgrade immediately, supply an explicit Hazelcast configuration carrying a JavaSerializationFilterConfig, or inject a pre-built HazelcastInstance, since a user-supplied configuration is never overwritten by Camel. Alternatively set the JVM-wide filter -Djdk.serialFilter=!java.net.;java.;javax.;org.apache.camel.;!* and enable Hazelcast cluster authentication and TLS to restrict who can reach the cluster.",
+      "score": 10,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78162"
+    },
+    {
+      "id": "CVE-2026-71253",
+      "published": "2026-10-19T11:17:18.540",
+      "lastModified": "2026-10-20T20:17:24.763",
+      "description": "Use of Externally-Controlled Input to Select Classes or Code ('Unsafe Reflection') vulnerability in Apache Johnzon.\n\n\n\nClassConverter loads & static-initializes an attacker-named class from untrusted JSON.\n\n\n\n\nThis issue affects Apache Johnzon: from 1.0.0 before 2.2.0.\n\n\n\nUsers are recommended to upgrade to version 1.3.1 (javax namespace) or 2.2.0 (jakarta specification namespace), which fixes the issue.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71253"
+    },
+    {
+      "id": "CVE-2026-112106",
+      "published": "2026-10-19T11:17:17.310",
+      "lastModified": "2026-10-19T17:17:12.627",
+      "description": "A security vulnerability has been detected in TufayelLUS TikTok-Video-Downloader-PHP up to c4230497bb23dd9c1f81456fe8a982d951feac0d. Affected by this issue is some unknown functionality of the file index.php of the component TLS Handler. Such manipulation leads to improper certificate validation. It is possible to launch the attack remotely. The attack requires a high level of complexity. The exploitation is known to be difficult. This product takes the approach of rolling releases to provide continious delivery. Therefore, version details for affected and updated releases are not available. The name of the patch is 64c0155abb88e714198241d41b918cefc0d5a42a. It is advisable to implement a patch to correct this issue.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112106"
+    },
+    {
+      "id": "CVE-2026-112105",
+      "published": "2026-10-19T11:17:17.143",
+      "lastModified": "2026-10-19T19:17:25.323",
+      "description": "A vulnerability has been found in GlitterWare Passy up to 1.10.1. The affected element is the function MyHttpOverrides in the library lib/main.dart of the component TLS Handler. Such manipulation leads to improper certificate validation. The attack may be launched remotely. This attack is characterized by high complexity. The exploitability is described as difficult. Upgrading to version 1.10.2 is sufficient to fix this issue. The name of the patch is 3d48df7cce05e39fa4de1e42768492307f26882e. The affected component should be upgraded.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112105"
+    },
+    {
+      "id": "CVE-2026-112104",
+      "published": "2026-10-19T11:17:16.967",
+      "lastModified": "2026-10-22T03:16:35.563",
+      "description": "A flaw has been found in eremef bandcamp-player up to 1.8.33-beta. The impacted element is an unknown function of the file database.ts of the component Remote Control Server. Executing a manipulation of the argument remoteEnabled can lead to missing authentication. The attack may be launched remotely. Upgrading to version 1.8.34-beta is sufficient to resolve this issue. This patch is called ccba99b66bc61acf46e4a332034799d7452ddea6. Upgrading the affected component is advised.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112104"
+    },
+    {
+      "id": "CVE-2026-112103",
+      "published": "2026-10-19T11:17:16.773",
+      "lastModified": "2026-10-19T15:16:45.150",
+      "description": "A vulnerability has been found in f3-factory fatfree-core up to 3.9.2. This vulnerability affects the function _curl of the file web.php of the component HTTP Client. Such manipulation leads to improper certificate validation. The attack may be performed from remote. Attacks of this nature are highly complex. It is stated that the exploitability is difficult. Upgrading to version 3.9.3 is able to resolve this issue. The name of the patch is a2c755c8dc9ad0eb7d5fd261b09aff90f649433c. You should upgrade the affected component. The vendor was contacted early, responded in a very professional manner and quickly released a fixed version of the affected product.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112103"
+    },
+    {
+      "id": "CVE-2026-90910",
+      "published": "2026-10-19T10:16:49.897",
+      "lastModified": "2026-10-19T20:45:51.597",
+      "description": "Missing authentication for critical function vulnerability in Apache Answer.\n\n\n\nThis issue affects Apache Answer: through 2.0.2.\n\n\n\nThe reaction API did not enforce content visibility controls, allowing unauthorized users to read reaction metadata from restricted content or add and remove their own reactions.\n\n\n\nUsers are recommended to upgrade to version 2.0.3, which fixes the issue.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90910"
+    },
+    {
+      "id": "CVE-2026-86589",
+      "published": "2026-10-19T10:16:49.540",
+      "lastModified": "2026-10-19T20:47:17.723",
+      "description": "Incorrect implementation of authentication algorithm vulnerability in Apache Answer.\n\n\n\nThis issue affects Apache Answer: through 2.0.2.\n\n\n\nA flaw in the User Center login integration can cause a newly created external user session to omit its external identity, allowing subsequent requests to bypass central account suspension or deletion checks until the session\n  expires or is revoked.\n\n\n\nUsers are recommended to upgrade to version 2.0.3, which fixes the issue.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-86589"
+    },
+    {
+      "id": "CVE-2026-79633",
+      "published": "2026-10-19T10:16:49.430",
+      "lastModified": "2026-10-19T20:47:17.723",
+      "description": "vulnerability in Apache Answer.\n\n\n\nThis issue affects Apache Answer: through 2.0.2.\n\n\n\nMissing authorization checks allowed authenticated users to perform actions on non-public content they were not permitted to access.\n\n\n\nUsers are recommended to upgrade to version 2.0.3, which fixes the issue.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79633"
+    },
+    {
+      "id": "CVE-2026-79624",
+      "published": "2026-10-19T10:16:49.327",
+      "lastModified": "2026-10-19T20:47:17.723",
+      "description": "Insufficient session expiration vulnerability in Apache Answer.\n\n\n\nThis issue affects Apache Answer: through 2.0.2.\n\n\n\nInsufficient session invalidation allowed revoked users to continue accessing known private uploaded files with a stale visit token.\n\n\n\nUsers are recommended to upgrade to version 2.0.3, which fixes the issue.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79624"
+    },
+    {
+      "id": "CVE-2026-79620",
+      "published": "2026-10-19T10:16:49.213",
+      "lastModified": "2026-10-19T20:47:17.723",
+      "description": "Exposure of sensitive information through data queries vulnerability in Apache Answer.\n\n\n\nThis issue affects Apache Answer: through 2.0.2.\n\n\n\nAn improper authorization check in the similar-question search allowed authenticated users to view metadata of non-public questions.\n\n\n\nUsers are recommended to upgrade to version 2.0.3, which fixes the issue.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79620"
+    },
+    {
+      "id": "CVE-2026-79613",
+      "published": "2026-10-19T10:16:49.093",
+      "lastModified": "2026-10-19T20:47:17.723",
+      "description": "vulnerability in Apache Answer.\n\n\n\nThis issue affects Apache Answer: through 2.0.2.\n\n\n\nUnauthenticated attackers could access comments associated with non-public content through public user profiles.\n\n\n\nUsers are recommended to upgrade to version 2.0.3, which fixes the issue.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-79613"
+    },
+    {
+      "id": "CVE-2026-76994",
+      "published": "2026-10-19T10:16:48.983",
+      "lastModified": "2026-10-19T20:47:17.723",
+      "description": "Exposure of Sensitive Information to an Unauthorized Actor vulnerability in Apache Answer.\n\n\n\nThis issue affects Apache Answer: through 2.0.2.\n\nUnauthenticated attackers could obtain metadata associated with hidden questions through public answer profiles.\n\n\nUsers are recommended to upgrade to version 2.0.3, which fixes the issue.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76994"
+    },
+    {
+      "id": "CVE-2026-71563",
+      "published": "2026-10-19T10:16:48.637",
+      "lastModified": "2026-10-20T19:18:14.297",
+      "description": "Missing Authorization vulnerability in Apache Answer.\n\n\n\nThis issue affects Apache Answer: through 2.0.2.\n\nAn authorization flaw in the MCP answer retrieval tool allows holders of a global API key to access answer content associated with hidden, deleted, or pending-review questions.\n\n\nUsers are recommended to upgrade to version 2.0.3, which fixes the issue.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-71563"
+    },
+    {
+      "id": "CVE-2026-68482",
+      "published": "2026-10-19T10:16:48.510",
+      "lastModified": "2026-10-19T20:47:17.723",
+      "description": "Missing Authorization vulnerability in Apache Answer.\n\n\n\nThis issue affects Apache Answer: through 2.0.2.\n\nAn unauthenticated or unauthorized user can retrieve the invited-user list associated with a non-public question due to missing visibility authorization checks.\n\n\nUsers are recommended to upgrade to version 2.0.3, which fixes the issue.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-68482"
+    },
+    {
+      "id": "CVE-2026-67249",
+      "published": "2026-10-19T10:16:48.397",
+      "lastModified": "2026-10-19T20:47:17.723",
+      "description": "A vulnerability in Apache Answer.\n\n\n\nThis issue affects Apache Answer: through 2.0.2.\n\nA verification code issued for one email-based workflow could be accepted by another sensitive workflow because the code purpose was not properly enforced.\n\n\nUsers are recommended to upgrade to version 2.0.3, which fixes the issue.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-67249"
+    },
+    {
+      "id": "CVE-2026-64945",
+      "published": "2026-10-19T10:16:48.280",
+      "lastModified": "2026-10-19T20:47:17.723",
+      "description": "A vulnerability in Apache Answer.\n\n\n\nThis issue affects Apache Answer: through 2.0.2.\n\nThe question operation controller gates hide/show operations on the wrong permission check result (the unpin permission instead of the hide permission), so in custom role configurations that separate these permissions, a user granted only question.unpin can hide or restore questions without holding question.hide or question.show.\n\n\nUsers are recommended to upgrade to version 2.0.3, which fixes the issue.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-64945"
+    },
+    {
+      "id": "CVE-2026-64944",
+      "published": "2026-10-19T10:16:48.170",
+      "lastModified": "2026-10-19T20:47:17.723",
+      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Apache Answer.\n\n\n\nThis issue affects Apache Answer: through 2.0.2.\n\nThe importer stores imported question bodies as raw HTML without passing them through the normal Markdown-to-HTML sanitization path, so attacker-controlled HTML embedded in an imported data source is persisted and rendered to all viewers (including privileged users) as stored XSS.\n\n\nUsers are recommended to upgrade to version 2.0.3, which fixes the issue.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-64944"
+    },
+    {
+      "id": "CVE-2026-64943",
+      "published": "2026-10-19T10:16:48.047",
+      "lastModified": "2026-10-20T19:17:39.587",
+      "description": "Insertion of Sensitive Information into Log File vulnerability in Apache Answer.\n\n\n\nThis issue affects Apache Answer: through 2.0.2.\n\nFull API keys are written to application logs on every authenticated request, allowing anyone with log-read access to recover and replay active bearer credentials.\n\n\nUsers are recommended to upgrade to version 2.0.3, which fixes the issue.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-64943"
+    },
     {
       "id": "CVE-2026-112192",
       "published": "2026-10-19T10:16:47.563",
@@ -637,249 +860,6 @@
       "score": 5.3,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-106014"
-    },
-    {
-      "id": "CVE-2026-112080",
-      "published": "2026-10-19T05:17:04.993",
-      "lastModified": "2026-10-19T18:17:02.310",
-      "description": "A vulnerability was found in LlamaChinese Llama-Chinese up to 6fa0fffb0dd82fe3cfaa1449ee54a5806d26ae9b. The impacted element is the function get_class_from_dynamic_module of the file examples/chat_gradio_no_merge.py of the component Adapter Config. The manipulation of the argument base_model_name_or_path results in code injection. The attack may be performed from remote. The exploit has been made public and could be used. This product utilizes a rolling release system for continuous delivery, and as such, version information for affected or updated releases is not disclosed. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112080"
-    },
-    {
-      "id": "CVE-2026-112079",
-      "published": "2026-10-19T05:17:04.773",
-      "lastModified": "2026-10-19T17:17:10.943",
-      "description": "A vulnerability has been found in hankcs HanLP up to 2.1.0-beta.64. The affected element is the function load_word2vec_as_vocab_tensor of the file hanlp/utils/torch_util.py. The manipulation of the argument vectors.vocab leads to deserialization. The attack is possible to be carried out remotely. The exploit has been disclosed to the public and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112079"
-    },
-    {
-      "id": "CVE-2026-112078",
-      "published": "2026-10-19T05:17:04.570",
-      "lastModified": "2026-10-19T17:17:10.790",
-      "description": "A flaw has been found in RVC-Project Retrieval-based-Voice-Conversion-WebUI up to 2.3.260718. Impacted is the function change_info_ of the file webui.py. Executing a manipulation of the argument ckpt_path can lead to code injection. The attack can be executed remotely. The exploit has been published and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112078"
-    },
-    {
-      "id": "CVE-2026-112077",
-      "published": "2026-10-19T05:17:04.347",
-      "lastModified": "2026-10-22T03:16:34.600",
-      "description": "A vulnerability was detected in radareorg radare2 6.2.0/6.2.2. This issue affects the function r_core_cmd_str_pipe in the library libr/core/rtr_http.inc.c of the component HTTP Sandbox Policy Handler. Performing a manipulation results in protection mechanism failure. Remote exploitation of the attack is possible. The attack is considered to have high complexity. The exploitability is assessed as difficult. Upgrading to version 6.2.4 is capable of addressing this issue. The patch is named 18fd12efa98a7d1977de7bdd379d8a848777b90f. Upgrading the affected component is recommended. The pre-requisite of the vulnerability is reflected by the CVSS vector. One of the project maintainers explains: \"There is a real sandbox configuration issue here, but the report overstates it. The HTTP server defaults to http.sandbox=true, so commands received through /cmd temporarily enable cfg.sandbox. However, cfg.sandbox.grain defaults to all, which means all sandbox capabilities - including exec - remain allowed. Therefore enabling the HTTP sandbox alone does NOT prevent commands from spawning processes. This only matters when the HTTP command endpoint is reachable by someone you do not trust. It is not a remote vulnerability by default: the HTTP server must first be started and exposed to the attacker.\"",
-      "score": 5.6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112077"
-    },
-    {
-      "id": "CVE-2026-112076",
-      "published": "2026-10-19T04:17:09.543",
-      "lastModified": "2026-10-19T18:17:02.157",
-      "description": "A security vulnerability has been detected in alexta69 MeTube up to 2026.09.28. This vulnerability affects the function DownloadQueue.__write_feed_metadata_sync of the file app/ytdl.py of the component Feed-metadata Thumbnail Fetch Handler. Such manipulation leads to server-side request forgery. The attack may be launched remotely. Attacks of this nature are highly complex. It is stated that the exploitability is difficult. The exploit has been disclosed publicly and may be used. Upgrading to version 2026.09.29 is able to resolve this issue. The name of the patch is a3896604540223ecbb8258b41b1d745d62647d16. It is suggested to upgrade the affected component.",
-      "score": 5.6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112076"
-    },
-    {
-      "id": "CVE-2026-112075",
-      "published": "2026-10-19T04:17:09.287",
-      "lastModified": "2026-10-19T17:17:10.637",
-      "description": "A weakness has been identified in unslothai unsloth up to 0.1.501-beta. This affects the function FastSentenceTransformer._is_transformer_module_ref of the file unsloth/models/sentence_transformer.py. This manipulation of the argument Type causes use of externally-controlled input to select classes or code. The attack may be initiated remotely. The exploit has been made available to the public and could be used for attacks. Upgrading to version 0.1.902-beta is able to mitigate this issue. Patch name: de801746386a53a0cb26216e715a0af863b76ad9. The affected component should be upgraded.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112075"
-    },
-    {
-      "id": "CVE-2026-112074",
-      "published": "2026-10-19T04:17:08.910",
-      "lastModified": "2026-10-19T17:17:10.470",
-      "description": "A security flaw has been discovered in Tencent ncnn up to 44b02dabdcf97499281a4692ebd65bad73dcf8b6. Affected by this issue is the function ncnn::yuv420sp2rgb of the file src/mat_pixel.cpp of the component Conversion API. The manipulation results in integer overflow. The attack can be launched remotely. The exploit has been released to the public and may be used for attacks. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112074"
-    },
-    {
-      "id": "CVE-2026-112073",
-      "published": "2026-10-19T04:17:08.707",
-      "lastModified": "2026-10-22T03:16:34.450",
-      "description": "A vulnerability was identified in Tencent ncnn up to 44b02dabdcf97499281a4692ebd65bad73dcf8b6. Affected by this vulnerability is the function matmul_transb of the file src/layer/matmul.cpp of the component MatMul. The manipulation leads to out-of-bounds read. The attack can be initiated remotely. The exploit is publicly available and might be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112073"
-    },
-    {
-      "id": "CVE-2026-112045",
-      "published": "2026-10-19T04:17:08.373",
-      "lastModified": "2026-10-19T18:17:01.577",
-      "description": "A vulnerability was detected in donetick up to 0.1.82. The impacted element is the function CanDeleteHistory of the file internal/chore/model/model.go of the component History Deletion Handler. The manipulation of the argument AssignedTo results in improper authorization. The attack can be launched remotely. The exploit is now public and may be used. The project maintainer explains: \"The concerns about \"IDOR\" framing seem to be overstated in my opinion (...), as Circle members are already trusted collaborators. We will address this issue. However, since the impact is limited to trusted members within the same circle, I would classify this as a bug rather than a security vulnerability.\"",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112045"
-    },
-    {
-      "id": "CVE-2026-111440",
-      "published": "2026-10-19T04:17:03.657",
-      "lastModified": "2026-10-19T20:56:36.663",
-      "description": "在 openGauss-connector-jdbc 的 pgjdbc/src/main/java/org/postgresql/log/LogFactory.java 中，LogFactory 根据 JDBC 连接参数中的 logger 类名调用 Class.forName 加载类后，直接反射调用以 String 为参数的构造函数，再转换为 Log。缺少 asSubclass(Log.class) 校验，非 Log 实现类也会在类型检查前被实例化。因此，当攻击者可控制 JDBC URL 或连接属性中的 logger 类名，且客户端 classpath 中存在可被加载的类时，可能在客户端触发非预期的类加载与构造副作用。\n\n此漏洞自 JDBC 1.1.0引入，影响 1.1.0 及之后的 2.x、3.x、5.x、6.x 各版本及补丁（含 6.0.0 分支最新 6.0.6），以及 7.0.0-RC1、7.0.0-RC2、7.0.0-RC3，并在 7.0.0-LTS 版本修复。修复在 Class.forName 之后先执行 asSubclass(Log.class)，仅允许 Log 子类进入构造。修复pr见https://gitcode.com/opengauss/openGauss-connector-jdbc/pull/423。",
-      "score": 7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111440"
-    },
-    {
-      "id": "CVE-2026-112044",
-      "published": "2026-10-19T03:16:59.153",
-      "lastModified": "2026-10-19T17:17:09.370",
-      "description": "A security vulnerability has been detected in dotnet eShop up to 913acea66708a59595351174cee9b29f37179d29. The affected element is the function AddApplicationServices of the file src/Catalog.API/Extensions/Extensions.cs of the component Catalog API. The manipulation leads to improper authentication. The attack can be initiated remotely. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112044"
-    },
-    {
-      "id": "CVE-2026-112043",
-      "published": "2026-10-19T03:16:58.920",
-      "lastModified": "2026-10-19T17:17:09.207",
-      "description": "A weakness has been identified in calcom cal.com and cal.diy up to 6.2.0. Impacted is the function createWebhookProcedure of the file packages/trpc/server/routers/viewer/webhook/util.ts of the component Webhook Handler. Executing a manipulation of the argument ID can lead to authorization bypass. It is possible to launch the attack remotely. The pull request to fix this issue awaits acceptance.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112043"
-    },
-    {
-      "id": "CVE-2026-112042",
-      "published": "2026-10-19T03:16:58.720",
-      "lastModified": "2026-10-22T03:16:33.870",
-      "description": "A security flaw has been discovered in diem-project diem up to 116974edfb9a5b8bd69cb13586dc62bcdbb485ad. This issue affects the function dmBaseLinkTag::text of the file dmCorePlugin/lib/view/html/link/dmBaseLinkTag.php of the component dmWidget. Performing a manipulation of the argument text results in cross site scripting. It is possible to initiate the attack remotely. The exploit has been released to the public and may be used for attacks. This product is using a rolling release to provide continious delivery. Therefore, no version details for affected nor updated releases are available. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 3.5,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112042"
-    },
-    {
-      "id": "CVE-2026-111441",
-      "published": "2026-10-19T03:16:58.543",
-      "lastModified": "2026-10-19T20:56:36.663",
-      "description": "在 openGauss-server 的 src/gausskernel/cbb/utils/hll/hll.cpp 中，内置函数 HllObjectUnpack() 存在长度校验缺陷。该函数从用户提供的 packed HLL 解析 lenUsed 与 lenTotal 后，仅检查输入长度足以覆盖 HLL_HEAD_SIZE + lenUsed，随后按 lenTotal 分配缓冲区、按 lenUsed 调用 memcpy_s() 拷贝输入，既未校验 lenTotal >= lenUsed，也将 memcpy_s() 目标大小写成 lenUsed 而非实际分配的 lenTotal，导致安全拷贝无法拦截越界写。hll_in()、hll_print()、hll_cardinality() 等 SQL 入口会走同一解包路径。因此，普通数据库连接用户只需构造 lenTotal 小于 lenUsed 的畸形 packed HLL（例如经 ::hll 进入 hll_in()），即可触发服务端堆越界写，存在内存破坏风险。此问题随 packed HLL 解包函数 HllObjectUnpack() 进入代码，v2.1.0 起即存在。受影响版本包括 2.1.0、3.0.x、3.1.x、5.0.x、5.1.0、6.0.x，以及 7.0.0-RC1、7.0.0-RC2、7.0.0-RC3。该问题已在 7.0.0-LTS 版本修复，通过在 HllObjectUnpack() 中补齐 lenUsed <= lenTotal 校验，并将 memcpy_s() 的目标大小改为实际分配的 lenTotal。修复 PR 见 https://gitcode.com/opengauss/openGauss-server/pull/9380 。",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111441"
-    },
-    {
-      "id": "CVE-2026-103091",
-      "published": "2026-10-19T03:16:58.377",
-      "lastModified": "2026-10-19T21:13:39.973",
-      "description": "Missing Authorization (CWE-862) and Initialization of a Resource with an Insecure Default (CWE-1188) in the MCP proxy (HandleStreamPassThrough in mcp_service.go) and OIDC registration flow (GET /info and POST /register in internal/controlplane/server.go) in Google OSS Agent Mesh (SAM) versions 0.1.0-alpha.1 through 0.1.0-alpha.8 allow a remote attacker to self-enroll into the mesh and invoke arbitrary tools across all connected MCP backend nodes. Because GET /info publicly discloses OIDC configuration, POST /register auto-enrolls any valid OIDC token holder without claim filtering or ban checks, and the default policy binds sam:system:authenticated to wildcard services and targets, an attacker can obtain a mesh credential with full read, write, and execution access on backend services. Users should upgrade to version 0.1.0-alpha.9 or later, which enforces a fail-closed default policy, explicit policy-binding requirements on enrollment, and ban checks.",
-      "score": 9.3,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103091"
-    },
-    {
-      "id": "CVE-2026-102503",
-      "published": "2026-10-19T03:16:58.193",
-      "lastModified": "2026-10-19T21:13:39.973",
-      "description": "Missing Authentication for Critical Function (CWE-306) and Missing Authorization (CWE-862) in the /libp2p-http ingress server (StartIngressServer in cmd/sam-node/node.go) in Google OSS Agent Mesh (SAM) versions 0.1.0-alpha.1 through 0.1.0-alpha.2 allow an unauthenticated remote libp2p peer to bypass Biscuit capability policy enforcement and invoke arbitrary registered backend services (including command/stdio-backed MCP servers, A2A, and inference endpoints). While the MCP protocol stream handler enforces WithBiscuitAuth and Authorize checks, the parallel /libp2p-http ingress routes requests directly to backend service handlers without verifying a Biscuit token or mesh enrollment. Users should upgrade to version 0.1.0-alpha.3 or later.",
-      "score": 9.3,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102503"
-    },
-    {
-      "id": "CVE-2026-112041",
-      "published": "2026-10-19T02:17:06.840",
-      "lastModified": "2026-10-19T18:17:01.437",
-      "description": "A vulnerability was identified in diem-project diem up to 116974edfb9a5b8bd69cb13586dc62bcdbb485ad. This vulnerability affects the function dmString::random of the file dmCorePlugin/lib/basic/dmString.php. Such manipulation leads to cryptographically weak prng. The attack may be performed from remote. A high complexity level is associated with this attack. It is stated that the exploitability is difficult. The exploit is publicly available and might be used. This product utilizes a rolling release system for continuous delivery, and as such, version information for affected or updated releases is not disclosed. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112041"
-    },
-    {
-      "id": "CVE-2026-112040",
-      "published": "2026-10-19T02:17:06.667",
-      "lastModified": "2026-10-19T17:17:09.060",
-      "description": "A vulnerability was determined in diem-project diem up to 116974edfb9a5b8bd69cb13586dc62bcdbb485ad. This affects an unknown part of the file dmCorePlugin/plugins/dmUserPlugin/modules/dmUser/lib/BasedmUserActions.class.php of the component Sign-In. This manipulation of the argument Referer causes open redirect. The attack is possible to be carried out remotely. The exploit has been publicly disclosed and may be utilized. This product adopts a rolling release strategy to maintain continuous delivery. Therefore, version details for affected or updated releases cannot be specified. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112040"
-    },
-    {
-      "id": "CVE-2026-112039",
-      "published": "2026-10-19T02:17:06.503",
-      "lastModified": "2026-10-19T17:17:08.910",
-      "description": "A vulnerability was found in diem-project diem up to 116974edfb9a5b8bd69cb13586dc62bcdbb485ad. Affected by this issue is the function append of the file dmAdminPlugin/modules/dmConsole/actions/actions.class.php of the component Administrative Console. The manipulation of the argument dm_command results in cross site scripting. The attack can be executed remotely. The exploit has been made public and could be used. This product implements a rolling release for ongoing delivery, which means version information for affected or updated releases is unavailable. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 2.4,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112039"
-    },
-    {
-      "id": "CVE-2026-112038",
-      "published": "2026-10-19T02:17:06.313",
-      "lastModified": "2026-10-22T03:16:33.720",
-      "description": "A vulnerability has been found in diem-project diem up to 116974edfb9a5b8bd69cb13586dc62bcdbb485ad. Affected by this vulnerability is the function html of the file dmAdminPlugin/web/js/dmAdminCtrl.js of the component Version Check Service. The manipulation leads to cross site scripting. Remote exploitation of the attack is possible. The exploit has been disclosed to the public and may be used. This product follows a rolling release approach for continuous delivery, so version details for affected or updated releases are not provided. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 2.4,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112038"
-    },
-    {
-      "id": "CVE-2026-112037",
-      "published": "2026-10-19T02:17:06.133",
-      "lastModified": "2026-10-19T18:17:01.287",
-      "description": "A flaw has been found in diem-project diem up to 116974edfb9a5b8bd69cb13586dc62bcdbb485ad. Affected is an unknown function of the file dmCorePlugin/lib/vendor/gapi/gapi.class.php of the component Google Analytics Client. Executing a manipulation can lead to improper certificate validation. The attack may be launched remotely. The attack requires a high level of complexity. The exploitability is told to be difficult. The exploit has been published and may be used. This product operates on a rolling release basis, ensuring continuous delivery. Consequently, there are no version details for either affected or updated releases. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112037"
-    },
-    {
-      "id": "CVE-2026-108984",
-      "published": "2026-10-19T02:17:05.997",
-      "lastModified": "2026-10-20T19:17:28.590",
-      "description": "A vulnerability is in Web Server default connection ports under the process name GeoWebServer.exe .",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-108984"
-    },
-    {
-      "id": "CVE-2026-108983",
-      "published": "2026-10-19T02:17:05.853",
-      "lastModified": "2026-10-19T21:13:39.973",
-      "description": "A vulnerability is in Web Server default connection ports under the process name GeoWebServer.exe .",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-108983"
-    },
-    {
-      "id": "CVE-2026-112036",
-      "published": "2026-10-19T01:16:37.677",
-      "lastModified": "2026-10-19T17:17:08.750",
-      "description": "A vulnerability was detected in Artifex MuPDF up to 1.28.5. This impacts the function free_char_list of the file source/pdf/pdf-xref.c of the component Signature Locking. Performing a manipulation results in double free. The attack may be initiated remotely. The exploit is now public and may be used. The patch is named 3984925b660afb8a781ddf504021e91be1bc671e. To fix this issue, it is recommended to deploy a patch.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112036"
-    },
-    {
-      "id": "CVE-2026-112035",
-      "published": "2026-10-19T01:16:37.510",
-      "lastModified": "2026-10-19T17:17:08.603",
-      "description": "A security vulnerability has been detected in aircheng-org iWebShop-5 up to 5.16. This affects the function send_message_mobile of the file controllers/simple.php. Such manipulation of the argument user_id leads to weak password recovery. The attack can be launched remotely. The exploit has been disclosed publicly and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112035"
-    },
-    {
-      "id": "CVE-2026-112034",
-      "published": "2026-10-19T01:16:37.340",
-      "lastModified": "2026-10-22T03:16:33.563",
-      "description": "A weakness has been identified in aircheng-org iWebShop-5 up to 5.16. The impacted element is the function IController::redirect of the file plugins/_userInfo/_userInfo.php of the component Login Redirect. This manipulation of the argument callback causes open redirect. The attack can be initiated remotely. The exploit has been made available to the public and could be used for attacks. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112034"
-    },
-    {
-      "id": "CVE-2026-112033",
-      "published": "2026-10-19T01:16:36.473",
-      "lastModified": "2026-10-19T18:17:01.143",
-      "description": "A security flaw has been discovered in aircheng-org iWebShop-5 up to 5.16. The affected element is the function admin_repwd/admin_repwd_act of the file controllers/system.php of the component Password Change. The manipulation of the argument password/repassword results in cross-site request forgery. It is possible to launch the attack remotely. The exploit has been released to the public and may be used for attacks. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112033"
     }
   ]
 }
