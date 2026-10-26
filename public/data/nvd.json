@@ -1,6 +1,96 @@
 {
-  "syncedAt": "2026-10-25T22:28:07.096Z",
+  "syncedAt": "2026-10-26T00:39:46.643Z",
   "items": [
+    {
+      "id": "CVE-2026-112192",
+      "published": "2026-10-19T10:16:47.563",
+      "lastModified": "2026-10-19T18:17:04.063",
+      "description": "MISP contains a vulnerability in the handling of module plugin settings. When the server rebuilds module-supplied settings for API consumption, it drops the redacted and cli_only flags that a module declares in its own configuration metadata.\n\nAs a result:\n\n- A module that marks a setting (such as an API key) as redacted still has its value returned in full by the servers/getSetting and servers/serverSettingsEdit endpoints, exposing sensitive credentials to any authenticated user who can read server settings.\n\n- A module that marks a setting as cli_only (intended to be editable only via the command-line interface) can still be modified through the web API, bypassing the intended access restriction.\n\nAn authenticated user with access to server settings can therefore read sensitive module credentials and modify settings that the module author intended to restrict to CLI-only access.\n\nAffected: <2.5.48",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112192"
+    },
+    {
+      "id": "CVE-2026-112188",
+      "published": "2026-10-19T10:16:47.413",
+      "lastModified": "2026-10-19T10:16:47.520",
+      "description": "MISP contains a vulnerability in its server settings lookup mechanism that allows an authenticated user to retrieve sensitive configuration data that should have been redacted.\n\nThe settings lookup function resolves a dotted setting name to a node in the configuration tree. When a branch name (such as Security, MISP, or Plugin) is supplied instead of a specific leaf setting, the function returns the entire sub-tree. Because a branch node does not carry a redaction flag, the redaction check in the settings retrieval endpoint is bypassed, and the full branch contents are returned to the caller. This exposes sensitive values including the security salt, Redis connection passwords, and plugin API keys.\n\nA second endpoint that edits server settings similarly reads the entire configuration store when a branch name is resolved, returning all settings to the caller.\n\nThe impact is disclosure of sensitive server configuration secrets to any user who can access the server settings endpoints.\n\nAffected versions: <2.5.48.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112188"
+    },
+    {
+      "id": "CVE-2026-112184",
+      "published": "2026-10-19T10:16:47.210",
+      "lastModified": "2026-10-19T18:17:03.870",
+      "description": "MISP contains a reflected cross-site scripting (XSS) vulnerability in the workflow module interface. Parameter names returned by the misp-modules service are rendered as raw HTML form labels on the workflow module page without output encoding. An attacker who can influence the parameter names reported by the misp-modules service can inject arbitrary HTML or JavaScript that executes in the context of an authenticated MISP user's browser.\n\nPreconditions:\n\n- The attacker must be able to control or influence parameter names reported by the misp-modules service.\n\n- A victim must be authenticated and view the affected workflow module page.\n\nImpact:\n\n- Execution of arbitrary JavaScript in the victim's browser session.\n\n- Potential theft of session tokens, manipulation of the MISP interface, or initiation of unauthorized actions on behalf of the victim.\n\nAffected versions: <2.5.48.",
+      "score": 4.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112184"
+    },
+    {
+      "id": "CVE-2026-112183",
+      "published": "2026-10-19T10:16:46.970",
+      "lastModified": "2026-10-19T18:17:03.687",
+      "description": "MISP contains a CSS injection vulnerability in the remote event preview feature. When a user previews an event from a linked MISP server, the colour value associated with each remote tag is written directly into an inline CSS style attribute without sufficient validation. Although HTML entity encoding is applied, the value is interpreted as CSS within the style attribute, allowing a malicious or compromised linked server to inject arbitrary CSS declarations.\n\nAn attacker with the ability to create or modify tags on a linked MISP instance can craft a tag colour value containing CSS injection payloads. When a user on the local instance views the event preview, the injected CSS is rendered, potentially allowing UI manipulation, visual spoofing, or limited information disclosure through CSS-based techniques.\n\nPreconditions:\n\n- A linked MISP server relationship exists between the victim instance and the attacker-controlled instance.\n\n- The attacker can create or modify tags on the linked server.\n\n- A victim user views the remote event preview page.\n\nAffected: <2.5.48.",
+      "score": 4.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112183"
+    },
+    {
+      "id": "CVE-2026-112102",
+      "published": "2026-10-19T10:16:46.780",
+      "lastModified": "2026-10-19T17:17:12.490",
+      "description": "A vulnerability was detected in AXA Group NLP.js 4.27.0. This impacts the function Evaluator.walkFunction of the file packages/evaluator/src/evaluator.js of the component Condition Expression Pipeline. The manipulation of the argument condition results in code injection. It is possible to launch the attack remotely. The exploit is now public and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112102"
+    },
+    {
+      "id": "CVE-2026-112101",
+      "published": "2026-10-19T10:16:46.610",
+      "lastModified": "2026-10-19T17:17:12.347",
+      "description": "A vulnerability was determined in BlackBeltTechnology pi-agent-dashboard up to 0.8.0. The affected element is an unknown function of the file /BlackBeltTechnology/pi-agent-dashboard of the component WebSocket Gateway. Executing a manipulation of the argument cwd can lead to origin validation error. The attack can be executed remotely. The exploit has been publicly disclosed and may be utilized. Upgrading to version 0.9.0 is sufficient to fix this issue. This patch is called 48fd0bad5adfe76af9736599699d51a5f60019f6. It is recommended to upgrade the affected component.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112101"
+    },
+    {
+      "id": "CVE-2026-112100",
+      "published": "2026-10-19T10:16:46.393",
+      "lastModified": "2026-10-22T03:16:35.403",
+      "description": "A vulnerability was determined in DeepPavlov up to 1.7.0. This affects the function MultiTaskPipelinePreprocessor.__init__ of the file deeppavlov/models/preprocessors/multitask_preprocessor.py. This manipulation of the argument preprocessor causes code injection. The attack is possible to be carried out remotely. The exploit has been publicly disclosed and may be utilized. The project was informed of the problem early through an issue report but has not responded yet.",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112100"
+    },
+    {
+      "id": "CVE-2026-111408",
+      "published": "2026-10-19T10:16:46.257",
+      "lastModified": "2026-10-19T18:16:59.727",
+      "description": "Deserialization of Untrusted Data vulnerability in ExpressTech Quiz And Survey Master quiz-master-next allows Object Injection.This issue affects Quiz And Survey Master: from n/a through 11.2.7.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111408"
+    },
+    {
+      "id": "CVE-2026-111407",
+      "published": "2026-10-19T10:16:46.133",
+      "lastModified": "2026-10-19T15:16:45.150",
+      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Themeum Tutor LMS tutor allows Stored XSS.This issue affects Tutor LMS: from n/a through 4.1.2.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111407"
+    },
+    {
+      "id": "CVE-2026-111406",
+      "published": "2026-10-19T10:16:46.007",
+      "lastModified": "2026-10-19T17:17:03.770",
+      "description": "Unrestricted Upload of File with Dangerous Type vulnerability in PT Norther Lights Production MapSVG mapsvg-lite-interactive-vector-maps allows Upload a Web Shell to a Web Server.This issue affects MapSVG: from n/a through 8.16.1.",
+      "score": 9.9,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111406"
+    },
     {
       "id": "CVE-2026-111398",
       "published": "2026-10-19T10:16:45.880",
@@ -790,94 +880,6 @@
       "score": 4.3,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112033"
-    },
-    {
-      "id": "CVE-2026-112032",
-      "published": "2026-10-19T00:16:31.790",
-      "lastModified": "2026-10-19T17:17:08.457",
-      "description": "A vulnerability was identified in aircheng-org iWebShop-5 up to 5.16. Impacted is the function Util::search of the file classes/util.php. The manipulation leads to sql injection. It is possible to initiate the attack remotely. The exploit is publicly available and might be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 4.7,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112032"
-    },
-    {
-      "id": "CVE-2026-112031",
-      "published": "2026-10-19T00:16:31.587",
-      "lastModified": "2026-10-19T17:17:08.257",
-      "description": "A vulnerability was determined in Chamilo LMS up to 1.11.40/2.0.3/3.0.1. This issue affects the function TicketManager::addProject of the file main/inc/lib/TicketManager.php of the component Ticket Module. Executing a manipulation of the argument Name can lead to cross site scripting. The attack may be performed from remote. The exploit has been publicly disclosed and may be utilized. This patch is called 6dfa0f4de45afc1b27333304b4cd4532db478f74/dd3e4d32971efca4197eb2df97f69de25a786e3c/119773d45c31da53b44cbfdb3f4910bc983cc7b0/cb6fe2127e587603451c609b4ed78c0293fcc3fa. It is best practice to apply a patch to resolve this issue.",
-      "score": 3.5,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112031"
-    },
-    {
-      "id": "CVE-2026-112030",
-      "published": "2026-10-19T00:16:30.640",
-      "lastModified": "2026-10-22T03:16:33.413",
-      "description": "A vulnerability was found in diem-project diem up to 5.1.3. This vulnerability affects unknown code of the file dmCorePlugin/lib/data/dmDataLoad.php. Performing a manipulation results in use of default password. The attack is possible to be carried out remotely. The exploit has been made public and could be used. It is suggested to update the configuration settings. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112030"
-    },
-    {
-      "id": "CVE-2026-112112",
-      "published": "2026-10-18T23:16:56.767",
-      "lastModified": "2026-10-19T21:14:14.150",
-      "description": "An IPv6 FlowSpec validation bypass in the CZ.NIC BIRD Internet Routing Daemon allows an established BGP peer to inject FlowSpec rules matching destinations outside the address space authorized by the unicast-route validation procedure. With validation enabled on the receiving flow6 channel, BIRD fails to reject a destination prefix component with a nonzero offset, contrary to RFC 8956 section 5. It validates a reconstructed prefix with zero-filled skipped bits, although the original FlowSpec component can match a broader set of IPv6 addresses. Given a suitable unicast route from the peer, the rule can pass validation and, where export policy permits, be propagated to downstream peers. Downstream enforcement may cause unauthorized traffic filtering or redirection.",
-      "score": 2.3,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112112"
-    },
-    {
-      "id": "CVE-2026-112111",
-      "published": "2026-10-18T23:16:56.583",
-      "lastModified": "2026-10-19T21:14:14.150",
-      "description": "The Bootstrap Shortcodes plugin for WordPress before 3.4.6 is vulnerable to stored XSS via the id attribute of the [bs_tcontent] shortcode. The bs_tcontent() shortcode handler in inc/bs_tabs.php emits the id attribute value into an unquoted HTML attribute. esc_attr() is applied, but it does not encode space characters, so a space in the supplied value terminates the attribute and any following text is parsed as additional HTML attributes, including JavaScript event handlers. This allows authenticated attackers with Contributor-level access and above to inject arbitrary web script that executes in the browser of any user who views the page and interacts with the injected element.",
-      "score": 5.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112111"
-    },
-    {
-      "id": "CVE-2026-112029",
-      "published": "2026-10-18T23:16:56.417",
-      "lastModified": "2026-10-19T18:17:01.007",
-      "description": "A vulnerability has been found in diem-project diem up to 5.1.3. This affects an unknown part of the file lib/model/doctrine/PluginDmUser.class.php of the component SHA1 Handler. Such manipulation of the argument salt/password leads to password hash with insufficient computational effort. The attack needs to be performed locally. The attack requires a high level of complexity. It is indicated that the exploitability is difficult. The exploit has been disclosed to the public and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 2.5,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112029"
-    },
-    {
-      "id": "CVE-2026-112028",
-      "published": "2026-10-18T23:16:56.247",
-      "lastModified": "2026-10-19T17:17:08.090",
-      "description": "A flaw has been found in light0011 cms c774dce31c6df0055568a8d5c53d964d99be199d/f72cf46f601efb2a0618c3814cc2f61380b38930. Affected by this issue is some unknown functionality of the file App/Home/Controller/VoteController.class.php of the component Vote Handler. This manipulation of the argument X-Requested-With causes business logic errors. Remote exploitation of the attack is possible. The exploit has been published and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112028"
-    },
-    {
-      "id": "CVE-2026-112027",
-      "published": "2026-10-18T23:16:56.073",
-      "lastModified": "2026-10-19T17:17:07.933",
-      "description": "A vulnerability was detected in light0011 cms c774dce31c6df0055568a8d5c53d964d99be199d/f72cf46f601efb2a0618c3814cc2f61380b38930. Affected by this vulnerability is the function file_exists of the file Public/Home/js/uploadify/check-exists.php of the component Uploadify. The manipulation of the argument filename results in file and directory information exposure. The attack may be launched remotely. The exploit is now public and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112027"
-    },
-    {
-      "id": "CVE-2026-112026",
-      "published": "2026-10-18T23:16:55.750",
-      "lastModified": "2026-10-22T03:16:33.257",
-      "description": "A security vulnerability has been detected in light0011 cms c774dce31c6df0055568a8d5c53d964d99be199d/f72cf46f601efb2a0618c3814cc2f61380b38930. Affected is the function sha1 of the file App/Home/Model/UserModel.class.php. The manipulation of the argument Password leads to password hash with insufficient computational effort. The attack may be initiated remotely. A high degree of complexity is needed for the attack. The exploitability is told to be difficult. The exploit has been disclosed publicly and may be used. The project was informed of the problem early through an issue report but has not responded yet.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112026"
-    },
-    {
-      "id": "CVE-2026-108519",
-      "published": "2026-10-18T23:16:55.280",
-      "lastModified": "2026-10-18T23:16:55.280",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-108519"
     }
   ]
 }
