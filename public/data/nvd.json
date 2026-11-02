@@ -1,6 +1,229 @@
 {
-  "syncedAt": "2026-11-02T00:35:01.705Z",
+  "syncedAt": "2026-11-02T06:45:47.262Z",
   "items": [
+    {
+      "id": "CVE-2026-108529",
+      "published": "2026-10-26T14:16:24.733",
+      "lastModified": "2026-10-26T16:59:16.113",
+      "description": "Inefficient Algorithmic Complexity vulnerability in the HTTP/2 implementation of mtrudel bandit allows an unauthenticated remote attacker to exhaust server CPU via small SETTINGS or connection-level WINDOW_UPDATE frames. The attacker opens thousands of streams whose responses block on the connection send window, then sends cheap frames that each make the server walk the whole queue of blocked sends. In the reporter's run, with 3,000 blocked streams a single 9-byte SETTINGS frame took 133 ms to process.\n\ndo_pending_sends/2 in lib/bandit/http2/connection.ex retries every queued send and, before each retry, removes that entry from the queue with List.delete/2, so one frame costs O(n²) list operations for n blocked streams. max_concurrent_streams defaults to :infinity, so the attacker chooses n.\n\nThis issue affects bandit: from 0.3.4 before 1.14.0.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-108529"
+    },
+    {
+      "id": "CVE-2026-108525",
+      "published": "2026-10-26T14:16:24.477",
+      "lastModified": "2026-10-26T16:59:16.113",
+      "description": "Allocation of Resources Without Limits or Throttling vulnerability in the HTTP/2 implementation of mtrudel bandit allows an unauthenticated remote attacker to exhaust server memory via DATA frames sent past the advertised receive window. The attacker requests a response larger than the 65,535-byte initial window and withholds WINDOW_UPDATE, so the stream process blocks while sending and stops reading, then floods small DATA frames on that stream. Every frame is queued in the stream's mailbox until the BEAM node runs out of memory.\n\nBandit.HTTP2.Connection.handle_frame/3 in lib/bandit/http2/connection.ex forwards each DATA frame to the stream process without consulting the receive window, and Bandit.HTTP2.FlowControl.compute_recv_window/2 replenishes the window as data arrives rather than as it is consumed, and never answers a violation with FLOW_CONTROL_ERROR.\n\nThis issue affects bandit: from 0.3.1 before 1.14.0.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-108525"
+    },
+    {
+      "id": "CVE-2026-107656",
+      "published": "2026-10-26T14:16:24.147",
+      "lastModified": "2026-10-27T04:17:40.280",
+      "description": "An authentication bypass using an alternate path or channel vulnerability in Fortinet FortiSandbox 5.0.0 through 5.0.6, FortiSandbox 4.4.0 through 4.4.9, FortiSandbox 4.2 all versions, FortiSandbox PaaS 5.0.0 through 5.0.6, FortiSandbox PaaS 4.4 all versions, FortiSandbox PaaS 4.2 all versions may allow attacker to execute unauthorized code or commands via crafted HTTP requests",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107656"
+    },
+    {
+      "id": "CVE-2026-107157",
+      "published": "2026-10-26T14:16:23.967",
+      "lastModified": "2026-10-27T08:16:52.517",
+      "description": "Specially crafted CBOR input passed to QCborValue::fromCbor() in Qt Core can cause an out-of-bounds read, which may crash the application and could expose information.",
+      "score": 2,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107157"
+    },
+    {
+      "id": "CVE-2026-107092",
+      "published": "2026-10-26T14:16:23.737",
+      "lastModified": "2026-10-29T13:17:02.790",
+      "description": "NexoPOS v6.2.4 is vulnerable to Directory Traversal via the api/update endpoint.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107092"
+    },
+    {
+      "id": "CVE-2026-96432",
+      "published": "2026-10-26T12:17:08.420",
+      "lastModified": "2026-10-26T18:39:42.503",
+      "description": "A malicious or compromised HTTP/2 server withholding SETTINGS ACK can send RST_STREAM on a completed stream, planting a null pointer, and then send a PUSH_PROMISE for that stream, causing a null pointer dereference in the QNetworkAccessManager class of the Qt Network module that crashes the application.",
+      "score": 2.1,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-96432"
+    },
+    {
+      "id": "CVE-2026-94380",
+      "published": "2026-10-26T12:17:08.260",
+      "lastModified": "2026-10-26T15:16:46.610",
+      "description": "Weak Password Recovery Mechanism for Forgotten Password vulnerability in HAVELSAN Inc. Liman MYS allows Password Recovery Exploitation.\n\nThis issue affects Liman MYS: from 2.3.4-1124 before 2.3.5-1131.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94380"
+    },
+    {
+      "id": "CVE-2026-116263",
+      "published": "2026-10-26T12:17:07.003",
+      "lastModified": "2026-10-31T02:17:30.750",
+      "description": "A flaw has been found in HaschekSolutions PictShare up to 3.7.1. The impacted element is the function architect of the file src/inc/core.php of the component File Upload. This manipulation causes race condition. The attack can be initiated remotely. The attack's complexity is rated as high. The exploitability is regarded as difficult. The exploit has been published and may be used. Upgrading to version 3.7.2 is sufficient to resolve this issue. Patch name: 6306e33da630c04ddff60703922c2ec7b7539452. It is advisable to upgrade the affected component. The vendor was contacted early about this disclosure.",
+      "score": 4.6,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116263"
+    },
+    {
+      "id": "CVE-2026-116262",
+      "published": "2026-10-26T12:17:06.783",
+      "lastModified": "2026-10-26T17:17:25.383",
+      "description": "A vulnerability was detected in libimobiledevice up to 1.4.0. The affected element is the function webinspector_receive_with_timeout of the file src/webinspector.c of the component Web Inspector. The manipulation results in heap-based buffer overflow. It is possible to launch the attack remotely. The exploit is now public and may be used. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116262"
+    },
+    {
+      "id": "CVE-2026-116261",
+      "published": "2026-10-26T12:17:06.490",
+      "lastModified": "2026-10-26T13:41:11.497",
+      "description": "A security vulnerability has been detected in libimobiledevice up to 1.4.0. Impacted is the function afc_file_open of the file src/afc.c of the component AFC File Handler. The manipulation of the argument bytes leads to out-of-bounds read. It is possible to initiate the attack remotely. The exploit has been disclosed publicly and may be used. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 3.5,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116261"
+    },
+    {
+      "id": "CVE-2026-116260",
+      "published": "2026-10-26T12:17:06.230",
+      "lastModified": "2026-10-31T02:17:30.610",
+      "description": "A weakness has been identified in libimobiledevice up to 1.4.0. This issue affects the function service_receive of the file src/afc.c of the component AFC Service. Executing a manipulation can lead to double free. The attack may be performed from remote. The exploit has been made available to the public and could be used for attacks. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116260"
+    },
+    {
+      "id": "CVE-2026-115720",
+      "published": "2026-10-26T12:17:05.787",
+      "lastModified": "2026-10-26T20:17:51.163",
+      "description": "Frappe Builder before 1.36.1 contains a server-side request forgery vulnerability in builder/api.py where the assert_not_private_url() guard validates only the initial hostname before callers invoke requests.get(url) with default redirect-following and no IP pinning, allowing an attacker-supplied public URL to HTTP-redirect to internal or link-local addresses the guard never validated. An authenticated attacker can call the convert_to_webp endpoint, which lacks a permission decorator, with a URL that redirects to internal targets such as cloud metadata services to perform SSRF, internal port scanning, or trigger a request-hang denial of service due to the missing timeout.",
+      "score": 5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-115720"
+    },
+    {
+      "id": "CVE-2026-115718",
+      "published": "2026-10-26T12:17:05.387",
+      "lastModified": "2026-10-26T17:17:17.487",
+      "description": "Frappe Builder versions 1.33.0 before1.36.0 contain a missing authorization vulnerability in the improve_prompt endpoint that allows any authenticated non-Guest session to invoke LLM completions without proper permission checks. Attackers can call the improve_prompt API to leverage the site owner's stored OpenRouter API key via resolve_api_key, consuming paid LLM credits and effectively turning the site into a free LLM proxy.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-115718"
+    },
+    {
+      "id": "CVE-2026-115717",
+      "published": "2026-10-26T12:17:04.957",
+      "lastModified": "2026-10-26T17:13:18.183",
+      "description": "Frappe Builder versions before 1.36.1 contain a server-side request forgery vulnerability in the convert_to_webp API endpoint, which lacks the has_page_write access control applied to similar asset-ingest handlers and performs an unprotected requests.get call that follows redirects without re-validating resolved IP addresses. A low-privilege authenticated user can supply an image_url pointing to an internal address or use DNS rebinding and open redirects to make the server fetch internal network resources or cloud metadata endpoints, with successful image responses saved to a world-readable /files/ URL enabling data exfiltration or blind probing of internal hosts.",
+      "score": 7.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-115717"
+    },
+    {
+      "id": "CVE-2026-105947",
+      "published": "2026-10-26T12:17:02.693",
+      "lastModified": "2026-10-26T15:16:34.997",
+      "description": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal') vulnerability in Innotim Software, Telecommunications, and Consulting Co. Ltd. Logsign SIEM allows Path Traversal.\n\nThis issue affects Logsign SIEM: from 6.4.120 before 6.4.122.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105947"
+    },
+    {
+      "id": "CVE-2012-20006",
+      "published": "2026-10-26T12:17:01.153",
+      "lastModified": "2026-10-26T12:17:01.153",
+      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2012-20006"
+    },
+    {
+      "id": "CVE-2026-89209",
+      "published": "2026-10-26T11:16:38.583",
+      "lastModified": "2026-10-31T02:17:34.337",
+      "description": "A vulnerability has been identified in Mendix SAML (Mendix 10 compatible) (All versions < V4.2.4), Mendix SAML (Mendix 11 compatible) (All versions < V4.2.4), Mendix SAML (Mendix 9 compatible) (All versions < V3.6.29). Affected versions of the module do not properly protect against SAML assertion replay in IdP-initiated authentication flows. This could allow unauthenticated remote attackers to gain unauthorized access to the application by replaying a valid SAML response.",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89209"
+    },
+    {
+      "id": "CVE-2026-116469",
+      "published": "2026-10-26T11:16:37.840",
+      "lastModified": "2026-10-27T19:17:10.780",
+      "description": "MISP Guard, a proxy-based security filter for MISP feed distribution, contains a case-sensitivity flaw in multiple policy enforcement checks. The functions check_required_taxonomy_exists, check_required_taxonomy_tags_allowed, check_blocked_attribute_categories, and check_blocked_analyst_data_sharing_groups_uuids performed case-sensitive string comparisons when matching event tags, attribute categories, and sharing-group UUIDs against configured allow/block lists.\n\nAn attacker with the ability to create or modify events in a MISP instance (or a connected instance that pushes events through the guard) could craft events using different letter case in taxonomy tag names, attribute categories, or sharing-group UUIDs to bypass the configured security policies. For example, if the policy requires the 'tlp' taxonomy with only 'tlp:clear' allowed, an event tagged 'TLP:AMBER' would not be recognized as belonging to the 'tlp' taxonomy and would therefore not be checked against the allowed-tags list, resulting in the event being forwarded to feed consumers. Similarly, a blocked attribute category such as 'Person' would not match a configured block entry of 'person', allowing the attribute to pass through the filter.\n\nThe security impact is unauthorized disclosure of threat-intelligence data that the operator intended to restrict. Events carrying non-allowed TLP (Traffic Light Protocol) markings, blocked attribute categories, or blocked sharing-group associations are forwarded to downstream feed consumers in violation of the configured distribution policy. This undermines the confidentiality controls that MISP Guard is designed to enforce.\n\nThe vulnerability is trivially exploitable: the attacker only needs to alter the letter case of a tag, category, or UUID string. No authentication beyond normal MISP event-creation privileges is required, and no user interaction is needed.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116469"
+    },
+    {
+      "id": "CVE-2026-116259",
+      "published": "2026-10-26T11:16:37.670",
+      "lastModified": "2026-10-26T17:17:25.243",
+      "description": "A security flaw has been discovered in libimobiledevice up to 1.4.0. This vulnerability affects the function afc_get_device_info_key of the file src/afc.c of the component Device Info Handler. Performing a manipulation of the argument Value results in memory corruption. The attack requires a local approach. The exploit has been released to the public and may be used for attacks. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116259"
+    },
+    {
+      "id": "CVE-2026-116258",
+      "published": "2026-10-26T11:16:37.500",
+      "lastModified": "2026-10-26T13:41:11.497",
+      "description": "A vulnerability was identified in libimobiledevice up to 1.4.0. This affects an unknown part of the file src/afc.c of the component AFC. Such manipulation leads to heap-based buffer overflow. The attack can be executed remotely. The exploit is publicly available and might be used. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116258"
+    },
+    {
+      "id": "CVE-2026-116257",
+      "published": "2026-10-26T11:16:37.327",
+      "lastModified": "2026-10-31T02:17:30.463",
+      "description": "A vulnerability was determined in BillaBear up to 2025.01.03. Affected by this issue is the function processInstall of the file src/BillaBear/Controller/InstallController.php of the component Installation Handler. This manipulation causes missing authentication. Remote exploitation of the attack is possible. The exploit has been publicly disclosed and may be utilized. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116257"
+    },
+    {
+      "id": "CVE-2026-116256",
+      "published": "2026-10-26T11:16:37.130",
+      "lastModified": "2026-10-26T17:17:25.113",
+      "description": "A vulnerability was found in geesondog RhaPHP up to 7ae639ccf8dcb627faace096d030bd4cb4cfb905. Affected by this vulnerability is the function image of the file application/mp/controller/Show.php of the component Mp Module Media Proxy. The manipulation of the argument url results in server-side request forgery. The attack may be launched remotely. The exploit has been made public and could be used. This product operates on a rolling release basis, ensuring continuous delivery. Consequently, there are no version details for either affected or updated releases. The vendor was contacted early about this disclosure but did not respond in any way.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116256"
+    },
+    {
+      "id": "CVE-2026-115961",
+      "published": "2026-10-26T11:16:36.987",
+      "lastModified": "2026-10-26T14:16:33.590",
+      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in bPlugins B Slider b-slider allows Stored XSS.This issue affects B Slider: from n/a through 2.2.2.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-115961"
+    },
+    {
+      "id": "CVE-2026-115960",
+      "published": "2026-10-26T11:16:36.857",
+      "lastModified": "2026-10-26T14:16:33.477",
+      "description": "Missing Authorization vulnerability in WPExperts APIExperts Square for WooCommerce woosquare allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects APIExperts Square for WooCommerce: from n/a through 4.7.5.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-115960"
+    },
+    {
+      "id": "CVE-2026-115959",
+      "published": "2026-10-26T11:16:36.720",
+      "lastModified": "2026-10-26T14:16:33.370",
+      "description": "Missing Authorization vulnerability in WPExperts APIExperts Square for WooCommerce woosquare allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects APIExperts Square for WooCommerce: from n/a through 4.7.5.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-115959"
+    },
     {
       "id": "CVE-2026-115956",
       "published": "2026-10-26T11:16:36.477",
@@ -675,231 +898,6 @@
       "score": 5.3,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103298"
-    },
-    {
-      "id": "CVE-2026-116123",
-      "published": "2026-10-26T06:17:41.753",
-      "lastModified": "2026-10-26T17:17:21.253",
-      "description": "A weakness has been identified in NocoDB up to 2026.07.0. The affected element is the function validatePassword of the file /auth/user/signup. Executing a manipulation can lead to improper restriction of excessive authentication attempts. It is possible to launch the attack remotely. This attack is characterized by high complexity. The exploitability is described as difficult. The vendor documents this as intentional. The vendor deleted the GitHub issue for this vulnerability without any explanation. Afterwards the vendor was contacted early about this disclosure via email but did not respond in any way.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116123"
-    },
-    {
-      "id": "CVE-2026-116122",
-      "published": "2026-10-26T06:17:41.483",
-      "lastModified": "2026-10-26T13:41:11.497",
-      "description": "A security flaw has been discovered in NocoDB up to 2026.07.0. Impacted is the function AuthService.validateUser of the component Sign-in Endpoint. Performing a manipulation of the argument salt results in information disclosure. It is possible to initiate the attack remotely. The attack's complexity is rated as high. The exploitability is considered difficult. The vendor deleted the GitHub issue for this vulnerability without any explanation. Afterwards the vendor was contacted early about this disclosure via email but did not respond in any way.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116122"
-    },
-    {
-      "id": "CVE-2026-116121",
-      "published": "2026-10-26T06:17:41.277",
-      "lastModified": "2026-10-29T21:17:14.270",
-      "description": "A vulnerability was identified in NocoDB up to 2026.08.0. This issue affects some unknown processing of the file users.service.ts of the component Registration. Such manipulation leads to race condition. The attack may be performed from remote. The attack requires a high level of complexity. The exploitability is assessed as difficult. The vendor deleted the GitHub issue for this vulnerability without any explanation. Afterwards the vendor was contacted early about this disclosure via email but did not respond in any way.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116121"
-    },
-    {
-      "id": "CVE-2026-116120",
-      "published": "2026-10-26T06:17:38.053",
-      "lastModified": "2026-10-26T17:17:21.120",
-      "description": "A vulnerability was determined in NocoDB up to 2026.07.0. This vulnerability affects the function UserRefreshToken.deleteAllUserToken of the file /auth/user/signup of the component PublicApiLimiterGuard. This manipulation causes allocation of resources. The attack is possible to be carried out remotely. The attack is considered to have high complexity. It is stated that the exploitability is difficult. Code-verified absence of in-app rate limiting on the unauthenticated signup and password-forgot endpoints and per-request refresh/OAuth token invalidation, but the vendor documents the pass-through limiter as intentional design. The vendor deleted the GitHub issue for this vulnerability without any explanation. Afterwards the vendor was contacted early about this disclosure via email but did not respond in any way.",
-      "score": 5.6,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116120"
-    },
-    {
-      "id": "CVE-2026-116119",
-      "published": "2026-10-26T05:17:54.550",
-      "lastModified": "2026-10-26T13:41:11.497",
-      "description": "A vulnerability was found in NocoDB up to 2026.08.0. This affects an unknown part of the file packages/nocodb/src/services/users/users.service.ts of the component Password-Reset Flow. The manipulation results in race condition. The attack can be executed remotely. The vendor deleted the GitHub issue for this vulnerability without any explanation. Afterwards the vendor was contacted early about this disclosure via email but did not respond in any way.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116119"
-    },
-    {
-      "id": "CVE-2026-116118",
-      "published": "2026-10-26T05:17:54.370",
-      "lastModified": "2026-10-29T21:17:14.140",
-      "description": "A vulnerability has been found in Z.ai Zcode up to 3.14.3/3.15.1. Affected by this issue is some unknown functionality of the component Sed Command Filter. The manipulation leads to os command injection. Remote exploitation of the attack is possible. The exploit has been disclosed to the public and may be used.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116118"
-    },
-    {
-      "id": "CVE-2026-116117",
-      "published": "2026-10-26T05:17:54.180",
-      "lastModified": "2026-10-26T17:17:20.987",
-      "description": "A flaw has been found in halo-dev halo up to 2.27.0-beta.1. Affected by this vulnerability is the function run.halo.app.theme.DefaultViewNameResolver.resolveViewNameOrDefault of the file application/src/main/java/run/halo/app/theme/DefaultViewNameResolver.java of the component View Name Resolver. Executing a manipulation of the argument template can lead to path traversal. The attack may be launched remotely. The exploit has been published and may be used. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116117"
-    },
-    {
-      "id": "CVE-2026-113345",
-      "published": "2026-10-26T05:17:54.020",
-      "lastModified": "2026-10-26T15:16:38.337",
-      "description": "Electronic delivery item Inspection Support System provided by Japan's Ministry of Land, Infrastructure, Transport and Tourism contains an improper file access permission vulnerability. Files in the installation folder of the application may be tampered with, resulting in arbitrary code execution.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-113345"
-    },
-    {
-      "id": "CVE-2026-116116",
-      "published": "2026-10-26T04:17:55.047",
-      "lastModified": "2026-10-26T13:41:11.497",
-      "description": "A vulnerability was detected in Yoosee GM8135S Camera 21.00.01.36. Affected is an unknown function of the component Secure Boot. Performing a manipulation results in improper verification of cryptographic signature. The attack needs to be approached locally. The exploit is now public and may be used. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116116"
-    },
-    {
-      "id": "CVE-2026-116115",
-      "published": "2026-10-26T04:17:54.830",
-      "lastModified": "2026-10-29T21:17:14.010",
-      "description": "A security vulnerability has been detected in Yoosee GM8135S Camera 21.00.01.36. This impacts an unknown function of the file wpa_supplicantX.conf of the component WiFi Configuration. Such manipulation leads to improper initialization. The attack can only be initiated within the local network. This attack is characterized by high complexity. The exploitability is said to be difficult. The exploit has been disclosed publicly and may be used. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 3.1,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116115"
-    },
-    {
-      "id": "CVE-2026-116114",
-      "published": "2026-10-26T04:17:54.187",
-      "lastModified": "2026-10-26T17:17:20.853",
-      "description": "A weakness has been identified in Yoosee GM8135S Camera 21.00.01.36. This affects an unknown function of the file /npc/npc of the component Live UDP H.264 Video Stream Handler. This manipulation causes cleartext transmission of sensitive information. The attack can be initiated remotely. The attack's complexity is rated as high. The exploitability is reported as difficult. The exploit has been made available to the public and could be used for attacks. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116114"
-    },
-    {
-      "id": "CVE-2026-116113",
-      "published": "2026-10-26T04:17:47.653",
-      "lastModified": "2026-10-26T13:41:11.497",
-      "description": "A security flaw has been discovered in GouGuOA up to 6.1.2. The impacted element is the function chunkUpload of the file app/disk/controller/Api.php. The manipulation of the argument file_extension results in unrestricted upload. It is possible to launch the attack remotely. The exploit has been released to the public and may be used for attacks. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116113"
-    },
-    {
-      "id": "CVE-2026-116112",
-      "published": "2026-10-26T03:17:11.780",
-      "lastModified": "2026-10-29T21:17:13.883",
-      "description": "A vulnerability was identified in HashenUdara edoc-doctor-appointment-system up to cc258425b915d1af9e298777ccd26d160493e68d. The affected element is an unknown function of the file admin/add-new.php. The manipulation of the argument spec leads to sql injection. It is possible to initiate the attack remotely. The exploit is publicly available and might be used. This product is using a rolling release to provide continious delivery. Therefore, no version details for affected nor updated releases are available. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116112"
-    },
-    {
-      "id": "CVE-2026-116111",
-      "published": "2026-10-26T03:17:11.603",
-      "lastModified": "2026-10-29T15:04:47.170",
-      "description": "A vulnerability was determined in 2K Games Civilization V 1.0.3.144. Impacted is the function loadstring of the component Lua Sandbox. Executing a manipulation can lead to type confusion. The attack may be performed from remote. The exploit has been publicly disclosed and may be utilized. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116111"
-    },
-    {
-      "id": "CVE-2026-116110",
-      "published": "2026-10-26T03:17:11.417",
-      "lastModified": "2026-10-26T13:41:11.497",
-      "description": "A vulnerability was found in GiantappMan LiveWallPaper 2.6.8.0 on Windows. This issue affects some unknown processing of the file /LiveWallpaper/UploadFile of the component SignalR Hub. Performing a manipulation results in missing authentication. The attack is possible to be carried out remotely. The exploit has been made public and could be used. The patch is named b62f878899adbfc2968e3345442f3a3df91b774d. It is suggested to install a patch to address this issue. The vendor was contacted early about this disclosure.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116110"
-    },
-    {
-      "id": "CVE-2026-116109",
-      "published": "2026-10-26T03:17:10.337",
-      "lastModified": "2026-10-29T21:17:13.753",
-      "description": "A vulnerability has been found in continuedev Continue 2.0.0. This vulnerability affects the function MCPManagerSingleton.setConnections of the file core/config/ConfigHandler.ts of the component MCP Server Transport. Such manipulation leads to os command injection. The attack can be executed remotely. The exploit has been disclosed to the public and may be used. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116109"
-    },
-    {
-      "id": "CVE-2026-116108",
-      "published": "2026-10-26T02:17:06.867",
-      "lastModified": "2026-10-26T17:17:20.580",
-      "description": "A flaw has been found in openbq-org OpenBB up to 4.7.2/5.0.0. This affects an unknown part of the file openbb_platform/core/openbb_core/app/model/api_settings.py of the component Local API Server. This manipulation causes improper access controls. Remote exploitation of the attack is possible. The exploit has been published and may be used. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116108"
-    },
-    {
-      "id": "CVE-2026-116107",
-      "published": "2026-10-26T02:17:06.677",
-      "lastModified": "2026-10-26T13:41:11.497",
-      "description": "A vulnerability was detected in Datafeedr Product Sets Plugin up to 1.3.24 on WordPress. Affected by this issue is the function dfrps_ajax_delete_saved_search of the file functions/ajax.php of the component AJAX Handlers. The manipulation results in missing authorization. The attack may be launched remotely. The exploit is now public and may be used. Upgrading to version 1.3.25 can resolve this issue. Upgrading the affected component is advised. The vendor was contacted early about this disclosure.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116107"
-    },
-    {
-      "id": "CVE-2026-116106",
-      "published": "2026-10-26T02:17:06.493",
-      "lastModified": "2026-10-29T21:17:13.620",
-      "description": "A security vulnerability has been detected in HeyCyan App 1.0.103 on Android. Affected by this vulnerability is an unknown functionality of the component FileProvider. The manipulation leads to improper access controls. The attack may be initiated remotely. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116106"
-    },
-    {
-      "id": "CVE-2026-116105",
-      "published": "2026-10-26T02:17:06.317",
-      "lastModified": "2026-10-26T17:17:20.443",
-      "description": "A weakness has been identified in HeyCyan App 1.0.103 on Android. Affected is an unknown function of the file AndroidManifest.xml of the component Network Security Configuration. Executing a manipulation can lead to cleartext transmission of sensitive information. The attack can be launched remotely. The attack requires a high level of complexity. The exploitability is told to be difficult. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116105"
-    },
-    {
-      "id": "CVE-2026-116104",
-      "published": "2026-10-26T01:17:15.753",
-      "lastModified": "2026-10-26T13:41:11.497",
-      "description": "A security flaw has been discovered in Sony Neural Network Libraries up to 1.39.0. This impacts the function func_set_nnabla_version_decorate of the file python/src/nnabla/utils/converter/utils.py of the component NNP Converter. Performing a manipulation of the argument function.type results in code injection. The attack can be initiated remotely. The exploit has been released to the public and may be used for attacks. The vendor was contacted early about this disclosure but did not respond in any way. This vulnerability only affects products that are no longer supported by the maintainer.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116104"
-    },
-    {
-      "id": "CVE-2026-116103",
-      "published": "2026-10-26T01:17:15.553",
-      "lastModified": "2026-10-29T21:17:13.467",
-      "description": "A vulnerability was identified in Sony Neural Network Libraries up to 1.39.0. This affects the function load_param_in_txt of the file python/src/nnabla/utils/cli/encode_decode_param.py of the component Encode Param Command Handler. Such manipulation leads to code injection. It is possible to launch the attack remotely. The exploit is publicly available and might be used. The vendor was contacted early about this disclosure but did not respond in any way. This vulnerability only affects products that are no longer supported by the maintainer.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116103"
-    },
-    {
-      "id": "CVE-2026-116102",
-      "published": "2026-10-26T01:17:15.377",
-      "lastModified": "2026-10-26T17:17:20.310",
-      "description": "A vulnerability was determined in QuantGeekDev docker-mcp 0.1.0/0.2.0. The impacted element is the function _build_windows_command of the file docker_executor.py. This manipulation of the argument project_name causes os command injection. It is possible to initiate the attack remotely.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116102"
-    },
-    {
-      "id": "CVE-2026-116101",
-      "published": "2026-10-26T01:17:15.203",
-      "lastModified": "2026-10-26T13:41:11.497",
-      "description": "A vulnerability was found in itsourcecode Online Cake Ordering System 1.0. The affected element is an unknown function of the file /deletetransac.php. The manipulation of the argument ID results in sql injection. The attack may be performed from remote. The exploit has been made public and could be used.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116101"
-    },
-    {
-      "id": "CVE-2026-116100",
-      "published": "2026-10-26T01:17:15.023",
-      "lastModified": "2026-10-29T21:17:13.323",
-      "description": "A vulnerability has been found in gougucms up to 4.08.18. Impacted is the function Add of the file app/admin/controller/Level.php of the component User Level Handler. The manipulation of the argument Title leads to cross site scripting. The attack is possible to be carried out remotely. The exploit has been disclosed to the public and may be used. The vendor was contacted early about this disclosure but did not respond in any way.",
-      "score": 2.4,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116100"
     }
   ]
 }
