@@ -1,899 +1,905 @@
 {
-  "syncedAt": "2026-11-06T19:16:29.203Z",
+  "syncedAt": "2026-11-06T23:47:46.126Z",
   "items": [
     {
-      "id": "CVE-2026-119336",
-      "published": "2026-10-30T20:17:08.297",
-      "lastModified": "2026-11-02T19:14:53.030",
-      "description": "Pi-hole is a DNS sinkhole that protects devices from unwanted content without installing any client-side software. From 6.4.2 until 6.5, the root-run advanced/Scripts/updatecheck.sh cron job applies truncate -s 0 and chmod 644 to /etc/pihole/versions while following symbolic links in a directory owned by the pihole user. An attacker executing as pihole can replace that path with a symlink so the scheduled root operations truncate or create an arbitrary root-owned file, or race the operations so chmod makes a sensitive target world-readable without truncating it. This issue is fixed in version 6.5.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119336"
+      "id": "CVE-2026-120202",
+      "published": "2026-10-31T18:17:08.080",
+      "lastModified": "2026-11-05T16:17:41.697",
+      "description": "Highflame ramparts 0.8.1 through 0.8.10 contains a security scan bypass vulnerability that allows attackers to hide malicious payloads because collect_bundle_siblings and walk_bundle_subdir skip nested directories and .pyc files. Attackers can distribute a skill bundle with an unchecked-hash .pyc under scripts/<subdir>/__pycache__/ that ramparts silently ignores, while CPython executes it when the skill runs.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120202"
     },
     {
-      "id": "CVE-2026-119335",
-      "published": "2026-10-30T20:17:08.137",
-      "lastModified": "2026-11-05T03:17:19.617",
-      "description": "Pi-hole is a DNS sinkhole that protects devices from unwanted content without installing any client-side software. Prior to 6.5, advanced/Scripts/utils.sh getFTLPID() attempts to validate the pihole-owned /run/pihole-FTL.pid file with expr \"${FTL_PID}\" : \"[^[:digit:]]\", but this rejects only values whose first character is not a digit. An attacker with code execution as the pihole user can write a digit-prefixed arithmetic expression to the pihole-owned PID file. Root-run pihole subcommands then evaluate [[ \"$pid\" -eq \"-1\" ]], causing Bash to recursively evaluate array subscripts and execute command substitution as root. This bypasses the content-validation portion of the CVE-2026-41489 remediation while leaving its hardcoded PID-file path protection intact. This issue is fixed in version 6.5.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119335"
+      "id": "CVE-2026-120201",
+      "published": "2026-10-31T18:17:07.890",
+      "lastModified": "2026-11-02T15:17:18.077",
+      "description": "Jpom 2.10.0 through 2.11.12 contains an authentication bypass vulnerability that allows unauthenticated attackers to gain super-administrator access by injecting query conditions into the JPOM-USER-TOKEN header. Attackers can send a value like 'is not null', which Hutool's Condition parser treats as an operator, then execute commands through Jpom's script features.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120201"
     },
     {
-      "id": "CVE-2026-119334",
-      "published": "2026-10-30T20:17:07.967",
-      "lastModified": "2026-11-02T19:14:53.030",
-      "description": "Pi-hole is a DNS sinkhole that protects devices from unwanted content without installing any client-side software. Prior to 6.5, gravity.sh checks file:// adlist readability with sudo -u pihole test -r but then allows curl, sometimes running as root, to normalize URL dot segments and open a different file. A pihole-readable decoy can therefore pass the check while curl reads a root-only target, and /proc/self paths can similarly resolve against different processes. Exploitation requires an administrator who can add adlists and can place a symlink and decoy on the filesystem. This issue is fixed in version 6.5.",
-      "score": 2.2,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119334"
-    },
-    {
-      "id": "CVE-2026-119333",
-      "published": "2026-10-30T20:17:07.780",
-      "lastModified": "2026-11-02T19:14:53.030",
-      "description": "draw.io Desktop is the official Electron build of draw.io. Prior to 31.5.2, the Windows application launched powershell and attrib by bare executable name from src/main/electron.js. When draw.io Desktop was not already running, opening a diagram from File Explorer made the diagram directory the current working directory, allowing a colocated attacker-controlled powershell.bat or attrib.exe to be resolved before the intended system executable. A victim who extracted an attacker-supplied archive and cold-opened its legitimate .drawio file could therefore execute attacker-controlled code when Local Fonts were enabled or when draft or backup attributes were updated. This issue is fixed in version 31.5.2.",
-      "score": 7.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119333"
-    },
-    {
-      "id": "CVE-2026-119332",
-      "published": "2026-10-30T20:17:07.600",
+      "id": "CVE-2026-120200",
+      "published": "2026-10-31T18:17:07.713",
       "lastModified": "2026-11-02T19:35:33.347",
-      "description": "Ladybird is a truly independent web browser. Prior to 209579c96473c75bd5eba9701fcadb841a045964, FinalizationRegistry::cleanup() in Libraries/LibJS/Runtime/FinalizationRegistry.cpp removed a dead record from m_records, retained an iterator to the next FinalizationRecord, and then invoked attacker-controlled JavaScript through the cleanup callback. If that callback called unregister() for the next record, remove_by_token() freed the node referenced by the retained iterator, and the next cleanup iteration read its target and held_value fields after free. This reliably crashes instrumented WebContent builds and creates a memory-corruption primitive in production builds. This vulnerability is fixed by commit 209579c96473c75bd5eba9701fcadb841a045964.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119332"
+      "description": "Nexterm through 1.2.2-BETA contains a missing authorization vulnerability that allows authenticated users to hibernate, resume, or terminate other users' remote sessions via session lifecycle routes. Attackers who obtain a session ID can call the hibernate, resume, or DELETE connection endpoints to disrupt live SSH, RDP, VNC, or SFTP sessions.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120200"
     },
     {
-      "id": "CVE-2026-119331",
-      "published": "2026-10-30T20:17:07.133",
-      "lastModified": "2026-11-02T19:35:33.347",
-      "description": "Ladybird is a truly independent web browser. Prior to the c0d68bddf3e3616e5173835f0f4c155ee9700d91 commit, CSSStyleSheet.cssRules, insertRule(), and deleteRule() in Libraries/LibWeb/CSS/CSSStyleSheet.cpp did not enforce the stylesheet origin-clean flag with the required SecurityError, even though cross-origin imported stylesheets were correctly marked non-origin-clean. A malicious page could read parsed rules from a stylesheet loaded without CORS and could insert or delete rules in the victim stylesheet, bypassing the Same-Origin Policy. Reading could expose selectors, generated content, feature markers, or other sensitive rule text, while mutation could alter page visibility or layout. The issue does not provide memory corruption, code execution, or persistence after the attacker page closes. This vulnerability is fixed by commit c0d68bddf3e3616e5173835f0f4c155ee9700d91.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119331"
-    },
-    {
-      "id": "CVE-2026-119330",
-      "published": "2026-10-30T20:17:06.943",
-      "lastModified": "2026-11-05T03:17:19.490",
-      "description": "Immich is a high-performance self-hosted photo and video management solution. Prior to 3.2.0, the shared-link creation API accepted albumId and assetIds as independent fields in server/src/services/shared-link.service.ts but authorized only the resource selected by the requested link type. An authenticated attacker who already knew a victim-owned asset UUID could select SharedLinkType.Album for an attacker-owned album while supplying that UUID in assetIds; SharedLinkService.create() persisted the unchecked association in shared_link_asset and made the victim asset available through the new anonymous shared-link credential. This exposed victim metadata, thumbnails, and the byte-identical original file and created a persistent sharing relationship that could be redistributed. This issue is fixed in version 3.2.0.",
-      "score": 3.5,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119330"
-    },
-    {
-      "id": "CVE-2026-119329",
-      "published": "2026-10-30T20:17:06.793",
-      "lastModified": "2026-11-02T16:17:31.450",
-      "description": "Immich is a high-performance self-hosted photo and video management solution. Prior to 3.0.0, GET /api/map/markers used server/src/services/map.service.ts to add partner owner identifiers when withPartners=true, while server/src/repositories/map.repository.ts applied Archive visibility to every selected owner when isArchived=true. A view-only partner could therefore enumerate the GPS coordinates and existence of a sharer's archived photos or videos even though the timeline and direct-access paths exclude archived partner assets. The exposure is limited to location metadata and asset identifiers because image bytes remain protected by checkPartnerAccess. This issue is fixed in version 3.0.0.",
+      "id": "CVE-2026-120199",
+      "published": "2026-10-31T18:17:07.010",
+      "lastModified": "2026-11-06T19:17:40.560",
+      "description": "LearnHouse before 1.1.1 contains a missing authorization vulnerability in the assignment API that allows authenticated users to read other users' grades and submissions. Attackers can supply another user_id to the submissions grade endpoint or query submission read functions to view other students' work, grades and instructor feedback.",
       "score": 4.3,
       "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119329"
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120199"
     },
     {
-      "id": "CVE-2026-119328",
-      "published": "2026-10-30T20:17:06.627",
-      "lastModified": "2026-11-06T18:17:57.920",
-      "description": "Immich is a high-performance self-hosted photo and video management solution. Prior to 3.3.0, the unauthenticated machine-learning /predict endpoint in machine-learning/immich_ml/main.py accepted an options object and passed its values into model construction in machine-learning/immich_ml/models/base.py without restricting security-sensitive parameters. An attacker with network access to the service could set cache_dir to an arbitrary writable path, causing model downloads to write there and causing clear_cache() to pass that path to shutil.rmtree() after selected model-loading failures. Depending on filesystem permissions and the selected path, this could modify files in mounted data locations or recursively delete an attacker-selected directory. The model-name allowlist prevents this issue from becoming arbitrary-model deserialization or code execution. This issue is fixed in version 3.3.0.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119328"
-    },
-    {
-      "id": "CVE-2026-116252",
-      "published": "2026-10-30T20:17:05.473",
-      "lastModified": "2026-11-06T16:17:47.247",
-      "description": "pgAdmin 4's materialized view refresh passed the target database's name to psql's --dbname argument unchanged. libpq treats a --dbname value containing \"=\" (or a postgresql:// URI) as a full connection string, whose keywords override the host, port and other settings pgAdmin had supplied. A database whose name is such a string, which any role with CREATEDB can create, therefore redirected the psql process pgAdmin starts for the refresh to a host and port of the creator's choosing, and the connecting user's saved server password was presented to that endpoint. It also let the pgAdmin host be made to open connections to arbitrary addresses.\n\nThe same weakness was fixed for Backup, Restore, Maintenance and Import/Export Data in earlier releases (CVE-2026-86862); the materialized view refresh was the remaining caller. The fix routes the name through the same database_conninfo() helper, so libpq treats it strictly as a database name.\n\nThis issue affects pgAdmin 4: before 9.19.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116252"
-    },
-    {
-      "id": "CVE-2026-116251",
-      "published": "2026-10-30T20:17:05.337",
-      "lastModified": "2026-11-06T16:17:47.080",
-      "description": "pgAdmin 4 did not invalidate a user's existing sessions when their password changed, either through the user's own change password dialog or through an administrator resetting it in User Management. A session established before the change, for example on another device or by someone who had obtained the old password or a session cookie, therefore stayed logged in after the change, which is the step a user or administrator takes precisely to cut such access off. It remained usable until it expired.\n\nThe fix rotates the user's session identifier (fs_uniquifier) whenever the password is changed, so every other session of that user is logged out. The session that made the change is logged in again and keeps its database connections. Saved server passwords, including those for shared servers, are re-encrypted under the new key; any that cannot be decrypted are cleared and the user is told. If re-encryption fails, the sessions are still revoked and the saved passwords are cleared rather than the change failing.\n\nThis issue affects pgAdmin 4: before 9.19.",
-      "score": 4.2,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116251"
-    },
-    {
-      "id": "CVE-2026-116250",
-      "published": "2026-10-30T20:17:05.170",
-      "lastModified": "2026-11-06T17:17:16.337",
-      "description": "In server mode pgAdmin 4 validates a path a user gives for a file in their storage directory with check_access_permission() and then opened it by name. Several places opened it with a plain open() or handed the path to a utility that opened it later: the servers.json export and import and the import file listing, and the files given to pg_dump, pg_dumpall, pg_restore and psql by Backup, Restore and Import/Export Data. A symbolic link swapped in at the file or at any parent directory between the check and the open redirected the operation outside the storage directory, so a file could be written, overwritten or read, or loaded into a table, as the operating-system account running pgAdmin. A hard link to an outside file, which O_NOFOLLOW does not detect, and a FIFO, which could hang a request, had the same effect. CVE-2026-86861 fixed this for the File Manager's save_file; these were the remaining paths.\n\nExploitation requires creating such a link or FIFO inside the user's storage directory. pgAdmin offers no way to do so, and the per-user storage directories belong to the pgAdmin account, so this requires write access to the storage backend as a different operating-system user, for example a shared or network-mounted storage directory, and winning the race.\n\nThe fix opens each file by walking down from the storage directory one component at a time with O_NOFOLLOW, accepting only a regular file with one link, and passes the utilities the open descriptor (/dev/fd/N) on Linux. Error messages no longer include the server path.\n\nThis issue affects pgAdmin 4: before 9.19.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116250"
-    },
-    {
-      "id": "CVE-2026-116249",
-      "published": "2026-10-30T20:17:05.027",
-      "lastModified": "2026-11-06T17:17:16.123",
-      "description": "In server mode pgAdmin 4 resolves a server's password file, SSL certificate, key, CRL and SSH tunnel identity file relative to the user's storage directory, but get_complete_file_path() only stripped leading slashes before joining the two. A path such as \"../<another user>/.pgpass\", set through the server dialog, the REST API or a servers.json import, therefore named another user's file, and connecting used that user's saved passwords, client certificate or SSH key. The sslkeylogfile connection parameter was passed to libpq unchanged, so a path outside storage let libpq create or append a file as the account running pgAdmin.\n\nmake_conninfo() also quoted connection parameter values but not their names, so a crafted parameter name could smuggle additional keyword=value pairs past these checks.\n\nThe fix requires the resolved path, with symbolic links followed, to stay inside the user's storage directory or the named shared storage directory, confines sslkeylogfile the same way, and accepts only exact libpq keywords as connection parameter names. A refused path or keyword is reported instead of letting libpq fall back to a default.\n\nThis issue affects pgAdmin 4: before 9.19.",
+      "id": "CVE-2026-102212",
+      "published": "2026-10-31T16:16:52.553",
+      "lastModified": "2026-11-06T14:17:05.860",
+      "description": "Heap-based buffer overflow in Opengear IM72XX, CM71XX, and ACM70XX firmware versions 4.8.0 through 5.5.2 on console server appliances allows an unauthenticated remote attacker to crash the index.cgi process via a crafted multipart/form-data POST request containing an overlong Content-Disposition name field.",
       "score": 8.4,
       "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116249"
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102212"
     },
     {
-      "id": "CVE-2026-116248",
-      "published": "2026-10-30T20:17:04.883",
-      "lastModified": "2026-11-06T17:17:15.890",
-      "description": "In pgAdmin 4 server mode only administrators are meant to share a server with all users; the server dialog shows the Shared switch only to them. The create and update endpoints of the server API, however, stored the \"shared\" flag and shared username they were sent, so any user able to register a server could share one with every other user. The servers.json import had a similar gap: a non-administrator's \"Shared\" entries were removed only after validation, so a file that also held an invalid entry could create a shared server.\n\nA shared server carries no credentials, so this gives no direct access. It lets a user plant a server, named to look trusted, in every other user's tree and pointing at a host the user controls; anyone who then connects to it presents their own database password to that host.\n\nThe fix refuses a non-administrator's request that would share a server with HTTP 403, prunes a non-administrator's shared entries from a servers.json import before validating it, and warns at startup about servers shared earlier by non-administrators.\n\nThis issue affects pgAdmin 4: before 9.19.",
-      "score": 6.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116248"
-    },
-    {
-      "id": "CVE-2026-116247",
-      "published": "2026-10-30T20:17:04.750",
-      "lastModified": "2026-11-06T17:17:15.730",
-      "description": "When a server in pgAdmin 4 had no password file, client certificate or client key configured, or the configured one could not be found, pgAdmin left the parameter out of the connection and libpq fell back to the defaults of the operating-system account running pgAdmin: ~/.pgpass, ~/.postgresql/postgresql.crt and postgresql.key, or PGPASSFILE, PGSSLCERT and PGSSLKEY. In server mode any user could therefore connect to a server with the service account's saved passwords or client certificate, and supplying only a copy of its public certificate was enough for libpq to pair it with the service account's private key. A pg_service.conf entry, or a maintenance database name read as a connection string by pg_dumpall, could bring the same files back for the utilities.\n\nThe fix gives each of these parameters a value in server mode, the user's own file or otherwise a path that can never be opened, in the connection string, in the environment of the utilities and in the --dbname connection string that ranks above a service entry. Desktop mode is unchanged.\n\nThis issue affects pgAdmin 4: before 9.19.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116247"
-    },
-    {
-      "id": "CVE-2026-116246",
-      "published": "2026-10-30T20:17:04.603",
-      "lastModified": "2026-11-06T17:17:15.563",
-      "description": "To pass a server's password to psql and to the utilities pgAdmin 4 runs as background processes, the server manager wrote it into pgAdmin's own process environment: as PGPASSWORD for the PSQL tool, and under a per-process variable for a utility. Nothing removed it afterwards. pgAdmin's environment is shared by every user's requests and copied into every process it starts, so in server mode another user's later PSQL session or utility inherited the password, and libpq used PGPASSWORD for any connection made without a password of its own, letting one user connect with another user's saved password.\n\nThe fix puts the password only into the environment built for the process that needs it and starts psql with a copy of pgAdmin's environment instead of the environment itself.\n\nThis issue affects pgAdmin 4: before 9.19.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116246"
-    },
-    {
-      "id": "CVE-2026-116245",
-      "published": "2026-10-30T20:17:04.467",
-      "lastModified": "2026-11-06T17:17:15.393",
-      "description": "libpq looks a connection service up in the service file of the operating-system account running pgAdmin 4, and an entry there can hold a password or name a password file or client certificate. In server mode any user could set a server's Service, or a \"service\" connection parameter, to one of those entries and connect with its credentials. A PGPASSWORD or PGSERVICE variable set for that account was likewise used by libpq for every connection without a value of its own and passed on to the utilities, and pg_dumpall read a maintenance database name such as \"service=...\" as a connection string.\n\nThe fix adds the SERVER_MODE_ALLOWED_SERVICES setting, empty by default: in server mode only a listed service can be used, the servicefile parameter is refused, and PGPASSWORD and PGSERVICE are removed from pgAdmin's environment at startup. The allowlist is checked again on the final connection string, and the pg_dumpall database name is wrapped as a connection string.\n\nThis issue affects pgAdmin 4: before 9.19.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116245"
-    },
-    {
-      "id": "CVE-2026-116244",
-      "published": "2026-10-30T20:17:04.327",
-      "lastModified": "2026-11-06T17:17:15.220",
-      "description": "When a pgAdmin 4 connection was not meant to use a Kerberos user's delegated credentials, pgAdmin removed KRB5CCNAME from its environment, so the Kerberos library fell back to the default credential cache, or a client keytab, of the operating-system account running pgAdmin. libpq then answered any server that asked for GSSAPI authentication with that account's ticket, whatever user name the pgAdmin user gave, so in server mode any user could connect as the service account's Kerberos principal; gssencmode=disable did not prevent it. On Windows, SSPI used the service account's logon in the same way. psql was also started with pgAdmin's environment, which could hold another user's credential cache while that user was connecting.\n\nThe fix points KRB5CCNAME and KRB5_CLIENT_KTNAME at a file that cannot exist except while a Kerberos-authenticated user connects with Kerberos, and gives every other connection, psql and the utilities require_auth=!gss,!sspi and gssencmode=disable, checked on the final connection string. require_auth needs libpq 16 or later.\n\nThis issue affects pgAdmin 4: before 9.19.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116244"
-    },
-    {
-      "id": "CVE-2026-116243",
-      "published": "2026-10-30T20:17:04.160",
-      "lastModified": "2026-11-06T17:17:15.043",
-      "description": "pgAdmin 4 runs pg_dump, pg_restore, pg_dumpall and psql from the binary path a user sets in their preferences. In server mode the binary path was refused only when it lay under the per-user storage directory (STORAGE_DIR), not under a SHARED_STORAGE directory, which ordinary users can upload files to. A user could therefore upload an executable to shared storage, point their binary path at it, and have pgAdmin run it as the operating-system account running pgAdmin. On POSIX, files created through pgAdmin are not executable, so this is exploitable where any file with an executable name can run, such as Windows server mode.\n\nThe fix checks the binary path against every SHARED_STORAGE directory as well, after expanding $DIR, collapsing \"..\" and resolving symbolic links, compares directories in a way a different spelling on a case-insensitive filesystem cannot bypass, refuses a path containing a NUL, and enforces the check wherever binary paths are resolved, including for the PSQL tool.\n\nThis issue affects pgAdmin 4: before 9.19.",
+      "id": "CVE-2026-78192",
+      "published": "2026-10-31T15:16:54.367",
+      "lastModified": "2026-11-06T14:17:13.797",
+      "description": "WebDyne versions from 2.022 before 3.022 for Perl disclose application source to unauthenticated clients via the viewer in the default index page.\n\nWebDyne's wrapper scripts, such as webdyne.psgi, enable the built-in index page by default. Its source viewer returns files under the document root named in the source parameter of an HTMX request, including .psp, .pm and .pl files.\n\nA remote attacker can read the application's Perl code, including the __PERL__ blocks of .psp pages and any credentials they hold.",
       "score": 7.5,
       "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116243"
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78192"
     },
     {
-      "id": "CVE-2026-116242",
-      "published": "2026-10-30T20:17:03.983",
-      "lastModified": "2026-11-06T17:17:14.880",
-      "description": "pgAdmin 4 opens SSH tunnels with the sshtunnel library but gave it neither host_pkey_directories nor ssh_config_file, so it always loaded the unencrypted private keys in ~/.ssh of the operating-system account running pgAdmin, read that account's ~/.ssh/config (IdentityFile, User, HostName, ProxyCommand) for the tunnel host, and could use its ssh-agent. In server mode any user could therefore configure a tunnel to a host that accepts the service account's key, with no credentials of their own or with an identity file that did not exist in their storage, and reach it as that account.\n\nThe fix makes tunnels in server mode use only the identity file or password the user configured: the service account's keys, configuration and agent are no longer used, and an identity file that cannot be found in the user's storage is reported instead of falling back to ~/.ssh. Desktop mode is unchanged.\n\nThis issue affects pgAdmin 4: before 9.19.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116242"
-    },
-    {
-      "id": "CVE-2026-116241",
-      "published": "2026-10-30T20:17:03.813",
-      "lastModified": "2026-11-06T17:17:14.710",
-      "description": "pgAdmin 4's Import/Export Data tool wraps a user's query export in a psql \\copy (...) TO command and checks that the query's parentheses are balanced so that nothing can escape the wrapper. The check rejected a backslash inside a single-quoted string, but not inside a double-quoted identifier, where it treated the next double quote as closing the identifier. psql's \\copy parser applies the connection's escape character to whichever quote opened a token, so with standard_conforming_strings off a backslash-escaped double quote does not close the identifier. pgAdmin's and psql's view of the quoting then diverged, a closing parenthesis hidden from the check ended the \\copy (...) wrapper, and a following TO PROGRAM clause was executed by psql on the pgAdmin host, as the operating-system account running pgAdmin, before the server rejected the statement. An ordinary database role can turn standard_conforming_strings off for itself, and the Import/Export Data permission is granted to non-administrators by default.\n\nThis is a bypass of the fix for CVE-2026-17566. The fix rejects any backslash inside a double-quoted identifier, as was already done for single-quoted strings, since its meaning depends on a server setting that cannot be known reliably when the query is validated.\n\nThis issue affects pgAdmin 4: before 9.19.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116241"
-    },
-    {
-      "id": "CVE-2026-116240",
-      "published": "2026-10-30T20:17:03.383",
-      "lastModified": "2026-11-06T17:17:14.537",
-      "description": "In server mode pgAdmin 4 validates a path into the user's storage directory with check_access_permission(), which builds the absolute path with get_abs_path(). Several callers then acted on a path they built differently, so the path checked and the path used could name different files:\n\n- Opening a file in the Query Tool, the Google client secret and, on Windows, Import/Export Data, Backup, Restore and saving a file joined the path to the storage directory after stripping leading slashes and backslashes. On POSIX a path checked as a name inside storage could become an absolute path once stripped, so any file the pgAdmin account can read could be opened; on Windows a path naming a drive discarded the storage directory, so these could read, or write, outside it.\n- Listing a folder decoded the path a second time after the check, so a folder named like an encoded \"..\", which a user can create, listed any directory on the host.\n- Download, delete, rename and the file-exists check appended the path to the storage directory without a separator, so in a deployment where one user's storage directory name is a prefix of another's, another user's files could be read, deleted or moved; download also checked the path appended to itself.\n- Creating a folder could create one in another user's directory.\n\nThe fix makes check_access_permission() return the path it checked and every caller act on that path, decodes folder paths once, and opens, deletes and renames files relative to directories opened from the storage directory without following symbolic links. Desktop mode is not affected.\n\nThis issue affects pgAdmin 4: before 9.19.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116240"
-    },
-    {
-      "id": "CVE-2026-116239",
-      "published": "2026-10-30T20:17:03.017",
-      "lastModified": "2026-11-06T16:17:46.910",
-      "description": "In server mode pgAdmin 4 keeps an account per authentication source, so the same username can exist as, for example, an internal account and an LDAP account. After LDAP or Kerberos authenticated a user, pgAdmin chose the account to log in by username alone, or took the account Flask-Security's login form had looked up, without checking that it came from the source that authenticated the user. The session therefore belonged to another account, with its role, its servers and its saved database passwords:\n\n- An LDAP or Kerberos user whose username matched an internal account was logged in as that internal account, including the administrator account created when pgAdmin is first set up.\n- With internal authentication listed before LDAP or Kerberos in AUTHENTICATION_SOURCES, the login form's internal validation looks up the account whose email was typed and keeps it even though its password does not match. A Kerberos user could type another Kerberos user's principal and be logged in as that user, and an LDAP user could do the same with an LDAP account whose email is their username.\n\nExploitation requires valid credentials for an LDAP directory or Kerberos realm that pgAdmin is configured to use.\n\nThe fix looks the account up by the authenticated username and the source that authenticated it, and no longer uses the account the login form found for any source but internal authentication. Internal authentication logs in that account only if it is an internal account. Desktop mode is not affected.\n\nThis issue affects pgAdmin 4: before 9.19.",
-      "score": 8.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116239"
-    },
-    {
-      "id": "CVE-2026-116238",
-      "published": "2026-10-30T20:17:02.433",
-      "lastModified": "2026-11-06T16:17:46.603",
-      "description": "In server mode pgAdmin 4 locks an internal account after MAX_LOGIN_ATTEMPTS failed logins (3 by default). The limit could be bypassed, giving an unauthenticated attacker an unlimited number of password guesses against any internal account, including the administrator's, in the default configuration:\n\n- Flask-Security registers its own views next to pgAdmin's. A login submitted to its /login view was checked and logged in without pgAdmin's failed login count or lock. Its /verify view checked a signed-in user's password without limit, its /change view changed a password without pgAdmin's change password permission or re-encrypting the user's saved server passwords, and its /reset views sent and applied password resets for accounts that are not internal or are locked.\n- The internal account was looked up by its exact username, while the login form matches the email ignoring case, so a login with the username typed in another case was neither counted nor checked for the lock.\n- With LDAP or webserver authentication also configured, a wrong internal password was never counted, and with Kerberos or webserver authentication configured a guess could be answered without being counted.\n\nIn addition, where accounts from different authentication sources share an email address, a password reset could be sent for, or applied to, an account from another source, and the About box showed the server configuration to a user whose email was that of an administrator's account.\n\nThe fix refuses submissions to Flask-Security's own views, counts every failed internal login however the username is typed and whatever other sources are configured, no longer lets a login that posts a password fall back to an authentication source that does not check it, and locks only internal authentication. Password resets and the About box act only on the user's own internal account. Desktop mode is not affected.\n\nThis issue affects pgAdmin 4: before 9.19.",
-      "score": 8.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116238"
-    },
-    {
-      "id": "CVE-2026-115830",
-      "published": "2026-10-30T20:17:02.240",
-      "lastModified": "2026-11-05T18:17:02.623",
-      "description": "In Secret Server on-prem versions earlier than 12.3.1, a user under certain conditions could submit an unsigned JWT and receive cloudadmin permissions in response.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-115830"
-    },
-    {
-      "id": "CVE-2026-115829",
-      "published": "2026-10-30T20:17:02.107",
-      "lastModified": "2026-11-05T18:17:02.460",
-      "description": "In Secret Server on-prem versions earlier than 12.3.1, a user could cause a two-factor pin code to be generated for any account without prior authentication, then bypass the initial login step and authenticate using the second factor alone.",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-115829"
-    },
-    {
-      "id": "CVE-2026-115828",
-      "published": "2026-10-30T20:17:01.970",
-      "lastModified": "2026-11-05T18:17:02.287",
-      "description": "In Secret Server on-prem versions earlier than 12.3.1, Secret Server did not always validate the PIN or biometric check when using a FIDO2-compliant device",
-      "score": 9.4,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-115828"
-    },
-    {
-      "id": "CVE-2026-94175",
-      "published": "2026-10-30T19:20:19.250",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Unauthenticated Cross Site Scripting (XSS) in All In One Login <= 2.4.1 versions.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94175"
-    },
-    {
-      "id": "CVE-2026-90888",
-      "published": "2026-10-30T19:20:18.680",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Unauthenticated PHP Object Injection in LeadSnap <= 1.25 versions.",
+      "id": "CVE-2026-78191",
+      "published": "2026-10-31T15:16:54.247",
+      "lastModified": "2026-11-06T15:17:23.297",
+      "description": "WebDyne versions from 2.031 before 3.022 for Perl execute files with .psp anywhere in the name as Perl pages.\n\nWebDyne decides whether to run a requested file as a page by matching its name against WEBDYNE_PSP_EXT_RE, which has no end anchor.\n\nAn application that accepts uploads by checking only the final extension lets a remote attacker upload a file such as report.psp.pdf and run its embedded Perl by requesting it.",
       "score": 9.8,
       "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90888"
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78191"
     },
     {
-      "id": "CVE-2026-7005",
-      "published": "2026-10-30T19:19:13.937",
-      "lastModified": "2026-10-30T20:17:19.433",
-      "description": "WIT SynApps Runtime through 1.4.11 contains a browser-mediated cross-origin request forgery vulnerability that allows attackers to supply an arbitrary target address during controller onboarding, causing the victim's browser to issue discovery requests to attacker-specified hosts at paths such as /easy/GUI/Skins/Default/SiteLogo and /easy/GUI/Skins/Default/Identity. Attackers can leverage the victim's browser reachability to probe loopback addresses, local hostnames, or internal-only network hosts and initiate the enrollment flow against REDY instances, crossing IT/OT segmentation boundaries through a sanctioned application path.",
+      "id": "CVE-2026-78190",
+      "published": "2026-10-31T15:16:54.123",
+      "lastModified": "2026-11-06T15:17:23.120",
+      "description": "WebDyne versions from 2.014 before 3.022 for Perl reflect request parameters unescaped into form field values, allowing cross-site scripting.\n\nThe textfield, password_field and filefield tags fill their value attribute from the request parameter of the same name. WEBDYNE_CGI_AUTOESCAPE, which controls escaping of these values, defaults to off. From 2.022, WebDyne::HTML::Tiny also replaced its entity_encode method with one that returns its input unchanged, so enabling WEBDYNE_CGI_AUTOESCAPE has no effect.\n\nA remote attacker can inject script into any page using these tags through a crafted link.",
       "score": 6.1,
       "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7005"
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78190"
     },
     {
-      "id": "CVE-2026-7004",
-      "published": "2026-10-30T19:19:13.797",
-      "lastModified": "2026-10-30T23:17:15.970",
-      "description": "WIT SynApps Runtime through 1.4.11 contains a pre-authentication reflected cross-site scripting vulnerability that allows unauthenticated attackers to inject and execute arbitrary JavaScript by submitting a crafted LINK query parameter to the /System/Session-1 endpoint. Attackers can exploit this flaw to harvest credentials, manipulate the login flow, access browser-visible data, and perform same-origin requests to controller endpoints, including an origin-switch primitive against the internal controller in Cloud RIA scenarios.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7004"
-    },
-    {
-      "id": "CVE-2026-7003",
-      "published": "2026-10-30T19:19:13.647",
-      "lastModified": "2026-11-06T18:18:19.777",
-      "description": "WIT SynApps Runtime through 1.4.11 contains a hardcoded credentials vulnerability that allows unauthenticated attackers to recover static OAuth clientId and clientSecret values embedded in JavaScript delivered to the frontend, such as in parameters.js. Attackers can extract these exposed application credentials to reproduce the application portion of the REDY authentication flow at the /web/api/v1/auth/token endpoint, undermining confidential-client assurance for the OAuth implementation.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-7003"
-    },
-    {
-      "id": "CVE-2026-78527",
-      "published": "2026-10-30T19:19:12.177",
-      "lastModified": "2026-10-30T23:17:15.853",
-      "description": "Contributor PHP Object Injection in GS Testimonial Slider <= 3.3.10 versions.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78527"
-    },
-    {
-      "id": "CVE-2026-73322",
-      "published": "2026-10-30T19:19:10.747",
-      "lastModified": "2026-11-06T17:19:44.960",
-      "description": "Incorrect Authorization vulnerability in the single-stage query engine of Apache Pinot.\n\nWhen broker access control is enabled, the single-stage query engine authorizes only the table named in the query's FROM clause. The lookup() transform function identifies its dimension table with a string literal argument rather than through the FROM clause, so that table was never included in the authorization check. An authenticated user who is authorized for at least one table can therefore read columns from any dimension table in the cluster, including tables they have no access to, and can retrieve arbitrary rows of it by supplying primary key values directly. Per-principal row-level security filters configured on the dimension table are likewise not applied.\n\nThe multi-stage query engine is not affected.\n\nThis issue affects Apache Pinot: through 1.5.1\n\nUsers are recommended to upgrade to version 1.6.0, which fixes this issue.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73322"
-    },
-    {
-      "id": "CVE-2026-73186",
-      "published": "2026-10-30T19:19:10.123",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Subscriber PHP Object Injection in Enable Media Replace <= 4.2.2 versions.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-73186"
-    },
-    {
-      "id": "CVE-2026-66026",
-      "published": "2026-10-30T19:18:33.970",
-      "lastModified": "2026-10-30T19:18:33.970",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66026"
-    },
-    {
-      "id": "CVE-2026-66025",
-      "published": "2026-10-30T19:18:33.903",
-      "lastModified": "2026-10-30T19:18:33.903",
-      "description": "Rejected reason: This CVE ID has been rejected or withdrawn by its CVE Numbering Authority.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-66025"
-    },
-    {
-      "id": "CVE-2026-62331",
-      "published": "2026-10-30T19:18:33.450",
-      "lastModified": "2026-10-30T20:17:12.210",
-      "description": "praktor is a multi-agent Claude Code orchestrator with Telegram input and output, Docker isolation, and a Mission Control UI. Prior to 0.9.1, both Telegram upload sites in `internal/telegram/bot.go` concatenate the attacker-controlled document filename into a destination path without sanitization, and `path.Join` collapses parent-directory traversal. A remote Telegram user who can message the bot can therefore write outside `uploads/` within the persistent agent workspace mounted at `/workspace/agent`. Because `allow_from: []` permits all senders by default, no prior authentication or privilege is required in that configuration. The attacker can plant or overwrite `CLAUDE.md`, instruction, skill, hook, or configuration files that the Claude agent reads and operates on across later runs, turning a document upload into stored instruction injection. The demonstrated arbitrary-write scope is the persistent agent workspace volume, not an unrestricted host-filesystem write. This issue is fixed in version 0.9.1.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62331"
-    },
-    {
-      "id": "CVE-2026-62303",
-      "published": "2026-10-30T19:18:33.217",
-      "lastModified": "2026-10-30T19:39:14.897",
-      "description": "Pistache is a high-performance REST toolkit written in C++. From 0.0.5 through 0.4.26, `SegmentTreeNode::sanitizeResource()` in `src/server/router.cc` uses `std::regex_replace()` with the `//+` expression to collapse consecutive slashes. With libstdc++, a path containing tens of thousands of consecutive slash characters can recurse deeply enough to exhaust the stack and crash the process. `Router::route()`, `Router::addRoute()` and `Router::removeRoute()` reach this normalization. Unauthenticated remote exploitation is conditional on a deployment allowing sufficiently long request paths, such as by increasing `Endpoint::Options::maxRequestSize()` above the default 4096-byte limit or forwarding long paths through a front end. Direct router API use is also affected when attacker-controlled route or resource strings reach the normalizer. Native builds reproduced a crash around 24,000 consecutive slashes, although the exact threshold depends on the stack and standard library; the demonstrated failure is stack exhaustion rather than uninitialized-memory use. A source fix replaces recursive regular-expression normalization with an iterative pass, but no containing repository release was verified as of time of publication.",
-      "score": 5.9,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62303"
-    },
-    {
-      "id": "CVE-2026-62298",
-      "published": "2026-10-30T19:18:33.027",
-      "lastModified": "2026-10-30T23:17:12.577",
-      "description": "mouse07410/asn1c is an ASN.1 compiler. Prior to 1.2.5, `OPEN TYPE` decoding can dereference an unallocated member pointer and crash the consuming program. `OPEN_TYPE_aper_get` in `OPEN_TYPE_aper.c`, `OPEN_TYPE_ber_get` in `OPEN_TYPE_ber.c`, `OPEN_TYPE_oer_get` in `OPEN_TYPE_oer.c`, and `OPEN_TYPE_uper_get` in `OPEN_TYPE_uper.c` share the pattern: a conditional null check on `*memb_ptr2` resets presence only when the member exists, but execution then unconditionally computes an inner value from that pointer and a member offset. If the `OPEN TYPE` member has not been allocated, the null-pointer arithmetic and subsequent read cause a segmentation fault. The advisory demonstrates UPER and APER crashes for `E2connectionUpdateAcknowledge`, notes that `E2AP` uses APER, and provides a BER reproducer; OER is also explicitly identified as affected. This issue is fixed in version 1.2.5.",
-      "score": 0,
-      "severity": "NONE",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62298"
-    },
-    {
-      "id": "CVE-2026-62264",
-      "published": "2026-10-30T19:18:32.827",
-      "lastModified": "2026-11-06T18:18:16.043",
-      "description": "PDF Reader MCP is a Model Context Protocol server for reading PDF documents. In versions 2.2.0 and later prior to 3.0.1, when `MCP_TRANSPORT=http` enables the opt-in HTTP server, `@sylphx/pdf-reader-mcp` reads `MCP_API_KEY` and logs that `X-API-Key` authentication is enabled but never validates the `X-API-Key` header on incoming requests. The `/mcp` endpoint consequently accepts unauthenticated clients. With the default bind address of `0.0.0.0`, any client able to reach the port can invoke every PDF tool and read any PDF the server process can open on the host, despite the misleading authentication-enabled startup log. URL-based sources additionally permit limited server-side request forgery; private and loopback destinations are blocked by default unless `--allow-private-ips` is set. The default `stdio` transport is unaffected. This issue is fixed in version 3.0.1.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62264"
-    },
-    {
-      "id": "CVE-2026-62162",
-      "published": "2026-10-30T19:18:32.630",
-      "lastModified": "2026-10-30T23:17:12.113",
-      "description": "Hydra is a layer-two scalability solution for Cardano. Prior to 2.1.0, the `Claim` branch in `hydra-plutus/validators/deposit.ak` checks only that `datum.head_id` matches the attacker-controlled `redeemer.currencySymbol` and that the transaction is valid before the deposit deadline. It neither requires spending the Head state-token UTxO in the same transaction nor constrains outputs. After a deposit made through `POST /commit` is confirmed, any third party able to build a Cardano transaction can observe and consume the pending deposit UTxO before its deadline and redirect the assets to an arbitrary address. A standalone deposit spend invokes no Head validator, bypassing its safety checks; historical head-ID binding and the Aiken rewrite retained this missing invariant. The default deadline is three times depositPeriod, so the described attack applies to pending deposits before that deadline. This issue is fixed in version 2.1.0.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62162"
-    },
-    {
-      "id": "CVE-2026-62160",
-      "published": "2026-10-30T19:18:32.473",
-      "lastModified": "2026-10-30T20:17:11.587",
-      "description": "Daptin is a GraphQL/JSON-API headless CMS. Prior to 0.12.26, the global `LanguageMiddleware` in `server/language.go` passes the raw `Accept-Language` header from `LanguageMiddlewareFunc` through `GetLanguagePreference` to `golang.org/x/text/language.ParseAcceptLanguage` without a size or shape filter. The guard for CVE-2022-32149 counts hyphens but not underscores, even though the internal parser normalizes underscores to hyphens. Long lists of underscore-separated language subtags longer than eight characters bypass the guard. These subtags fail the `len <= 8` length check in `golang.org/x/text/internal/language/parse.go`, causing repeated `gobble` operations to move the entire remaining buffer through `runtime.memmove`. With many invalid subtags, this repeated buffer movement takes quadratic work. Unauthenticated requests to the public landing page or `/api` can consume disproportionate CPU, with a 256 KiB header already causing seconds of processing and larger input permitted by the default 1 MiB header ceiling. `resource.CheckErr` also logs the entire invalid header, amplifying cost, while normal successful HTTP responses can conceal the denial-of-service traffic. Repeated requests can saturate server CPU. This issue is fixed in version 0.12.26.",
-      "score": 8.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62160"
-    },
-    {
-      "id": "CVE-2026-62122",
-      "published": "2026-10-30T19:18:32.210",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Missing Authorization vulnerability in Arraytics Booktics booktics allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Booktics: from n/a through 1.0.31.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62122"
-    },
-    {
-      "id": "CVE-2026-62121",
-      "published": "2026-10-30T19:18:32.057",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Improper Control of Filename for Include/Require Statement in PHP Program ('PHP Remote File Inclusion') vulnerability in Unlimited Elements Unlimited Elements For Elementor (Free Widgets, Addons, Templates) unlimited-elements-for-elementor allows PHP Local File Inclusion.This issue affects Unlimited Elements For Elementor (Free Widgets, Addons, Templates): from n/a through 2.0.26.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62121"
-    },
-    {
-      "id": "CVE-2026-62057",
-      "published": "2026-10-30T19:18:31.907",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Improper Neutralization of Script-Related HTML Tags in a Web Page (Basic XSS) vulnerability in Fahim Reza Divi Contact Form 7 cf7-styler-for-divi allows Code Injection.This issue affects Divi Contact Form 7: from n/a through 4.1.0.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62057"
-    },
-    {
-      "id": "CVE-2026-62056",
-      "published": "2026-10-30T19:18:31.760",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Missing Authorization vulnerability in WP ManageNinja LLC Fluent CRM fluent-crm allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Fluent CRM: from n/a through 3.2.6.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62056"
-    },
-    {
-      "id": "CVE-2026-62047",
-      "published": "2026-10-30T19:18:31.617",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Missing Authorization vulnerability in Liquid Web / StellarWP Event Tickets event-tickets allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Event Tickets: from n/a through 5.30.2.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62047"
-    },
-    {
-      "id": "CVE-2026-62023",
-      "published": "2026-10-30T19:18:31.470",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Missing Authorization vulnerability in Unlimited Elements Unlimited Elements For Elementor (Free Widgets, Addons, Templates) unlimited-elements-for-elementor allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Unlimited Elements For Elementor (Free Widgets, Addons, Templates): from n/a through 2.0.26.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62023"
-    },
-    {
-      "id": "CVE-2026-62019",
-      "published": "2026-10-30T19:18:31.323",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Missing Authorization vulnerability in Liquid Web / StellarWP BookIt bookit allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects BookIt: from n/a through 2.6.0.6.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-62019"
-    },
-    {
-      "id": "CVE-2026-61854",
-      "published": "2026-10-30T19:18:28.887",
-      "lastModified": "2026-10-30T19:39:14.897",
-      "description": "VoiceSentinel is a real-time voice moderation system for Minecraft servers. From 2.2.1 until 3.3.1, the optional report buffer feature has a race between retention cleanup and normal transcript writes. In `report_buffer.py`, `_maybe_cleanup()` uses an unlocked dictionary for once-per-hour cleanup throttling, allowing simultaneous `_cleanup_tenant()` operations for one tenant. Cleanup reads `transcripts.jsonl` and rewrites it in place without file locking or atomic replacement, while `report_buffer_append_async` uses `asyncio.to_thread` to append without synchronization. In `main.py`, concurrent `_processing_worker` tasks make this reachable in normal operation; `processing.worker_count` of two or more and public-pool servers sharing a `server_key` increase collisions. With `report_buffer.enabled` set to true, racing writes can lose, duplicate or corrupt transcript data and defeat `report_buffer.retention_seconds` pruning, allowing unbounded disk growth that can exhaust storage and crash the host or other services sharing it. The feature is opt-in and disabled by default. This issue is fixed in version 3.3.1.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61854"
-    },
-    {
-      "id": "CVE-2026-61848",
-      "published": "2026-10-30T19:18:28.707",
-      "lastModified": "2026-11-06T18:18:15.657",
-      "description": "Crass is a Ruby CSS parser that's fully compliant with the CSS Syntax Level 3 specification. Prior to 1.0.7, when Crass parses input containing `non-ASCII characters`, inefficiencies in tracking the positions of `multi-byte characters` result in superlinear parsing time. An attacker-controlled CSS input consisting of many `non-ASCII characters` can therefore cause excessive CPU consumption and potentially denial of service. This issue is fixed in version 1.0.7.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61848"
-    },
-    {
-      "id": "CVE-2026-61847",
-      "published": "2026-10-30T19:18:28.540",
-      "lastModified": "2026-10-30T23:17:12.003",
-      "description": "Crass is a Ruby CSS parser that's fully compliant with the CSS Syntax Level 3 specification. Prior to 1.0.7, when the `:preserve_comments` option is not enabled, which is the default, Crass discards CSS comments by recursively consuming the next token. An attacker-provided stylesheet containing a very large number of adjacent comments can cause excessive recursion and trigger a `SystemStackError`, denying service to the parsing application. Preserving comments avoids this recursive path. This issue is fixed in version 1.0.7.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61847"
-    },
-    {
-      "id": "CVE-2026-61846",
-      "published": "2026-10-30T19:18:28.370",
-      "lastModified": "2026-11-05T03:17:29.340",
-      "description": "Crass is a Ruby CSS parser that's fully compliant with the CSS Syntax Level 3 specification. Prior to 1.0.7, Crass recursively parses `CSS simple blocks and functions` without a depth guard. An attacker-controlled CSS value containing deeply nested blocks or functions can recurse until Ruby raises `SystemStackError`: stack level too deep, or cause excessive memory usage. Version 1.0.7 adds a configurable depth limit with a conservative default. This issue is fixed in version 1.0.7.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61846"
-    },
-    {
-      "id": "CVE-2026-61845",
-      "published": "2026-10-30T19:18:28.197",
-      "lastModified": "2026-10-30T20:17:11.263",
-      "description": "Crass is a Ruby CSS parser that's fully compliant with the CSS Syntax Level 3 specification. Prior to 1.0.7, Crass converts `CSS scientific notation` number values with unbounded exponentiation before clamping the result to `Float::MAX`. Applications that use Crass to parse attacker-controlled CSS strings can be forced to spend disproportionate CPU and memory parsing a tiny input, potentially resulting in a crash. This issue is fixed in version 1.0.7.",
-      "score": 8.9,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61845"
-    },
-    {
-      "id": "CVE-2026-61840",
-      "published": "2026-10-30T19:18:28.013",
-      "lastModified": "2026-10-30T23:17:11.890",
-      "description": "Quest Bot is an opensource Discord Bot. Prior to 1.1.9, the `image to GIF` command uses a request helper that validates a hostname's public IP addresses but then sends the actual request by hostname, causing a `second DNS lookup`. An attacker controlling a domain can return a public address during validation and an internal address during the connection, bypassing the internal-address protection through `DNS rebinding`. The command takes its address directly from user input and its developer-only gate is disabled in normal deployments, so any member of a server with the bot can trigger the flaw without special permissions. Requests are restricted to `HTTPS on port 443`, and content is returned only when the response is a `genuine image`. The impact is therefore mostly blind internal probing with limited retrieval of image responses from loopback or internal endpoints, not arbitrary internal-data disclosure. Common cloud metadata services using plain HTTP on another port are not reachable through this path. This issue is fixed in version 1.1.9.",
-      "score": 2.3,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61840"
-    },
-    {
-      "id": "CVE-2026-61586",
-      "published": "2026-10-30T19:18:27.840",
-      "lastModified": "2026-11-05T03:17:28.920",
-      "description": "Copernik XML Factory provides secure-by-default JAXP factory creation for Java. Prior to 0.1.2, Copernik XML Factory does not block XInclude resource resolution on the stock JDK provider after an application enables XInclude on a factory returned by `XmlFactories.newDocumentBuilderFactory()` or `XmlFactories.newSAXParserFactory()`, or on an `XMLReader` passed through `XmlFactories.harden()`. An application parsing untrusted XML can resolve attacker-controlled `xi:include` references to disclose local files or, through `http` references, reach internal network endpoints by server-side request forgery. Exploitation requires use of one of those factory/hardening APIs, the stock JDK provider with Apache Xerces absent from the classpath, explicit `setXIncludeAware(true)` or the equivalent reader feature, and XML from an untrusted source. The Xerces provider selected when Xerces is present and the Android provider are unaffected. This issue is fixed in version 0.1.2.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-61586"
-    },
-    {
-      "id": "CVE-2026-59978",
-      "published": "2026-10-30T19:18:27.480",
-      "lastModified": "2026-10-30T20:17:10.567",
-      "description": "AdminNeo is a full-featured database management tool written in PHP. From 4.6.2 until 5.5.0, the unauthenticated `?script=version` endpoint accepts POST data without origin, CSRF or parameter-type validation. A `version[]` parameter becomes a PHP array that `bootstrap.inc.php` serializes into the shared `adminneo.version` cache. On later page loads, `design.inc.php` passes that cached value to `cookie()` and `rawurlencode()`, causing a `TypeError` rather than encoding a version string. A remote attacker can make the instance return HTTP 500 to all users for the cache's twenty-four-hour lifetime or until the poisoned cache is removed. Exploitation requires the web server to be able to write that shared cache; making it unwritable is an interim workaround. The issue retains the underlying type-validation defect reported previously in Adminer despite changes to AdminNeo's version-checking flow. This issue is fixed in version 5.5.0.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-59978"
-    },
-    {
-      "id": "CVE-2026-54855",
-      "published": "2026-10-30T19:18:26.240",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Unauthenticated Cross Site Scripting (XSS) in Profile Builder <= 4.0.5 versions.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54855"
-    },
-    {
-      "id": "CVE-2026-54854",
-      "published": "2026-10-30T19:18:26.103",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Contributor Privilege Escalation in Profile Builder <= 4.0.5 versions.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54854"
-    },
-    {
-      "id": "CVE-2026-54850",
-      "published": "2026-10-30T19:18:25.863",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Subscriber Broken Access Control in Booking and Rental Manager <= 2.8.2 versions.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-54850"
-    },
-    {
-      "id": "CVE-2026-52710",
-      "published": "2026-10-30T19:18:25.723",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Improper Neutralization of Script-Related HTML Tags in a Web Page (Basic XSS) vulnerability in ithemelandco GIFTiT &#8211; Free Gifts for WooCommerce ithemeland-free-gifts-for-woo allows Code Injection.This issue affects GIFTiT &#8211; Free Gifts for WooCommerce: from n/a through 4.5.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-52710"
-    },
-    {
-      "id": "CVE-2026-48201",
-      "published": "2026-10-30T19:18:25.347",
-      "lastModified": "2026-10-30T23:17:11.533",
-      "description": "Unauthenticated Cross Site Scripting (XSS) in Fast Velocity Minify <= 3.5.7 versions.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-48201"
-    },
-    {
-      "id": "CVE-2026-46560",
-      "published": "2026-10-30T19:18:25.203",
-      "lastModified": "2026-11-05T03:17:27.337",
-      "description": "Open Access Management (OpenAM) is an access management solution. Prior to 16.1.1, the `RADIUS` authentication module opens an unconnected datagram socket and trusts the first UDP datagram received on the client source port. The receive path does not verify the source IP and port, match the response identifier to the outstanding request, or verify the RFC 2865 `Response Authenticator`; the RFC 2869 `Message-Authenticator` is neither sent nor required. Any non-Reject/non-Challenge packet is treated as success. On a deployment with a `RADIUS` module instance enabled on a login chain, an unauthenticated network attacker can race the real server on-path or spray forged `Access-Accept` packets off-path and obtain a session for any `RADIUS`-mapped username without knowing the shared secret. Unlike CVE-2024-3596, exploitation requires no MD5 chosen-prefix forgery because no response authenticator is checked. The resulting session carries the impersonated principal's privileges. This issue is fixed in version 16.1.1.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-46560"
-    },
-    {
-      "id": "CVE-2026-39786",
-      "published": "2026-10-30T19:18:24.730",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Unauthenticated Cross Site Scripting (XSS) in BA Book Everything <= 1.8.33 versions.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-39786"
-    },
-    {
-      "id": "CVE-2026-39739",
-      "published": "2026-10-30T19:18:24.567",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Brainstorm Force Ultimate Addons for Elementor - Lite header-footer-elementor allows Stored XSS.This issue affects Ultimate Addons for Elementor - Lite: from n/a through 2.9.5.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-39739"
-    },
-    {
-      "id": "CVE-2026-39738",
-      "published": "2026-10-30T19:18:24.427",
-      "lastModified": "2026-11-01T11:18:58.207",
-      "description": "Deserialization of Untrusted Data vulnerability in Aman FunnelKit Automations wp-marketing-automations allows Object Injection.This issue affects FunnelKit Automations: from n/a through 3.8.6.1.",
+      "id": "CVE-2026-78189",
+      "published": "2026-10-31T15:16:54.003",
+      "lastModified": "2026-11-06T15:17:22.950",
+      "description": "WebDyne versions from 3.007 before 3.022 for Perl execute .psp files outside the document root via path traversal in the PSGI API route fallback.\n\nWhen a request matches no file, the PSGI handler retries it as an API route through api_filename. That keeps .. segments in the request path and only checks that the joined path starts with the document root, which a request for /../private passes.\n\nA remote attacker can run the embedded Perl in any .psp file the server can read, such as one uploaded to a directory outside the document root.",
       "score": 9.8,
       "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-39738"
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78189"
     },
     {
-      "id": "CVE-2026-39734",
-      "published": "2026-10-30T19:18:24.280",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Unauthenticated Path Traversal in WP EasyPay <= 4.5.4 versions.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-39734"
+      "id": "CVE-2026-78188",
+      "published": "2026-10-31T15:16:53.860",
+      "lastModified": "2026-11-06T14:17:13.580",
+      "description": "WebDyne versions from 2.014 before 3.022 for Perl issue session cookies without the Secure, HttpOnly and SameSite attributes.\n\nWebDyne::Session sets its session cookie with only a name, value and path.\n\nBrowsers then send the session ID over plain HTTP and with cross-site requests, and expose it to page scripts. A network attacker or an injected script can steal the session, and another site can make requests that carry it.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78188"
     },
     {
-      "id": "CVE-2026-39732",
-      "published": "2026-10-30T19:18:24.137",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Unauthenticated SQL Injection in Transliterator <= 2.5.13 versions.",
-      "score": 9.3,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-39732"
-    },
-    {
-      "id": "CVE-2026-28160",
-      "published": "2026-10-30T19:18:23.873",
-      "lastModified": "2026-11-02T07:18:04.110",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in e4jvikwp VikRentCar vikrentcar allows Stored XSS.This issue affects VikRentCar: from n/a through 1.4.10.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-28160"
-    },
-    {
-      "id": "CVE-2026-27061",
-      "published": "2026-10-30T19:18:23.417",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Subscriber Cross Site Scripting (XSS) in User Registration <= 5.3.0 versions.",
+      "id": "CVE-2026-15272",
+      "published": "2026-10-31T12:16:27.790",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Web 2.0 Directory plugin for WordPress is vulnerable to time-based SQL Injection via the 'w2dc_level_filter' parameter in all versions up to, and including, 2.10.12 due to insufficient escaping on the user supplied parameter and lack of sufficient preparation on the existing SQL query. This makes it possible for unauthenticated attackers to append additional SQL queries into already existing queries that can be used to extract sensitive information from the database. Because the parameter is used in integer context without surrounding quotes, WordPress's built-in addslashes/magic_quotes escaping provides no protection against time-based payloads such as SLEEP-based conditionals.",
       "score": 6.5,
       "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-27061"
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-15272"
     },
     {
-      "id": "CVE-2026-120046",
-      "published": "2026-10-30T19:18:22.930",
-      "lastModified": "2026-11-05T03:17:20.770",
-      "description": "Nezha 2.0.0 before 2.4.0 contains a NULL pointer dereference vulnerability in ServiceSentinel.loadTodayStats that allows authenticated users to crash the dashboard by deleting a service. Attackers can delete their own service via POST /api/v1/batch-delete/service, leaving orphaned service_histories rows that crash the non-TSDB dashboard on its next startup until removed manually.",
-      "score": 5.3,
+      "id": "CVE-2026-96554",
+      "published": "2026-10-31T10:16:38.927",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The BuddyBoss Platform plugin for WordPress is vulnerable to Stored Cross-Site Scripting via Group Name in all versions up to, and including, 3.6.0 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with subscriber-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. This requires the \"Enable social group creation by all members\" setting to be enabled, which is the default and permits Subscriber-level users to create groups; exploitation is not possible if group creation is restricted to administrators.",
+      "score": 6.4,
       "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120046"
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-96554"
     },
     {
-      "id": "CVE-2026-120007",
-      "published": "2026-10-30T19:18:22.770",
-      "lastModified": "2026-10-30T20:17:09.377",
-      "description": "NodeBB 1.18.0 through 4.16.5 contains an authorization bypass vulnerability that allows unauthenticated visitors to act on other accounts by supplying a uid during POST /register. Attackers can submit an empty email at the /register/complete interstitial to clear a victim's email and confirmation state and revoke all their sessions.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120007"
-    },
-    {
-      "id": "CVE-2026-119842",
-      "published": "2026-10-30T19:18:22.293",
-      "lastModified": "2026-11-05T17:17:56.637",
-      "description": "A flaw was found in GStreamer's gst-plugins-base MicroDVD subtitle parser. When processing a specially crafted subtitle file, the parser may dereference a NULL pointer, causing the application to crash when a user opens or plays media with a malformed MicroDVD (.sub) subtitle file.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119842"
-    },
-    {
-      "id": "CVE-2026-119729",
-      "published": "2026-10-30T19:18:21.993",
-      "lastModified": "2026-11-05T17:17:56.330",
-      "description": "A flaw was found in GStreamer. An integer overflow vulnerability in the AV1 LEB128 variable-length integer parser allows a remote attacker to cause a crash in applications that process AV1 media content. By crafting a malformed AV1 bitstream containing an invalid LEB128-encoded value, an attacker can cause integer overflow in the parser, resulting in incorrect length values being used during stream processing, which can lead to a denial of service.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119729"
-    },
-    {
-      "id": "CVE-2026-119728",
-      "published": "2026-10-30T19:18:21.843",
-      "lastModified": "2026-11-05T17:17:56.170",
-      "description": "A flaw was found in the H.264 video parser in gst-plugins-bad. When processing a specially crafted H.264 video file or network stream with malformed Multiview (MVC) Sequence Parameter Set data, the parser can dereference a NULL pointer during the cleanup of partially allocated internal structures after a parse failure. This can cause the application using GStreamer to crash, resulting in a denial of service.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119728"
-    },
-    {
-      "id": "CVE-2026-119727",
-      "published": "2026-10-30T19:18:21.700",
-      "lastModified": "2026-11-05T17:17:55.997",
-      "description": "A flaw was found in GStreamer's gst-plugins-bad H.265 video parser. When parsing a specially crafted H.265 bitstream containing a Screen Content Coding (SCC) extension with certain palette predictor initializer settings, an integer underflow in the upper-bound computation allows the parser to accept an out-of-range value for the number of palette predictor entries. This causes the parser to write beyond the end of a fixed-size array, resulting in memory corruption and an application crash. An attacker can deliver the malformed bitstream as a local file or over a network stream such as HTTP, HLS, DASH, RTSP, RTP, or WebRTC. Successful exploitation requires the application to open or play that content, and is limited to a denial-of-service impact.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119727"
-    },
-    {
-      "id": "CVE-2026-119526",
-      "published": "2026-10-30T19:18:20.673",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Deserialization of Untrusted Data vulnerability in ThemeREX Royal Event allows Object Injection.\n\nThis issue affects Royal Event: from n/a through 2.0.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119526"
-    },
-    {
-      "id": "CVE-2026-119117",
-      "published": "2026-10-30T19:18:20.007",
-      "lastModified": "2026-10-30T20:17:06.480",
-      "description": "Insertion of sensitive information into a log file in Amazon Kinesis Producer Library for Java before 1.0.8, when the library's logger is configured at DEBUG log level, might allow local users to obtain the AWS credentials that the library resolved for the application. Separately, affected versions of the library pass these credentials to the native child process as command-line arguments, where a local user can read them from the process argument list.\n\n\n\nTo remediate this issue, users should upgrade to version 1.0.8 or later, rotate any long-term IAM user keys, revoke active role sessions where needed, and restrict or redact log data written by an affected version. 0.x users should migrate to software.amazon.kinesis:amazon-kinesis-producer 1.0.8 or later.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119117"
-    },
-    {
-      "id": "CVE-2026-118090",
-      "published": "2026-10-30T19:18:17.527",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Subscriber PHP Object Injection in MasterStudy LMS <= 3.7.55 versions.",
+      "id": "CVE-2026-76010",
+      "published": "2026-10-31T10:16:38.547",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Photo Gallery, Sliders, Proofing and Themes – NextGEN Gallery plugin for WordPress is vulnerable to Remote Code Execution in all versions up to, and including, 4.4.1 via the render_image function. This is due to unrestricted mass assignment of caller-supplied meta_data keys onto the image model combined with missing realpath containment in path construction and a bypassable signature check on the public image delivery route. This makes it possible for authenticated attackers, with custom-level access and above, to execute code on the server. Exploitation requires the authenticated attacker to own at least one NextGEN gallery — a condition that can be satisfied by any Subscriber who was ever granted the 'NextGEN Manage gallery' capability, and that access is retained indefinitely due to the stored gallery-author equality fallback in _can_manage_gallery() even after the capability is revoked.",
       "score": 8.8,
       "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-118090"
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-76010"
     },
     {
-      "id": "CVE-2026-118089",
-      "published": "2026-10-30T19:18:17.383",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Shop manager PHP Object Injection in Product Feed Manager <= 7.14.1 versions.",
+      "id": "CVE-2026-120194",
+      "published": "2026-10-31T10:16:38.310",
+      "lastModified": "2026-11-06T07:17:01.563",
+      "description": "A flaw was found in json-glib. The JSONPath slice evaluator used by json_path_query() can enter an infinite loop when given a slice expression with a negative step. An application that evaluates attacker-controlled JSONPath expressions can be forced into a hang, leading to a denial of service.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120194"
+    },
+    {
+      "id": "CVE-2026-120114",
+      "published": "2026-10-31T10:16:38.183",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Debug Log Manager – Conveniently Monitor and Inspect Errors plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'message (and pageUrl)' parameter in all versions up to, and including, 2.5.2 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. Successful exploitation requires that the site administrator has debug logging enabled with JS error logging active, and that the attacker can obtain the publicly emitted dlmVars.jsErrorLogging nonce — which is broadcast on every frontend page — to pass the nonce check on the unauthenticated endpoint.",
       "score": 7.2,
       "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-118089"
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120114"
     },
     {
-      "id": "CVE-2026-118086",
-      "published": "2026-10-30T19:18:17.257",
-      "lastModified": "2026-10-30T23:17:09.330",
-      "description": "Subscriber Privilege Escalation in WP BASE Booking <= 6.5.2 versions.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-118086"
+      "id": "CVE-2026-118599",
+      "published": "2026-10-31T10:16:38.060",
+      "lastModified": "2026-11-06T14:17:10.253",
+      "description": "A file overwrite vulnerability exists in Epiphany when installing WebExtension packages from .xpi files.\n\nIn src/webextension/ephy-web-extension-manager.c, decompress_xpi_thread() used libarchive with archive_read_support_format_all() (and filters), so the installer did not require a real ZIP. A TAR file named *.xpi was extracted. TAR supports hard-link entry types; with Epiphany's archive_write_disk options (including ARCHIVE_EXTRACT_PERM), a crafted hard-link target can cause an attacker-chosen existing user-writable file to be truncated and overwritten with attacker-controlled content and mode bits, without a dedicated warning dialog, when the user installs or opens the crafted .xpi.\n\nThis is related to but separate from the ZIP-slip path traversal fixed as CVE-2026-77679 (#2922 / MR !2143).\n\nRequirements: the victim must install or open a malicious WebExtension (.xpi).\n\nAffected: Epiphany >= 47.0 (WebExtension XPI install path).\nFixed: https://gitlab.gnome.org/GNOME/epiphany/-/merge_requests/2248 (commit 0cc9ab55 — only enable ZIP format support).\nUpstream: https://gitlab.gnome.org/GNOME/epiphany/-/work_items/2988\nReporter acknowledgment: Fernando Munoz",
+      "score": 5.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-118599"
     },
     {
-      "id": "CVE-2026-116862",
-      "published": "2026-10-30T19:18:15.570",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Unauthenticated Broken Access Control in WP REST Cache <= 2026.3.1 versions.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116862"
-    },
-    {
-      "id": "CVE-2026-116861",
-      "published": "2026-10-30T19:18:15.427",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Unauthenticated Sensitive Data Exposure in Flexible Chat <= 1.1.0 versions.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116861"
-    },
-    {
-      "id": "CVE-2026-116854",
-      "published": "2026-10-30T19:18:15.290",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Subscriber Cross Site Scripting (XSS) in WP Customer Area <= 8.4.0 versions.",
+      "id": "CVE-2026-118598",
+      "published": "2026-10-31T10:16:37.923",
+      "lastModified": "2026-11-06T14:17:10.103",
+      "description": "A logic error in Epiphany's site permission handling can cause camera and microphone access to be granted when the user only approves a different permission.\n\nIn src/ephy-window.c, set_permission() stores the user's Allow/Deny choice after a WebKit permission dialog. Types CLIPBOARD and WEBSITE_DATA_ACCESS are not stored by ephy_permission_is_stored_by_permissions_manager(), so control fell into an else-if that was written as:\n\n  } else if (EPHY_PERMISSION_TYPE_ACCESS_WEBCAM_AND_MICROPHONE) {\n\nBecause that expression is a non-zero enum constant, the branch always ran for those types and wrote EPHY_PERMISSION_PERMIT for both ACCESS_WEBCAM and ACCESS_MICROPHONE for the site origin. The user only saw a Clipboard or Website Data Access dialog.\n\nA malicious site that obtains approval for clipboard or third-party storage access can afterwards use getUserMedia without a further camera/microphone prompt, exposing audiovisual confidentiality.\n\nRequirements: the victim must visit a malicious page and click Allow on a clipboard or website-data-access prompt.\n\nAffected: Epiphany >= 45.0 (bug present at least through 51.x).\nFixed: https://gitlab.gnome.org/GNOME/epiphany/-/merge_requests/2249 (commit 480c3648).\nUpstream: https://gitlab.gnome.org/GNOME/epiphany/-/work_items/2976\nReporter acknowledgment: Fernando Munoz",
       "score": 6.5,
       "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116854"
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-118598"
     },
     {
-      "id": "CVE-2026-116853",
-      "published": "2026-10-30T19:18:15.150",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Unauthenticated Broken Access Control in GiveWP <= 4.19.0.1 versions.",
-      "score": 6.5,
+      "id": "CVE-2026-116752",
+      "published": "2026-10-31T10:16:37.793",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The GeoDirectory – WP Business Directory Plugin and Classified Listings Directory plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'post_images' parameter in all versions up to, and including, 2.8.197 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with subscriber-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. The injected payload does not fire for the attacker directly; it executes in the browser of any Administrator or Editor who opens the pending listing's edit screen, making this a privilege-escalation-capable stored XSS chain triggered through normal editorial workflow.",
+      "score": 6.4,
       "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116853"
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116752"
     },
     {
-      "id": "CVE-2026-116852",
-      "published": "2026-10-30T19:18:15.020",
-      "lastModified": "2026-10-30T23:17:09.227",
-      "description": "Author Remote Code Execution (RCE) in Widget Options <= 4.2.5 versions.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116852"
-    },
-    {
-      "id": "CVE-2026-116851",
-      "published": "2026-10-30T19:18:14.877",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Unauthenticated Cross Site Scripting (XSS) in eCommerce Product Catalog <= 3.6.5 versions.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116851"
-    },
-    {
-      "id": "CVE-2026-116847",
-      "published": "2026-10-30T19:18:14.613",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Unauthenticated Cross Site Scripting (XSS) in Mang Board WP <= 2.4.6 versions.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116847"
-    },
-    {
-      "id": "CVE-2026-116410",
-      "published": "2026-10-30T19:18:14.197",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Unauthenticated Arbitrary Content Deletion in Masteriyo - LMS <= 3.4.3 versions.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116410"
-    },
-    {
-      "id": "CVE-2026-116405",
-      "published": "2026-10-30T19:18:14.053",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Unauthenticated Cross Site Scripting (XSS) in VikRentCar <= 1.4.9 versions.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116405"
-    },
-    {
-      "id": "CVE-2026-116401",
-      "published": "2026-10-30T19:18:13.903",
-      "lastModified": "2026-10-30T23:17:09.123",
-      "description": "Unauthenticated Broken Access Control in HUSKY <= 1.4.6 versions.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116401"
-    },
-    {
-      "id": "CVE-2026-116386",
-      "published": "2026-10-30T19:18:13.640",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Unauthenticated Privilege Escalation in SMS Alert Order Notifications <= 4.0.2 versions.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116386"
-    },
-    {
-      "id": "CVE-2026-115947",
-      "published": "2026-10-30T19:18:13.483",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Unauthenticated Sensitive Data Exposure in HUSKY <= 1.4.6 versions.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-115947"
-    },
-    {
-      "id": "CVE-2026-115604",
-      "published": "2026-10-30T19:18:12.700",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Subscriber Arbitrary File Deletion in SureDash <= 1.12.3 versions.",
-      "score": 5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-115604"
-    },
-    {
-      "id": "CVE-2026-114711",
-      "published": "2026-10-30T19:18:12.003",
-      "lastModified": "2026-10-30T19:18:12.133",
-      "description": "Subscriber Cross Site Scripting (XSS) in MultiVendorX <= 5.0.20 versions.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-114711"
-    },
-    {
-      "id": "CVE-2026-109213",
-      "published": "2026-10-30T19:18:07.113",
-      "lastModified": "2026-10-30T19:18:07.113",
-      "description": "Rejected reason: ** REJECT ** DO NOT USE THIS CANDIDATE NUMBER. ConsultIDs: CVE-2026-113499. Reason: This candidate is a reservation duplicate of CVE-2026-113499. Notes: All CVE users should reference CVE-2026-113499 instead of this candidate. All references and descriptions in this candidate have been removed to prevent accidental usage.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109213"
-    },
-    {
-      "id": "CVE-2026-107868",
-      "published": "2026-10-30T19:18:03.243",
-      "lastModified": "2026-10-30T23:17:08.943",
-      "description": "Unauthenticated Bypass Vulnerability in YITH WooCommerce Product Add-Ons <= 4.34.0 versions.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107868"
-    },
-    {
-      "id": "CVE-2026-105077",
-      "published": "2026-10-30T19:17:58.637",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Unauthenticated Cross Site Scripting (XSS) in Ad Inserter <= 2.8.19 versions.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105077"
-    },
-    {
-      "id": "CVE-2026-104674",
-      "published": "2026-10-30T19:17:56.930",
-      "lastModified": "2026-10-30T19:22:27.173",
-      "description": "Missing Authorization vulnerability in Arraytics Booktics booktics allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Booktics: from n/a through 1.0.31.",
+      "id": "CVE-2026-109231",
+      "published": "2026-10-31T10:16:37.660",
+      "lastModified": "2026-11-03T19:17:47.957",
+      "description": "The Germanized for WooCommerce plugin for WordPress is vulnerable to Unauthorized Access of Private Data via Activation Token Reuse in versions up to, and including, 4.1.4. This is due to the `on_user_email_changed` hook — which is responsible for rotating the activation token and recording a pending-email-change marker on an unactivated Customer account — only being registered inside the `is_double_opt_in_login_enabled()` branch when \"Disable login for unactivated customers\" is set to Yes, leaving the original `?activate=` token valid and entirely unbound to the email address it was issued for when that setting is No. This makes it possible for authenticated attackers, with Subscriber-level access and above, to change their account email to a victim's billing email via the standard `/my-account/edit-account/` form and then redeem their original activation token through `customer_account_activate()`, triggering `link_customer_past_orders()` to reassign any matching guest order to the attacker's account and exposing the original buyer's billing name, street address, phone number, and purchased items on the attacker's My Account order page. Exploitation requires the site to have double opt-in enabled with \"Disable login for unactivated customers\" explicitly set to No (a non-default configuration), public customer registration enabled, and the original activation token redeemed within its one-day expiry window.",
       "score": 4.3,
       "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104674"
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109231"
+    },
+    {
+      "id": "CVE-2026-109197",
+      "published": "2026-10-31T10:16:37.507",
+      "lastModified": "2026-11-05T16:17:32.880",
+      "description": "The WP Directory Kit plugin for WordPress is vulnerable to generic SQL Injection via the 'idfield' parameter in all versions up to, and including, 1.6.0 due to insufficient escaping on the user supplied parameter and lack of sufficient preparation on the existing SQL query. This makes it possible for unauthenticated attackers to append additional SQL queries into already existing queries that can be used to extract sensitive information from the database.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109197"
+    },
+    {
+      "id": "CVE-2026-107711",
+      "published": "2026-10-31T10:16:37.370",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The FlexStock – Product Stock Sync with Google Sheets for WooCommerce plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'products[].post_content' parameter in all versions up to, and including, 3.17.2 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with subscriber-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. This is exploitable by any Subscriber-level user because the plugin's admin_enqueue_scripts callback exposes the REST bearer token in the Dashboard page source via wp_localize_script() without a capability check, and the REST endpoint's permission_callback validates only that bearer token rather than performing a current_user_can() capability check.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107711"
+    },
+    {
+      "id": "CVE-2026-104926",
+      "published": "2026-10-31T10:16:36.273",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The WooCommerce Extra Product Options Pro plugin for WordPress is vulnerable to Reflected Cross-Site Scripting via the '<fieldname>_start / <fieldname>_end' parameter in all versions up to, and including, 3.3.2 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that execute if they can successfully trick a user into performing an action such as clicking on a link. This vulnerability is only exploitable on product pages where a Date & Time Range Picker extra field is configured, though the required field name is visible in the product page source and requires no prior knowledge to discover.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104926"
+    },
+    {
+      "id": "CVE-2026-100151",
+      "published": "2026-10-31T10:16:29.037",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Ninja Forms – Contact Form Builder with Calculators, Quizzes, Signatures & AI Form Builder plugin for WordPress is vulnerable to Reflected DOM-Based Cross-Site Scripting via 'querystring:<key>' URL Parameter in all versions up to, and including, 3.15.5 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that execute if they can successfully trick a user into performing an action such as clicking on a link. This bypass is triggered when an attacker supplies a matching field:&lt;key&gt; URL parameter that causes the server to fully resolve the {field:*} placeholder, forcing the client-side else-branch to abandon the server-sanitized value and reconstruct field content from the raw query string.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-100151"
+    },
+    {
+      "id": "CVE-2026-120075",
+      "published": "2026-10-31T09:16:33.897",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The WP Activity Log plugin for WordPress is vulnerable to Stored Cross-Site Scripting in all versions up to, and including, 5.6.1 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120075"
+    },
+    {
+      "id": "CVE-2026-119160",
+      "published": "2026-10-31T09:16:33.760",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Smart Post – Post Grid, Post Carousel, Post Slider Gutenberg Blocks for Blog & News plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'display_name' parameter in all versions up to, and including, 4.0.9 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with subscriber-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. Exploitation requires the victim page to contain an Author Filter block alongside a grid or live-filter block, and execution is triggered by a visitor clicking the attacker's author entry in the dropdown — a standard filter interaction requiring no elevated privileges from the victim.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119160"
+    },
+    {
+      "id": "CVE-2026-118235",
+      "published": "2026-10-31T09:16:33.620",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The SimpleForm – Form Maker to Chat Apps with Quiz, Poll and Multi Lead Notifications plugin for WordPress is vulnerable to Arbitrary File Upload in all versions up to, and including, 3.10.2 via the handle_upload function. This is due to missing server-side file key allowlist and pre-sanitization extension derivation that allows a trailing-dot filename to bypass all extension and MIME validation in handle_upload. This makes it possible for unauthenticated attackers to upload files that may be executable, which makes remote code execution possible. The only access control is a nonce that is printed into every public form's data-nonce attribute, making it trivially obtainable by any unauthenticated visitor on a page embedding the form shortcode.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-118235"
+    },
+    {
+      "id": "CVE-2026-117681",
+      "published": "2026-10-31T09:16:33.487",
+      "lastModified": "2026-11-02T21:17:25.747",
+      "description": "A flaw was found in konflux-ci. This vulnerability allows privilege escalation when the user interface proxy automatically disables Transport Layer Security (TLS) certificate verification for connections to internal backend services in environments lacking a default service certificate authority. Because the proxy attaches a cluster-scoped authentication token with user impersonation rights to these requests, an adjacent network attacker capable of intercepting traffic can capture the credentials to gain full administrative control of the cluster.",
+      "score": 8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-117681"
+    },
+    {
+      "id": "CVE-2026-116964",
+      "published": "2026-10-31T09:16:33.357",
+      "lastModified": "2026-11-06T19:17:36.463",
+      "description": "A flaw was found in konflux-ci. An attacker with repository write access can achieve arbitrary code execution within the Continuous Integration and Continuous Delivery (CI/CD) workflow environment. By injecting shell commands into environment export scripts, the attacker causes manifest synchronization scripts to dynamically evaluate unvalidated script output. Successful exploitation allows the attacker to compromise CI/CD pipelines, steal sensitive authentication tokens and deployment credentials, and gain unauthorized access to production systems.",
+      "score": 8.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116964"
+    },
+    {
+      "id": "CVE-2026-116086",
+      "published": "2026-10-31T09:16:33.223",
+      "lastModified": "2026-11-05T16:17:34.827",
+      "description": "A flaw was found in konflux-ci. An attacker with permission to trigger automated workflow runs can cause an information disclosure by providing crafted issue titles to workflow scripts. The affected script incorporates user-provided titles directly into data queries without adequate sanitization, allowing the attacker to inject malicious filter commands. As a result, sensitive information such as API credentials, deployment keys, and internal notes returned from repository queries may be exposed in workflow logs.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116086"
+    },
+    {
+      "id": "CVE-2026-114217",
+      "published": "2026-10-31T09:16:33.077",
+      "lastModified": "2026-11-02T21:17:23.940",
+      "description": "A flaw was found in konflux-ci. Continuous Integration (CI) automation scripts store sensitive GitHub access tokens in plaintext on the runner without cleaning them up after execution. A local attacker with access to the CI environment can read these stored credentials to gain unauthorized repository access, potentially allowing them to modify source code or release artifacts.",
+      "score": 8.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-114217"
+    },
+    {
+      "id": "CVE-2026-110530",
+      "published": "2026-10-31T09:16:32.933",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The FeedWordPress plugin for WordPress is vulnerable to Stored Cross-Site Scripting in versions up to, and including, 2026.0517 via syndicated RSS/Atom feed content. The plugin's SyndicatedPost::sanitize_content() function only strips the 'target' attribute (the lines that would strip 'style' and 'on[a-z]+' event-handler attributes are commented out), and SyndicatedPost::insert_post() deliberately removes WordPress's wp_filter_kses and wp_filter_post_kses filters from content_save_pre before persisting imported feed items via wp_insert_post(). This makes it possible for unauthenticated attackers who control an external feed that a site has already subscribed to to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110530"
+    },
+    {
+      "id": "CVE-2026-109367",
+      "published": "2026-10-31T09:16:32.793",
+      "lastModified": "2026-11-02T18:18:34.763",
+      "description": "The All in One SEO – AI SEO Plugin to Boost SEO Rankings & Traffic (Schema, Local SEO, Sitemap & SEO Insights) plugin for WordPress is vulnerable to Sensitive Information Exposure in all versions up to, and including, 5.0.3 via the 's' parameter. This makes it possible for unauthenticated attackers to extract arbitrary non-public post meta values, including sensitive custom fields such as API keys and internal notes, emitted verbatim into the HTML title element and JSON-LD SearchResultsPage schema.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109367"
+    },
+    {
+      "id": "CVE-2026-103915",
+      "published": "2026-10-31T09:16:32.653",
+      "lastModified": "2026-11-03T19:17:47.020",
+      "description": "The Booking for Appointments and Events Calendar – Amelia plugin for WordPress is vulnerable to Sensitive Information Exposure in all versions up to, and including, 2.4.12 via the 'page' parameter. This makes it possible for unauthenticated attackers to extract staff personally identifiable information — including full name, email address, phone number, gender, and timezone — as well as administrator-authored internal notes for every published event, all serialized into the JSON response because the raw providers array is never stripped before output.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103915"
+    },
+    {
+      "id": "CVE-2026-103882",
+      "published": "2026-10-31T09:16:32.510",
+      "lastModified": "2026-11-05T16:17:24.733",
+      "description": "The Acadlix LMS – AI Quiz Maker, Online Exam & Course Plugin for WordPress plugin for WordPress is vulnerable to arbitrary file deletion due to insufficient file path validation in the post_delete_assessment_file_by_id function in all versions up to, and including, 1.1.9. This makes it possible for authenticated attackers, with subscriber-level access and above, to delete arbitrary files on the server, which can easily lead to remote code execution when the right file is deleted (such as wp-config.php). The route's permission callback only verifies a generic wp_rest nonce that the plugin itself emits inside the public acadlixOptions JavaScript object on every frontend page, effectively reducing the authentication requirement to unauthenticated.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103882"
+    },
+    {
+      "id": "CVE-2026-101325",
+      "published": "2026-10-31T09:16:32.323",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Newsletters plugin for WordPress is vulnerable to time-based SQL Injection via the 'id' parameter in all versions up to, and including, 4.18.1 due to insufficient escaping on the user supplied parameter and lack of sufficient preparation on the existing SQL query. This makes it possible for authenticated attackers, with subscriber-level access and above, to append additional SQL queries into already existing queries that can be used to extract sensitive information from the database. An attacker can obtain the required nonce and subscriberauth cookie without a WordPress account by simply subscribing through the public newsletter form and opening the management link sent via email; the ownership check verifies only the subscriber_id field and does not validate that the injected id parameter belongs to the authenticated subscriber.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101325"
+    },
+    {
+      "id": "CVE-2026-120070",
+      "published": "2026-10-31T08:16:49.183",
+      "lastModified": "2026-11-06T19:17:39.967",
+      "description": "The User Frontend – Membership, User Registration, User Profile, User Directory & Content Restriction with Frontend Post Submission plugin for WordPress is vulnerable to Privilege Escalation in all versions up to, and including, 4.3.13 via the `post_content` parameter of the `submit_post()` function. The vulnerability exists because the protected-shortcode blocklist guard inspects the `sanitize_textarea_field()` copy of the submitted `post_content`, while the copy actually persisted to the database is processed through `wp_kses()`, whose `wp_kses_no_null()` step strips C0 control bytes — allowing an attacker to inject a single `\\x01` byte inside the `[wpuf-registration]` tag name to defeat the `strpos()` blocklist check while the clean, functional shortcode is stored verbatim; `strip_shortcodes()` does not neutralize the stored shortcode either, because the Frontend container that registers it via `add_shortcode()` is only instantiated when `is_admin()` is false, and `admin-ajax` requests have `is_admin() === true`. This makes it possible for authenticated attackers, with Subscriber-level access and above, to inject a `[wpuf-registration role=\"editor\"]` shortcode into a published post, causing a live Editor-role registration form to be rendered publicly on the frontend that any visitor — or the attacker themselves — can submit to mint a WordPress Editor account with an immediately active privileged session when the default `autologin_after_registration` setting is enabled.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120070"
+    },
+    {
+      "id": "CVE-2026-119096",
+      "published": "2026-10-31T08:16:49.043",
+      "lastModified": "2026-11-02T18:18:44.467",
+      "description": "The Uncanny Toolkit for LearnDash plugin for WordPress is vulnerable to Authentication Bypass in versions up to, and including, 3.8.2 via the `email` parameter of the `uo_login_action()` function. This is due to a parser-differential flaw in which the plugin's account-verification gate resolves the submitted `email` value using the raw, unsanitized string passed to `get_user_by()`, while the subsequent `wp_signon()` call relies on WordPress core's internal `sanitize_user()` to strip appended junk characters — causing the gate lookup to fail and be skipped entirely while the real account is still resolved and authenticated. This makes it possible for unauthenticated attackers to log in to unverified or administrator-suspended accounts whose credentials they already possess, obtaining a valid `wordpress_logged_in` session cookie and defeating the plugin's account-approval and account-suspension controls. The nonce required to reach the handler is freely obtainable in the same request from the unauthenticated `ult-refresh-nonce` endpoint, making exploitation trivial for any attacker with network access to the site and knowledge of a target account's credentials.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119096"
+    },
+    {
+      "id": "CVE-2026-118057",
+      "published": "2026-10-31T08:16:48.903",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Shield Security – Smart Bot Blocking, Brute-Force Login Protection & File Scanning plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'REQUEST_URI' parameter in all versions up to, and including, 22.3.2 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. The hidden 'path' column in ForTraffic.php lacks a client-side render function, so DataTables builds its cell via innerHTML, causing stored HTML in the path value to be parsed into live DOM nodes; a prior partial fix in version 18.5.8 added esc_html() only to the visible 'page' column, leaving the hidden 'path' field unescaped and exploitable through version 22.2.6.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-118057"
+    },
+    {
+      "id": "CVE-2026-116535",
+      "published": "2026-10-31T08:16:48.757",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The SEOPress – AI SEO Plugin & On-site SEO plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'display_name' parameter in all versions up to, and including, 10.3 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with subscriber-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. This is exploitable by any Subscriber who sets their display_name to a string containing the literal %%archive_title%% token alongside HTML event-handler payloads, as WordPress stores display names without HTML filtering and the plugin substitutes the token after escaping has already occurred.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116535"
+    },
+    {
+      "id": "CVE-2026-116512",
+      "published": "2026-10-31T08:16:48.603",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Project Manager – AI Powered Project Management, Task Management, Kanban Board & Time Tracker plugin for WordPress is vulnerable to Remote Code Execution in all versions up to, and including, 4.1.1 via the 'id' parameter parameter. This is due to unsanitized 'id' parameter value concatenated directly into the pipe-delimited validation rule string, which is then split and each token invoked as a dynamic PHP function with no allowlist check. This makes it possible for unauthenticated attackers to execute code on the server. This is exploitable by unauthenticated attackers because WordPress core executes the route argument's validate_callback inside WP_REST_Server::dispatch() before the route's permission_callback is invoked, meaning the Project_Manage_Capability authorization gate is never reached on the vulnerable code path.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116512"
+    },
+    {
+      "id": "CVE-2026-111592",
+      "published": "2026-10-31T08:16:48.463",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Co-Authors, Multiple Authors and Guest Authors in an Author Box with PublishPress Authors plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'name (maps to display_name)' parameter in all versions up to, and including, 4.17.0 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with subscriber-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. Exploitation requires the attacker's user account to have a mapped author term, which occurs when an administrator has assigned them as a co-author on content or has enabled automatic author term creation for their role — this mapping is not present by default for new users on a stock install.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111592"
+    },
+    {
+      "id": "CVE-2026-111070",
+      "published": "2026-10-31T08:16:48.323",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Content Pilot – Autoblogging & Affiliate Marketing Suite plugin for WordPress is vulnerable to Stored Cross-Site Scripting in versions up to, and including, 2.2.4. This is due to the plugin extracting the HTML meta description from each remotely-fetched article (WPCP_Readability::parse_meta()), piping that value through the article template substitution and html_entity_decode() in WPCP_Module::insert_post(), and then calling wp_insert_post() after switching the current user to the configured campaign author (an Administrator with the unfiltered_html capability by default) — so no wp_kses_post sanitization is applied to the attacker-controlled HTML before it is persisted as post_content and rendered on the front end. This makes it possible for unauthenticated attackers who control the content of any RSS source an administrator has configured a Content Pilot RSS campaign to consume to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111070"
+    },
+    {
+      "id": "CVE-2026-110023",
+      "published": "2026-10-31T08:16:48.180",
+      "lastModified": "2026-11-03T19:17:49.487",
+      "description": "The WP Data Access – App Builder for Tables, Forms, Dashboards, Charts & Maps plugin for WordPress is vulnerable to Sensitive Information Exposure in all versions up to, and including, 5.5.88 via the 'rel_tab' parameter. This makes it possible for unauthenticated attackers to extract every row and column of the underlying database table backing any anonymously published app, including WordPress user password hashes, email addresses, and password-reset keys from wp_users. Exploitation requires that an administrator has published at least one app with its REST API authorization set to 'anonymous', which is the standard configuration for publicly embedded apps.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110023"
+    },
+    {
+      "id": "CVE-2026-107759",
+      "published": "2026-10-31T08:16:48.033",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The WPO365 | MICROSOFT 365 GRAPH MAILER plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'Subject (via wp_mail/PHPMailer, e.g. CF7 your-subject)' parameter in all versions up to, and including, 6.2 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. The payload is stored without authentication via any mail-sending feature that forwards a submitter-controlled subject (e.g. a Contact Form 7 form) when the Graph Mailer is enabled but OAuth authorization has not been completed, a default state immediately after plugin activation.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107759"
+    },
+    {
+      "id": "CVE-2026-104012",
+      "published": "2026-10-31T08:16:47.893",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Rox Appointment Booking – Appointment Booking Scheduling Solution plugin for WordPress is vulnerable to Privilege Escalation via Mass Assignment in all versions up to, and including, 1.3.1 This is due to the public `/rox-appointment-booking/v1/public/booking` REST endpoint performing mass-assignment of the raw request body into a new customer row while `CustomerModel::$fillable` includes the internal `wp_user_id` column, allowing an unauthenticated attacker to persist an arbitrary WordPress user ID alongside an attacker-controlled email address with no authorization check. When an administrator subsequently opens the poisoned customer record and clicks Update Customer, `SaveCustomer::handleRequest()` passes the stored `wp_user_id` and attacker-supplied email to `wp_update_user()` — succeeding because `LinkedAccount::canChange()` unconditionally returns true when the acting user holds the `edit_users` capability — thereby overwriting the targeted administrator's email address and enabling full account takeover via a standard WordPress password-reset request. Successful exploitation requires an administrator to open and save the poisoned record, and the attacker must know or guess a valid administrator user ID (such as the default user ID 1).",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-104012"
+    },
+    {
+      "id": "CVE-2026-103997",
+      "published": "2026-10-31T08:16:47.753",
+      "lastModified": "2026-11-06T19:17:06.137",
+      "description": "The Redux Framework plugin for WordPress is vulnerable to authorization bypass in all versions up to, and including, 4.5.15. This is due to the plugin not properly verifying that a user is authorized to perform an action. This makes it possible for authenticated attackers, with subscriber-level access and above, to view the entire Redux options payload — including plaintext password field values, API keys, license keys, and SMTP credentials — exposed in the inline redux_&lt;opt_name&gt; JavaScript block on wp-admin/profile.php. The Users extension is loaded automatically for every Redux instance registered by any installed theme or plugin, meaning any site running Redux Framework is affected regardless of whether the developer explicitly configured the Users extension.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103997"
+    },
+    {
+      "id": "CVE-2026-103962",
+      "published": "2026-10-31T08:16:47.613",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The User Frontend – Membership, User Registration, User Profile, User Directory & Content Restriction with Frontend Post Submission plugin for WordPress is vulnerable to Reflected Cross-Site Scripting via the 'field_attr[required]' parameter in all versions up to, and including, 4.3.13 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that execute if they can successfully trick a user into performing an action such as clicking on a link. The nonce check on the wpuf_get_child_cat AJAX action is not an effective security barrier because the wpuf_nonce value is publicly localized to every anonymous visitor of any page containing a WPUF shortcode, making it freely harvestable by an unauthenticated attacker.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103962"
+    },
+    {
+      "id": "CVE-2026-103898",
+      "published": "2026-10-31T08:16:47.460",
+      "lastModified": "2026-11-03T19:17:46.820",
+      "description": "The Wp Social Login and Register Social Counter plugin for WordPress is vulnerable to Authentication Bypass in all versions up to, and including, 3.2.2. This is due to the social login REST callback registered at `/wp-json/wslu-social-login/type/{provider}/` with `permission_callback => __return_true` locating an existing WordPress account solely by the email string returned from the OAuth provider and calling `wp_set_auth_cookie()` without a password check, while the only verification guard — `!empty($getProfile->emailVerified)` in `inc/admin-create-user.php` — is a no-op for the bundled Hybridauth Facebook and Twitter adapters, both of which assign the raw email string rather than a boolean verified flag to `emailVerified`. This makes it possible for unauthenticated attackers to obtain a fully authenticated session as any existing WordPress user, including Administrators, whose registered email address can be presented through a configured Facebook or Twitter login on the target site. Exploitation requires only that the attacker control an OAuth account whose provider-returned email matches the target account's registered WordPress email address; no local credentials, nonce, or prior foothold is needed.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103898"
+    },
+    {
+      "id": "CVE-2025-9462",
+      "published": "2026-10-31T08:16:47.313",
+      "lastModified": "2026-11-05T16:17:22.310",
+      "description": "The WP2LEADS plugin for WordPress is vulnerable to time-based SQL Injection via the ‘order’ parameter in all versions up to, and including, 3.5.6 due to insufficient escaping on the user supplied parameter and lack of sufficient preparation on the existing SQL query.  This makes it possible for authenticated attackers, with Subscriber-level access and above, to append additional SQL queries into already existing queries that can be used to extract sensitive information from the database.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-9462"
+    },
+    {
+      "id": "CVE-2025-11455",
+      "published": "2026-10-31T08:16:46.970",
+      "lastModified": "2026-11-04T20:10:00.263",
+      "description": "The Perfect Images plugin for WordPress is vulnerable to unauthorized modification of data due to a missing capability check on the /wp-json/wp-retina-2x/v1/replace REST API in all versions up to, and including, 7.2.0 This makes it possible for authenticated attackers, with Author-level access and above, to replace files that do not belong to them.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2025-11455"
+    },
+    {
+      "id": "CVE-2026-90960",
+      "published": "2026-10-31T07:16:37.860",
+      "lastModified": "2026-11-06T19:17:59.020",
+      "description": "The Seraphinite Accelerator plugin for WordPress is vulnerable to Sensitive Information Exposure in all versions up to, and including, 2.29.24 via the WP_Object_Cache::_getFilePath. This makes it possible for unauthenticated attackers to extract complete WordPress user records — including plaintext user_login, user_email, hashed user_pass, and user_activation_key — from predictable gzip-serialized cache files at wp-content/cache/seraphinite-accelerator/oc/g/users/g/<USER_ID>.dat.gz. This vulnerability is only exploitable when the plugin's Object Cache feature is enabled, and requires the attacker to first trigger caching of the target user record (e.g., via an unauthenticated REST API request) before retrieving the resulting cache file.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-90960"
+    },
+    {
+      "id": "CVE-2026-89270",
+      "published": "2026-10-31T07:16:37.707",
+      "lastModified": "2026-11-02T18:18:56.643",
+      "description": "The Popup Builder – Create highly converting, mobile friendly marketing popups. plugin for WordPress is vulnerable to authorization bypass in all versions up to, and including, 4.4.5 This is due to the plugin not properly verifying that a user is authorized to perform an action. This makes it possible for unauthenticated attackers to trash all published popups on the site with a single unauthenticated GET request. The attack is amplified by a second flaw in SGPopup::find(), which returns false for every normally published popup when the sg_popup_preview_id parameter is present, causing the trash branch to fire against every popup on the site simultaneously.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89270"
+    },
+    {
+      "id": "CVE-2026-88942",
+      "published": "2026-10-31T07:16:37.540",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Product Filter for WooCommerce by WBW plugin for WordPress is vulnerable to Reflected Cross-Site Scripting via 'wpf_fid' JSON Parameter in all versions up to, and including, 3.4.6 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that execute if they can successfully trick a user into performing an action such as clicking on a link. The vulnerability persists in versions that received the 3.4.3 patch because absint() was applied only to the getVar() read path, leaving the wpf_fid value read from the JSON-decoded filterSettings payload entirely unsanitized.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-88942"
+    },
+    {
+      "id": "CVE-2026-120040",
+      "published": "2026-10-31T07:16:37.370",
+      "lastModified": "2026-11-05T16:17:40.883",
+      "description": "The Mail logging & Catcher plugin for WordPress is vulnerable to Sensitive Information Exposure in all versions up to, and including, 2.2.0 via the 'message' parameter. This makes it possible for authenticated attackers, with subscriber-level access and above, to extract valid administrator password-reset keys from stored email logs and complete the WordPress password-reset flow to escalate privileges to administrator. Exploitation requires an administrator to have previously configured the plugin's default_view_role setting to a capability held by low-privileged users such as 'read'; on an untouched install the default of 'manage_options' restricts log access to administrators only.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120040"
+    },
+    {
+      "id": "CVE-2026-120019",
+      "published": "2026-10-31T07:16:37.227",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The W3 Total Cache plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'comment' parameter in all versions up to, and including, 2.10.7 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. This requires HTML Minify to be enabled with the default 'mfunc' entry present in the ignored-comment stems list, and exploitation depends on the attacker predicting the md5(time()) placeholder namespace by reading the server clock via the HTTP Date response header within the applicable time window.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120019"
+    },
+    {
+      "id": "CVE-2026-11396",
+      "published": "2026-10-31T07:16:37.073",
+      "lastModified": "2026-11-06T19:17:39.827",
+      "description": "The Product Filter for WooCommerce by WBW plugin for WordPress is vulnerable to Missing Authorization / Information Disclosure in all versions up to, and including, 3.4.6 via the 'filterSettings[default_query]' parameter of the 'filtersFrontend' AJAX action. The handler is registered as 'wp_ajax_nopriv_filtersFrontend' and performs no capability or nonce check; raw POST data is JSON-decoded into $filterSettings and the attacker-controlled 'default_query' array is unconditionally array_merge()'d into the WP_Query arguments, overriding the plugin's safe defaults (most notably post_status, post_type, posts_per_page, and nopaging). This makes it possible for unauthenticated attackers to enumerate non-public WooCommerce products (draft, future, pending) — including their count and rendered listing markup — and to force unbounded queries that load all products in a single request.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-11396"
+    },
+    {
+      "id": "CVE-2026-119980",
+      "published": "2026-10-31T07:16:36.920",
+      "lastModified": "2026-11-02T18:18:44.837",
+      "description": "The UsersWP – Front-end login form, User Registration, User Profile & Members Directory plugin for WordPress is vulnerable to unauthorized account access via Use of Predictable Password in all versions up to, and including, 1.2.78 The vulnerability exists because `get_dummy_user_passowrd()` derives the shared password for all 25 built-in dummy user accounts as the first 15 characters of `substr(hash('SHA256', AUTH_KEY . site_url()), 0, 25)`, while the full 25-character value of that same hash is simultaneously embedded in the hidden `uwp_register_hash` field rendered on every registration form response — reachable without authentication via both the public `/register/` page and the `wp_ajax_nopriv_uwp_ajax_register_form` AJAX handler, even when user registration is disabled. This makes it possible for unauthenticated attackers to recover the dummy user password directly from a single HTTP request and use it to authenticate as any of the 25 built-in dummy accounts (such as antawn, chynna, or kiki) through `wp-login.php`, potentially achieving privilege escalation if any dummy account holds an elevated role. Exploitation requires that an administrator has previously created dummy users via the plugin's Tools page.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119980"
+    },
+    {
+      "id": "CVE-2026-119166",
+      "published": "2026-10-31T07:16:36.750",
+      "lastModified": "2026-11-03T19:17:56.000",
+      "description": "The Welcart e-Commerce plugin for WordPress is vulnerable to Insecure Direct Object Reference in all versions up to, and including, 2.12.5 via the 'member[ID]' parameter due to missing validation on a user controlled key. This makes it possible for unauthenticated attackers to overwrite any existing Welcart shop-member account's email address and password by supplying that member's numeric ID, then authenticate as that member to achieve full account takeover. The only authentication barrier is a wp_verify_nonce() check against a nonce printed to every unauthenticated visitor on the auto-published New Enrollment Form, meaning no existing account, no WordPress login, and no non-default configuration is required to exploit this vulnerability.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119166"
+    },
+    {
+      "id": "CVE-2026-119163",
+      "published": "2026-10-31T07:16:36.600",
+      "lastModified": "2026-11-05T16:17:40.217",
+      "description": "The FunnelKit Automations – Email Marketing Automation and CRM for WordPress & WooCommerce plugin for WordPress is vulnerable to time-based SQL Injection via the 'bwfan_cart_id' parameter in all versions up to, and including, 3.8.5.2 due to insufficient escaping on the user supplied parameter and lack of sufficient preparation on the existing SQL query. This makes it possible for unauthenticated attackers to append additional SQL queries into already existing queries that can be used to extract sensitive information from the database. Exploitation is a two-step persisted attack: an unauthenticated attacker submits a crafted bwfan_cart_id value during a guest Store API checkout (requiring only a publicly obtainable WooCommerce cart nonce), and the injection fires when a scheduled Action Scheduler job later reloads the stored meta upon order status transition out of pending, failed, or cancelled.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119163"
+    },
+    {
+      "id": "CVE-2026-119162",
+      "published": "2026-10-31T07:16:36.457",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The User Submitted Posts – Enable Users to Submit Posts from the Front End plugin for WordPress is vulnerable to Stored DOM-Based Cross-Site Scripting via the 'user-submitted-content' parameter in all versions up to, and including, 20260916 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. On a default installation the submitted post is held as Pending and requires admin approval before the payload is reachable by other visitors; however, if the plugin's \"publish immediately\" option is enabled, no approval step exists and the stored payload becomes live without any moderator interaction.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119162"
+    },
+    {
+      "id": "CVE-2026-119089",
+      "published": "2026-10-31T07:16:36.313",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The ThirstyAffiliates – Affiliate Links, Link Branding, Link Tracking & Marketing Plugin plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'comment' parameter in all versions up to, and including, 3.12.1 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. This vulnerability is only exploitable on block themes (such as Twenty Twenty-Five) where the Comment Content block causes comment HTML to flow through render_block, triggering the plugin's transformer. Additionally, a successful attack requires the attacker to have had one prior comment approved, after which subsequent crafted comments are auto-approved and rendered publicly.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119089"
+    },
+    {
+      "id": "CVE-2026-119065",
+      "published": "2026-10-31T07:16:36.163",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Shipping Zones by Drawing for WooCommerce plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'szbd-picked' checkout parameter in versions up to, and including, 3.3.0 The szbd_checkout_field_update_order_meta() handler stores stripslashes(sanitize_text_field($_POST['szbd-picked'])) in order meta without validating the JSON structure or restricting dangerous characters, and the szbd_show_checkout_field_admin_order_meta() handler later concatenates the decoded lat and lng values directly into a double-quoted href attribute without esc_url() or esc_attr(). This makes it possible for unauthenticated attackers, by submitting an ordinary guest-checkout order with a crafted szbd-picked JSON payload, to inject arbitrary attributes (such as onmouseover) onto the Google Maps link in the WooCommerce admin order view that will execute whenever an administrator accesses an injected order.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119065"
+    },
+    {
+      "id": "CVE-2026-118070",
+      "published": "2026-10-31T07:16:36.007",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Welcart e-Commerce plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'gid' parameter in all versions up to, and including, 2.12.5 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. The payload is staged by an unauthenticated visitor who forges the ROBOT PAYMENT browser-return request, storing the malicious gid value in order metadata; the script then fires when an administrator opens that order in the WordPress admin panel.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-118070"
+    },
+    {
+      "id": "CVE-2026-116557",
+      "published": "2026-10-31T07:16:35.857",
+      "lastModified": "2026-11-05T16:17:34.977",
+      "description": "The WP Booking System - Booking Calendar plugin for WordPress is vulnerable to unauthorized modification of data due to a missing capability check on the wpbs_action_ajax_calendar_remove_note() function in versions up to, and including, 2.1.0.5 This makes it possible for authenticated attackers, with Subscriber-level access and above, to delete arbitrary calendar notes belonging to any calendar.",
+      "score": 9.1,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116557"
+    },
+    {
+      "id": "CVE-2026-116548",
+      "published": "2026-10-31T07:16:35.717",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The VikRentCar Car Rental Management System plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'optionals' parameter in all versions up to, and including, 1.4.10 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116548"
+    },
+    {
+      "id": "CVE-2026-116546",
+      "published": "2026-10-31T07:16:35.563",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The WP Job Portal – AI-Powered Recruitment System for Company or Job Board website plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'degreetitle' parameter in all versions up to, and including, 2.7.0 due to insufficient input sanitization and output escaping. This makes it possible for authenticated attackers, with subscriber-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. The plugin's self-registration flow allows any visitor to create a Subscriber-backed Employer account, meaning this vulnerability is effectively exploitable by any user who can register on the site.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116546"
+    },
+    {
+      "id": "CVE-2026-116522",
+      "published": "2026-10-31T07:16:35.410",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Relevanssi – A Better Search plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'comment' parameter in all versions up to, and including, 4.28.5 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. This requires the site to have both the comment indexing and comment highlighting options enabled, and the payload only fires when a visitor reaches a singular page via a Relevanssi search-result permalink carrying the highlight query parameter.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116522"
+    },
+    {
+      "id": "CVE-2026-115840",
+      "published": "2026-10-31T07:16:35.140",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The VikRentCar Car Rental Management System plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'poplink' parameter in all versions up to, and including, 1.4.9 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. The handler requires only a WordPress nonce (vikwp_nonce), which the plugin itself emits to unauthenticated visitors on the public booking-confirmation page, allowing an attacker to obtain a valid token without any account.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-115840"
+    },
+    {
+      "id": "CVE-2026-111254",
+      "published": "2026-10-31T07:16:34.987",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The W3 Total Cache plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'comment' parameter in all versions up to, and including, 2.10.7 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. Exploitation requires that a Pro license was previously active with REST caching enabled and has since become inactive while Disk Enhanced page caching remains configured, and that the attacker holds a previously approved commenter identity.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111254"
+    },
+    {
+      "id": "CVE-2026-111109",
+      "published": "2026-10-31T07:16:34.827",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Webmention plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the Open Graph og:title meta tag of a webmention source URL in versions up to, and including, 5.10.1. This is due to insufficient input sanitization: Meta::add_properties() maps og:title to the Item::name property, but Item has no concrete set_name() method, so Item::__call() stores the value raw while sibling set_content()/set_summary() paths route through webmention_sanitize_html(); Item::get_content() then falls back to the raw name when content and summary are empty, and Receiver::process() explicitly removes the core wp_filter_kses / wp_filter_post_kses hooks on pre_comment_content before calling wp_new_comment(), so the payload is persisted to comment_content as-is. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page, after an administrator approves the resulting pending webmention comment. Successful exploitation additionally requires an action by an administrator — the attacker cannot trigger the vulnerability on their own.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111109"
+    },
+    {
+      "id": "CVE-2026-110251",
+      "published": "2026-10-31T07:16:34.673",
+      "lastModified": "2026-11-06T19:17:07.683",
+      "description": "The Photo Reviews for WooCommerce plugin for WordPress is vulnerable to unauthorized Media Library File Deletion in all versions up to, and including, 1.2.31. This is due to the `delete_reviews_image()` function's `delete_comment` hook trusting attachment IDs supplied via the `wcpr_image_upload_id` POST parameter that were stored in comment meta without any ownership or capability check — `viwcpr_filter_review_image_ids()` verifies only that each submitted ID refers to an attachment post type, not that the submitter uploaded or owns it. This makes it possible for unauthenticated attackers to permanently delete any WordPress media library attachment — including its files on disk as recorded by `wp_delete_attachment()` — by embedding attacker-chosen attachment IDs into a review comment, then waiting for a moderator to remove the review or for WordPress core's `wp_scheduled_delete` cron to purge it after `EMPTY_TRASH_DAYS`. The nonce required to submit the parameter (`wcpr_image_upload`) is a shared public value printed on every product page for guest commenters and does not function as an authentication barrier, making this trivially exploitable without any account.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110251"
+    },
+    {
+      "id": "CVE-2026-109386",
+      "published": "2026-10-31T07:16:34.517",
+      "lastModified": "2026-11-02T18:18:34.940",
+      "description": "The Hustle – Email Marketing, Lead Generation, Optins, Popups plugin for WordPress is vulnerable to authorization bypass in all versions up to, and including, 7.8.14.3. This is due to the plugin not properly verifying that a user is authorized to perform an action. This makes it possible for authenticated attackers, with custom-level access and above, to overwrite the site's active ESP integration credentials (AWeber, Constant Contact, Infusionsoft, ConvertKit, or HubSpot API keys) with attacker-controlled values — diverting all subsequent Hustle form lead submissions to the attacker's ESP tenant — and, for HubSpot, irreversibly delete the operator's OAuth token, OAuth referer, and OAuth current-page option rows. This requires the attacker to hold the plugin-granted hustle_create capability (e.g., an Editor delegated hustle_create but not hustle_edit_integrations via Hustle's Permissions tab), which allows them to load a Hustle module wizard page and obtain the hustle_provider_action nonce needed to reach the vulnerable handlers.",
+      "score": 4.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109386"
+    },
+    {
+      "id": "CVE-2026-109220",
+      "published": "2026-10-31T07:16:34.367",
+      "lastModified": "2026-11-03T19:17:47.707",
+      "description": "The PDF Invoice for WooCommerce + Drag and Drop Template Builder plugin for WordPress is vulnerable to PHP Object Injection in all versions up to, and including, 7.1.1 via the 'customer_note' parameter parameter. This is due to insufficient sanitization of the customer_note checkout field, which is inlined verbatim into invoice HTML, entity-decoded back into a live tag by simplehtmldom, reassembled into raw bytes by mPDF, and passed to unserialize() in _getObjAttr without validation. This makes it possible for unauthenticated attackers to execute code on the server. An unauthenticated attacker can trigger the vulnerable code path on a default install by placing an anonymous WooCommerce checkout via the public Store API (POST /wc/store/v1/checkout) using a Direct Bank Transfer or cheque payment method, which automatically transitions the order to 'on-hold' status and fires the plugin's invoice-generation hook.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109220"
+    },
+    {
+      "id": "CVE-2026-109217",
+      "published": "2026-10-31T07:16:34.220",
+      "lastModified": "2026-11-05T16:17:33.027",
+      "description": "The PDF Invoices & Packing Slips for WooCommerce plugin for WordPress is vulnerable to Sensitive Information Exposure in all versions up to, and including, 5.16.5 via the 'invoice_number (via document filename)' parameter. This makes it possible for unauthenticated attackers to extract another customer's complete invoice PDF — including billing identity, shipping address, private order notes, line items, prices, dates, order ID, and invoice number — delivered directly to the attacker's email as an order confirmation attachment. Exploitation requires the plugin's yearly invoice number reset option to be enabled, and the attacker's guest-checkout order must trigger a processing email within 60 seconds of a victim order that shares the same yearly-reset invoice number.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109217"
+    },
+    {
+      "id": "CVE-2026-107765",
+      "published": "2026-10-31T07:16:34.070",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Discussion Board – WordPress Forum Plugin plugin for WordPress is vulnerable to Stored Cross-Site Scripting in versions up to, and including, 2.6.0 via the user profile Website (user_url) field. This is due to insufficient output escaping in the ctdb_filter_comment_author_name() callback hooked to get_comment_author_link, which interpolates the raw user_url value into a single-quoted href attribute without esc_url() or esc_attr(). This makes it possible for authenticated attackers, with subscriber-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses a Discussion Board topic containing the attacker's reply.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107765"
+    },
+    {
+      "id": "CVE-2026-107750",
+      "published": "2026-10-31T07:16:33.920",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The PDF Invoices & Packing Slips for WooCommerce plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'billing_address.first_name / last_name / company, customer_note' parameter in all versions up to, and including, 5.16.4 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. This is an incomplete fix for CVE-2026-92244: the wp_kses() allow-list introduced in 5.16.2 correctly blocks raw-tag payloads but is bypassed by entity-encoded payloads (e.g., &lt;img onerror=…&gt;) that contain no literal angle-bracket characters and are therefore passed through unmodified before the trailing decode rematerializes them.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107750"
+    },
+    {
+      "id": "CVE-2026-107653",
+      "published": "2026-10-31T07:16:32.940",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The SureCart – Ecommerce Made Easy For Selling Physical Products, Digital Downloads, Subscriptions, Donations, & Payments plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'comment' parameter in all versions up to, and including, 4.9.4 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. Successful execution requires the injected comment to be visible on a page that loads SureCart's web-component bundle (e.g. a page containing a SureCart Buy Button block), and the comment must be auto-approved or approved by a moderator.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107653"
+    },
+    {
+      "id": "CVE-2026-94361",
+      "published": "2026-10-31T06:16:35.460",
+      "lastModified": "2026-11-02T16:20:09.333",
+      "description": "The Payable Payment Gateway for WooCommerce WordPress plugin before 1.3.1 does not verify the authenticity of an incoming payment notification before marking a WooCommerce order paid or failed, allowing unauthenticated attackers to change the payment status of any order in the store regardless of the payment method it was placed with.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-94361"
+    },
+    {
+      "id": "CVE-2026-92294",
+      "published": "2026-10-31T06:16:35.153",
+      "lastModified": "2026-11-03T19:18:15.220",
+      "description": "The Spectra Gutenberg Blocks – Website Builder for the Block Editor plugin for WordPress is vulnerable to limited file deletion due to insufficient file path validation in the '__construct' function in all versions up to, and including, 2.20.4 This makes it possible for unauthenticated attackers to delete theme files on the server.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-92294"
+    },
+    {
+      "id": "CVE-2026-82214",
+      "published": "2026-10-31T06:16:34.920",
+      "lastModified": "2026-11-02T16:20:09.333",
+      "description": "The Quick Event Manager WordPress plugin before 9.19 does not verify the status or type of the requested post before returning its details through a calendar export, allowing unauthenticated users to read the content of draft and private posts.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82214"
+    },
+    {
+      "id": "CVE-2026-119977",
+      "published": "2026-10-31T06:16:34.550",
+      "lastModified": "2026-11-04T12:52:38.683",
+      "description": "WordPress Core is vulnerable to Remote Code Execution in versions 4.7 through 7.1.3. This is due to predictable, web-accessible staging paths used during full-package core upgrades. This makes it possible for unauthenticated attackers to execute code on the server during the upgrade window.",
+      "score": 8.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119977"
+    },
+    {
+      "id": "CVE-2026-118638",
+      "published": "2026-10-31T06:16:34.330",
+      "lastModified": "2026-11-02T16:20:09.333",
+      "description": "The Mapster WP Maps WordPress plugin before 2.0.6 does not perform any authorization check on a REST API route that writes post data, allowing unauthenticated attackers to overwrite the title of arbitrary posts, create arbitrary published posts, and overwrite the Mapster WP Maps WordPress plugin before 2.0.6's stored settings.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-118638"
+    },
+    {
+      "id": "CVE-2026-118629",
+      "published": "2026-10-31T06:16:34.133",
+      "lastModified": "2026-11-02T16:20:09.333",
+      "description": "The All-in-One Video Gallery  WordPress plugin before 5.0.0 does not check a video's publication status before rendering it on its player page, allowing unauthenticated users to view the title and source URLs of private, draft, pending, scheduled and trashed videos by their ID.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-118629"
+    },
+    {
+      "id": "CVE-2026-118438",
+      "published": "2026-10-31T06:16:33.923",
+      "lastModified": "2026-11-02T16:20:09.333",
+      "description": "The Firelight Lightbox WordPress plugin before 2.3.24 does not properly escape image attribute values before processing them in the browser, which could allow users with contributor-level access and above to inject arbitrary web scripts that execute when another user views or previews the affected content.",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-118438"
+    },
+    {
+      "id": "CVE-2026-118437",
+      "published": "2026-10-31T06:16:33.703",
+      "lastModified": "2026-11-02T16:20:09.333",
+      "description": "The BuddyForms WordPress plugin before 2.10.1 does not properly verify ownership before deleting guest-uploaded attachments, allowing unauthenticated attackers to permanently delete media files uploaded by other unauthenticated visitors.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-118437"
+    },
+    {
+      "id": "CVE-2026-118185",
+      "published": "2026-10-31T06:16:33.503",
+      "lastModified": "2026-11-02T16:20:09.333",
+      "description": "The Security Optimizer  WordPress plugin before 1.6.9 does not limit the number of two-factor authentication codes that can be submitted for a pending login, allowing an attacker who already knows a user's password to brute force the second factor and take over the account.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-118185"
+    },
+    {
+      "id": "CVE-2026-118184",
+      "published": "2026-10-31T06:16:33.253",
+      "lastModified": "2026-11-02T16:20:09.333",
+      "description": "The Premium Packages  WordPress plugin before 7.2.2 does not prevent unauthenticated visitors from overwriting the stored price of items in their shopping cart, allowing them to create orders for any product at an arbitrary total of their choosing.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-118184"
+    },
+    {
+      "id": "CVE-2026-118043",
+      "published": "2026-10-31T06:16:33.080",
+      "lastModified": "2026-11-02T16:20:09.333",
+      "description": "The Bulk Media Register WordPress plugin before 2.01 does not properly validate a user-supplied path before moving a file on the server, allowing users with the Author role to move or rename arbitrary files, including outside the WordPress root, which can defeat directory-level access controls and disclose protected files.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-118043"
+    },
+    {
+      "id": "CVE-2026-116563",
+      "published": "2026-10-31T06:16:32.860",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Photo Gallery, Sliders, Proofing and Themes – NextGEN Gallery plugin for WordPress is vulnerable to Stored DOM-Based Cross-Site Scripting via the 'comment' parameter in all versions up to, and including, 4.5.4 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. Exploitation requires the site to have Shutter or Shutter Reloaded selected as the active lightbox, and the injected comment must be approved through WordPress's standard moderation workflow before the payload is rendered to other visitors.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116563"
+    },
+    {
+      "id": "CVE-2026-116520",
+      "published": "2026-10-31T06:16:32.630",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The PPWP – Password Protect Pages plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'comment / shortcode attribute desc_below_form (and placeholder as the marker-smuggling helper)' parameter in all versions up to, and including, 1.9.26 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. This is exploitable by unauthenticated attackers because WordPress's comment_content filter leaves bare shortcode text (containing no HTML tags) untouched, and the comment_whitelist setting auto-approves subsequent comments from a previously approved name and email without administrator intervention.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116520"
+    },
+    {
+      "id": "CVE-2026-110808",
+      "published": "2026-10-31T06:16:32.377",
+      "lastModified": "2026-11-02T16:20:09.333",
+      "description": "The Essential Addons for Elementor  WordPress plugin before 6.8.8 does not correctly restrict who may set the role assigned to accounts created through its registration form, allowing authenticated users with Author-level access and above to cause newly registered accounts, including those created by unauthenticated visitors through the public registration form, to be granted a higher role such as Editor.\nThis is an incomplete fix of CVE-2026-5193: the role-validation control added in 6.6.0 can be circumvented by a lower-privileged user, so versions 6.6.0 through 6.8.7 remain affected even on sites that are patched against that advisory.",
+      "score": 4.2,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110808"
+    },
+    {
+      "id": "CVE-2026-110042",
+      "published": "2026-10-31T06:16:32.120",
+      "lastModified": "2026-11-02T16:20:09.333",
+      "description": "The Payment Forms for Paystack WordPress plugin before 4.0.6 does not properly restrict access to a page that displays its stored configuration, allowing users with the Contributor role and above to view secret payment-gateway API credentials, both the live and test secret keys, which grant full access to the site owner's payment account.",
+      "score": 4.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110042"
+    },
+    {
+      "id": "CVE-2026-109997",
+      "published": "2026-10-31T06:16:31.853",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Ninja Forms – Contact Form Builder with Calculators, Quizzes, Signatures & AI Form Builder plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'formData.extra' parameter in all versions up to, and including, 3.15.5 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. The nf_ajax_submit endpoint issues a valid nonce to any requester on failure, effectively neutralizing the nonce check and making exploitation trivially achievable in a single unauthenticated request.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109997"
+    },
+    {
+      "id": "CVE-2026-109234",
+      "published": "2026-10-31T06:16:31.510",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The Meow Lightbox plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the 'post_content (bbPress reply body)' parameter in all versions up to, and including, 5.6.4 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page. This requires the administrator to have enabled Output Buffering, the HtmlDomParser engine, and Aggressive Resolve, as well as a stored-HTML submission surface (such as bbPress anonymous replies) whose kses allow-list preserves img attributes; given these preconditions, a one-shot unauthenticated submission can execute arbitrary JavaScript in the context of any user who views the affected page.",
+      "score": 7.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-109234"
+    },
+    {
+      "id": "CVE-2026-101326",
+      "published": "2026-10-31T06:16:31.217",
+      "lastModified": "2026-11-05T16:17:22.483",
+      "description": "The The Ninja Forms – Contact Form Builder with Calculators, Quizzes, Signatures & AI Form Builder plugin for WordPress is vulnerable to arbitrary shortcode execution in all versions up to, and including, 3.15.5 This is due to the software allowing users to execute an action that does not properly validate a value before running do_shortcode. This makes it possible for authenticated attackers, with subscriber-level access and above, to execute arbitrary shortcodes. Exploitation requires that an administrator has configured at least one Ninja Forms field with its Default Value set to the {wp:user_display_name} merge tag on a publicly accessible page; a Subscriber need only set their display_name to a shortcode string via their profile and then visit that page.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101326"
+    },
+    {
+      "id": "CVE-2026-100155",
+      "published": "2026-10-31T06:16:29.350",
+      "lastModified": "2026-11-02T16:19:19.997",
+      "description": "The The Ninja Forms – Contact Form Builder with Calculators, Quizzes, Signatures & AI Form Builder plugin for WordPress is vulnerable to arbitrary shortcode execution in all versions up to, and including, 3.15.5 This is due to the software allowing users to execute an action that does not properly validate a value before running do_shortcode. This makes it possible for unauthenticated attackers to execute arbitrary shortcodes.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-100155"
+    },
+    {
+      "id": "CVE-2026-116755",
+      "published": "2026-10-31T02:17:33.957",
+      "lastModified": "2026-11-06T14:17:06.727",
+      "description": "Improper Neutralization of Special Elements used in a Command ('Command Injection') in the Orchestrator component of SoftIron HyperCloud allows an authenticated user with access to the management plane to execute arbitrary operating system commands on hypervisor hosts as the privileged orchestration user. Attacker-controlled virtual machine template content (for example, the VM DESCRIPTION field) is delivered to hosts through a shell here-document whose terminator is not quoted, so shell expansion and here-document terminator injection are performed on that content during virtual machine lifecycle operations such as deploy, migrate, and network setup. Exploitation requires valid credentials, access to the management plane (owning a virtual machine alone is not sufficient), and a lifecycle operation that reaches the affected host. This issue affects the Orchestrator component of SoftIron HyperCloud from 1.0 through 2.6.17 and is fixed in 2.6.18.",
+      "score": 7.4,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116755"
+    },
+    {
+      "id": "CVE-2026-110176",
+      "published": "2026-10-31T01:17:05.153",
+      "lastModified": "2026-11-06T16:17:37.043",
+      "description": "The File Force Download module for Drupal 7 implements hook_file_download() to add a Content-Disposition header when a file URL carries the download query parameter. In Drupal 7, returning a non-empty header array from that hook is itself a grant of access to the file.\n\n\n\nIn versions 7.1.0 through 7.1.2, the module only delegated to other modules' hook_file_download() implementations when the file was in the private scheme. For every other scheme it returned its headers without any check. An unauthenticated visitor who appended download=1 to the URL of a file in the temporary:// scheme, or in a stream wrapper supplied by another module, could retrieve the file, overriding the access checks that would otherwise have applied. Files in the public and private schemes are not affected.",
+      "score": 8.7,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110176"
+    },
+    {
+      "id": "CVE-2026-77152",
+      "published": "2026-10-31T00:16:51.597",
+      "lastModified": "2026-11-06T16:18:58.717",
+      "description": "Improper Authorization vulnerability in Drupal Field Collection for Drupal 7 allows a user with the \"edit field collections\" permission to bypass access control on the parent (host) entity.\n\nThe access check for field collection items (field_collection_item_access()) granted edit and delete access to any user holding the \"edit field collections\" permission without verifying the user's access to the host entity. As a result, a user with \"edit field collections\" but without edit/update access to the host entity (for example a node they cannot edit) could edit or delete field collection items attached to that entity, bypassing the intended entity/node access restrictions. The fix requires access to the parent entity in addition to the field collection permission.\n\n\n\nThis issue affects Field Collection for Drupal 7: version 7.x-1.0 up to and including 7.x-1.2.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-77152"
+    },
+    {
+      "id": "CVE-2026-117656",
+      "published": "2026-10-31T00:16:51.340",
+      "lastModified": "2026-11-06T16:17:48.943",
+      "description": "Acceptance of Extraneous Untrusted Data With Trusted Data vulnerability in the Sign in with Apple strategy in pow-auth Assent allows an unauthenticated remote attacker to impersonate another user via the user parameter of the authorization callback.\n\nApple posts the user's name to the callback endpoint in a user form parameter that the browser submits and the client controls. Assent.Strategy.Apple.callback/2 in lib/assent/strategies/apple.ex decodes that parameter, and fetch_user/2 merges it over the claims of the verified ID token, so the unverified map wins. An attacker who completes a Sign in with Apple login with their own Apple ID and edits the user parameter can replace sub, email, and any other claim. Applications that look up, link, or authorize accounts by the returned subject or email then act on the attacker's values.\n\nThis issue affects assent: from 0.1.25 before 0.3.2.",
+      "score": 9.3,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-117656"
     }
   ]
 }
