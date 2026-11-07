@@ -1,6 +1,60 @@
 {
-  "syncedAt": "2026-11-07T12:51:21.824Z",
+  "syncedAt": "2026-11-07T17:59:25.893Z",
   "items": [
+    {
+      "id": "CVE-2026-82705",
+      "published": "2026-11-01T22:17:47.820",
+      "lastModified": "2026-11-06T15:17:24.450",
+      "description": "Missing authorization in Apache Wicket.\n\norg.apache.wicket.authorization.IAuthorizationStrategy declares isResourceAuthorized(), and that method has a single enforcement point in the framework: org.apache.wicket.request.handler.resource.ResourceRequestHandler, the handler that serves a resource reached through a mounted or shared ResourceReference. Components that are handed an org.apache.wicket.request.resource.IResource instance instead call IResource#respond() themselves from their own request listener and never construct that handler. In wicket-core these are org.apache.wicket.markup.html.link.ResourceLink, org.apache.wicket.markup.html.image.Image and org.apache.wicket.markup.html.form.ImageButton; in wicket-extensions it is org.apache.wicket.extensions.ajax.AjaxDownloadBehavior. A resource restricted by a custom isResourceAuthorized() implementation, or by an @AuthorizeResource annotation from wicket-auth-roles, is therefore enforced when it is requested through its own resource URL and is not enforced when the same instance is served through the component that holds it.\n\nWhich of the two happens is decided by the constructor the application used, and not by anything the application can see in the rendered page. ResourceLink(String, ResourceReference) renders a resource URL and the request is authorized; ResourceLink(String, IResource) renders a component listener URL and it is not. Image, ImageButton and AjaxDownloadBehavior each offer the same pair of constructors and behave the same way. Image and ImageButton write that listener URL into the src attribute of the tag they render, so a browser requests it without any action by the user, and the resource an Image serves may also come from the component's model.\n\nAn application is affected where it restricts a resource through IAuthorizationStrategy#isResourceAuthorized() or an @AuthorizeResource annotation and then hands that same resource to one of those components as an IResource. An application that does not restrict resources at all is not affected, and neither is a resource that is only mounted or registered as a shared resource. The pattern does not have to be written by the application itself: org.apache.wicket.extensions.markup.html.repeater.data.table.export.ExportToolbar builds each of its export links from an IResource instance, so the exported contents of a data table are served without the resource check in any application that adds that toolbar.\n\nAs a workaround, register the resource in the application's shared resources and pass the resulting ResourceReference to the component instead of the IResource, so that the request is routed through the handler that consults the authorization strategy.\n\nThis issue affects Apache Wicket: from 8.0.0 through 8.19.0, from 9.0.0 through 9.24.0, from 10.0.0 through 10.11.0. Users are recommended to upgrade to version 8.20.0, 9.25.0 or 10.12.0, which fix the issue.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82705"
+    },
+    {
+      "id": "CVE-2026-82704",
+      "published": "2026-11-01T22:17:47.583",
+      "lastModified": "2026-11-06T15:17:24.237",
+      "description": "Missing authorization in Apache Wicket.\n\norg.apache.wicket.core.request.handler.ListenerRequestHandler invokes an IRequestListener only when org.apache.wicket.Component#canCallListener() allows it, and that method is isEnabledInHierarchy() && isVisibleInHierarchy(). The visibility half reads a flag that carries the outcome of IAuthorizationStrategy#isActionAuthorized() for the Component.RENDER action, and that flag is written in one place only, Component#configure(), during the render phase. A listener URL built by a subclass of org.apache.wicket.core.request.mapper.AbstractBookmarkableMapper carries the page identifier and the component path in a single parameter, and the page identifier may be empty. When it is, a new page instance is constructed, PageProvider#wasExpired() is false because no identifier was supplied, and PageAndComponentProvider#getComponent() finds the component directly on the new instance, so neither a render pass nor Component#configure() runs before the listener is invoked. The flag therefore still holds its constructor default, the component counts as visible, and the listener of a component the authorization strategy denied RENDER for is executed. The same request also skips Component#onConfigure(), so visibility and enablement an application sets there are not applied either.\n\nThere are two ways to reach this, and neither requires anything but a request. On a page that is stateful, the caller omits the page identifier from a listener URL that would otherwise carry it. On a page that Wicket considers stateless, nothing has to be altered at all: Wicket itself writes listener URLs without a page identifier for such pages, and a component the strategy denies RENDER for is treated as stateless and therefore does not keep the page stateful, so denying RENDER can itself produce the page-id-less form. The second route has never been refused. The ENABLE decision of IAuthorizationStrategy is consulted on every invocation and still refuses, as does a request that supplies the real identifier of a page instance that has already been rendered; a component the application disabled in Component#onConfigure() is protected by neither, because that callback has not run.\n\nAn application is affected where it withholds an individual component from the caller, either by denying the RENDER action through IAuthorizationStrategy, including through the MetaDataRoleAuthorizationStrategy and AuthorizeAction facilities of wicket-auth-roles, or by setting the component's visibility or enabled flag in Component#onConfigure(), the callback Wicket's own documentation directs applications to use for both. The page carrying such a component has to be constructible from a bookmarkable or mounted URL, which requires a public constructor taking either no arguments or a PageParameters argument. Behaviours pass through the same gate, so an AJAX behaviour attached to such a component is equally exposed. Separately, and whether or not any component is withheld, a listener on a page Wicket considers stateful is invoked on an instance the request itself constructed, so it acts on models built from page parameters the caller supplied rather than on the state the application last rendered. Instantiation authorization is unaffected: IAuthorizationStrategy#isInstantiationAuthorized() is still consulted when the new page instance is created, so a guard placed on the page rather than on the individual component continues to hold.\n\nThis issue affects Apache Wicket: from 8.0.0 through 8.19.0, from 9.0.0 through 9.24.0, from 10.0.0 through 10.11.0. Users are recommended to upgrade to version 8.20.0, 9.25.0 or 10.12.0, which fix the issue.",
+      "score": 6.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82704"
+    },
+    {
+      "id": "CVE-2026-82559",
+      "published": "2026-11-01T22:17:47.370",
+      "lastModified": "2026-11-06T15:17:24.037",
+      "description": "Insufficient session expiration in Apache Wicket.\n\norg.apache.wicket.protocol.ws.WebSocketSettings#newWebSocketRequest() wraps the WebSocket upgrade request in an org.apache.wicket.protocol.ws.api.ServletRequestCopy, which is kept for the life of the connection and used to build the request for every frame that arrives on it. Copying the request is deliberate and is documented as such, because the container recycles the upgrade request once the handshake is over. The container session is copied along with it, into an org.apache.wicket.protocol.ws.api.HttpSessionCopy holding the session attributes as they stood when the connection was opened. That second copy is not necessary, because a session, unlike a request, is not discarded at the end of a request. Every frame afterwards resolves its Wicket session through ISessionStore#lookup(), which reads it out of the copy, so the connection is detached from the live container session for as long as it stays open.\n\nEnding the session through the container therefore does not end the connection. After an idle timeout, an HttpSession#invalidate() call made from a filter or from a security framework, a container-managed logout, or a session replacement, the connection goes on resolving the org.apache.wicket.Session instance that existed when it was opened, together with that session's attributes and, for applications built on wicket-auth-roles, the signed-in state held on that same instance, so an authorization decision taken inside a WebSocket callback is taken against an identity that has already been revoked. The copy is also what the connection writes through: a Session#invalidateNow() issued from inside a WebSocket callback invalidates the copy and leaves the container session valid, and session attributes set over the connection are written to the copy rather than to the session.\n\nAn application is affected where it uses Wicket's native WebSocket support on pages or shared resources that require an authenticated session, and where sessions are ended by the container rather than by Wicket. Session#invalidateNow(), and AuthenticatedWebSession#invalidate() and #signOut() which call it, remain effective for a WebSocketBehavior on a page: they clear the page manager, and the connection can then no longer resolve the page it was opened for. A WebSocketResource is not limited in that way, because a frame naming a resource is served against a throwaway page and never consults the page manager, so such a connection outlives Wicket's own sign-out as well. Some containers close WebSocket connections themselves when the HTTP session they were opened under is destroyed, in which case the connection ends regardless; that is a property of the container rather than of Wicket. Applications that do not use the native WebSocket support are not affected.\n\nThis issue affects Apache Wicket: from 8.0.0 through 8.19.0, from 9.0.0 through 9.24.0, from 10.0.0 through 10.11.0. Older, unsupported releases from 6.0.0 onwards are also affected. Users are recommended to upgrade to version 8.20.0, 9.25.0 or 10.12.0, which fix the issue.",
+      "score": 2.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82559"
+    },
+    {
+      "id": "CVE-2026-82558",
+      "published": "2026-11-01T22:17:47.187",
+      "lastModified": "2026-11-06T15:17:23.853",
+      "description": "Missing authorization in Apache Wicket.\n\norg.apache.wicket.protocol.ws.api.WebSocketBehavior, through which Wicket's native WebSocket support hands a message sent by the client to the application, calls its onMessage() callbacks without checking whether the client may invoke the component the behavior is attached to. Wicket opens a single WebSocket connection per page, and a message received on it is delivered to every WebSocketBehavior of that page. For an Ajax behavior Wicket makes this check before invoking it, through Behavior#canCallListener(Component), which refuses a component that is not visible or not enabled, including one for which the IAuthorizationStrategy denies the RENDER or ENABLE action. A WebSocketBehavior attached to such a component, or to a child of one, therefore receives the client's text and binary messages, together with a WebSocketRequestHandler that writes back to that client, where an Ajax behavior on the same component would be refused.\n\nAn application is affected where it attaches a WebSocketBehavior that overrides onMessage() to a component that it hides, disables, or restricts through its IAuthorizationStrategy, for example with MetaDataRoleAuthorizationStrategy or the AuthorizeAction annotation. The client needs a session of their own and a page of their own that contains such a component: messages are delivered only to pages in the page store of the client's own session, so this gives no access to another user's session, page or connection. Messages pushed by the server are not affected.\n\nThis issue affects Apache Wicket: from 8.0.0 through 8.19.0, from 9.0.0 through 9.24.0, from 10.0.0 through 10.11.0. Older, unsupported releases from 6.0.0 onwards are also affected. Users are recommended to upgrade to version 8.20.0, 9.25.0 or 10.12.0, which fix the issue.",
+      "score": 2.3,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82558"
+    },
+    {
+      "id": "CVE-2026-82557",
+      "published": "2026-11-01T22:17:46.990",
+      "lastModified": "2026-11-06T15:17:23.660",
+      "description": "Missing authorization in Apache Wicket.\n\norg.apache.wicket.markup.html.form.Form resolves the component that submitted a form from the request parameters in Form#onRequest() and passes the result directly to Form#onFormSubmitted(IFormSubmitter). The check that the submitting component is visible and enabled in its hierarchy runs only when onFormSubmitted() is given no submitter, so it no longer runs for an ordinary form submission, and it is the only point at which Wicket verifies that the application actually offered the named control to the caller. Form#findSubmitter() matches on the request parameter name alone and applies no visibility or enablement filter, and the request handler checks only the form itself, which is visible and enabled. A request that names a submit button the application withheld therefore reaches that button's onSubmit() and onAfterSubmit(), and its onError() when form validation fails; where the button sets setDefaultFormProcessing(false) it reaches onSubmit() and onAfterSubmit() without any form validation.\n\nAn application is affected where a form submitting component, such as a Button or a SubmitLink, is unavailable to the caller while the enclosing form remains available. How the component was made unavailable does not matter: the component's own setVisible(false), setEnabled(false) or setVisibilityAllowed(false), an overridden isVisible() or isEnabled(), an invisible or disabled parent container anywhere above it, and a RENDER or ENABLE denial from IAuthorizationStrategy — for example through MetaDataRoleAuthorizationStrategy or the AuthorizeAction annotation — are all enforced by that one check, and all of them are bypassed. A component that renders as disabled carries its own input name in the markup the caller already holds. Submissions made through AjaxFormSubmitBehavior, and therefore through AjaxButton and AjaxSubmitLink, are not affected: those are invoked as a behaviour on the button itself, the behaviour's invocation is authorized against that button, and the non-Ajax callbacks of those two classes do nothing. Restrictions applied to the form or to the page rather than to the submitting component are unaffected.\n\nThe 9.x and 8.x release lines, and the unsupported lines before them, are not affected; the behaviour was introduced in 10.3.0.\n\nThis issue affects Apache Wicket: from 10.3.0 through 10.11.0. Users are recommended to upgrade to version 10.12.0, which fixes the issue.",
+      "score": 6.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82557"
+    },
+    {
+      "id": "CVE-2026-82115",
+      "published": "2026-11-01T22:17:46.777",
+      "lastModified": "2026-11-06T15:17:23.480",
+      "description": "Missing authorization in Apache Wicket.\n\norg.apache.wicket.protocol.ws.api.WebSocketMessageBroadcastHandler, the request handler Wicket's native WebSocket support uses to deliver an incoming frame, resolves the shared resource named by the client's handshake parameter and calls WebSocketResource#onPayload() on it directly, without consulting IAuthorizationStrategy#isResourceAuthorized(). That method has a single enforcement point in the framework, org.apache.wicket.request.handler.resource.ResourceRequestHandler, which the WebSocket transport does not pass through, and WebSocketResource#respond() is final and empty. No route to a WebSocketResource therefore asks the configured authorization strategy whether the caller may use it, and an @AuthorizeResource annotation on such a class has no effect.\n\nA caller needs a bound Wicket session and the name of the resource. The name is not a secret: Wicket writes it into the page that opens the connection. No page of the application is otherwise involved, because a request naming a resource is served with a throwaway page. All of the resource's callbacks are reached this way, including onConnect() and both onMessage() overloads, and what a callback pushes back through WebSocketRequestHandler goes to the caller's own connection.\n\nAn application is affected where it registers a WebSocketResource as a shared resource and relies on the authorization strategy to restrict it. What the caller gains is whatever that resource's callbacks do with a text or binary message of the caller's choosing. The connection is registered under the caller's own session, so it gives no access to another user's connection.\n\nAs a workaround, reject unauthorized connections with an IWebSocketConnectionFilter registered through WebSocketSettings#setConnectionFilter(), or repeat the authorization check at the start of each callback.\n\nThis issue affects Apache Wicket: from 8.0.0 through 8.19.0, from 9.0.0 through 9.24.0, from 10.0.0 through 10.11.0. Older, unsupported releases from 7.0.0 onwards are also affected. Users are recommended to upgrade to version 8.20.0, 9.25.0 or 10.12.0, which fix the issue.",
+      "score": 6.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82115"
+    },
     {
       "id": "CVE-2026-120274",
       "published": "2026-11-01T21:17:08.157",
@@ -840,60 +894,6 @@
       "score": 4.3,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120199"
-    },
-    {
-      "id": "CVE-2026-102212",
-      "published": "2026-10-31T16:16:52.553",
-      "lastModified": "2026-11-06T14:17:05.860",
-      "description": "Heap-based buffer overflow in Opengear IM72XX, CM71XX, and ACM70XX firmware versions 4.8.0 through 5.5.2 on console server appliances allows an unauthenticated remote attacker to crash the index.cgi process via a crafted multipart/form-data POST request containing an overlong Content-Disposition name field.",
-      "score": 8.4,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102212"
-    },
-    {
-      "id": "CVE-2026-78192",
-      "published": "2026-10-31T15:16:54.367",
-      "lastModified": "2026-11-06T14:17:13.797",
-      "description": "WebDyne versions from 2.022 before 3.022 for Perl disclose application source to unauthenticated clients via the viewer in the default index page.\n\nWebDyne's wrapper scripts, such as webdyne.psgi, enable the built-in index page by default. Its source viewer returns files under the document root named in the source parameter of an HTMX request, including .psp, .pm and .pl files.\n\nA remote attacker can read the application's Perl code, including the __PERL__ blocks of .psp pages and any credentials they hold.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78192"
-    },
-    {
-      "id": "CVE-2026-78191",
-      "published": "2026-10-31T15:16:54.247",
-      "lastModified": "2026-11-06T15:17:23.297",
-      "description": "WebDyne versions from 2.031 before 3.022 for Perl execute files with .psp anywhere in the name as Perl pages.\n\nWebDyne decides whether to run a requested file as a page by matching its name against WEBDYNE_PSP_EXT_RE, which has no end anchor.\n\nAn application that accepts uploads by checking only the final extension lets a remote attacker upload a file such as report.psp.pdf and run its embedded Perl by requesting it.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78191"
-    },
-    {
-      "id": "CVE-2026-78190",
-      "published": "2026-10-31T15:16:54.123",
-      "lastModified": "2026-11-06T15:17:23.120",
-      "description": "WebDyne versions from 2.014 before 3.022 for Perl reflect request parameters unescaped into form field values, allowing cross-site scripting.\n\nThe textfield, password_field and filefield tags fill their value attribute from the request parameter of the same name. WEBDYNE_CGI_AUTOESCAPE, which controls escaping of these values, defaults to off. From 2.022, WebDyne::HTML::Tiny also replaced its entity_encode method with one that returns its input unchanged, so enabling WEBDYNE_CGI_AUTOESCAPE has no effect.\n\nA remote attacker can inject script into any page using these tags through a crafted link.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78190"
-    },
-    {
-      "id": "CVE-2026-78189",
-      "published": "2026-10-31T15:16:54.003",
-      "lastModified": "2026-11-06T15:17:22.950",
-      "description": "WebDyne versions from 3.007 before 3.022 for Perl execute .psp files outside the document root via path traversal in the PSGI API route fallback.\n\nWhen a request matches no file, the PSGI handler retries it as an API route through api_filename. That keeps .. segments in the request path and only checks that the joined path starts with the document root, which a request for /../private passes.\n\nA remote attacker can run the embedded Perl in any .psp file the server can read, such as one uploaded to a directory outside the document root.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78189"
-    },
-    {
-      "id": "CVE-2026-78188",
-      "published": "2026-10-31T15:16:53.860",
-      "lastModified": "2026-11-06T14:17:13.580",
-      "description": "WebDyne versions from 2.014 before 3.022 for Perl issue session cookies without the Secure, HttpOnly and SameSite attributes.\n\nWebDyne::Session sets its session cookie with only a name, value and path.\n\nBrowsers then send the session ID over plain HTTP and with cross-site requests, and expose it to page scripts. A network attacker or an injected script can steal the session, and another site can make requests that carry it.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-78188"
     }
   ]
 }
