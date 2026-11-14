@@ -1,6 +1,105 @@
 {
-  "syncedAt": "2026-11-14T16:01:54.638Z",
+  "syncedAt": "2026-11-14T20:37:57.923Z",
   "items": [
+    {
+      "id": "CVE-2026-123588",
+      "published": "2026-11-08T02:16:52.790",
+      "lastModified": "2026-11-12T14:17:25.900",
+      "description": "The recursive resolver in Hickory DNS (all versions of the hickory-recursor crate, and hickory-resolver 0.26.0 before 0.26.2) caches an empty connection pool when it follows a referral with no glue records and all queries for the name servers' IP addresses fail. An attacker able to spoof DNS responses can make these lookups fail, causing all subsequent queries for the affected zone to fail until the cache entry expires or is evicted.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123588"
+    },
+    {
+      "id": "CVE-2026-123587",
+      "published": "2026-11-08T02:16:52.637",
+      "lastModified": "2026-11-13T04:17:37.780",
+      "description": "The DNSSEC validation in the Hickory DNS hickory-net crate 0.26.0 before 0.26.2 identifies wraparound NSEC records by comparing the next domain name to an SOA record in the response, accepting that SOA even if it fails validation. Attackers who can supply DNS responses can combine a genuine NSEC record and its RRSIG with a crafted SOA record to forge nonexistence of any RRset.",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123587"
+    },
+    {
+      "id": "CVE-2026-123586",
+      "published": "2026-11-08T02:16:52.477",
+      "lastModified": "2026-11-10T22:15:59.797",
+      "description": "Hickory DNS 0.25.0-alpha.3 through 0.25.2 contains a query amplification vulnerability in its recursive resolver, which mishandles cyclic sibling name server referrals that lack glue records. Attackers controlling two zones whose name servers reference each other without glue records can make the recursor loop, sending many upstream queries, amplified further by zero-TTL NS records.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123586"
+    },
+    {
+      "id": "CVE-2026-123585",
+      "published": "2026-11-08T02:16:52.327",
+      "lastModified": "2026-11-10T22:15:59.797",
+      "description": "The hickory-resolver component of Hickory DNS 0.25.0 before 0.26.2 follows irrelevant CNAME records when resolving recursive queries, sending queries that are unnecessary to answer the original request. Attackers controlling DNS responses can include CNAME records in the authority or additional sections, or outside the original query name's CNAME chain, causing excess resolver queries and increased query amplification.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123585"
+    },
+    {
+      "id": "CVE-2026-123584",
+      "published": "2026-11-08T02:16:52.160",
+      "lastModified": "2026-11-12T14:17:25.750",
+      "description": "The hickory-net crate in Hickory DNS 0.26.0 before 0.26.2 stops listening and returns an error when a client UDP connection receives a datagram that cannot be parsed as a DNS message. Remote attackers who guess the query's source port, without knowing the transaction ID, can spoof malformed responses to abort client queries, causing denial of service.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123584"
+    },
+    {
+      "id": "CVE-2026-123583",
+      "published": "2026-11-08T02:16:52.007",
+      "lastModified": "2026-11-13T04:17:37.633",
+      "description": "The recursive resolver in Hickory DNS hickory-recursor 0.25.0 through 0.25.2 and hickory-resolver 0.26.0 before 0.26.2 does not apply out-of-bailiwick filtering to negative responses. Attackers able to supply crafted negative responses can include out-of-bailiwick records to facilitate cache poisoning and more easily exploit other DNSSEC verification flaws.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123583"
+    },
+    {
+      "id": "CVE-2026-123582",
+      "published": "2026-11-08T02:16:51.853",
+      "lastModified": "2026-11-10T22:15:59.797",
+      "description": "The validating recursive resolver and validating forwarder in Hickory DNS (hickory-server) 0.25.0 before 0.26.2 do not check whether the SOA record passed DNSSEC validation when assembling NXDOMAIN or NODATA responses. An attacker able to supply forged DNS responses can have a forged SOA record returned to clients with the AD bit set, misleading clients that rely on the server's DNSSEC validation.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123582"
+    },
+    {
+      "id": "CVE-2026-123581",
+      "published": "2026-11-08T02:16:51.693",
+      "lastModified": "2026-11-10T22:15:59.797",
+      "description": "Hickory DNS hickory-proto through 0.26.0-alpha.1 and hickory-net 0.26.0-beta.1 before 0.26.2 contain a DNSSEC validation flaw that accepts a response as a positive answer when any valid RRset appears in the answer section, without checking that the RRset is responsive to the query. Attackers can supply signed but unrelated RRsets so that responses lacking matching records are validated as positive answers instead of as no-data responses.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123581"
+    },
+    {
+      "id": "CVE-2026-123580",
+      "published": "2026-11-08T02:16:51.540",
+      "lastModified": "2026-11-12T13:17:14.837",
+      "description": "Hickory DNS hickory-net 0.26.0-beta.1 before 0.26.2 and hickory-proto through 0.26.0-alpha.1 perform insufficient checks on NSEC3 record names during DNSSEC verification, comparing only the hashed label without confirming the record belongs to the correct zone. Attackers can supply NSEC3 records from another zone with a matching hash label to forge DNSSEC nonexistence proofs.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123580"
+    },
+    {
+      "id": "CVE-2026-123579",
+      "published": "2026-11-08T02:16:51.370",
+      "lastModified": "2026-11-13T04:17:37.473",
+      "description": "DNSSEC validation in Hickory DNS hickory-net 0.26.0-beta.1 before 0.26.2 and hickory-proto through 0.26.0-alpha.1 does not distinguish NODATA responses from wildcard-expanded positive responses. For a query that should return NODATA in a zone with wildcard records, an attacker can combine an NSEC3 record matching the query name with a signed wildcard record into a bogus positive response that validation accepts.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123579"
+    },
+    {
+      "id": "CVE-2026-123578",
+      "published": "2026-11-08T02:16:51.207",
+      "lastModified": "2026-11-10T22:15:59.797",
+      "description": "Hickory DNS hickory-net 0.26.0 before 0.26.2 and hickory-proto 0.25.0 through 0.25.2 skip the check that a UDP response's question section matches the query when the response has an empty question section (QDCOUNT=0), and also skip the case-randomization check. Remote attackers able to inject spoofed UDP responses can send QDCOUNT=0 responses to bypass these checks, weakening defenses against DNS spoofing.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123578"
+    },
     {
       "id": "CVE-2026-123577",
       "published": "2026-11-08T02:16:51.050",
@@ -797,105 +896,6 @@
       "score": 9.1,
       "severity": "CRITICAL",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-124060"
-    },
-    {
-      "id": "CVE-2026-124059",
-      "published": "2026-11-07T19:17:28.480",
-      "lastModified": "2026-11-09T23:17:18.967",
-      "description": "A security vulnerability has been detected in TOTOLINK CA300-PoE 6.2c.884. Affected by this vulnerability is the function setWiFiWdsAddConfig of the file /cgi-bin/cstecgi.cgi. The manipulation of the argument ApCliKeyStr leads to buffer overflow. The attack may be initiated remotely. The exploit has been disclosed publicly and may be used.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-124059"
-    },
-    {
-      "id": "CVE-2026-124058",
-      "published": "2026-11-07T19:17:28.263",
-      "lastModified": "2026-11-12T12:18:21.210",
-      "description": "A weakness has been identified in TOTOLINK CA300-PoE 6.2c.884. Affected is the function setWiFiRepeaterConfig of the file /cgi-bin/cstecgi.cgi. Executing a manipulation of the argument ApCliKeyStr can lead to buffer overflow. The attack can be launched remotely. The exploit has been made available to the public and could be used for attacks.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-124058"
-    },
-    {
-      "id": "CVE-2026-124258",
-      "published": "2026-11-07T18:17:21.830",
-      "lastModified": "2026-11-07T19:17:28.707",
-      "description": "Missing Authorization vulnerability in ThemeGrill User Registration user-registration allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects User Registration: from n/a through 5.3.1.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-124258"
-    },
-    {
-      "id": "CVE-2026-124057",
-      "published": "2026-11-07T18:17:21.607",
-      "lastModified": "2026-11-11T05:19:35.813",
-      "description": "A security flaw has been discovered in TOTOLINK CA300-PoE 6.2c.884. This impacts the function setWiFiMultipleConfig of the file /cgi-bin/cstecgi.cgi. Performing a manipulation of the argument Key1Str1 results in buffer overflow. The attack can be initiated remotely. The exploit has been released to the public and may be used for attacks.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-124057"
-    },
-    {
-      "id": "CVE-2026-123992",
-      "published": "2026-11-07T18:17:21.367",
-      "lastModified": "2026-11-09T15:17:14.793",
-      "description": "A flaw has been found in DataEase up to 2.10.27. Affected by this issue is the function StaticResourceServer.validateSvgContent of the file core/core-backend/src/main/java/io/dataease/visualization/server/StaticResourceServer.java of the component SVG Handler. Executing a manipulation can lead to cross site scripting. It is possible to launch the attack remotely. The exploit has been published and may be used. Upgrading to version 2.10.28 can resolve this issue. This patch is called 0709fe98d6608c3507daee3e92cf433e7ff61370. You should upgrade the affected component. The vendor confirms: \"The reported tab/entity-based URL bypass is covered by our previously implemented SVG security hardening. The fix replaces the blacklist-based checks with namespace-aware element and attribute allowlists, restricts permitted references to document-local fragments, and applies a restrictive Content Security Policy to uploaded SVG responses.\"",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123992"
-    },
-    {
-      "id": "CVE-2026-123472",
-      "published": "2026-11-07T18:17:21.077",
-      "lastModified": "2026-11-07T18:17:21.207",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in eLightUp Meta Box – WordPress Custom Fields Framework meta-box allows Stored XSS.This issue affects Meta Box – WordPress Custom Fields Framework: from n/a through 5.15.3.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123472"
-    },
-    {
-      "id": "CVE-2026-123461",
-      "published": "2026-11-07T18:17:20.810",
-      "lastModified": "2026-11-07T19:17:27.397",
-      "description": "Missing Authorization vulnerability in PluginUs.Net FOX woocommerce-currency-switcher allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects FOX: from n/a through 1.5.6.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123461"
-    },
-    {
-      "id": "CVE-2026-120836",
-      "published": "2026-11-07T18:17:18.603",
-      "lastModified": "2026-11-07T19:17:21.657",
-      "description": "Missing Authorization vulnerability in eLightUp Meta Box – WordPress Custom Fields Framework meta-box allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Meta Box – WordPress Custom Fields Framework: from n/a through 5.15.3.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120836"
-    },
-    {
-      "id": "CVE-2026-119522",
-      "published": "2026-11-07T18:17:16.130",
-      "lastModified": "2026-11-07T19:17:21.323",
-      "description": "Missing Authorization vulnerability in ThemeGrill User Registration user-registration allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects User Registration: from n/a through 5.3.1.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119522"
-    },
-    {
-      "id": "CVE-2026-123991",
-      "published": "2026-11-07T17:16:34.420",
-      "lastModified": "2026-11-09T23:17:17.323",
-      "description": "A vulnerability was detected in DataEase up to 2.10.27. Affected by this vulnerability is the function WhitelistUtils.endsWithAny of the file WhitelistUtils.java of the component Authentication Filter. Performing a manipulation of the argument File results in unrestricted upload. It is possible to initiate the attack remotely. The exploit is now public and may be used. Upgrading to version 2.10.28 addresses this issue. It is advisable to upgrade the affected component. The vendor confirms: \"This issue has been addressed by enforcing authentication on the standalone static-resource upload endpoint independently of the URI suffix whitelist.\"",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123991"
-    },
-    {
-      "id": "CVE-2026-123990",
-      "published": "2026-11-07T17:16:34.163",
-      "lastModified": "2026-11-10T21:19:06.823",
-      "description": "A security vulnerability has been detected in DataEase up to 2.10.27/3.1.0. Affected is the function ExtWhere2Str.extWhere2sqlOjb of the file engine/trans/ExtWhere2Str.java of the component Chart Data Handler. Such manipulation of the argument operator leads to sql injection. The attack may be performed from remote. The exploit has been disclosed publicly and may be used. Upgrading to version 3.2.0 is able to address this issue. Upgrading the affected component is advised. The vendor confirms: \"The fix validates the complete compound operator and uses fixed AND / OR keywords instead of concatenating user-controlled logic into SQL.\"",
-      "score": 7.3,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123990"
     }
   ]
 }
