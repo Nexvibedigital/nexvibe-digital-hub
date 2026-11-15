@@ -1,6 +1,42 @@
 {
-  "syncedAt": "2026-11-14T20:37:57.923Z",
+  "syncedAt": "2026-11-15T00:58:19.773Z",
   "items": [
+    {
+      "id": "CVE-2026-123592",
+      "published": "2026-11-08T02:16:53.413",
+      "lastModified": "2026-11-12T14:17:26.050",
+      "description": "The hickory-net crate in Hickory DNS 0.26.0-beta.1 before 0.26.2 allows DNSSEC validation bypass because Name's Hash ignores label lengths and ValidationCacheKey compares only that hash. An attacker controlling an unsigned delegation whose name differs from a signed target only in dot positions can prime an Insecure verdict, causing forged answers for the target to skip signature verification instead of returning SERVFAIL.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123592"
+    },
+    {
+      "id": "CVE-2026-123591",
+      "published": "2026-11-08T02:16:53.253",
+      "lastModified": "2026-11-13T04:17:37.920",
+      "description": "Hickory DNS hickory-net 0.26.0-beta.1 before 0.26.2 and hickory-proto through 0.26.0-alpha.1 fail to verify, per RFC 6840 §4.4, that an NSEC or NSEC3 record denying a DS RRset also proves the delegation's NS record exists. Attackers can reuse child-side NSEC or NSEC3 records to fake an insecure delegation and forge child-zone records.",
+      "score": 5.9,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123591"
+    },
+    {
+      "id": "CVE-2026-123590",
+      "published": "2026-11-08T02:16:53.097",
+      "lastModified": "2026-11-10T22:15:59.797",
+      "description": "Hickory DNS hickory-net 0.26.0-beta.1 before 0.26.2 and hickory-proto through 0.26.0-alpha.1 accept NSEC and NSEC3 records for DNSSEC nonexistence proofs when any other record with the same owner name passes signature validation. Attackers able to supply DNS responses can mix validly signed records with bogus same-name NSEC or NSEC3 records of different types in the authority section to forge nonexistence proofs.",
+      "score": 4.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123590"
+    },
+    {
+      "id": "CVE-2026-123589",
+      "published": "2026-11-08T02:16:52.950",
+      "lastModified": "2026-11-10T22:15:59.797",
+      "description": "The DNS-over-QUIC (DoQ) server in hickory-server (hickory-dns) before 0.26.2 does not apply any timeout when reading a request message from a QUIC stream, bypassing all configured timeouts. A remote unauthenticated client can open a connection and a request stream and hold it open indefinitely, consuming server resources and causing a denial of service.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123589"
+    },
     {
       "id": "CVE-2026-123588",
       "published": "2026-11-08T02:16:52.790",
@@ -864,38 +900,6 @@
       "score": 5.4,
       "severity": "MEDIUM",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123493"
-    },
-    {
-      "id": "CVE-2026-120531",
-      "published": "2026-11-07T22:16:36.090",
-      "lastModified": "2026-11-08T19:17:35.813",
-      "description": "The Subscribe2 – Form, Email Subscribers & Newsletters plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the ‘data[ip]’ parameter in all versions up to, and including, 10.47 due to insufficient input sanitization and output escaping. This makes it possible for unauthenticated attackers to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
-      "score": 7.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120531"
-    },
-    {
-      "id": "CVE-2026-99284",
-      "published": "2026-11-07T21:17:00.603",
-      "lastModified": "2026-11-10T19:22:31.810",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: skbuff: propagate shared-frag marker in skb_zerocopy()\n\nskb_zerocopy() moves frag descriptors from @from into @to and takes a\nreference on each frag, but it does not copy skb_shinfo(from)->flags into\nskb_shinfo(to)->flags.  A destination skb holding the same page-cache\nbacked frags as the source therefore reports skb_has_shared_frag() as\nfalse.\n\nThat breaks the invariant relied on by later in-place writers.  ESP input\nchecks skb_has_shared_frag() before deciding whether an uncloned\nnonlinear skb can skip skb_cow_data(); with the marker lost, an skb that\nskb_zerocopy() built for nfnetlink_queue or for an openvswitch upcall is\ndecrypted in place, letting an unprivileged user write into the page\ncache of a root-owned read-only file.\n\nPropagate SKBFL_SHARED_FRAG when frag descriptors are copied, as done for\nthe other frag-transfer helpers.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99284"
-    },
-    {
-      "id": "CVE-2026-99283",
-      "published": "2026-11-07T21:17:00.477",
-      "lastModified": "2026-11-10T19:22:31.700",
-      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: conntrack: tcp: use UNACK timeout for non-closing RST packets\n\nCommit be0502a3f2e9 (\"netfilter: conntrack: tcp: only close if RST\nmatches exact sequence\") keeps an established conntrack entry in\nESTABLISHED when an in-window RST does not match the expected sequence\nnumber exactly, so the endpoint can validate the RST with a challenge\nACK.\n\nThe timeout selection nevertheless uses the CLOSE timeout for every RST\npacket.  The bug is that timeout selection is based on the packet type,\nnot on the state transition result: even when RST validation keeps\nnew_state in ESTABLISHED, the timeout is still forced to\nTCP_CONNTRACK_CLOSE.\n\nLinux TCP independently rate limits challenge ACKs per socket.  A second\nnon-exact RST can therefore arrive after the first challenge ACK has\nrestored the timeout but before the rate limit expires.  The second RST\nlowers the timeout to 10 seconds again while the endpoint suppresses the\nsecond challenge ACK, allowing the conntrack entry to expire while both\nTCP endpoints remain established.\n\nUsing the ESTABLISHED timeout for such RSTs would avoid this short\nexpiration window, but it could also retain stale entries for the\nfive-day default because conntrack cannot reliably match the endpoint's\nexact TCP state.\n\nUse the UNACK timeout for RST packets that leave the conntrack entry in\nTCP_CONNTRACK_ESTABLISHED.  Exact-match RSTs and accepted RST packet\ntrains still fall through to timeouts[new_state], which preserves the\nCLOSE timeout when conntrack accepts the RST as closing the flow.\n\nThis avoids the aggressive 10-second expiration window for non-exact\nRSTs while preserving the short timeout for RSTs that conntrack accepts\nas closing the flow.",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99283"
-    },
-    {
-      "id": "CVE-2026-124060",
-      "published": "2026-11-07T21:17:00.150",
-      "lastModified": "2026-11-09T14:17:14.663",
-      "description": "A vulnerability was detected in TOTOLINK CA300-PoE 6.2c.884. Affected by this issue is the function UploadCustomModule of the file /cgi-bin/cstecgi.cgi. The manipulation of the argument File results in buffer overflow. The attack may be launched remotely. The exploit is now public and may be used.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-124060"
     }
   ]
 }
