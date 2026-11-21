@@ -1,6 +1,42 @@
 {
-  "syncedAt": "2026-11-21T19:05:02.155Z",
+  "syncedAt": "2026-11-21T23:45:47.586Z",
   "items": [
+    {
+      "id": "CVE-2026-123002",
+      "published": "2026-11-15T22:17:18.050",
+      "lastModified": "2026-11-16T22:18:15.297",
+      "description": "Gitea accepted an unlimited number of wrong TOTP passcodes during sign-in, in the password reset flow and for Basic authentication with the `X-Gitea-OTP` header. An attacker who already knows an account's password could guess the six-digit passcode by trying codes at a high rate and sign in despite two-factor authentication. After five failed passcodes, further attempts for the account are now refused for 15 minutes.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123002"
+    },
+    {
+      "id": "CVE-2026-120991",
+      "published": "2026-11-15T22:17:17.907",
+      "lastModified": "2026-11-16T22:18:15.143",
+      "description": "When a container blob upload was rejected, for example because it exceeded a package size quota, the cleanup removed the blob from storage even if the same content already existed and was used by other packages. On an instance with a package quota configured, a user who can upload container images and has the exact content of another owner's package file or image layer could make it undownloadable. The cleanup now only removes blobs that the failed upload created.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120991"
+    },
+    {
+      "id": "CVE-2026-120729",
+      "published": "2026-11-15T22:17:17.773",
+      "lastModified": "2026-11-16T22:18:14.983",
+      "description": "The popup shown when hovering an issue reference loaded its data from the path of the hovered link and inserted part of the response as HTML. A user who can post a comment or other rendered content could add a link that is displayed as an ordinary issue reference but points to a file in a repository they control, so that the popup inserted that file's content into the page of anyone hovering the link and ran script in the viewer's session. The popup now requests the issue by the owner, repository and index parsed from the link.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120729"
+    },
+    {
+      "id": "CVE-2026-120725",
+      "published": "2026-11-15T22:17:17.633",
+      "lastModified": "2026-11-16T23:17:14.193",
+      "description": "With `REQUIRE_SIGNIN_VIEW = true`, the Git LFS endpoints still answered unauthenticated requests for repositories that are not private. An anonymous client who knows the path of such a repository and the SHA-256 of an LFS object could download the object, and could use the batch endpoint to test whether an object exists. The Git LFS endpoints now require authentication when sign-in is required to view the instance.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-120725"
+    },
     {
       "id": "CVE-2026-118535",
       "published": "2026-11-15T22:17:17.500",
@@ -864,42 +900,6 @@
       "score": 10,
       "severity": "CRITICAL",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129353"
-    },
-    {
-      "id": "CVE-2026-129352",
-      "published": "2026-11-14T23:16:48.033",
-      "lastModified": "2026-11-16T16:17:51.507",
-      "description": "A vulnerability was detected in TRENDnet TEW-657BRM 1.00.1. This issue affects some unknown processing of the file /usr/sbin/upgrade_flash.cgi. Performing a manipulation of the argument boundary results in stack-based buffer overflow. The attack is possible to be carried out remotely. The exploit is now public and may be used. The vendor explains: \"\"I am not able to confirm if such vulnerability exists as the product has been EOL for more than 15 years. We will send out an announcement letting customers know.\"",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129352"
-    },
-    {
-      "id": "CVE-2026-129351",
-      "published": "2026-11-14T23:16:47.753",
-      "lastModified": "2026-11-18T14:17:33.763",
-      "description": "A security vulnerability has been detected in TRENDnet TEW-657BRM 1.00.1. This vulnerability affects the function sprintf of the file /setup.cgi of the component mini_httpd. Such manipulation leads to out-of-bounds write. The attack can be executed remotely. The exploit has been disclosed publicly and may be used. The vendor explains: \"\"I am not able to confirm if such vulnerability exists as the product has been EOL for more than 15 years. We will send out an announcement letting customers know.\" This vulnerability only affects products that are no longer supported by the maintainer.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129351"
-    },
-    {
-      "id": "CVE-2026-129456",
-      "published": "2026-11-14T20:17:40.060",
-      "lastModified": "2026-11-17T22:17:20.520",
-      "description": "In FRRouting, bgpd frees the sub-TLV chain of a Tunnel Encapsulation attribute (type 23) while routes stored by bgpd still point to it, if the attribute is received from a neighbor that has \"soft-reconfiguration inbound\" configured. A cache added to speed up attribute interning while processing the prefixes of an UPDATE checks whether an interned attribute set may be reused by comparing the parsed attributes with themselves, so the check always succeeds. Interning the parsed attributes for the Adj-RIB-In removes the Tunnel Encapsulation sub-TLVs from them, and the copy that bgpd then interns for the route reuses the cached attribute set, which still holds the sub-TLVs, without taking a reference on them. When the route is later replaced, withdrawn or cleared, for example when the session goes down, the sub-TLV chain is freed while still in use, and bgpd then reads it, decrements a reference count inside it and frees it a second time. In the reporter's build without AddressSanitizer this ended in an assertion failure in bgpd's memory accounting, aborting bgpd and dropping all BGP sessions on the router, and the neighbor can repeat it each time bgpd restarts. Because freed heap memory is written to and freed again, consequences beyond a crash cannot be ruled out. An established BGP session is required, and the attribute does not need to be malformed. bgpd processes attribute 23 from every neighbor, including eBGP neighbors, unless it is explicitly discarded, although RFC 9012 requires it to be filtered on eBGP sessions by default. Neighbors without \"soft-reconfiguration inbound\" are not affected.",
-      "score": 7.7,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129456"
-    },
-    {
-      "id": "CVE-2015-10149",
-      "published": "2026-11-14T20:17:39.203",
-      "lastModified": "2026-11-17T16:17:32.967",
-      "description": "Dancer versions before 1.3400 for Perl pass unvalidated session ids from the session cookie to the session engine.\n\nread_session_id returns the cookie value as the session id without checking its characters, and Dancer hands it to the session engine to load the session.\n\nA remote attacker may cause path traversal or injection in a session engine that uses the id in a file path, cache command or query without checking it.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2015-10149"
     }
   ]
 }
