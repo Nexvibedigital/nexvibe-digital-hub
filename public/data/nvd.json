@@ -1,6 +1,452 @@
 {
-  "syncedAt": "2026-11-22T06:31:42.129Z",
+  "syncedAt": "2026-11-22T14:50:48.658Z",
   "items": [
+    {
+      "id": "CVE-2026-124631",
+      "published": "2026-11-16T12:17:46.773",
+      "lastModified": "2026-11-16T21:17:21.953",
+      "description": "In affected versions of Octopus Server, insufficient authorization checks allowed a low-privileged authenticated user to register an Argo CD gateway, which could result in unauthorized changes to Argo CD Application data for projects and environments outside their permissions within the same Space.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-124631"
+    },
+    {
+      "id": "CVE-2026-124629",
+      "published": "2026-11-16T12:17:46.640",
+      "lastModified": "2026-11-16T21:17:21.837",
+      "description": "In affected versions of Octopus Server, insufficient authorization checks on scheduled project triggers allowed users who were permitted to deploy existing releases, but not to create new ones, to configure a trigger that could result in new releases being created and deployed without the required permission being assigned. The resulting audit events were attributed to the system rather than to the user who configured the trigger.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-124629"
+    },
+    {
+      "id": "CVE-2026-123745",
+      "published": "2026-11-16T12:17:46.170",
+      "lastModified": "2026-11-17T19:17:48.660",
+      "description": "In affected versions of Octopus Server, improper path validation allowed a user with scoped runbook permissions to execute runbooks on offline package drop targets, this could result in exposure of Server working-directory files outside their permitted scope and deletion of those files.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123745"
+    },
+    {
+      "id": "CVE-2026-116288",
+      "published": "2026-11-16T12:17:43.347",
+      "lastModified": "2026-11-16T21:17:20.860",
+      "description": "In affected versions of Octopus Server, a user with permission to edit team scoped roles could escalate their privileges to deploy to projects and environments that they were not authorised to so.",
+      "score": 8.6,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116288"
+    },
+    {
+      "id": "CVE-2026-110941",
+      "published": "2026-11-16T12:17:41.753",
+      "lastModified": "2026-11-16T21:17:17.847",
+      "description": "Mattermost Desktop App versions <=6.3 6.0.3 6.3.2.0 fail to monitor secondary browser windows in the local network access filter which allows an attacker-controlled server to access private network resources via opening pop-out or widget windows. Mattermost Advisory ID: MMSA-2026-00778",
+      "score": 6.8,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110941"
+    },
+    {
+      "id": "CVE-2026-85240",
+      "published": "2026-11-16T11:16:46.850",
+      "lastModified": "2026-11-16T21:17:31.680",
+      "description": "Mattermost Desktop App versions <=6.3 6.0.3 6.3.2.0 fail to handle filesystem errors that can occur when finalizing certain file downloads, which allows a malicious or compromised server to cause a denial of service by crashing the entire desktop application via a specially crafted download Mattermost Advisory ID: MMSA-2026-00779",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-85240"
+    },
+    {
+      "id": "CVE-2026-63245",
+      "published": "2026-11-16T11:16:46.710",
+      "lastModified": "2026-11-16T21:17:29.567",
+      "description": "A local privilege escalation (LPE) vulnerability in the Audigy Rx driver’s Emupia2k.sys file could allow a local attacker with low privilege access to gain higher privileges, such as administrator rights.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-63245"
+    },
+    {
+      "id": "CVE-2026-129784",
+      "published": "2026-11-16T11:16:45.537",
+      "lastModified": "2026-11-16T19:17:43.743",
+      "description": "The httpx Ruby gem parses JSON response bodies through its transcoder layer. HTTPX::Response#json delegates to Transcoder::JSON.decode, and when the oj gem is loaded and multi_json is absent, the decoder falls back to json_load, which calls Oj.load(response.to_s) with no mode option. Oj.load defaults to :object mode, in which a response document can allocate any already-loaded Ruby class (\"^o\":\"ClassName\") and set its instance variables, or resolve a class or module reference (\"^c\":\"Name\"). An attacker who controls, or can influence, the URL an application fetches with HTTPX.get(url).json therefore controls object instantiation in the victim process. With a matching gadget chain, this issue can potentially cause remote code execution. Affects httpx 1.9.0; fixed in 1.9.1.",
+      "score": 8.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129784"
+    },
+    {
+      "id": "CVE-2026-99311",
+      "published": "2026-11-16T10:17:06.633",
+      "lastModified": "2026-11-16T10:17:06.633",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nudf: fix return value for non-recorded-allocated extents in udf_map_block()\n\nWhen someone creates a corrupted UDF filesystem where symlink contains\nother extent type than EXT_RECORDED_ALLOCATED, it can leads to a crash\nlike:\n\n Oops: general protection fault\n KASAN: maybe wild-memory-access\n RIP: 0010:page_get_link (fs/namei.c:6503)\n Call Trace:\n  vfs_readlink (fs/namei.c:6419)\n  do_readlinkat (fs/stat.c:583)\n  __x64_sys_readlink (fs/stat.c:605 fs/stat.c:602 fs/stat.c:602)\n\nThis is because in this case udf_map_block() fails to convert return\nvalue of inode_bmap() from 1 to 0. Returned '1' propagates through\nudf_bread() all the way up to __page_get_link() where it ends up being\ntreated as a folio pointer with obvious results.\n\nMove the reset to 0 line outside the if, so udf_map_block() returns either\n0 or -errno, even if the extent type is not EXT_RECORDED_ALLOCATED.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99311"
+    },
+    {
+      "id": "CVE-2026-99310",
+      "published": "2026-11-16T10:17:06.377",
+      "lastModified": "2026-11-19T14:17:31.680",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnfsd: hold cl_lock in client_has_openowners()\n\nclient_has_openowners() walks clp->cl_openowners and reads so_stateids\nwithout clp->cl_lock. nfs4_put_stateowner() unhashes that openowner under\ncl_lock and then frees it, so a concurrent EXCHANGE_ID with mismatched\ncreds can use-after-free the nfs4_openowner.\n\nBUG: KASAN: slab-use-after-free in client_has_state+0x10a/0x140\n  fs/nfsd/nfs4state.c:3718 client_has_openowners()\n  nfsd4_exchange_id\n  nfsd4_proc_compound\n  nfsd_dispatch\n  svc_process\n\nTake clp->cl_lock while client_has_openowners() walks the openowner\nlist.",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99310"
+    },
+    {
+      "id": "CVE-2026-99309",
+      "published": "2026-11-16T10:17:06.110",
+      "lastModified": "2026-11-19T14:17:31.530",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nksmbd: fix overflow in dacloffset bounds check in build_sec_desc()\n\nWhen the large dacl_offset is provided, dacl_offset + sizeof(struct\nsmb_acl) overflows on 32-bit builds and the check is passed,\nWhich makes le16_to_cpu(ppdacl_ptr->size) read out-of-bounds. This\nonly happens for dacl_offset in range [0xFFFFFFF8, 0xFFFFFFFF]. So\nthe oob read is max 8 bytes preceding the allocated ppntsd.\n\n    unsigned int dacl_offset = le32_to_cpu(ppntsd->dacloffset);\n    int ppdacl_size, ntacl_size = ppntsd_size - dacl_offset;\n\n    if (!dacl_offset ||\n\t(dacl_offset + sizeof(struct smb_acl) > ppntsd_size))\n\t    goto out;\n\nCommit beff0bc9d69b (\"ksmbd: fix overflow in dacloffset bounds check\")\nfixes similar checks in other functions. But leaves this one out,\nbecause it is only valid for 32-bit builds.\n\nReproduced on 32-bit ARM with KASAN, by a client sending SMB2\nSET_INFO(SEC) with dacloffset=0xfffffff8, then QUERY_INFO(SEC) on the\nsame file:\n\n BUG: KASAN: slab-out-of-bounds in build_sec_desc (fs/smb/server/smbacl.c:1105)\n Read of size 2 at addr c2a273fa by task kworker/1:1/35\n CPU: 1 UID: 0 PID: 35 Comm: kworker/1:1 Not tainted 7.3.0-rc2+ #5\n Workqueue: ksmbd-io handle_ksmbd_work\n Call trace:\n  kasan_check_range from build_sec_desc (fs/smb/server/smbacl.c:1105)\n  build_sec_desc from smb2_query_info (fs/smb/server/smb2pdu.c:7676)\n  smb2_query_info from handle_ksmbd_work (fs/smb/server/server.c:160)\n  handle_ksmbd_work from process_one_work (kernel/workqueue.c:3401)\n  process_one_work from worker_thread (kernel/workqueue.c:3473)\n  worker_thread from kthread (kernel/kthread.c:436)\n\nAdd overflow check.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99309"
+    },
+    {
+      "id": "CVE-2026-99308",
+      "published": "2026-11-16T10:17:05.853",
+      "lastModified": "2026-11-17T11:17:29.010",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nusb: xhci: Fix bounce buffer overflow\n\nHigh-speed devices with out of spec 1024 byte bulk endpoints exist and\nare allowed by USB core, but xhci-hcd always sets packet size to 512.\nThe exact nature of these devices isn't documented, commit fb5ee84ea72c\n(\"USB: Accept bulk endpoints with 1024-byte maxpacket\") only states\nthat they \"don't work with xHCI host controllers\", whatever it means.\n\nBut somebody (or a malicious device) can try, and then the driver will\nallocate a 512 byte bounce buffer for this endpoint and may write up to\n1024 bytes into it if particular scatter-gather URBs are used, because\nxhci_align_td() obtains packet size from the descriptor. Fix this.\n\nAs a side effect, TRBs will be aligned to the packet size chosen by the\ndriver on all endpoints of all speeds. Alignment serves the xHC, not\ndevice, so this is fine. Only out of spec devices are affected anyway.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99308"
+    },
+    {
+      "id": "CVE-2026-99307",
+      "published": "2026-11-16T10:17:05.567",
+      "lastModified": "2026-11-16T10:17:05.567",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nceph: require the dentry lease record to cover struct ceph_mds_reply_lease\n\nparse_reply_info_lease() reads a 32-bit struct_len off the wire and only\nchecks that many bytes are present, without requiring struct_len to cover\nsizeof(struct ceph_mds_reply_lease) (10 bytes).  A malicious MDS can\ndeclare a shorter record and still get the pointer published: the\nfollowing *p += sizeof(**lease) overshoot is undone by *p = lend, so\nnothing downstream rejects the reply.  ceph_fill_trace() ->\nupdate_dentry_lease() then reads 10 bytes through that pointer on any\nlookup on a mounted CephFS, running past the end of the message front.\n\nRequire the record to cover the structure, matching the sibling\nparse_reply_info_dir().  A conforming MDS always encodes the full 10\nbytes.\n\n  BUG: KASAN: slab-out-of-bounds in __update_dentry_lease.constprop.0 (fs/ceph/inode.c:1459)\n  Read of size 4 at addr ffff888026c63d65 by task kworker/0:3/2366\n  Workqueue: ceph-msgr ceph_con_workfn\n  Call Trace:\n   __update_dentry_lease.constprop.0 (fs/ceph/inode.c:1459)\n   ceph_fill_trace (fs/ceph/inode.c:1474 fs/ceph/inode.c:1823)\n   mds_dispatch (fs/ceph/mds_client.c:4229 fs/ceph/mds_client.c:7225)\n   ceph_con_process_message (net/ceph/messenger.c:1424)\n   ceph_con_v1_try_read (net/ceph/messenger_v1.c:1430)\n   ceph_con_workfn (net/ceph/messenger.c:1576)\n   process_one_work (kernel/workqueue.c:3396)\n   worker_thread (kernel/workqueue.c:3479 kernel/workqueue.c:3560)\n   kthread (kernel/kthread.c:436)\n   ret_from_fork (arch/x86/kernel/process.c:158)\n   ret_from_fork_asm (arch/x86/entry/entry_64.S:245)\n\n  The buggy address is located 357 bytes inside of\n   allocated 360-byte region [ffff888026c63c00, ffff888026c63d68)",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99307"
+    },
+    {
+      "id": "CVE-2026-99306",
+      "published": "2026-11-16T10:17:05.293",
+      "lastModified": "2026-11-19T14:17:31.377",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nceph: reject mdsmaps that claim more than CEPH_MAX_MDS ranks\n\ncheck_new_map() sizes its export-target bitmap from CEPH_MAX_MDS but walks\nit with newmap->possible_max_rank, which comes straight off the wire:\nceph_mdsmap_decode() sets it to max(m_num_active_mds, m_max_mds), then\noverwrites it with the size of the \"in\" set.  Neither is bounded by\nCEPH_MAX_MDS, only by m_info allocating, so a monitor announcing more ranks\nthan the bitmap holds makes test_bit() read past the end of targets[].  The\nclear_bit() loop above indexes the same bitmap, though it is additionally\nbounded by mdsc->max_sessions.  The map arrives on the monitor connection,\nwhich is unauthenticated in legacy msgr mode.\n\nCEPH_MAX_MDS is a protocol constant from src/mds/mdstypes.h, and the\nreserved inode ranges in super.h are laid out one rank apart over that\nspan, so a map claiming more ranks is corrupt.  Reject it where the rank\nspace is established rather than letting the count reach check_new_map().\n\n  BUG: KASAN: stack-out-of-bounds in check_new_map (fs/ceph/mds_client.c:5968)\n  Read of size 8 at addr ffffc90000ac7798 by task kworker/1:2/127\n  Workqueue: ceph-msgr ceph_con_workfn\n  Call Trace:\n   <TASK>\n   dump_stack_lvl (lib/dump_stack.c:94 lib/dump_stack.c:120)\n   print_report (mm/kasan/report.c:378 mm/kasan/report.c:482)\n   kasan_report (mm/kasan/report.c:595)\n   kasan_check_range (mm/kasan/generic.c:186 mm/kasan/generic.c:200)\n   check_new_map (fs/ceph/mds_client.c:5968)\n   ceph_mdsc_handle_mdsmap (fs/ceph/mds_client.c:7060)\n   extra_mon_dispatch (fs/ceph/super.c:802)\n   mon_dispatch (net/ceph/mon_client.c:1483)\n   ceph_con_process_message (net/ceph/messenger.c:1424)\n   ceph_con_v1_try_read (net/ceph/messenger_v1.c:1430)\n   ceph_con_workfn (net/ceph/messenger.c:1576)\n   process_one_work (kernel/workqueue.c:3396)\n   worker_thread (kernel/workqueue.c:3479 kernel/workqueue.c:3560)\n   kthread (kernel/kthread.c:436)\n   ret_from_fork (arch/x86/kernel/process.c:158)\n   ret_from_fork_asm (arch/x86/entry/entry_64.S:245)\n   </TASK>\n  The buggy address belongs to stack of task kworker/1:2/127\n   and is located at offset 288 in frame:\n   check_new_map (fs/ceph/mds_client.c:5846)\n  This frame has 1 object:\n   [32, 288) 'targets'",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99306"
+    },
+    {
+      "id": "CVE-2026-99305",
+      "published": "2026-11-16T10:17:05.030",
+      "lastModified": "2026-11-19T14:17:31.180",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfbdev: udlfb: don't rebuild the mode list while the framebuffer is in use\n\ndlfb_setup_modes() frees info->modelist with fb_destroy_modelist() and\nrebuilds it, but fbcon holds raw pointers into that list in\nfb_display[i].mode and nothing un-publishes them the way\ndo_unregister_framebuffer() and store_modes() do with\nfbcon_delete_modelist(). The function does refuse to install a new mode\nwhile the framebuffer has users (dlfb->fb_count != 0), but only after the\nlist is already destroyed. Reached from the 0666 \"edid\" sysfs attribute,\nan unprivileged write to /sys/class/graphics/fb0/edid therefore fails with\n-EINVAL and still leaves every fb_display[i].mode dangling; the next\nconsole switch reads the freed fb_videomode in fb_videomode_to_var().\n\nTest fb_count before touching the list. fbcon takes a reference through\nfbcon_open(), so that condition covers exactly the states in which\nfb_display[] points into the list, and the errno returned to userspace is\nunchanged.\n\n  BUG: KASAN: slab-use-after-free in fb_videomode_to_var (drivers/video/fbdev/core/modedb.c:905)\n  Read of size 4 at addr ffff8880107b449c by task kworker/1:1/47\n  Workqueue: events console_callback\n  Call Trace:\n   fb_videomode_to_var (drivers/video/fbdev/core/modedb.c:905)\n   display_to_var (drivers/video/fbdev/core/fbcon.c:998)\n   fbcon_switch (drivers/video/fbdev/core/fbcon.c:2182)\n   redraw_screen (drivers/tty/vt/vt.c:994)\n   complete_change_console (drivers/tty/vt/vt_ioctl.c:1141)\n   console_callback (drivers/tty/vt/vt.c:3358)\n   process_one_work (kernel/workqueue.c:3396)\n   worker_thread (kernel/workqueue.c:3479 kernel/workqueue.c:3560)\n   kthread (kernel/kthread.c:436)\n   ret_from_fork (arch/x86/kernel/process.c:158)\n   ret_from_fork_asm (arch/x86/entry/entry_64.S:245)\n  ...\n  The buggy address is located 28 bytes inside of\n   freed 96-byte region [ffff8880107b4480, ffff8880107b44e0)",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99305"
+    },
+    {
+      "id": "CVE-2026-99304",
+      "published": "2026-11-16T10:17:04.763",
+      "lastModified": "2026-11-19T14:17:31.020",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nceph: fix integer overflow in the snap trace bounds check\n\nceph_update_snap_trace() bounds the two encoded snapid arrays that follow a\nstruct ceph_mds_snap_realm with sizeof(u64) * (num_snaps +\nnum_prior_parent_snaps).  Both counts come straight off the wire as __le32,\nso the addition is evaluated in unsigned int and wraps before sizeof(u64)\npromotes it to size_t: an MDS sending num_snaps = 1 and\nnum_prior_parent_snaps = 0xffffffff makes the sum zero and the check\ndegenerates to ceph_decode_need(&p, e, 0, bad), which always passes.\ndup_array() then reads num_snaps * 8 bytes past the end of the message\nfront, which ceph_msg_new2() allocates at exactly front_len bytes.  An\nunsolicited CEPH_MSG_CLIENT_SNAP reaches this from a malicious or\ncompromised MDS with no client-side action, as do the snaptraces carried in\nan MDS reply and in a cap import.\n\nCompute the length with size_add()/size_mul() so it saturates at SIZE_MAX\ninstead of wrapping, in the style fs/ceph/mdsmap.c already uses for\nnum_export_targets.\n\n  BUG: KASAN: slab-out-of-bounds in dup_array (include/linux/unaligned.h:28 fs/ceph/snap.c:500)\n  Read of size 8 at addr ffff8880102a16c8 by task kworker/1:2/129\n  Workqueue: ceph-msgr ceph_con_workfn\n  Call Trace:\n   dump_stack_lvl (lib/dump_stack.c:94 lib/dump_stack.c:120)\n   print_report (mm/kasan/report.c:378 mm/kasan/report.c:482)\n   kasan_report (mm/kasan/report.c:595)\n   dup_array (include/linux/unaligned.h:28 fs/ceph/snap.c:500)\n   ceph_update_snap_trace (fs/ceph/snap.c:836)\n   ceph_handle_snap (fs/ceph/snap.c:1155)\n   mds_dispatch (fs/ceph/mds_client.c:7234)\n   ceph_con_process_message (net/ceph/messenger.c:1424)\n   ceph_con_v1_try_read (net/ceph/messenger_v1.c:1430)\n   ceph_con_workfn (net/ceph/messenger.c:1576)\n   process_one_work (kernel/workqueue.c:3396)\n   worker_thread (kernel/workqueue.c:3479 kernel/workqueue.c:3560)\n   kthread (kernel/kthread.c:436)\n   ret_from_fork (arch/x86/kernel/process.c:158)\n   ret_from_fork_asm (arch/x86/entry/entry_64.S:245)\n  ...\n  The buggy address is located 0 bytes to the right of\n   allocated 72-byte region [ffff8880102a1680, ffff8880102a16c8)",
+      "score": 9.8,
+      "severity": "CRITICAL",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99304"
+    },
+    {
+      "id": "CVE-2026-99303",
+      "published": "2026-11-16T10:17:04.520",
+      "lastModified": "2026-11-20T06:17:46.370",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nspeakup: Fix NULL pointer dereference on VT switch + selection\n\nWhen selecting/pasting very quickly after VT switch, the tty is not set\nyet, leading to a NULL dereference. We can just abort the operation.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99303"
+    },
+    {
+      "id": "CVE-2026-99302",
+      "published": "2026-11-16T10:17:04.250",
+      "lastModified": "2026-11-16T10:17:04.250",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnvmet-rdma: reject short connection requests\n\nnvmet_rdma_parse_cm_connect_req() treats RDMA-CM private data as a\nstruct nvme_rdma_cm_req but accepts any nonzero private_data_len.  The\niWARP path allocates exactly the peer-provided length, so a six-byte MPA\nrequest reaches the parser and the hsqsize load reads two bytes past the\nallocation.\n\nRequire the complete request structure before reading any of its fields.\nThe decoded KASAN report is:\n\n  BUG: KASAN: slab-out-of-bounds in nvmet_rdma_cm_handler\n    (drivers/nvme/target/rdma.c:1427 drivers/nvme/target/rdma.c:1475\n     drivers/nvme/target/rdma.c:1614 drivers/nvme/target/rdma.c:1814)\n  Read of size 2 at addr ff1100010459d366 by task kworker/u16:1/41\n  Workqueue: iw_cm_wq cm_work_handler\n  Call Trace:\n   <TASK>\n   dump_stack_lvl (lib/dump_stack.c:94 lib/dump_stack.c:120)\n   print_report (mm/kasan/report.c:378 mm/kasan/report.c:482)\n   kasan_report (mm/kasan/report.c:595)\n   nvmet_rdma_cm_handler\n    (drivers/nvme/target/rdma.c:1427 drivers/nvme/target/rdma.c:1475\n     drivers/nvme/target/rdma.c:1614 drivers/nvme/target/rdma.c:1814)\n   cma_cm_event_handler (drivers/infiniband/core/cma.c:2181)\n   iw_conn_req_handler (drivers/infiniband/core/cma.c:2640)\n   cm_work_handler\n    (drivers/infiniband/core/cm.c:2502\n     drivers/infiniband/core/cm.c:3858)\n   process_one_work (kernel/workqueue.c:3396)\n   worker_thread (kernel/workqueue.c:3479 kernel/workqueue.c:3560)\n   kthread (kernel/kthread.c:436)\n   ret_from_fork (arch/x86/kernel/process.c:158)\n   ret_from_fork_asm (arch/x86/entry/entry_64.S:245)\n   </TASK>\n\n  Allocated by task 12:\n   __kasan_kmalloc (mm/kasan/common.c:398 mm/kasan/common.c:415)\n   __kmalloc_node_track_caller_noprof\n    (mm/slub.c:5414 mm/slub.c:5545)\n   kmemdup_noprof (mm/util.c:138)\n   cm_event_handler\n    (drivers/infiniband/core/iwcm.c:194\n     drivers/infiniband/core/iwcm.c:1076)\n   siw_cm_upcall (drivers/infiniband/sw/siw/siw_cm.c:408)\n   siw_proc_mpareq (drivers/infiniband/sw/siw/siw_cm.c:750)\n   siw_cm_work_handler (drivers/infiniband/sw/siw/siw_cm.c:1086)\n\n  The buggy address is located 0 bytes to the right of\n  allocated 6-byte region [ff1100010459d360, ff1100010459d366)",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99302"
+    },
+    {
+      "id": "CVE-2026-99301",
+      "published": "2026-11-16T10:17:03.987",
+      "lastModified": "2026-11-16T10:17:03.987",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nvirtio_net: atomically disable rx mode work\n\nvirtio-net uses a boolean to gate rx_mode_work during device teardown.\nThe flag is changed under RTNL, but ndo_set_rx_mode checks it under the\naddress-list lock. A callback can therefore pass the check and enqueue work\nafter teardown has flushed it. The work is also enabled before late\nprobe operations that can fail, allowing probe unwind to free the netdev\nwith work still queued.\n\nKASAN reports the worker using a virtqueue that probe unwind already freed:\n\n  BUG: KASAN: slab-use-after-free in virtqueue_add_split\n  Workqueue: events virtnet_rx_mode_work\n  Call Trace:\n   virtqueue_add_split (drivers/virtio/virtio_ring.c:706)\n   virtqueue_add_sgs (drivers/virtio/virtio_ring.c:2839)\n   virtnet_send_command_reply (drivers/net/virtio_net.c:3565)\n   virtnet_rx_mode_work (drivers/net/virtio_net.c:3833)\n   process_one_work (kernel/workqueue.c:3322)\n   worker_thread (kernel/workqueue.c:3405)\n  Freed by task 119:\n   kfree (mm/slub.c:6625)\n   vp_del_vq.isra.0 (drivers/virtio/virtio_pci_common.c:259)\n   vp_del_vqs (drivers/virtio/virtio_pci_common.c:285)\n   virtnet_probe (drivers/net/virtio_net.c:7129)\n\nUse the workqueue disable mechanism to atomically reject new queue attempts\nand drain running work. Keep work disabled until probe succeeds or restore\nhas reattached the netdev, then enable it and replay receive-mode state for\na running interface. Disable it before resource teardown in freeze and\nremove.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99301"
+    },
+    {
+      "id": "CVE-2026-99300",
+      "published": "2026-11-16T10:17:03.730",
+      "lastModified": "2026-11-16T10:17:03.730",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: go7007: only set audio_enabled if go7007_snd_init() succeeded\n\ngo7007_register_encoder() sets go->audio_enabled before calling\ngo7007_snd_init() and discards its return value.  go7007_snd_init()\nassigns go->snd_context only on success, so a failed ALSA setup leaves\naudio_enabled set with snd_context still NULL.  The disconnect path tests\naudio_enabled and calls go7007_snd_remove(), which dereferences\nsnd_context unconditionally.\n\ngo7007_snd_init() returns -ENODEV once its never-decremented static card\ncounter reaches SNDRV_CARDS, so SNDRV_CARDS attach/detach cycles arm the\nnext attach; no memory pressure is needed.\n\nSet go->audio_enabled only once go7007_snd_init() has succeeded.\n\n  Oops: general protection fault, probably for non-canonical address ...\n  KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]\n  Workqueue: usb_hub_wq hub_event\n  RIP: 0010:go7007_snd_remove (drivers/media/usb/go7007/snd-go7007.c:273)\n  Call Trace:\n   go7007_usb_disconnect (drivers/media/usb/go7007/go7007-usb.c:1336)\n   usb_unbind_interface (drivers/usb/core/driver.c:461)\n   device_remove (drivers/base/dd.c:618)\n   device_release_driver_internal (drivers/base/dd.c:1349)\n   bus_remove_device (drivers/base/bus.c:664)\n   device_del (drivers/base/core.c:3965)\n   usb_disable_device (drivers/usb/core/message.c:1478)\n   usb_disconnect\n   hub_event (drivers/usb/core/hub.c:5966)\n   process_one_work (kernel/workqueue.c:3396)\n   worker_thread (kernel/workqueue.c:3560)\n   kthread (kernel/kthread.c:436)\n   ret_from_fork (arch/x86/kernel/process.c:158)\n   ret_from_fork_asm (arch/x86/entry/entry_64.S:245)\n  Kernel panic - not syncing: Fatal exception",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99300"
+    },
+    {
+      "id": "CVE-2026-99299",
+      "published": "2026-11-16T10:17:03.477",
+      "lastModified": "2026-11-16T10:17:03.477",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: em28xx: reject audio endpoint with zero packet size\n\nem28xx_audio_urb_init() divides by the audio endpoint's wMaxPacketSize\nwithout checking it, so a USB device that declares a zero-sized audio\nendpoint divides by zero at probe time.\n\nReject a zero-sized audio endpoint like a missing one; the caller already\nunwinds on a negative return.\n\n  Oops: divide error: 0000 [#1] SMP NOPTI\n  Workqueue: usb_hub_wq hub_event\n  RIP: 0010:em28xx_audio_init (drivers/media/usb/em28xx/em28xx-audio.c:718)\n  Call Trace:\n   em28xx_init_extension (drivers/media/usb/em28xx/em28xx-core.c:1248)\n   em28xx_init_dev.isra.0 (drivers/media/usb/em28xx/em28xx-cards.c:3887)\n   em28xx_usb_probe (drivers/media/usb/em28xx/em28xx-cards.c:4258)\n   usb_probe_interface (drivers/usb/core/driver.c:396)\n   ...\n   usb_set_configuration (drivers/usb/core/message.c:2268)\n   usb_generic_driver_probe (drivers/usb/core/generic.c:250)\n   usb_probe_device (drivers/usb/core/driver.c:291)\n   ...\n   usb_new_device (drivers/usb/core/hub.c:2703)\n   hub_event (drivers/usb/core/hub.c:5961)\n   process_one_work (kernel/workqueue.c:3322)\n   worker_thread (kernel/workqueue.c:3486)\n   kthread (kernel/kthread.c:436)\n   ret_from_fork (arch/x86/kernel/process.c:158)\n   ret_from_fork_asm (arch/x86/entry/entry_64.S:245)\n  Kernel panic - not syncing: Fatal exception",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99299"
+    },
+    {
+      "id": "CVE-2026-99298",
+      "published": "2026-11-16T10:17:03.210",
+      "lastModified": "2026-11-16T10:17:03.210",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnet: ipv4: add zero check for snd_cwnd_clamp\n\nWhen RTAX_CWND is locked, user is able to pass 0 into it.\nThis could lead to writing 0 to tp->snd_cwnd, leading to a\ndivision by zero error.\n\nOops: divide error: 0000 [#1] SMP KASAN NOPTI\nCall Trace:\n <IRQ>\n tcp_reno_cong_avoid (net/ipv4/tcp_cong.c:510 (discriminator 1))\n tcp_ack (net/ipv4/tcp_input.c:3517 net/ipv4/tcp_input.c:3873 net/ipv4/tcp_input.c:4440)\n tcp_rcv_established (net/ipv4/tcp_input.c:6685)\n tcp_v4_do_rcv (net/ipv4/tcp_ipv4.c:1854)\n tcp_v4_rcv (net/ipv4/tcp_ipv4.c:2248)\n ip_protocol_deliver_rcu (net/ipv4/ip_input.c:207 (discriminator 1))\n ip_local_deliver_finish (net/ipv4/ip_input.c:241 (discriminator 1))\n ip_local_deliver (./include/linux/netfilter.h:325 ./include/linux/netfilter.h:319 net/ipv4/ip_input.c:262)\n ip_rcv (./include/net/dst.h:481 (discriminator 6) net/ipv4/ip_input.c:492 (discriminator 6) ./include/linux/netfilter.h:325 (discriminator 6) ./include/li)\n __netif_receive_skb_one_core (net/core/dev.c:6297 (discriminator 4))\n __netif_receive_skb (net/core/dev.c:6410)\n process_backlog (net/core/dev.c:6761)\n __napi_poll.constprop.0 (net/core/dev.c:7830)\n net_rx_action (net/core/dev.c:7893 net/core/dev.c:8050)\n handle_softirqs (kernel/softirq.c:645)\n __irq_exit_rcu (kernel/softirq.c:679 kernel/softirq.c:519 kernel/softirq.c:758)\n irq_exit_rcu (kernel/softirq.c:775)\n sysvec_apic_timer_interrupt (arch/x86/kernel/apic/apic.c:1062 (discriminator 35) arch/x86/kernel/apic/apic.c:1062 (discriminator 35))\nRIP: 0010:tcp_cong_avoid_ai (net/ipv4/tcp_cong.c:482)\n\nFix by checking if user pass in zero as parameter and if lock is present.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99298"
+    },
+    {
+      "id": "CVE-2026-99297",
+      "published": "2026-11-16T10:17:02.930",
+      "lastModified": "2026-11-19T14:17:30.850",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nmedia: em28xx: fix double free in em28xx_alloc_urbs\n\nWhen allocation of usb_bufs->buf[i] fails, em28xx_alloc_urbs()\nexplicitly frees all items within usb_bufs->buf before calling\nem28xx_uninit_usb_xfer(), which also frees these items, causing them to be\nfreed twice.\n\nBUG: KASAN: double-free in usb_free_urb.part.0 (drivers/usb/core/urb.c:25 ./include/linux/kref.h:65 drivers/usb/core/urb.c:96)\nFree of addr ffff88802fd37c00 by task kworker/1:2/1182\nWorkqueue: events request_module_async\nCall Trace:\n  kasan_report_invalid_free (mm/kasan/report.c:557)\n  check_slab_allocation (mm/kasan/common.c:235)\n  kfree (./include/linux/kasan.h:199 (discriminator 1) mm/slub.c:2693 (discriminator 1) mm/slub.c:6508 (discriminator 1) mm/slub.c:6801 (discriminator 1))\n  usb_free_urb.part.0 (drivers/usb/core/urb.c:25 ./include/linux/kref.h:65 drivers/usb/core/urb.c:96)\n  usb_free_urb (drivers/usb/core/urb.c:95)\n  em28xx_uninit_usb_xfer (drivers/media/usb/em28xx/em28xx-core.c:964)\n  em28xx_alloc_urbs (drivers/media/usb/em28xx/em28xx-core.c:1076)\n  em28xx_dvb_init (drivers/media/usb/em28xx/em28xx-dvb.c:1734 drivers/media/usb/em28xx/em28xx-dvb.c:1698)\n  em28xx_init_extension (drivers/media/usb/em28xx/em28xx-core.c:1248)\n  request_module_async (drivers/media/usb/em28xx/em28xx-cards.c:3685)\n  process_one_work (kernel/workqueue.c:3396)\n  worker_thread (kernel/workqueue.c:3479 kernel/workqueue.c:3560)\n  kthread (kernel/kthread.c:436)\n  ret_from_fork (arch/x86/kernel/process.c:158)\n  ret_from_fork_asm (arch/x86/entry/entry_64.S:245)\n  Allocated by task 1182:\n  kasan_save_stack (mm/kasan/common.c:57)\n  kasan_save_track (mm/kasan/common.c:78)\n  __kasan_kmalloc (mm/kasan/common.c:398 mm/kasan/common.c:415)\n  __kmalloc_noprof (./include/linux/kasan.h:263 mm/slub.c:5414 mm/slub.c:5439)\n  em28xx_alloc_urbs (./include/linux/slab.h:995 ./include/linux/slab.h:1312 drivers/media/usb/em28xx/em28xx-core.c:1081)\n  em28xx_dvb_init (drivers/media/usb/em28xx/em28xx-dvb.c:1734 drivers/media/usb/em28xx/em28xx-dvb.c:1698)\n  em28xx_init_extension (drivers/media/usb/em28xx/em28xx-core.c:1248)\n  request_module_async (drivers/media/usb/em28xx/em28xx-cards.c:3685)\n  process_one_work (kernel/workqueue.c:3396)\n  worker_thread (kernel/workqueue.c:3479 kernel/workqueue.c:3560)\n  kthread (kernel/kthread.c:436)\n  ret_from_fork (arch/x86/kernel/process.c:158)\n  ret_from_fork_asm (arch/x86/entry/entry_64.S:245)\n  Freed by task 1182:\n  kasan_save_stack (mm/kasan/common.c:57)\n  kasan_save_track (mm/kasan/common.c:78)\n  kasan_save_free_info (mm/kasan/generic.c:584)\n  __kasan_slab_free (mm/kasan/common.c:253 mm/kasan/common.c:285)\n  kfree (./include/linux/kasan.h:235 mm/slub.c:2748 mm/slub.c:6508 mm/slub.c:6801)\n  em28xx_alloc_urbs (drivers/media/usb/em28xx/em28xx-core.c:1084)\n  em28xx_dvb_init (drivers/media/usb/em28xx/em28xx-dvb.c:1734 drivers/media/usb/em28xx/em28xx-dvb.c:1698)\n  em28xx_init_extension (drivers/media/usb/em28xx/em28xx-core.c:1248)\n  request_module_async (drivers/media/usb/em28xx/em28xx-cards.c:3685)\n  process_one_work (kernel/workqueue.c:3396)\n  worker_thread (kernel/workqueue.c:3479 kernel/workqueue.c:3560)\n  kthread (kernel/kthread.c:436)\n  ret_from_fork (arch/x86/kernel/process.c:158)\n  ret_from_fork_asm (arch/x86/entry/entry_64.S:245)\n\nRemove the explicit cleanup loop and let em28xx_uninit_usb_xfer()\nhandle the cleanup.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99297"
+    },
+    {
+      "id": "CVE-2026-99296",
+      "published": "2026-11-16T10:17:02.660",
+      "lastModified": "2026-11-19T14:17:30.693",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nlibceph: bound mon_command ack decode to front len\n\nhandle_command_ack() bounds the decode with msg->front_alloc_len, the size\nof the reply buffer, instead of msg->front.iov_len, the number of bytes the\nmonitor sent.  mon_alloc_msg() routes every CEPH_MSG_MON_COMMAND_ACK to\nget_generic_reply(), which returns the preallocated ->reply of whichever\ngeneric request carries the same tid, so the buffer keeps its fixed size\nhowever short the reply is.  An ack with hdr.front_len below sizeof(struct\nceph_mon_request_header) + sizeof(u32), including 0, still passes\nceph_decode_need(), and ceph_decode_32() returns four bytes that were never\nreceived: uninitialized slab memory, stale bytes of an earlier message, or\nbytes the peer planted by sending a reply that lands in the same buffer and\nis then rejected.  The read stays within the allocation, so KASAN does not\nflag it.\n\nreq->result reaches userspace through ceph_monc_do_statfs(),\nceph_monc_get_version() and ceph_monc_blocklist_add(); rbd hands it back\nfrom write() on /sys/bus/rbd/add_single_major, and rbd_get_client() passes\nit to ERR_PTR() unchecked, which faults:\n\n  rbd: failed to get latest osdmap: -186318427\n  BUG: unable to handle page fault for address: fffffbfffe9ca034\n  Oops: Oops: 0000 [#1] SMP KASAN NOPTI\n  RIP: 0010:do_rbd_add (drivers/block/rbd.c:7105)\n  Call Trace:\n   ...\n   kernfs_fop_write_iter (fs/kernfs/file.c:345)\n   vfs_write (fs/read_write.c:595 fs/read_write.c:687)\n   ksys_write (fs/read_write.c:739)\n   do_syscall_64 (arch/x86/entry/syscall_64.c:61 arch/x86/entry/syscall_64.c:84)\n   entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:121)\n  Kernel panic - not syncing: Fatal exception\n\nUse msg->front.iov_len, matching handle_subscribe_ack(),\nhandle_statfs_reply(), handle_get_version_reply() and handle_auth_reply().\nA well-formed ack has front.iov_len >= 22 and is unaffected; a short one\ntakes the existing bad: path.  This applies commit d3c32939fa0e (\"libceph:\nbound get_version reply decode to front len\") to the last decode-side\nuse of front_alloc_len in this file.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99296"
+    },
+    {
+      "id": "CVE-2026-99295",
+      "published": "2026-11-16T10:17:02.403",
+      "lastModified": "2026-11-19T14:17:30.550",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsmb: client: stop processing a read response after a receive error\n\ncifs_read_iter_from_socket() may call cifs_reconnect() before returning an\nerror.  The reconnect path aborts pending mids and invokes their callbacks.\nThe callback can then release the cifs_io_subrequest containing rdata.\n\ncifs_readv_receive() nevertheless continues after a negative return and may\ndereference rdata in cifs_readv_discard().  KASAN reports the resulting\nUAF:\n\n  BUG: KASAN: slab-use-after-free in cifs_readv_receive\n  Read of size 4 by task cifsd\n  cifs_readv_receive (fs/smb/client/transport.c:1284)\n  cifs_demultiplex_thread (fs/smb/client/connect.c:1355)\n  kthread (kernel/kthread.c:436)\n  ret_from_fork (arch/x86/kernel/process.c:158)\n\n  Freed by task 148:\n  netfs_put_subrequest (fs/netfs/objects.c:267)\n  netfs_read_collection (fs/netfs/read_collect.c:460)\n  netfs_wait_for_in_progress (fs/netfs/misc.c:462)\n\nReturn the socket error immediately, as this path did before the iterator\nconversion.  This also avoids adding a negative length to total_read.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99295"
+    },
+    {
+      "id": "CVE-2026-99294",
+      "published": "2026-11-16T10:17:02.157",
+      "lastModified": "2026-11-16T10:17:02.157",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: nft_fwd_netdev: use recursion counter in neigh egress path\n\nnft_fwd_neigh can be used in egress chains (NF_NETDEV_EGRESS). When the\nforwarding rule targets the same device or two devices forward to each\nother, neigh_xmit() triggers dev_queue_xmit() which re-enters\nnf_hook_egress(), causing infinite recursion and stack overflow.\n\nMove the nf_get_nf_dup_skb_recursion() accessor and NF_RECURSION_LIMIT\nto the shared header nf_dup_netdev.h as a static inline, so that\nnft_fwd_netdev can use the recursion counter directly without exported\nfunction call overhead. Guard neigh_xmit() with the same recursion\nlimit already used in nf_do_netdev_egress().\n\n[ Updated to cache the nf_get_nf_dup_skb_recursion pointer. --pablo ]",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99294"
+    },
+    {
+      "id": "CVE-2026-99293",
+      "published": "2026-11-16T10:17:01.900",
+      "lastModified": "2026-11-16T10:17:01.900",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfuse: don't BUG when the copy buffer is exhausted\n\nfuse_copy_fill() hits BUG_ON(!err) once the iterator backing the copy\nruns out of pages.  Over io-uring the amount copied is not bounded by the\npayload buffer the server registered, so an unprivileged user can drain\nthe iterator and panic the host - mount a FUSE filesystem with small\npayload buffers, then setxattr() a larger value:\n\n  kernel BUG at fs/fuse/dev.c:1064!\n  Oops: invalid opcode: 0000 [#1] SMP KASAN NOPTI\n  CPU: 1 UID: 0 PID: 148 Comm: exploit Not tainted 7.3.0-rc1 #2\n  RIP: 0010:fuse_copy_fill (fs/fuse/dev.c:1033)\n  Call Trace:\n   <TASK>\n   fuse_copy_args (fs/fuse/dev.c:1354 fs/fuse/dev.c:1380)\n   fuse_uring_args_to_ring (fs/fuse/dev_uring.c:891)\n   fuse_uring_prepare_send (fs/fuse/dev_uring.c:940 fs/fuse/dev_uring.c:1057)\n   fuse_uring_send_in_task (fs/fuse/dev_uring.c:1745)\n   tctx_task_work_run (io_uring/tw.c:96)\n   tctx_task_work (io_uring/tw.c:133)\n   task_work_run (kernel/task_work.c:233)\n   io_run_task_work (io_uring/tw.h:84)\n   io_cqring_wait (io_uring/wait.c:278)\n   __do_sys_io_uring_enter (io_uring/io_uring.c:2676)\n   do_syscall_64 (arch/x86/entry/syscall_64.c:61)\n   entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:121)\n\nThe reply path can drain it the same way, via the server-supplied\npayload_sz in fuse_uring_copy_from_ring().\n\nReturn -EIO instead.  All three fuse_copy_fill() callers already\npropagate the error.",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99293"
+    },
+    {
+      "id": "CVE-2026-99292",
+      "published": "2026-11-16T10:17:01.647",
+      "lastModified": "2026-11-19T14:17:30.410",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nsmb: client: fix slab-out-of-bounds write in id_mode_to_cifs_acl()\n\nIn id_mode_to_cifs_acl(), while the chown branch reserves\nsizeof(struct smb_ntsd) + 2 * sizeof(struct smb_sid) (plus\nsizeof(struct smb_acl) and the worst-case ACE space after\ncommit 0ee150794c75 (\"smb: client: fix heap overflow in DACL owner/group\nrewrite\")), the chmod branch only adds 2 * sizeof(struct smb_ace) or\n5 * sizeof(struct smb_ace) to secdesclen (or 1 * sizeof(struct smb_ace)\non posix).\n\nHowever, the chmod branch also invokes build_sec_desc() ->\ncopy_sec_desc(), which unconditionally writes the Owner SID at\npnntsd + sidsoffset and the Group SID at\npnntsd + sidsoffset + sizeof(struct smb_sid) (2 * 68 = 136 bytes total),\nand set_chmod_dacl() always writes a struct smb_acl header (8 bytes)\neven when the source descriptor has dacloffset == 0. When a security\ndescriptor has compact or overlapping Owner/Group SIDs (or\ndacloffset == 0), calling chmod() under-allocates pnntsd and writes past\nthe end of the slab buffer.\n\nReserve sizeof(struct smb_acl) + 2 * sizeof(struct smb_sid) (plus\nsizeof(struct smb_ntsd) on the posix path) in the chmod branch of\nid_mode_to_cifs_acl().",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99292"
+    },
+    {
+      "id": "CVE-2026-99291",
+      "published": "2026-11-16T10:17:01.393",
+      "lastModified": "2026-11-19T14:17:30.273",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nksmbd: fix SMB2 CREATE response buffer overflow\n\nsmb2_allocate_rsp_buf() uses the MAX_CIFS_SMALL_BUFFER_SIZE\n(448-byte) buffer for a single SMB2_CREATE response. That buffer also\nholds a 4-byte length field, which only leaves 444 bytes for the SMB2\nbody.\n\nThe AAPL response made this buffer too small. After 8f1b796ff113, a\nrequest with AAPL response contexts may need at least 456 bytes. In\nthe 456-byte case, create_aapl_rsp_buf() is appended last, clears 128\nbytes, and writes 12 bytes past the allocation.\n\nKASAN reports:\n\n    BUG: KASAN: slab-out-of-bounds in create_aapl_rsp_buf+0x31/0x6e0\n    Write of size 128 at addr ffff88800370954c by task kworker/0:0/9\n    ...\n    create_aapl_rsp_buf+0x31/0x6e0\n    smb2_open+0x58f9/0xef10\n    ...\n    smb2_allocate_rsp_buf+0x19d/0x370\n    ...\n    The buggy address is located 332 bytes inside of\n     allocated 448-byte region [ffff888003709400, ffff8880037095c0)\n\nReserve enough space for any fixed CREATE response KSMBD can build.\nStore the required allocation size in the per-dialect values table.\nThis keeps the small buffer for other commands and avoids using the max\ntransaction buffer for every CREATE.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99291"
+    },
+    {
+      "id": "CVE-2026-99290",
+      "published": "2026-11-16T10:17:01.130",
+      "lastModified": "2026-11-19T14:17:30.127",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nksmbd: fix use-after-free after a failed durable reconnect\n\nksmbd_reopen_durable_fd() republishes a detached durable handle in the\nreconnecting session's file table and takes no reference for that entry.\nIf smb2_open() then fails, cleanup relies on the final ksmbd_fd_put() to\nremove the volatile id.\n\nTwo reconnects of the same handle can both take a lookup reference before\neither attaches it. If the one that reopens first then fails and drops\nits references first, the other request makes the final put through\nksmbd_put_durable_fd(). That frees the handle without removing the first\nsession's table entry, so tearing that session down writes to freed\nmemory.\n\n  BUG: KASAN: slab-use-after-free in __close_file_table_ids+0x14d/0x740 [ksmbd]\n  Call Trace:\n   __close_file_table_ids+0x14d/0x740 [ksmbd]\n   ksmbd_destroy_file_table+0x76/0x100 [ksmbd]\n   ksmbd_session_destroy+0xf8/0x480 [ksmbd]\n   ksmbd_dispose_sessions+0x13e/0x200 [ksmbd]\n   ksmbd_conn_sessions_cleanup+0x4c3/0x6d0 [ksmbd]\n  Freed by task 1030:\n   __ksmbd_close_fd+0x97d/0x1000 [ksmbd]\n   smb2_open+0x14eb/0xd9f0 [ksmbd]\n\nCommit 3515503322f4 (\"ksmbd: fix durable reconnect error path file\nlifetime\") handles a final put made by the reconnecting request, but not\none made by another holder.\n\nRemove the volatile id under the file-table lock on this error path,\nbefore the references are dropped, as ksmbd_close_fd() does on the\nrequest_open path just above. Removal then no longer depends on which\nholder makes the final put. The stale comment in the reconnect cleanup\nis updated to match. A successful reconnect is unchanged.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99290"
+    },
+    {
+      "id": "CVE-2026-99289",
+      "published": "2026-11-16T10:17:00.870",
+      "lastModified": "2026-11-19T14:17:29.993",
+      "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nksmbd: fix app-instance non-durable supersede session UAF\n\nksmbd_close_fd_app_instance_id() supersedes a prior open that has the\nsame AppInstanceId. It reaches that open's session through opinfo->sess.\nThis pointer is not refcounted.\n\nSession teardown detaches durable handles before it frees the session.\nIt does not detach a non-durable open. That open still points at the\nsession through opinfo->sess after the session is freed. Another session\ncan supersede the open at the same time. The supersede then takes a\nwrite lock through the stale pointer, in the freed session's file table.\n\n  BUG: KASAN: slab-use-after-free in _raw_write_lock+0x71/0xd0\n  Call Trace:\n   _raw_write_lock+0x71/0xd0\n   ksmbd_close_fd_app_instance_id+0xd9/0x670 [ksmbd]\n   smb2_open+0x3e10/0xd910 [ksmbd]\n  Freed by task 212:\n   ksmbd_session_destroy+0x38d/0x480 [ksmbd]\n\nFix this by looking the session up by opinfo->session_id. The lookup\nreturns a reference, as smb2_break_collect_channels() does. Recheck that\nopinfo->sess still points at it before using it.\n\nDo the lookup without m_lock held. destroy_previous_session() takes\nm_lock under the session table lock, and taking them in the other order\nhere would deadlock.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-99289"
+    },
+    {
+      "id": "CVE-2026-128841",
+      "published": "2026-11-16T10:16:46.467",
+      "lastModified": "2026-11-20T17:33:02.867",
+      "description": "** UNSUPPORTED WHEN ASSIGNED ** Missing authentication for critical function vulnerability in Apache Griffin Web Service. The REST API does not have any authentication. This includes sensitive endpoints, such as job submission when a Livy/Spark backend is configured. The API must be properly secured on the network level, and this fact was arguably not documented as clearly as it could have.\n\n\n\nThis issue affects Apache Griffin Web Service: all versions.\n\n\n\nAs this project is retired, we do not plan to release a version that fixes this issue. Users are recommended to find an alternative or restrict access to the instance to trusted users.\n\n\n\nNOTE: This vulnerability only affects products that are no longer supported by the maintainer.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-128841"
+    },
+    {
+      "id": "CVE-2026-115690",
+      "published": "2026-11-16T10:16:45.497",
+      "lastModified": "2026-11-20T17:32:32.540",
+      "description": "Apache WSS4J remembers the UsernameToken Nonce, the Timestamp and signature of a signed message, and the ID of a SAML 2.0 \"OneTimeUse\" assertion, so that a captured message cannot be accepted twice. It checked whether a value had already been seen, validated the message, and only then remembered the value, as two separate steps. If several copies of the same message were processed at the same time, they could all pass the check before any of them was remembered, and all be accepted. An attacker who obtained a valid message before the recipient first processed it could send several copies at once, so that the same authenticated request was executed more than once. Where a UsernameToken is not bound to the message by a signature, the copies could carry different message bodies. The attacker needs to obtain the message while it is still in transit; a message captured after it has been accepted cannot be replayed. Affects deployments with a replay cache configured, as Apache CXF has by default. The value is now checked and remembered in a single atomic step. Custom ReplayCache implementations should override the new ReplayCache.addIfAbsent method with an operation that is atomic in their underlying store. Users are recommended to upgrade to versions 4.0.3 or 3.0.7 or 2.4.5, which fix this issue.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-115690"
+    },
+    {
+      "id": "CVE-2026-102448",
+      "published": "2026-11-16T10:16:45.307",
+      "lastModified": "2026-11-16T15:17:07.073",
+      "description": "A vulnerability has been identified in Rexroth IndraWorks. This flaw allows an attacker to execute arbitrary code on the user’s system by parsing a manipulated file, because the file parser fails to properly sanitize the path name(s) or references embedded in the manipulated file. Exploitation requires user interaction, specifically opening a specially crafted file, which then causes the application to traverse outside the target directory and to write files in unauthorized locations, eventually enabling Remote Code Execution (RCE). This can lead to a complete compromise of the system running Rexroth IndraWorks.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102448"
+    },
+    {
+      "id": "CVE-2026-129706",
+      "published": "2026-11-16T09:17:13.487",
+      "lastModified": "2026-11-16T15:17:21.950",
+      "description": "In the vulnerability-lookup web application, the Flask-Login session identifier was set to the bare numeric user ID (User.get_id() returned self.id). Because the session ID contained no component derived from the user's credential, it remained valid indefinitely regardless of any subsequent password change, account recovery, or administrator-initiated password reset. An attacker who had obtained a valid session for a user account (for example through cross-site scripting, session hijacking, or a previously exposed feed or API key) could continue to access that user's account after the user changed their password, because the session cookie still carried the same static user ID and the user_loader accepted it without any credential-bound validation.\n\nThe affected component is the session management layer of the vulnerability-lookup Flask application, specifically the User.get_id() method in website/models/user.py and the load_user callback in website/web/views/session_mgmt.py. The vulnerability required that an attacker already possessed a valid session for the target user; no additional authentication or special deployment configuration was needed beyond a standard deployment of the application.\n\nThe security impact is that a user cannot effectively revoke an attacker's access by changing their password, performing an account recovery, or having an administrator reset the credential. The attacker retains full authenticated access to the user's profile, subscriptions, and any role-gated functionality for the lifetime of the session cookie. Additionally, sessions that were opened via a feed key or API key before a prior fix (commit 3605d5b6) also persisted indefinitely.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129706"
+    },
+    {
+      "id": "CVE-2026-129703",
+      "published": "2026-11-16T09:17:13.293",
+      "lastModified": "2026-11-16T15:17:21.820",
+      "description": "In the vulnerability-lookup web application, the authentication decorators for feed-key requests (auth_feedkey_func in website/decorators.py) and API-key requests (auth_func in website/web/api/v1/common.py) called Flask-Login's login_user() function. This caused the HTTP response to a request authenticated solely by a feed key (supplied as the X-FEED-KEY URL parameter) or an API key (supplied as the X-API-KEY header) to set a session cookie that grants full authenticated access to every page in the application, without requiring a password or two-factor authentication.\n\nThe practical impact is that any party possessing a leaked feed URL (a common occurrence, as feed URLs are shared with RSS readers) or an API key could obtain a valid web session for the associated account. This session provides access to the user's account page, which exposes the API key and other profile data, and for accounts with the administrator role, access to the /admin interface, enabling full administrative control of the application.\n\nThe vulnerability affects all users whose feed key or API key is exposed. No prior authentication, user interaction, or special network conditions are required; a single HTTP request with the token is sufficient to establish the session. The session persists until it expires, and because it is not bound to the original credential (a related CWE-613 issue noted by the developers), revoking the feed key or API key does not invalidate the already-created session.\n\nThe fix replaces the login_user() call with assignment to g._login_user, which Flask-Login's current_user property reads for the current request only, without writing any session cookie. The affected views remain unchanged and continue to see the authenticated user for the single request.",
+      "score": 7.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129703"
+    },
+    {
+      "id": "CVE-2026-124672",
+      "published": "2026-11-16T09:17:13.160",
+      "lastModified": "2026-11-17T15:40:20.177",
+      "description": "The Burst Statistics WordPress plugin before 3.7.5 does not verify that a request is actually being routed to its own REST API before unloading every other active plugin for that request, allowing unauthenticated attackers to have requests processed with other plugins' protections (such as REST access restrictions, hidden login pages and two-factor authentication) switched off, and to cause other plugins' scheduled tasks to be discarded.",
+      "score": 7.3,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-124672"
+    },
+    {
+      "id": "CVE-2026-114453",
+      "published": "2026-11-16T09:17:12.997",
+      "lastModified": "2026-11-17T15:40:20.177",
+      "description": "The Kadence Memberships WordPress plugin before 4.0.6 does not check that the membership level submitted when renewing a membership matches the level being renewed, pricing the renewal from the submitted level while activating the membership at its own level, allowing unauthenticated users to activate a paid membership without paying on sites that also offer a free level.",
+      "score": 3.7,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-114453"
+    },
+    {
+      "id": "CVE-2026-105925",
+      "published": "2026-11-16T08:16:48.180",
+      "lastModified": "2026-11-16T21:17:17.547",
+      "description": "A denial of service vulnerability in the Qt QXmlSimpleReader class of the Qt 5 Core Compatibility APIs module (Qt 6) and the Qt XML module (Qt 5).",
+      "score": 8.2,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-105925"
+    },
+    {
+      "id": "CVE-2026-129606",
+      "published": "2026-11-16T06:16:49.183",
+      "lastModified": "2026-11-16T21:17:28.140",
+      "description": "Buffer Copy without Checking Size of Input ('Classic Buffer Overflow') vulnerability in Samsung Open Source mTower allows Overflow Buffers.",
+      "score": 7.1,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129606"
+    },
+    {
+      "id": "CVE-2026-121787",
+      "published": "2026-11-16T06:16:49.073",
+      "lastModified": "2026-11-17T15:40:20.177",
+      "description": "The Social Viral Downloader WordPress plugin through 2.0.3 does not have authorisation or nonce checks on a log deletion action available to unauthenticated users, which could allow them to delete the Social Viral Downloader WordPress plugin through 2.0.3's entire download log.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-121787"
+    },
+    {
+      "id": "CVE-2026-121786",
+      "published": "2026-11-16T06:16:48.253",
+      "lastModified": "2026-11-17T15:40:20.177",
+      "description": "The Social Viral Downloader WordPress plugin through 2.0.3 does not have authorisation or nonce checks on a log export action available to unauthenticated users, which could allow them to export the download log, including registered users' email addresses and IP addresses, to a publicly accessible file.",
+      "score": 5.3,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-121786"
+    },
+    {
+      "id": "CVE-2026-82156",
+      "published": "2026-11-16T04:16:44.230",
+      "lastModified": "2026-11-17T05:18:37.863",
+      "description": "Dell PowerStore contains an authorization-bypass vulnerability. A low-privileged attacker could exploit it, potentially leading to elevation of privilege to administrator.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82156"
+    },
+    {
+      "id": "CVE-2026-107520",
+      "published": "2026-11-16T04:16:44.033",
+      "lastModified": "2026-11-16T20:37:04.673",
+      "description": "Dell PowerStore contains a stored cross-site scripting (XSS) vulnerability. A low-privileged authenticated attacker could exploit this vulnerability, potentially leading to execution of malicious script in a higher-privileged user's session.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-107520"
+    },
+    {
+      "id": "CVE-2026-129543",
+      "published": "2026-11-16T02:17:12.557",
+      "lastModified": "2026-11-16T21:17:28.030",
+      "description": "Access of resource using incompatible type ('type confusion') vulnerability in Samsung Open Source Starfish allows Input Data Manipulation.",
+      "score": 6.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129543"
+    },
+    {
+      "id": "CVE-2026-129542",
+      "published": "2026-11-16T02:17:12.427",
+      "lastModified": "2026-11-16T21:17:27.310",
+      "description": "Files or directories accessible to external parties vulnerability in Samsung Open Source Starfish allows Probe System Files.",
+      "score": 3.1,
+      "severity": "LOW",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129542"
+    },
+    {
+      "id": "CVE-2026-129541",
+      "published": "2026-11-16T02:17:12.273",
+      "lastModified": "2026-11-19T21:44:59.793",
+      "description": "EdgeChat 2.5.0 through 2.21.0 contains a cross-site scripting vulnerability that allows invited users to inject HTML through unescaped usernames in the Vditor @-mention autocomplete. Attackers can register with a username containing an img onerror payload that executes when mentioned, stealing the localStorage session token to take over victim accounts.",
+      "score": 5.4,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129541"
+    },
+    {
+      "id": "CVE-2026-129540",
+      "published": "2026-11-16T02:17:12.100",
+      "lastModified": "2026-11-16T16:17:52.400",
+      "description": "VoAPI 1.0.0 through 1.2.0 contains a sql injection vulnerability that allows authenticated users to inject SQL by supplying crafted column names as search[...] filter keys on list endpoints such as GET /api/log. Attackers can read the HS256 JWT signing secret from the option table and forge a manager role token to take over the /api/m/* management API.",
+      "score": 8.8,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129540"
+    },
+    {
+      "id": "CVE-2026-129539",
+      "published": "2026-11-16T02:17:11.940",
+      "lastModified": "2026-11-16T19:17:43.440",
+      "description": "SSCMS 7.2.0 through 7.4.0 contains an arbitrary file read vulnerability that allows any registered user-center account to copy server files by supplying source paths to the layerImageUpload endpoint. Attackers can send siteId 0 with crafted filePaths entries to copy configuration files into their public sitefiles/home upload directory and download them anonymously.",
+      "score": 6.5,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129539"
+    },
+    {
+      "id": "CVE-2026-129494",
+      "published": "2026-11-16T01:17:20.053",
+      "lastModified": "2026-11-18T14:17:35.477",
+      "description": "CloudPaste 1.1.0 through 1.9.1 contains an information disclosure vulnerability that allows unauthenticated attackers to obtain WebDAV storage credentials through the unauthenticated /api/proxy/link endpoint. Attackers who know a public share slug can retrieve the Basic Authorization header containing the WebDAV username and password, then read, modify, or delete files on the WebDAV server.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129494"
+    },
+    {
+      "id": "CVE-2026-129493",
+      "published": "2026-11-16T01:17:19.897",
+      "lastModified": "2026-11-16T20:19:01.770",
+      "description": "Bolo (bolo-solo) 1.7 through 2.6.4 contains an information disclosure vulnerability that allows unauthenticated attackers to read article view passwords via the public GET /articles endpoint. Attackers can retrieve the plaintext articleViewPwd field returned by ArticleProcessor.getArticlesByPage and submit it to read password-protected article content.",
+      "score": 7.5,
+      "severity": "HIGH",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129493"
+    },
+    {
+      "id": "CVE-2026-129492",
+      "published": "2026-11-16T01:17:19.737",
+      "lastModified": "2026-11-16T17:17:31.933",
+      "description": "Bolo (bolo-solo) 1.7 through 2.6.4 contains a stored cross-site scripting vulnerability that allows unauthenticated attackers to inject scripts via the unsanitized commentOriginalCommentName parameter. Attackers can post a comment to /article/comments with a short payload that steals non-HttpOnly session cookies from visitors, enabling takeover of administrator accounts.",
+      "score": 6.1,
+      "severity": "MEDIUM",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129492"
+    },
     {
       "id": "CVE-2026-129491",
       "published": "2026-11-16T01:17:18.857",
@@ -432,474 +878,6 @@
       "score": 7.1,
       "severity": "HIGH",
       "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-125447"
-    },
-    {
-      "id": "CVE-2026-129483",
-      "published": "2026-11-15T14:17:27.530",
-      "lastModified": "2026-11-18T15:17:38.353",
-      "description": "Cyrus SASL through 2.1.28 contains an authentication bypass vulnerability in the SRP server mechanism because srp_server_mech_step2 does not reject client public values A that are multiples of N. Unauthenticated network clients can send A equal to N to force a zero shared secret, authenticating as any existing user without the password and learning session keys.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129483"
-    },
-    {
-      "id": "CVE-2026-129482",
-      "published": "2026-11-15T14:17:27.377",
-      "lastModified": "2026-11-16T20:19:01.507",
-      "description": "OkHttp through 5.5.1 contains an improper certificate validation vulnerability in CertificatePinner that skips pin checks because Pin.matchesHostname does not normalize trailing-dot hostnames. Network attackers with a CA-trusted certificate not matching configured pins can intercept or modify TLS traffic when applications request the trailing-dot form of pinned hosts.",
-      "score": 4.8,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129482"
-    },
-    {
-      "id": "CVE-2026-129480",
-      "published": "2026-11-15T14:17:27.227",
-      "lastModified": "2026-11-16T19:17:43.140",
-      "description": "Assimp through 6.0.6 contains a heap out-of-bounds read vulnerability in MD2Importer::InternReadFile that allows attackers to read past the file buffer via an unvalidated stored frameSize header field. Attackers can supply a crafted .md2 file loaded with a non-zero keyframe selected to crash the application or leak adjacent heap memory into the imported mesh.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129480"
-    },
-    {
-      "id": "CVE-2026-129479",
-      "published": "2026-11-15T14:17:27.077",
-      "lastModified": "2026-11-16T19:17:42.980",
-      "description": "Assimp through 6.0.6 contains an integer overflow vulnerability in OgreBinarySerializer::ReadSubMesh that allows attackers to crash applications by supplying crafted Ogre binary .mesh files. Attackers can set a large index count so the 32-bit buffer size wraps, causing a segmentation fault in aiMesh::~aiMesh() during scene teardown.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129479"
-    },
-    {
-      "id": "CVE-2026-129478",
-      "published": "2026-11-15T14:17:26.920",
-      "lastModified": "2026-11-18T14:17:35.153",
-      "description": "Assimp through 6.0.6 contains a heap out-of-bounds read vulnerability in glTFCommon::Util::ParseDataURI caused by storing the data offset in a signed char. Attackers can supply a crafted glTF file with a raw data URI whose segment starts beyond byte 127 to crash applications or leak adjacent heap memory.",
-      "score": 6.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129478"
-    },
-    {
-      "id": "CVE-2026-129477",
-      "published": "2026-11-15T14:17:26.777",
-      "lastModified": "2026-11-16T21:17:27.177",
-      "description": "Assimp through 6.0.6 contains a path traversal vulnerability in the glTF and glTF2 importers that allows attackers to read local files via crafted buffers[].uri values. Attackers can supply glTF models with '..' segments or absolute paths in buffer URIs to load files like /etc/passwd into imported mesh vertex data.",
-      "score": 5.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129477"
-    },
-    {
-      "id": "CVE-2026-129453",
-      "published": "2026-11-15T14:17:26.583",
-      "lastModified": "2026-11-16T16:17:52.123",
-      "description": "A vulnerability was found in DrayTek Vigor2960 1.5.1.6. This issue affects the function check_file_exist of the file /cgi-bin/mainfunction.cgi of the component File Existence Check. Performing a manipulation of the argument upload_name results in heap-based buffer overflow. The attack may be initiated remotely. The exploit has been made public and could be used. Upgrading to version 1.5.1.7 is capable of addressing this issue. Upgrading the affected component is recommended. The vendor recommends: \"1.5.1.6 isn't the latest version of 2960, the latest version fixes many security issues. And we have another one in our release plan which should solve the issues reported.\"",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129453"
-    },
-    {
-      "id": "CVE-2026-125857",
-      "published": "2026-11-15T14:17:26.287",
-      "lastModified": "2026-11-16T12:17:51.187",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Sarah Giles Dynamic User Directory dynamic-user-directory allows Stored XSS.This issue affects Dynamic User Directory: from n/a through 2.4.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-125857"
-    },
-    {
-      "id": "CVE-2026-125832",
-      "published": "2026-11-15T14:17:26.137",
-      "lastModified": "2026-11-16T12:17:51.077",
-      "description": "Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') vulnerability in Passionate Programmer Peter WP Data Access wp-data-access allows SQL Injection.This issue affects WP Data Access: from n/a through 5.5.92.",
-      "score": 8.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-125832"
-    },
-    {
-      "id": "CVE-2026-125828",
-      "published": "2026-11-15T14:17:25.990",
-      "lastModified": "2026-11-16T12:17:50.860",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Liquid Web / StellarWP BookIt bookit allows Stored XSS.This issue affects BookIt: from n/a through 2.6.0.7.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-125828"
-    },
-    {
-      "id": "CVE-2026-125813",
-      "published": "2026-11-15T14:17:25.847",
-      "lastModified": "2026-11-16T12:17:50.073",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Ays Pro Survey Maker survey-maker allows Reflected XSS.This issue affects Survey Maker: from n/a through 5.2.4.3.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-125813"
-    },
-    {
-      "id": "CVE-2026-125805",
-      "published": "2026-11-15T14:17:25.703",
-      "lastModified": "2026-11-16T12:17:49.967",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in AyeCode Ltd GeoDirectory geodirectory allows Stored XSS.This issue affects GeoDirectory: from n/a through 2.8.204.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-125805"
-    },
-    {
-      "id": "CVE-2026-125791",
-      "published": "2026-11-15T14:17:25.563",
-      "lastModified": "2026-11-16T12:17:49.180",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in iWorks Orphans sierotki allows Stored XSS.This issue affects Orphans: from n/a through 3.4.6.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-125791"
-    },
-    {
-      "id": "CVE-2026-125790",
-      "published": "2026-11-15T14:17:25.423",
-      "lastModified": "2026-11-16T12:17:49.077",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in e4jvikwp VikBooking Hotel Booking Engine & PMS vikbooking allows Stored XSS.This issue affects VikBooking Hotel Booking Engine & PMS: from n/a through 1.8.20.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-125790"
-    },
-    {
-      "id": "CVE-2026-125789",
-      "published": "2026-11-15T14:17:25.277",
-      "lastModified": "2026-11-16T12:17:48.957",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in e4jvikwp VikBooking Hotel Booking Engine & PMS vikbooking allows Stored XSS.This issue affects VikBooking Hotel Booking Engine & PMS: from n/a through 1.8.20.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-125789"
-    },
-    {
-      "id": "CVE-2026-125780",
-      "published": "2026-11-15T14:17:25.130",
-      "lastModified": "2026-11-16T12:17:48.847",
-      "description": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal') vulnerability in Acowebs Woocommerce Custom Product Addons Pro woo-custom-product-addons-pro allows Path Traversal.This issue affects Woocommerce Custom Product Addons Pro: from n/a through 5.9.0.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-125780"
-    },
-    {
-      "id": "CVE-2026-125775",
-      "published": "2026-11-15T14:17:24.977",
-      "lastModified": "2026-11-16T12:17:48.730",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in CRM Perks CRM Perks Forms crm-perks-forms allows Reflected XSS.This issue affects CRM Perks Forms: from n/a through 1.1.8.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-125775"
-    },
-    {
-      "id": "CVE-2026-125769",
-      "published": "2026-11-15T14:17:24.813",
-      "lastModified": "2026-11-16T12:17:48.510",
-      "description": "Incorrect Privilege Assignment vulnerability in Nasir Ahmed Advanced Form Integration advanced-form-integration allows Privilege Escalation.This issue affects Advanced Form Integration: from n/a through 2.11.3.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-125769"
-    },
-    {
-      "id": "CVE-2026-125764",
-      "published": "2026-11-15T14:17:24.647",
-      "lastModified": "2026-11-16T12:17:48.290",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in E2Pdf.com e2pdf e2pdf allows Stored XSS.This issue affects e2pdf: from n/a through 1.32.65.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-125764"
-    },
-    {
-      "id": "CVE-2026-125449",
-      "published": "2026-11-15T14:17:24.497",
-      "lastModified": "2026-11-16T12:17:47.943",
-      "description": "Deserialization of Untrusted Data vulnerability in Mamunur Rashid Testimonial Slider testimonial-slider-and-showcase allows Object Injection.This issue affects Testimonial Slider: from n/a through 3.0.2.",
-      "score": 8.8,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-125449"
-    },
-    {
-      "id": "CVE-2026-125443",
-      "published": "2026-11-15T14:17:24.340",
-      "lastModified": "2026-11-16T12:17:47.720",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Denishua WPJAM Basic wpjam-basic allows DOM-Based XSS.This issue affects WPJAM Basic: from n/a through 7.1.2.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-125443"
-    },
-    {
-      "id": "CVE-2026-124995",
-      "published": "2026-11-15T14:17:24.187",
-      "lastModified": "2026-11-16T12:17:47.613",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Michal Jaworski Track, Analyze & Optimize by WP Tao wp-tao allows Stored XSS.This issue affects Track, Analyze & Optimize by WP Tao: from n/a through 1.3.1.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-124995"
-    },
-    {
-      "id": "CVE-2026-124755",
-      "published": "2026-11-15T14:17:24.037",
-      "lastModified": "2026-11-16T12:17:47.500",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Justin Kruit Advanced Custom Fields: Font Awesome Field advanced-custom-fields-font-awesome allows Stored XSS.This issue affects Advanced Custom Fields: Font Awesome Field: from n/a through 6.1.4.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-124755"
-    },
-    {
-      "id": "CVE-2026-124270",
-      "published": "2026-11-15T14:17:21.687",
-      "lastModified": "2026-11-16T12:17:46.527",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Basix NEX-Forms nex-forms-express-wp-form-builder allows Reflected XSS.This issue affects NEX-Forms: from n/a through 9.3.3.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-124270"
-    },
-    {
-      "id": "CVE-2026-124259",
-      "published": "2026-11-15T14:17:21.543",
-      "lastModified": "2026-11-16T12:17:46.413",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Franky Events Made Easy events-made-easy allows Reflected XSS.This issue affects Events Made Easy: from n/a through 3.3.5.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-124259"
-    },
-    {
-      "id": "CVE-2026-124254",
-      "published": "2026-11-15T14:17:21.387",
-      "lastModified": "2026-11-16T12:17:46.297",
-      "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Exactly WWW LLC EWWW Image Optimizer ewww-image-optimizer allows Stored XSS.This issue affects EWWW Image Optimizer: from n/a through 8.9.1.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-124254"
-    },
-    {
-      "id": "CVE-2026-122662",
-      "published": "2026-11-15T14:17:20.507",
-      "lastModified": "2026-11-16T12:17:45.570",
-      "description": "Deserialization of Untrusted Data vulnerability in Barn2 Plugins Document Library Pro document-library-pro allows Object Injection.This issue affects Document Library Pro: from n/a before 4.2.2.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-122662"
-    },
-    {
-      "id": "CVE-2026-129469",
-      "published": "2026-11-15T13:17:00.280",
-      "lastModified": "2026-11-16T19:17:42.807",
-      "description": "Course-tencent-cloud before 2.0.2 contains an insecure direct object reference vulnerability that allows unauthenticated attackers to view other users' refund previews by supplying an order sn to /api/refund/confirm. Attackers can compute valid sn values from Sqids-encoded sequential order ids using the default key to disclose ordered items, prices, refund amounts, fees and deadlines.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129469"
-    },
-    {
-      "id": "CVE-2026-129468",
-      "published": "2026-11-15T13:17:00.110",
-      "lastModified": "2026-11-16T19:17:42.640",
-      "description": "Netcccyun dnsmgr 2.18 before 2.22 contains a missing authorization vulnerability in POST /cloudflare/get_domain_default_line that allows restricted users to access domains outside their permissions. Restricted sub-users or single-domain logins can iterate the domain_id parameter to enumerate panel domain ids and read each domain's DNS line list and default line.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129468"
-    },
-    {
-      "id": "CVE-2026-129467",
-      "published": "2026-11-15T13:16:59.920",
-      "lastModified": "2026-11-18T14:17:34.997",
-      "description": "GeoPulse 1.5.0 through 2.3.0 contains an insecure direct object reference vulnerability in GET /api/v1/places/geocoding/{id} that allows authenticated users to read other users' private locations. Attackers can enumerate sequential reverse_geocoding_location ids to retrieve other users' custom place names, city, country, coordinates and bounding boxes from their history.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129467"
-    },
-    {
-      "id": "CVE-2026-129452",
-      "published": "2026-11-15T13:16:59.703",
-      "lastModified": "2026-11-18T14:17:34.607",
-      "description": "A vulnerability has been found in DrayTek Vigor2960 1.5.1.6. This vulnerability affects the function set_table of the file /cgi-bin/mainfunction.cgi. Such manipulation of the argument jsondata leads to command injection. The attack can be launched remotely. The exploit has been disclosed to the public and may be used. Upgrading to version 1.5.1.7 is able to resolve this issue. It is suggested to upgrade the affected component. The vendor recommends: \"1.5.1.6 isn't the latest version of 2960, the latest version fixes many security issues. And we have another one in our release plan which should solve the issues reported.\"",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129452"
-    },
-    {
-      "id": "CVE-2026-129451",
-      "published": "2026-11-15T13:16:58.600",
-      "lastModified": "2026-11-18T18:19:08.000",
-      "description": "A flaw has been found in DrayTek Vigor2960 up to 1.5.1.6. This affects the function app_guest_export of the file /cgi-bin/mainfunction.cgi. This manipulation of the argument filename causes path traversal. The attack can be initiated remotely. The exploit has been published and may be used. Upgrading to version 1.5.1.7 is able to mitigate this issue. The affected component should be upgraded. The vendor recommends: \"1.5.1.6 isn't the latest version of 2960, the latest version fixes many security issues. And we have another one in our release plan which should solve the issues reported.\"",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129451"
-    },
-    {
-      "id": "CVE-2026-129450",
-      "published": "2026-11-15T12:17:20.913",
-      "lastModified": "2026-11-16T19:17:42.207",
-      "description": "A vulnerability was detected in DrayTek Vigor2960 1.5.1.6. Affected by this issue is the function sub_1E084 of the file /cgi-bin/mainfunction.cgi?action=doWebBackup. The manipulation of the argument option results in path traversal. It is possible to launch the attack remotely. The exploit is now public and may be used. Upgrading to version 1.5.1.7 can resolve this issue. You should upgrade the affected component. The vendor recommends: \"1.5.1.6 isn't the latest version of 2960, the latest version fixes many security issues. And we have another one in our release plan which should solve the issues reported.\"",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129450"
-    },
-    {
-      "id": "CVE-2026-129449",
-      "published": "2026-11-15T11:17:10.620",
-      "lastModified": "2026-11-16T16:17:51.977",
-      "description": "A security vulnerability has been detected in DrayTek Vigor2960 up to 1.5.1.6. Affected by this vulnerability is the function sub_14914 of the file /cgi-bin/mainfunction.cgi. The manipulation of the argument swmconfigupload leads to command injection. It is possible to initiate the attack remotely. The exploit has been disclosed publicly and may be used. Upgrading to version 1.5.1.7 addresses this issue. It is advisable to upgrade the affected component. The vendor recommends: \"1.5.1.6 isn't the latest version of 2960, the latest version fixes many security issues. And we have another one in our release plan which should solve the issues reported.\"",
-      "score": 9.9,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129449"
-    },
-    {
-      "id": "CVE-2026-82663",
-      "published": "2026-11-15T10:16:54.410",
-      "lastModified": "2026-11-16T15:17:33.307",
-      "description": "The Give - Peer-to-Peer plugin for WordPress is vulnerable to authorization bypass in all versions up to, and including, 2.9.5. This is due to the plugin not properly verifying that a user is authorized to perform an action. This makes it possible for unauthenticated attackers who know or discover an existing campaign and team ID to modify the team's name, story, goal, access and notification settings, set its profile image URL, and upload WordPress-allowed media files as parentless attachments. This vulnerability can be combined with CVE-2026-82568 to achieve unauthenticated remote code execution.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82663"
-    },
-    {
-      "id": "CVE-2026-82568",
-      "published": "2026-11-15T10:16:54.217",
-      "lastModified": "2026-11-16T15:17:33.183",
-      "description": "The Give - Peer-to-Peer plugin for WordPress is vulnerable to time-based SQL Injection via the 'sort' parameter in all versions up to, and including, 2.9.3 due to insufficient escaping on the user supplied parameter and lack of sufficient preparation on the existing SQL query. This makes it possible for unauthenticated attackers to append additional SQL queries into already existing queries that can be used to extract sensitive information from the database. Successful exploitation requires the existence of at least one Peer-to-Peer campaign. This vulnerability can be combined with CVE-2026-82663 to achieve unauthenticated remote code execution.",
-      "score": 7.5,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-82568"
-    },
-    {
-      "id": "CVE-2026-129445",
-      "published": "2026-11-15T10:16:53.970",
-      "lastModified": "2026-11-18T14:17:34.430",
-      "description": "A security flaw has been discovered in D-Link DIR-850L FW1.20WWb03. This impacts an unknown function of the file /usr/sbin/consolepwd of the component Console Login. Performing a manipulation results in hard-coded credentials. The attack requires a local approach. The exploit has been released to the public and may be used for attacks.",
-      "score": 8.2,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129445"
-    },
-    {
-      "id": "CVE-2026-129349",
-      "published": "2026-11-15T10:16:53.020",
-      "lastModified": "2026-11-20T17:33:59.427",
-      "description": "When authentication caching is enabled on DefaultLdapRealm, after a user logs in successfully once, subsequent logins for that user succeed with any password.\nA cached authentication skips the LDAP bind, and the AllowAllCredentialsMatcher installed by default in DefaultLdapRealm accepts any credentials, allowing an attacker who knows a valid username to authenticate as that user.\nThis issue affects all Apache Shiro versions through 3.0.0, only when using DefaultLdapRealm (or JndiLdapRealm) with authenticationCachingEnabled set to true, which is not the default.\n\nMitigation: Upgrade to version 3.0.1 or later, which fixes the issue by no longer installing AllowAllCredentialsMatcher by default.\nAlternatively, disable authentication caching on the LDAP realm (this is the default), or configure a credentials matcher, such as SimpleCredentialsMatcher, that verifies credentials against the cached authentication info.",
-      "score": 9.1,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129349"
-    },
-    {
-      "id": "CVE-2026-129444",
-      "published": "2026-11-15T09:16:44.570",
-      "lastModified": "2026-11-16T19:17:41.937",
-      "description": "A vulnerability was identified in D-Link DSL-6740C 20131126. This affects an unknown function of the file /etc/templates/ftpd/ftpd_conf.php of the component FTP Daemon. Such manipulation leads to hard-coded credentials. The attack can be executed remotely. The exploit is publicly available and might be used.",
-      "score": 10,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129444"
-    },
-    {
-      "id": "CVE-2026-129443",
-      "published": "2026-11-15T08:17:21.573",
-      "lastModified": "2026-11-16T19:17:41.787",
-      "description": "A vulnerability was determined in itsourcecode Airline Reservation System 1.0. The impacted element is an unknown function of the file /admin/manage_user.php. This manipulation of the argument ID causes sql injection. Remote exploitation of the attack is possible. The exploit has been publicly disclosed and may be utilized.",
-      "score": 6.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-129443"
-    },
-    {
-      "id": "CVE-2026-127048",
-      "published": "2026-11-15T07:16:54.633",
-      "lastModified": "2026-11-17T15:40:20.177",
-      "description": "The Custom Block Builder  WordPress plugin before 3.0.0 does not properly deny unauthorised requests to its REST routes, as its permission checks return a non-error response that WordPress treats as granted, allowing unauthenticated users to execute arbitrary PHP code on the server.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-127048"
-    },
-    {
-      "id": "CVE-2026-124673",
-      "published": "2026-11-15T07:16:54.527",
-      "lastModified": "2026-11-17T15:40:20.177",
-      "description": "The Burst Statistics  WordPress plugin before 3.7.5 does not check that a reported page view belongs to published content, nor check post status before listing post titles and links in its public statistics output, allowing unauthenticated attackers to disclose the titles and permalinks of draft, pending and private posts.",
-      "score": 3.7,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-124673"
-    },
-    {
-      "id": "CVE-2026-124671",
-      "published": "2026-11-15T07:16:54.407",
-      "lastModified": "2026-11-17T15:40:20.177",
-      "description": "The Burst Statistics  WordPress plugin before 3.7.5 does not enforce a shared report's date range on the analytics it serves to the report's share link, allowing anyone holding the link to read the report's statistics for any period the site retains rather than the period the report was shared for.",
-      "score": 4.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-124671"
-    },
-    {
-      "id": "CVE-2026-123707",
-      "published": "2026-11-15T07:16:54.283",
-      "lastModified": "2026-11-17T15:40:20.177",
-      "description": "The WPGraphQL WordPress plugin before 2.27.1 does not restrict access to posts in custom non-public post statuses, allowing users with the Contributor role and above to read the content of other users' posts in those statuses.",
-      "score": 2.2,
-      "severity": "LOW",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-123707"
-    },
-    {
-      "id": "CVE-2026-116559",
-      "published": "2026-11-15T07:16:54.163",
-      "lastModified": "2026-11-17T15:40:20.177",
-      "description": "The A2Reviews WordPress plugin through 1.2.3 does not properly verify authorization on several of its API command handlers, relying on a signature keyed on a value that is empty by default on an unconnected install, allowing unauthenticated attackers to modify A2Reviews WordPress plugin through 1.2.3 settings and product review metadata and to read non-public product metadata.",
-      "score": 6.5,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-116559"
-    },
-    {
-      "id": "CVE-2026-114452",
-      "published": "2026-11-15T07:16:54.053",
-      "lastModified": "2026-11-17T15:40:20.177",
-      "description": "The Membership Plugin  WordPress plugin before 4.0.6 does not verify that the membership referenced in a saved-card payment request belongs to the user making it, allowing subscriber-level members to disclose another member's Stripe payment client secret and attach a payment method of their choosing to another member's pending payment.",
-      "score": 5.4,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-114452"
-    },
-    {
-      "id": "CVE-2026-114451",
-      "published": "2026-11-15T07:16:53.930",
-      "lastModified": "2026-11-17T15:40:20.177",
-      "description": "The Membership Plugin  WordPress plugin before 4.0.6 does not perform any authorization or CSRF check before running a schema-altering database maintenance routine, allowing unauthenticated users to convert the Membership Plugin  WordPress plugin before 4.0.6's own tables to a narrower character set, which irreversibly replaces every 4-byte character (such as emoji and some CJK characters) in the membership level, discount code and payment records with a question mark.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-114451"
-    },
-    {
-      "id": "CVE-2026-110989",
-      "published": "2026-11-15T07:16:53.827",
-      "lastModified": "2026-11-17T15:40:20.177",
-      "description": "The RegistrationMagic  WordPress plugin before 6.1.0.4 does not verify ownership of the submitted email address before updating the associated WordPress user account, allowing unauthenticated attackers to overwrite the profile fields of arbitrary non-administrator users by submitting a public form that contains name and primary-email fields.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110989"
-    },
-    {
-      "id": "CVE-2026-110987",
-      "published": "2026-11-15T07:16:53.717",
-      "lastModified": "2026-11-17T15:40:20.177",
-      "description": "The RegistrationMagic  WordPress plugin before 6.1.0.4 does not properly escape a user-supplied value before printing it inside an inline script block on several of its admin screens, allowing unauthenticated attackers to inject arbitrary JavaScript that executes in the session of an administrator who is tricked into opening a crafted link.",
-      "score": 7.1,
-      "severity": "HIGH",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110987"
-    },
-    {
-      "id": "CVE-2026-110984",
-      "published": "2026-11-15T07:16:53.600",
-      "lastModified": "2026-11-17T15:40:20.177",
-      "description": "The RegistrationMagic  WordPress plugin before 6.1.0.4 does not sanitise and escape a parameter before using it in a SQL statement, which could allow high privilege users such as admin to perform SQL injection attacks.",
-      "score": 4.1,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110984"
-    },
-    {
-      "id": "CVE-2026-110960",
-      "published": "2026-11-15T07:16:53.477",
-      "lastModified": "2026-11-17T15:40:20.177",
-      "description": "The Auth Armor  WordPress plugin through 1.0.3 does not require authentication on several handlers available to logged-out users, which leak the site's stored API credentials and allow an unauthenticated attacker to reset an administrator's enrollment and take over that administrator account.",
-      "score": 9.8,
-      "severity": "CRITICAL",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-110960"
-    },
-    {
-      "id": "CVE-2026-103361",
-      "published": "2026-11-15T07:16:49.253",
-      "lastModified": "2026-11-17T15:40:20.177",
-      "description": "The Payment Gateway via Valitor for WooCommerce WordPress plugin before 1.9.41 does not properly validate the authenticity of payment callbacks, relying on a verification secret that ships with a hard-coded default value used by every store that has not changed it, allowing unauthenticated attackers to forge a valid payment confirmation and mark arbitrary orders as paid.",
-      "score": 5.3,
-      "severity": "MEDIUM",
-      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-103361"
     }
   ]
 }
